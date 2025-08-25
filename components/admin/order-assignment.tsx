@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -49,68 +49,10 @@ interface Supplier {
 }
 
 export function OrderAssignment() {
-  const [requests, setRequests] = useState<TransportRequest[]>([
-    {
-      id: 1,
-      buyerId: "BUY001",
-      buyerName: "Priya Sharma",
-      buyerCompany: "ABC Industries",
-      loadType: "Rice",
-      fromLocation: "Bangalore, Karnataka",
-      toLocation: "Chennai, Tamil Nadu",
-      estimatedTons: 25.5,
-      requiredDate: "2024-02-15",
-      specialInstructions: "Handle with care - premium quality rice",
-      status: "pending",
-      submittedAt: "2024-02-10 14:30",
-    },
-    {
-      id: 2,
-      buyerId: "BUY002",
-      buyerName: "Amit Patel",
-      buyerCompany: "XYZ Logistics",
-      loadType: "Wheat",
-      fromLocation: "Mysore, Karnataka",
-      toLocation: "Hyderabad, Telangana",
-      estimatedTons: 30.0,
-      requiredDate: "2024-02-20",
-      status: "assigned",
-      submittedAt: "2024-02-09 11:20",
-      assignedSupplierId: "SUP001",
-      assignedSupplierName: "Kumar Transport Co.",
-      adminNotes: "Assigned to reliable supplier with good track record",
-    },
-  ])
-
-  const [suppliers] = useState<Supplier[]>([
-    {
-      id: "SUP001",
-      name: "Rajesh Kumar",
-      companyName: "Kumar Transport Co.",
-      availableVehicles: 3,
-      rating: 4.5,
-      location: "Bangalore",
-      isVerified: true,
-    },
-    {
-      id: "SUP002",
-      name: "Suresh Patel",
-      companyName: "Patel Logistics",
-      availableVehicles: 2,
-      rating: 4.8,
-      location: "Mysore",
-      isVerified: true,
-    },
-    {
-      id: "SUP003",
-      name: "Mohan Singh",
-      companyName: "Singh Transport Co.",
-      availableVehicles: 1,
-      rating: 4.2,
-      location: "Chennai",
-      isVerified: false,
-    },
-  ])
+  const [requests, setRequests] = useState<TransportRequest[]>([])
+  const [suppliers, setSuppliers] = useState<Supplier[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const [selectedRequest, setSelectedRequest] = useState<TransportRequest | null>(null)
   const [selectedSupplier, setSelectedSupplier] = useState("")
@@ -122,6 +64,54 @@ export function OrderAssignment() {
     dateTo: "",
     company: "",
   })
+
+  // Fetch transport requests
+  const fetchTransportRequests = async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      
+      const response = await fetch("/api/admin/transport-requests")
+      if (!response.ok) {
+        throw new Error("Failed to fetch transport requests")
+      }
+      
+      const data = await response.json()
+      setRequests(data.requests || [])
+    } catch (err) {
+      console.error("Error fetching transport requests:", err)
+      setError(err instanceof Error ? err.message : "Failed to load transport requests")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Fetch available suppliers
+  const fetchSuppliers = async () => {
+    try {
+      const response = await fetch("/api/admin/available-suppliers")
+      if (!response.ok) {
+        throw new Error("Failed to fetch suppliers")
+      }
+      
+      const data = await response.json()
+      setSuppliers(data.suppliers || [])
+    } catch (err) {
+      console.error("Error fetching suppliers:", err)
+      // Don't set error for suppliers as it's not critical
+    }
+  }
+
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchTransportRequests()
+    fetchSuppliers()
+  }, [])
+
+  // Refresh data when filters change
+  useEffect(() => {
+    fetchTransportRequests()
+  }, [filters])
 
   // Manual order entry state
   const [showManualEntry, setShowManualEntry] = useState(false)
@@ -136,18 +126,34 @@ export function OrderAssignment() {
     setIsProcessing(true)
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const response = await fetch("/api/admin/transport-requests", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "assign",
+          requestId,
+          supplierId,
+          notes,
+        }),
+      })
 
-      const supplier = suppliers.find((s) => s.id === supplierId)
+      if (!response.ok) {
+        throw new Error("Failed to assign order")
+      }
 
+      const data = await response.json()
+      
+      // Update local state
       setRequests((prev) =>
         prev.map((request) =>
           request.id === requestId
             ? {
                 ...request,
-                status: "assigned",
+                status: "confirmed",
                 assignedSupplierId: supplierId,
-                assignedSupplierName: supplier?.companyName,
+                assignedSupplierName: suppliers.find(s => s.id === supplierId)?.companyName,
                 adminNotes: notes,
               }
             : request,
@@ -157,8 +163,12 @@ export function OrderAssignment() {
       setSelectedRequest(null)
       setSelectedSupplier("")
       setAdminNotes("")
+      
+      // Refresh data to get latest status
+      fetchTransportRequests()
     } catch (error) {
       console.error("Assignment error:", error)
+      setError(error instanceof Error ? error.message : "Failed to assign order")
     } finally {
       setIsProcessing(false)
     }
@@ -168,8 +178,25 @@ export function OrderAssignment() {
     setIsProcessing(true)
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const response = await fetch("/api/admin/transport-requests", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "reject",
+          requestId,
+          notes,
+        }),
+      })
 
+      if (!response.ok) {
+        throw new Error("Failed to reject order")
+      }
+
+      const data = await response.json()
+      
+      // Update local state
       setRequests((prev) =>
         prev.map((request) =>
           request.id === requestId
@@ -184,8 +211,12 @@ export function OrderAssignment() {
 
       setSelectedRequest(null)
       setAdminNotes("")
+      
+      // Refresh data to get latest status
+      fetchTransportRequests()
     } catch (error) {
       console.error("Rejection error:", error)
+      setError(error instanceof Error ? error.message : "Failed to reject order")
     } finally {
       setIsProcessing(false)
     }
@@ -254,79 +285,105 @@ export function OrderAssignment() {
           <h2 className="text-2xl font-bold text-foreground">Order Assignment</h2>
           <p className="text-muted-foreground">Review buyer requests and assign to suppliers</p>
         </div>
-        <Dialog open={showManualEntry} onOpenChange={setShowManualEntry}>
-          <DialogTrigger asChild>
-            <Button>
-              <Package className="h-4 w-4 mr-2" />
-              Manual Order Entry
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Manual Order Entry</DialogTitle>
-              <DialogDescription>Create a manual order and assign directly to a supplier</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="manual-loadType">Load Type</Label>
-                <Input
-                  id="manual-loadType"
-                  value={manualOrder.loadType}
-                  onChange={(e) => setManualOrder((prev) => ({ ...prev, loadType: e.target.value }))}
-                  placeholder="Enter load type"
-                />
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={fetchTransportRequests} 
+            disabled={isLoading}
+          >
+            {isLoading ? "Refreshing..." : "Refresh"}
+          </Button>
+          <Dialog open={showManualEntry} onOpenChange={setShowManualEntry}>
+            <DialogTrigger asChild>
+              <Button>
+                <Package className="h-4 w-4 mr-2" />
+                Manual Order Entry
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Manual Order Entry</DialogTitle>
+                <DialogDescription>Create a manual order and assign directly to a supplier</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="manual-loadType">Load Type</Label>
+                  <Input
+                    id="manual-loadType"
+                    value={manualOrder.loadType}
+                    onChange={(e) => setManualOrder((prev) => ({ ...prev, loadType: e.target.value }))}
+                    placeholder="Enter load type"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="manual-tons">Estimated Tons</Label>
+                  <Input
+                    id="manual-tons"
+                    type="number"
+                    value={manualOrder.estimatedTons}
+                    onChange={(e) => setManualOrder((prev) => ({ ...prev, estimatedTons: e.target.value }))}
+                    placeholder="Enter weight in tons"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="manual-delivery">Delivery Place</Label>
+                  <Input
+                    id="manual-delivery"
+                    value={manualOrder.deliveryPlace}
+                    onChange={(e) => setManualOrder((prev) => ({ ...prev, deliveryPlace: e.target.value }))}
+                    placeholder="Enter delivery location"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="manual-supplier">Assign to Supplier</Label>
+                  <Select
+                    value={manualOrder.supplierId}
+                    onValueChange={(value) => setManualOrder((prev) => ({ ...prev, supplierId: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select supplier" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {suppliers
+                        .filter((s) => s.isVerified)
+                        .map((supplier) => (
+                          <SelectItem key={supplier.id} value={supplier.id}>
+                            {supplier.companyName} ({supplier.availableVehicles} vehicles)
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={handleManualOrder} disabled={isProcessing} className="flex-1">
+                    {isProcessing ? "Creating..." : "Create Order"}
+                  </Button>
+                  <Button variant="outline" onClick={() => setShowManualEntry(false)}>
+                    Cancel
+                  </Button>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="manual-tons">Estimated Tons</Label>
-                <Input
-                  id="manual-tons"
-                  type="number"
-                  value={manualOrder.estimatedTons}
-                  onChange={(e) => setManualOrder((prev) => ({ ...prev, estimatedTons: e.target.value }))}
-                  placeholder="Enter weight in tons"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="manual-delivery">Delivery Place</Label>
-                <Input
-                  id="manual-delivery"
-                  value={manualOrder.deliveryPlace}
-                  onChange={(e) => setManualOrder((prev) => ({ ...prev, deliveryPlace: e.target.value }))}
-                  placeholder="Enter delivery location"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="manual-supplier">Assign to Supplier</Label>
-                <Select
-                  value={manualOrder.supplierId}
-                  onValueChange={(value) => setManualOrder((prev) => ({ ...prev, supplierId: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select supplier" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {suppliers
-                      .filter((s) => s.isVerified)
-                      .map((supplier) => (
-                        <SelectItem key={supplier.id} value={supplier.id}>
-                          {supplier.companyName} ({supplier.availableVehicles} vehicles)
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex gap-2">
-                <Button onClick={handleManualOrder} disabled={isProcessing} className="flex-1">
-                  {isProcessing ? "Creating..." : "Create Order"}
-                </Button>
-                <Button variant="outline" onClick={() => setShowManualEntry(false)}>
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
+
+      {/* Error Display */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-800 text-sm">
+            Error: {error}
+            <Button 
+              variant="link" 
+              size="sm" 
+              className="ml-2 p-0 h-auto text-red-800 underline"
+              onClick={fetchTransportRequests}
+            >
+              Retry
+            </Button>
+          </p>
+        </div>
+      )}
 
       {/* Filters */}
       <Card>
@@ -432,10 +489,21 @@ export function OrderAssignment() {
       <Card>
         <CardHeader>
           <CardTitle>Transport Requests</CardTitle>
-          <CardDescription>{filteredRequests.length} requests found</CardDescription>
+          <CardDescription>
+            {isLoading ? "Loading..." : `${filteredRequests.length} requests found`}
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-muted-foreground">Loading transport requests...</div>
+            </div>
+          ) : filteredRequests.length === 0 ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-muted-foreground">No transport requests found</div>
+            </div>
+          ) : (
+            <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Buyer</TableHead>
@@ -618,6 +686,7 @@ export function OrderAssignment() {
               ))}
             </TableBody>
           </Table>
+          )}
         </CardContent>
       </Card>
     </div>

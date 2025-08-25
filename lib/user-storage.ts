@@ -234,7 +234,9 @@ export async function findUserByCredentialsAsync(userId: string, role: string): 
         }
       }
       
-      return undefined
+      // If no user found in database, fall back to file storage
+      console.log("No user found in database, falling back to file storage")
+      return findUserByCredentials(userId, role)
     } catch (error) {
       console.error("Database query error:", error)
       // Fallback to file-based search
