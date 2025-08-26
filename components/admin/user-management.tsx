@@ -16,13 +16,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Eye, Filter, Download, UserCheck, UserX } from "lucide-react"
+import { Eye, Filter, Download, UserCheck, UserX, MessageCircle } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import { config } from "@/lib/config"
 
 interface User {
   id: number
   userId: string
   name?: string
   email?: string
+  mobile?: string
   role: "supplier" | "buyer" | "admin"
   companyName?: string
   isActive?: boolean
@@ -37,6 +41,15 @@ export function UserManagement() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(false)
   const [loadError, setLoadError] = useState("")
+  const [whatsappDialog, setWhatsappDialog] = useState<{ open: boolean; user: User | null }>({
+    open: false,
+    user: null,
+  })
+  const [messageData, setMessageData] = useState({
+    vehicleCount: "",
+    district: "",
+    customMessage: "",
+  })
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -112,6 +125,57 @@ export function UserManagement() {
 
   const handleExport = () => {
     console.log("Exporting user data...")
+  }
+
+  const openWhatsappDialog = (user: User) => {
+    setWhatsappDialog({ open: true, user })
+    setMessageData({
+      vehicleCount: "",
+      district: "",
+      customMessage: "",
+    })
+  }
+
+  const closeWhatsappDialog = () => {
+    setWhatsappDialog({ open: false, user: null })
+    setMessageData({
+      vehicleCount: "",
+      district: "",
+      customMessage: "",
+    })
+  }
+
+  const generateWhatsappMessage = () => {
+    const { user } = whatsappDialog
+    if (!user) return ""
+
+    const baseMessage = config.whatsapp.defaultTemplate
+      .replace("{name}", user.name || user.userId)
+      .replace("{vehicleCount}", messageData.vehicleCount || "[NUMBER]")
+      .replace("{district}", messageData.district || "[DISTRICT]")
+      .replace("{customMessage}", messageData.customMessage)
+      .replace("{websiteUrl}", config.websiteUrl)
+
+    return baseMessage
+  }
+
+  const sendWhatsappMessage = () => {
+    const { user } = whatsappDialog
+    if (!user?.mobile) {
+      alert("No mobile number available for this user")
+      return
+    }
+
+    const message = generateWhatsappMessage()
+    const encodedMessage = encodeURIComponent(message)
+    const phoneNumber = user.mobile.replace(/[^0-9]/g, "")
+    
+    // Remove leading country code if present (assuming Indian numbers)
+    const cleanPhoneNumber = phoneNumber.startsWith("91") ? phoneNumber.substring(2) : phoneNumber
+    
+    const whatsappUrl = `https://wa.me/91${cleanPhoneNumber}?text=${encodedMessage}`
+    window.open(whatsappUrl, "_blank")
+    closeWhatsappDialog()
   }
 
   const getRoleBadge = (role: string) => {
@@ -280,6 +344,10 @@ export function UserManagement() {
                               <p className="text-sm text-muted-foreground">{user.email}</p>
                             </div>
                             <div>
+                              <label className="text-sm font-medium">Mobile</label>
+                              <p className="text-sm text-muted-foreground">{user.mobile || "Not provided"}</p>
+                            </div>
+                            <div>
                               <label className="text-sm font-medium">Role</label>
                               <p className="text-sm text-muted-foreground">{user.role}</p>
                             </div>
@@ -300,15 +368,35 @@ export function UserManagement() {
                               <p className="text-sm text-muted-foreground">{user.lastLogin}</p>
                             </div>
                           </div>
-                          <div className="flex gap-2">
-                            <div className="flex items-center space-x-2">
-                              <Switch checked={user.isActive} onCheckedChange={() => toggleUserStatus(user.id)} />
-                              <label className="text-sm">Active</label>
+                          <div className="flex gap-2 items-center justify-between">
+                            <div className="flex gap-4">
+                              <div className="flex items-center space-x-2">
+                                <Switch checked={user.isActive} onCheckedChange={() => toggleUserStatus(user.id)} />
+                                <label className="text-sm">Active</label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Switch checked={user.isVerified} onCheckedChange={() => toggleVerification(user.id)} />
+                                <label className="text-sm">Verified</label>
+                              </div>
                             </div>
-                            <div className="flex items-center space-x-2">
-                              <Switch checked={user.isVerified} onCheckedChange={() => toggleVerification(user.id)} />
-                              <label className="text-sm">Verified</label>
-                            </div>
+                            {user.mobile && (
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => {
+                                  openWhatsappDialog(user)
+                                  // Close the details dialog
+                                  const dialogTrigger = document.querySelector('[data-state="open"]')
+                                  if (dialogTrigger) {
+                                    (dialogTrigger as HTMLElement).click()
+                                  }
+                                }}
+                                className="text-green-600 hover:text-green-700"
+                              >
+                                <MessageCircle className="h-4 w-4 mr-2" />
+                                WhatsApp
+                              </Button>
+                            )}
                           </div>
                         </DialogContent>
                       </Dialog>
@@ -320,6 +408,17 @@ export function UserManagement() {
                       <Button variant="outline" size="sm" onClick={() => toggleUserStatus(user.id)}>
                         {user.isActive ? "Disable" : "Enable"}
                       </Button>
+
+                      {user.mobile && (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => openWhatsappDialog(user)}
+                          className="text-green-600 hover:text-green-700"
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -372,6 +471,73 @@ export function UserManagement() {
           </CardContent>
         </Card>
       </div>
+
+      {/* WhatsApp Message Dialog */}
+      <Dialog open={whatsappDialog.open} onOpenChange={(open) => !open && closeWhatsappDialog()}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Send WhatsApp Message</DialogTitle>
+            <DialogDescription>
+              Send a message to {whatsappDialog.user?.name || whatsappDialog.user?.userId} via WhatsApp
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="vehicleCount">Number of Vehicles Needed</Label>
+                <Input
+                  id="vehicleCount"
+                  placeholder="e.g., 5"
+                  value={messageData.vehicleCount}
+                  onChange={(e) => setMessageData(prev => ({ ...prev, vehicleCount: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="district">District</Label>
+                <Input
+                  id="district"
+                  placeholder="e.g., Mumbai"
+                  value={messageData.district}
+                  onChange={(e) => setMessageData(prev => ({ ...prev, district: e.target.value }))}
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="customMessage">Additional Message (Optional)</Label>
+              <Textarea
+                id="customMessage"
+                placeholder="Add any additional details or instructions..."
+                value={messageData.customMessage}
+                onChange={(e) => setMessageData(prev => ({ ...prev, customMessage: e.target.value }))}
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Message Preview</Label>
+              <div className="p-3 bg-gray-50 rounded-md text-sm whitespace-pre-wrap">
+                {generateWhatsappMessage()}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={closeWhatsappDialog}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={sendWhatsappMessage}
+              className="bg-green-600 hover:bg-green-700"
+              disabled={!whatsappDialog.user?.mobile}
+            >
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Send WhatsApp Message
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
