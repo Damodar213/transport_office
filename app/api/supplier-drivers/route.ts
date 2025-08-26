@@ -9,7 +9,6 @@ export interface Driver {
   license_number: string
   license_document_url?: string
   aadhaar_number?: string
-  experience_years?: number
   is_active: boolean
   created_at: string
   updated_at: string
@@ -46,7 +45,6 @@ export async function GET(request: NextRequest) {
         d.license_number,
         d.license_document_url,
         d.aadhaar_number,
-        d.experience_years,
         d.is_active,
         d.created_at,
         d.updated_at
@@ -86,8 +84,8 @@ export async function POST(request: NextRequest) {
     const sql = `
       INSERT INTO drivers (
         supplier_id, driver_name, mobile, license_number, 
-        license_document_url, aadhaar_number, experience_years
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+        license_document_url, aadhaar_number
+      ) VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *
     `
 
@@ -97,8 +95,7 @@ export async function POST(request: NextRequest) {
       body.mobile,
       body.licenseNumber,
       body.licenseDocumentUrl || null,
-      body.aadhaarNumber || null,
-      body.experienceYears || null
+      body.aadhaarNumber || null
     ]
 
     console.log("SQL params:", params)
@@ -133,9 +130,8 @@ export async function PUT(request: NextRequest) {
         license_number = $3,
         license_document_url = $4,
         aadhaar_number = $5,
-        experience_years = $6,
-        updated_at = $7
-      WHERE id = $8
+        updated_at = $6
+      WHERE id = $7
       RETURNING *
     `
 
@@ -145,7 +141,6 @@ export async function PUT(request: NextRequest) {
       updateData.licenseNumber,
       updateData.licenseDocumentUrl || null,
       updateData.aadhaarNumber || null,
-      updateData.experienceYears || null,
       new Date().toISOString(),
       id
     ]

@@ -7,11 +7,8 @@ export interface Truck {
   vehicle_number: string
   body_type: string
   capacity_tons?: number
-  fuel_type?: string
-  registration_number?: string
-  insurance_expiry?: string
-  fitness_expiry?: string
-  permit_expiry?: string
+  number_of_vehicles?: number
+  document_url?: string
   is_active: boolean
   created_at: string
   updated_at: string
@@ -46,11 +43,8 @@ export async function GET(request: NextRequest) {
         t.vehicle_number,
         t.body_type,
         t.capacity_tons,
-        t.fuel_type,
-        t.registration_number,
-        t.insurance_expiry,
-        t.fitness_expiry,
-        t.permit_expiry,
+        t.number_of_vehicles,
+        t.document_url,
         t.is_active,
         t.created_at,
         t.updated_at
@@ -72,6 +66,18 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
+    console.log("Creating truck with data:", body)
+
+    // Validate required fields
+    if (!body.supplierId) {
+      return NextResponse.json({ error: "Supplier ID is required" }, { status: 400 })
+    }
+    if (!body.vehicleNumber) {
+      return NextResponse.json({ error: "Vehicle number is required" }, { status: 400 })
+    }
+    if (!body.bodyType) {
+      return NextResponse.json({ error: "Body type is required" }, { status: 400 })
+    }
 
     // Get supplier user_id from suppliers table
     const supplierResult = await dbQuery(
@@ -80,17 +86,28 @@ export async function POST(request: NextRequest) {
     )
 
     if (supplierResult.rows.length === 0) {
+      console.error("Supplier not found:", body.supplierId)
       return NextResponse.json({ error: "Supplier not found" }, { status: 404 })
     }
 
     const supplierId = supplierResult.rows[0].user_id
+    console.log("Found supplier ID:", supplierId)
+
+    // Check if vehicle number already exists
+    const existingVehicle = await dbQuery(
+      "SELECT id FROM trucks WHERE vehicle_number = $1",
+      [body.vehicleNumber]
+    )
+
+    if (existingVehicle.rows.length > 0) {
+      console.error("Vehicle number already exists:", body.vehicleNumber)
+      return NextResponse.json({ error: "Vehicle number already exists" }, { status: 409 })
+    }
 
     const sql = `
       INSERT INTO trucks (
-        supplier_id, vehicle_number, body_type, capacity_tons,
-        fuel_type, registration_number, insurance_expiry, 
-        fitness_expiry, permit_expiry
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        supplier_id, vehicle_number, body_type, capacity_tons, number_of_vehicles, document_url
+      ) VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *
     `
 
@@ -99,14 +116,19 @@ export async function POST(request: NextRequest) {
       body.vehicleNumber,
       body.bodyType,
       body.capacityTons || null,
-      body.fuelType || null,
-      body.registrationNumber || null,
-      body.insuranceExpiry || null,
-      body.fitnessExpiry || null,
-      body.permitExpiry || null
+      body.numberOfVehicles || null,
+      body.documentUrl || null
     ]
 
+    console.log("Executing SQL with params:", params)
     const result = await dbQuery(sql, params)
+    
+    if (!result.rows || result.rows.length === 0) {
+      console.error("No rows returned from insert")
+      return NextResponse.json({ error: "Failed to create truck - no data returned" }, { status: 500 })
+    }
+
+    console.log("Truck created successfully:", result.rows[0])
     return NextResponse.json({ 
       message: "Truck created successfully", 
       truck: result.rows[0] 
@@ -114,7 +136,14 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error("Create truck error:", error)
-    return NextResponse.json({ error: "Failed to create truck" }, { status: 500 })
+    console.error("Error details:", {
+      message: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined
+    })
+    return NextResponse.json({ 
+      error: "Failed to create truck", 
+      details: error instanceof Error ? error.message : "Unknown error" 
+    }, { status: 500 })
   }
 }
 
@@ -130,13 +159,10 @@ export async function PUT(request: NextRequest) {
         vehicle_number = $1,
         body_type = $2,
         capacity_tons = $3,
-        fuel_type = $4,
-        registration_number = $5,
-        insurance_expiry = $6,
-        fitness_expiry = $7,
-        permit_expiry = $8,
-        updated_at = $9
-      WHERE id = $10
+        number_of_vehicles = $4,
+        document_url = $5,
+        updated_at = $6
+      WHERE id = $7
       RETURNING *
     `
 
@@ -144,11 +170,8 @@ export async function PUT(request: NextRequest) {
       updateData.vehicleNumber,
       updateData.bodyType,
       updateData.capacityTons || null,
-      updateData.fuelType || null,
-      updateData.registrationNumber || null,
-      updateData.insuranceExpiry || null,
-      updateData.fitnessExpiry || null,
-      updateData.permitExpiry || null,
+      updateData.numberOfVehicles || null,
+      updateData.documentUrl || null,
       new Date().toISOString(),
       id
     ]

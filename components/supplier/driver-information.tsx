@@ -25,7 +25,6 @@ interface Driver {
   license_number: string
   license_document_url?: string
   aadhaar_number?: string
-  experience_years?: number
   is_active: boolean
   created_at: string
   updated_at: string
@@ -90,15 +89,6 @@ export function DriverInformation({ onDataChange }: DriverInformationProps) {
 
       // Handle optional fields properly
       const aadhaarNumber = formData.get("aadhaarNumber") as string
-      const experienceYearsStr = formData.get("experienceYears") as string
-      
-      let experienceYears: number | undefined
-      if (experienceYearsStr && experienceYearsStr.trim() !== "") {
-        const parsed = parseInt(experienceYearsStr)
-        if (!isNaN(parsed) && parsed >= 0) {
-          experienceYears = parsed
-        }
-      }
 
       const driverData = {
         supplierId: "111111", // Use the actual supplier ID from your existing data
@@ -106,7 +96,6 @@ export function DriverInformation({ onDataChange }: DriverInformationProps) {
         mobile: mobile.trim(),
         licenseNumber: licenseNumber.trim(),
         aadhaarNumber: aadhaarNumber ? aadhaarNumber.trim() : undefined,
-        experienceYears: experienceYears,
       }
 
       console.log("Driver data being sent:", driverData)
@@ -295,18 +284,6 @@ export function DriverInformation({ onDataChange }: DriverInformationProps) {
                   type="text"
                   defaultValue={editingDriver?.aadhaar_number || ""}
                   placeholder="Enter Aadhaar number"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="experienceYears">Experience (Years)</Label>
-                <Input
-                  id="experienceYears"
-                  name="experienceYears"
-                  type="number"
-                  min="0"
-                  max="50"
-                  defaultValue={editingDriver?.experience_years || ""}
-                  placeholder="Enter years of experience"
                 />
               </div>
               <div className="space-y-2">

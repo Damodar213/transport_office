@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { dbQuery } from "@/lib/db"
 
-export interface SupplierTransportOrder {
+export interface SupplierVehicleLocation {
   id: number
   supplier_id: number
   supplier_name: string
@@ -12,6 +12,8 @@ export interface SupplierTransportOrder {
   taluk?: string
   vehicle_number: string
   body_type: string
+  driver_id?: number
+  driver_name?: string
   status: "pending" | "confirmed" | "rejected"
   created_at: string
   submitted_at: string
@@ -34,43 +36,49 @@ export async function GET(request: NextRequest) {
       // Fetch orders for a specific supplier
       sql = `
         SELECT 
-          id,
-          supplier_id,
-          state,
-          district,
-          place,
-          taluk,
-          vehicle_number,
-          body_type,
-          status,
-          created_at,
-          submitted_at,
-          admin_notes,
-          admin_action_date
-        FROM transport_orders 
-        WHERE supplier_id = $1
-        ORDER BY created_at DESC
+          t.id,
+          t.supplier_id,
+          t.state,
+          t.district,
+          t.place,
+          t.taluk,
+          t.vehicle_number,
+          t.body_type,
+          t.driver_id,
+          d.driver_name,
+          t.status,
+          t.created_at,
+          t.submitted_at,
+          t.admin_notes,
+          t.admin_action_date
+        FROM suppliers_vehicle_location t
+        LEFT JOIN drivers d ON t.driver_id = d.id
+        WHERE t.supplier_id = $1
+        ORDER BY t.created_at DESC
       `
       params = [supplierId]
     } else {
       // Fetch all orders for admin view
       sql = `
         SELECT 
-          id,
-          supplier_id,
-          state,
-          district,
-          place,
-          taluk,
-          vehicle_number,
-          body_type,
-          status,
-          created_at,
-          submitted_at,
-          admin_notes,
-          admin_action_date
-        FROM transport_orders 
-        ORDER BY created_at DESC
+          t.id,
+          t.supplier_id,
+          t.state,
+          t.district,
+          t.place,
+          t.taluk,
+          t.vehicle_number,
+          t.body_type,
+          t.driver_id,
+          d.driver_name,
+          t.status,
+          t.created_at,
+          t.submitted_at,
+          t.admin_notes,
+          t.admin_action_date
+        FROM suppliers_vehicle_location t
+        LEFT JOIN drivers d ON t.driver_id = d.id
+        ORDER BY t.created_at DESC
       `
       params = []
     }
@@ -143,10 +151,10 @@ export async function POST(request: NextRequest) {
     const supplierId = supplierResult.rows[0].user_id
 
     const sql = `
-      INSERT INTO transport_orders (
+      INSERT INTO suppliers_vehicle_location (
         supplier_id, state, district, place, taluk, 
-        vehicle_number, body_type, status, created_at, submitted_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        vehicle_number, body_type, driver_id, status, created_at, submitted_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       RETURNING *
     `
 
@@ -158,6 +166,7 @@ export async function POST(request: NextRequest) {
       body.taluk || null,
       body.vehicleNumber,
       body.bodyType,
+      body.driverId || null,
       "pending",
       new Date().toISOString(),
       new Date().toISOString()
@@ -196,7 +205,7 @@ export async function PUT(request: NextRequest) {
     const { id, ...updateData } = body
 
     const sql = `
-      UPDATE transport_orders 
+      UPDATE suppliers_vehicle_location 
       SET 
         status = $1,
         admin_notes = $2,
@@ -227,7 +236,7 @@ export async function PUT(request: NextRequest) {
       try {
         const confirmedOrderSql = `
           INSERT INTO confirmed_orders (
-            transport_order_id, supplier_id, status, notes, created_at, updated_at
+            vehicle_location_id, supplier_id, status, notes, created_at, updated_at
           ) VALUES ($1, $2, $3, $4, $5, $6)
           RETURNING *
         `
@@ -242,7 +251,7 @@ export async function PUT(request: NextRequest) {
         ]
 
         await dbQuery(confirmedOrderSql, confirmedOrderParams)
-        console.log("Created confirmed order record for transport order:", updatedOrder.id)
+        console.log("Created confirmed order record for vehicle location:", updatedOrder.id)
       } catch (error) {
         console.error("Error creating confirmed order record:", error)
         // Don't fail the main update if confirmed order creation fails

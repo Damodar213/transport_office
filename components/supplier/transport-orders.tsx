@@ -19,7 +19,7 @@ import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Plus, Edit, Trash2, Calendar } from "lucide-react"
 
-interface TransportOrder {
+interface SupplierVehicleLocation {
   id: number
   supplier_id: number
   supplier_name: string
@@ -30,6 +30,8 @@ interface TransportOrder {
   taluk?: string
   vehicle_number: string
   body_type: string
+  driver_id?: number
+  driver_name?: string
   status: "pending" | "confirmed" | "rejected"
   created_at: string
   submitted_at: string
@@ -37,14 +39,22 @@ interface TransportOrder {
   admin_action_date?: string
 }
 
-interface TransportOrdersProps {
+interface Driver {
+  id: number
+  driver_name: string
+  mobile: string
+  license_number: string
+}
+
+interface SupplierVehicleLocationProps {
   onDataChange?: () => void
 }
 
-export function TransportOrders({ onDataChange }: TransportOrdersProps) {
-  const [orders, setOrders] = useState<TransportOrder[]>([])
+export function SupplierVehicleLocation({ onDataChange }: SupplierVehicleLocationProps) {
+  const [orders, setOrders] = useState<SupplierVehicleLocation[]>([])
+  const [drivers, setDrivers] = useState<Driver[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [editingOrder, setEditingOrder] = useState<TransportOrder | null>(null)
+  const [editingOrder, setEditingOrder] = useState<SupplierVehicleLocation | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [isFetching, setIsFetching] = useState(true)
@@ -61,17 +71,31 @@ export function TransportOrders({ onDataChange }: TransportOrdersProps) {
         const data = await response.json()
         setOrders(data.orders)
       } else {
-        setError("Failed to fetch orders")
+        setError("Failed to fetch vehicle locations")
       }
     } catch (err) {
-      setError("Failed to fetch orders")
+      setError("Failed to fetch vehicle locations")
     } finally {
       setIsFetching(false)
     }
   }
 
+  // Fetch drivers from API
+  const fetchDrivers = async () => {
+    try {
+      const response = await fetch("/api/supplier-drivers?supplierId=111111")
+      if (response.ok) {
+        const data = await response.json()
+        setDrivers(data.drivers)
+      }
+    } catch (err) {
+      console.error("Failed to fetch drivers:", err)
+    }
+  }
+
   useEffect(() => {
     fetchOrders()
+    fetchDrivers()
   }, [])
 
   const handleSubmit = async (formData: FormData) => {
@@ -87,6 +111,7 @@ export function TransportOrders({ onDataChange }: TransportOrdersProps) {
         taluk: formData.get("taluk") as string,
         vehicleNumber: formData.get("vehicleNumber") as string,
         bodyType: formData.get("bodyType") as string,
+        driverId: formData.get("driverId") ? parseInt(formData.get("driverId") as string) : undefined,
       }
 
       const response = await fetch("/api/supplier-orders", {
@@ -104,22 +129,22 @@ export function TransportOrders({ onDataChange }: TransportOrdersProps) {
         setIsDialogOpen(false)
         setEditingOrder(null)
       } else {
-        setError("Failed to create order")
+        setError("Failed to create vehicle location")
       }
     } catch (err) {
-      setError("Failed to save transport order")
+      setError("Failed to save vehicle location")
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleEdit = (order: TransportOrder) => {
+  const handleEdit = (order: SupplierVehicleLocation) => {
     setEditingOrder(order)
     setIsDialogOpen(true)
   }
 
   const handleDelete = async (orderId: number) => {
-    if (confirm("Are you sure you want to delete this order?")) {
+    if (confirm("Are you sure you want to delete this vehicle location?")) {
       setOrders((prev) => prev.filter((order) => order.id !== orderId))
       onDataChange?.() // Refresh dashboard stats
     }
@@ -150,13 +175,13 @@ export function TransportOrders({ onDataChange }: TransportOrdersProps) {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-foreground">Manage Transport Orders</h2>
-            <p className="text-muted-foreground">Create and manage your transport requests</p>
+            <h2 className="text-2xl font-bold text-foreground">Manage Suppliers Vehicle Location</h2>
+            <p className="text-muted-foreground">Create and manage your vehicle location requests</p>
           </div>
         </div>
         <Card>
           <CardContent className="p-6">
-            <div className="text-center text-muted-foreground">Loading orders...</div>
+            <div className="text-center text-muted-foreground">Loading vehicle locations...</div>
           </CardContent>
         </Card>
       </div>
@@ -167,8 +192,8 @@ export function TransportOrders({ onDataChange }: TransportOrdersProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Manage Transport Orders</h2>
-          <p className="text-muted-foreground">Create and manage your transport requests</p>
+                      <h2 className="text-2xl font-bold text-foreground">Manage Suppliers Vehicle Location</h2>
+            <p className="text-muted-foreground">Create and manage your vehicle location requests</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -179,8 +204,8 @@ export function TransportOrders({ onDataChange }: TransportOrdersProps) {
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>{editingOrder ? "Edit Transport Order" : "Create New Transport Order"}</DialogTitle>
-              <DialogDescription>Enter the transport details. Orders will be automatically submitted to admin for review.</DialogDescription>
+              <DialogTitle>{editingOrder ? "Edit Vehicle Location" : "Create New Vehicle Location"}</DialogTitle>
+              <DialogDescription>Enter the vehicle location details. Requests will be automatically submitted to admin for review.</DialogDescription>
             </DialogHeader>
             <form action={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -265,6 +290,31 @@ export function TransportOrders({ onDataChange }: TransportOrdersProps) {
                 </div>
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="driverId">Select Driver</Label>
+                <Select name="driverId" defaultValue={editingOrder?.driver_id?.toString() || ""}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a driver (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {drivers.length === 0 ? (
+                      <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                        No drivers available
+                      </div>
+                    ) : (
+                      drivers.map((driver) => (
+                        <SelectItem key={driver.id} value={driver.id.toString()}>
+                          {driver.driver_name} - {driver.license_number}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Choose a driver from your registered drivers list
+                </p>
+              </div>
+
               {error && (
                 <Alert variant="destructive">
                   <AlertDescription>{error}</AlertDescription>
@@ -272,9 +322,9 @@ export function TransportOrders({ onDataChange }: TransportOrdersProps) {
               )}
 
               <div className="flex gap-2">
-                <Button type="submit" disabled={isLoading} className="flex-1">
-                  {isLoading ? "Saving..." : editingOrder ? "Update Order" : "Create Order"}
-                </Button>
+                                 <Button type="submit" disabled={isLoading} className="flex-1">
+                   {isLoading ? "Saving..." : editingOrder ? "Update Location" : "Create Location"}
+                 </Button>
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancel
                 </Button>
@@ -286,13 +336,13 @@ export function TransportOrders({ onDataChange }: TransportOrdersProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Your Transport Orders</CardTitle>
-          <CardDescription>Manage your transport requests and track their status</CardDescription>
+          <CardTitle>Your Vehicle Locations</CardTitle>
+          <CardDescription>Manage your vehicle location requests and track their status</CardDescription>
         </CardHeader>
         <CardContent>
           {orders.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              No transport orders found. Create your first order to get started.
+              No vehicle locations found. Create your first location request to get started.
             </div>
           ) : (
             <Table>

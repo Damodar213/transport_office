@@ -25,11 +25,8 @@ interface Vehicle {
   vehicle_number: string
   body_type: string
   capacity_tons?: number
-  fuel_type?: string
-  registration_number?: string
-  insurance_expiry?: string
-  fitness_expiry?: string
-  permit_expiry?: string
+  number_of_vehicles?: number
+  document_url?: string
   is_active: boolean
   created_at: string
   updated_at: string
@@ -46,9 +43,9 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
   const [error, setError] = useState("")
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
   const bodyTypes = ["Half Body", "Full Body", "Container", "Open Body", "Closed Body", "Tanker", "Trailer"]
-  const fuelTypes = ["Diesel", "Petrol", "CNG", "Electric", "Hybrid"]
 
   // Fetch trucks from database
   const fetchTrucks = async () => {
@@ -77,17 +74,39 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
     setError("")
 
     try {
+      let documentUrl = ""
+      
+      // Handle file upload if a file is selected
+      if (selectedFile) {
+        const uploadFormData = new FormData()
+        uploadFormData.append('file', selectedFile)
+        uploadFormData.append('category', 'vehicle-documents')
+        
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: uploadFormData,
+        })
+        
+        if (uploadResponse.ok) {
+          const uploadResult = await uploadResponse.json()
+          documentUrl = uploadResult.url
+        } else {
+          setError("Failed to upload document")
+          setIsLoading(false)
+          return
+        }
+      }
+
       const vehicleData = {
         supplierId: "111111", // Use the actual supplier ID from your existing data
         vehicleNumber: formData.get("vehicleNumber") as string,
         bodyType: formData.get("bodyType") as string,
         capacityTons: parseFloat(formData.get("capacityTons") as string) || undefined,
-        fuelType: formData.get("fuelType") as string,
-        registrationNumber: formData.get("registrationNumber") as string,
-        insuranceExpiry: formData.get("insuranceExpiry") as string,
-        fitnessExpiry: formData.get("fitnessExpiry") as string,
-        permitExpiry: formData.get("permitExpiry") as string,
+        numberOfVehicles: parseInt(formData.get("numberOfVehicles") as string) || undefined,
+        documentUrl: documentUrl,
       }
+
+      console.log("Sending vehicle data:", vehicleData)
 
       if (editingVehicle) {
         // Update existing truck
@@ -108,7 +127,8 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
           setIsDialogOpen(false)
           setEditingVehicle(null)
         } else {
-          setError("Failed to update truck")
+          const errorData = await response.json()
+          setError(errorData.error || "Failed to update truck")
         }
       } else {
         // Add new truck
@@ -125,7 +145,8 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
           onDataChange?.() // Refresh dashboard stats
           setIsDialogOpen(false)
         } else {
-          setError("Failed to create truck")
+          const errorData = await response.json()
+          setError(errorData.error || "Failed to create truck")
         }
       }
     } catch (err) {
@@ -137,6 +158,7 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
 
   const handleEdit = (vehicle: Vehicle) => {
     setEditingVehicle(vehicle)
+    setSelectedFile(null)
     setIsDialogOpen(true)
   }
 
@@ -165,6 +187,13 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
     )
   }
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      setSelectedFile(file)
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -174,7 +203,10 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => setEditingVehicle(null)}>
+            <Button onClick={() => {
+              setEditingVehicle(null)
+              setSelectedFile(null)
+            }}>
               <Plus className="h-4 w-4 mr-2" />
               Add Vehicle
             </Button>
@@ -227,60 +259,37 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="fuelType">Fuel Type</Label>
-                <Select name="fuelType" defaultValue={editingVehicle?.fuel_type || ""}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select fuel type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {fuelTypes.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="registrationNumber">Registration Number</Label>
+                <Label htmlFor="numberOfVehicles">Number of Vehicles</Label>
                 <Input
-                  id="registrationNumber"
-                  name="registrationNumber"
-                  type="text"
-                  defaultValue={editingVehicle?.registration_number || ""}
-                  placeholder="Enter registration number"
+                  id="numberOfVehicles"
+                  name="numberOfVehicles"
+                  type="number"
+                  min="1"
+                  defaultValue={editingVehicle?.number_of_vehicles || ""}
+                  placeholder="Enter number of vehicles"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="insuranceExpiry">Insurance Expiry</Label>
+                <Label htmlFor="document">Vehicle Document</Label>
+                <div className="flex items-center gap-2">
                 <Input
-                  id="insuranceExpiry"
-                  name="insuranceExpiry"
-                  type="date"
-                  defaultValue={editingVehicle?.insurance_expiry || ""}
-                />
+                    id="document"
+                    name="document"
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={handleFileChange}
+                    className="flex-1 file:bg-[#2196F3] file:text-white file:border-0 file:rounded-md file:px-4 file:py-2 file:mr-4 file:cursor-pointer hover:file:bg-[#1976D2]"
+                  />
+                  {selectedFile && (
+                    <span className="text-sm text-muted-foreground">
+                      {selectedFile.name}
+                    </span>
+                  )}
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="fitnessExpiry">Fitness Expiry</Label>
-                <Input
-                  id="fitnessExpiry"
-                  name="fitnessExpiry"
-                  type="date"
-                  defaultValue={editingVehicle?.fitness_expiry || ""}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="permitExpiry">Permit Expiry</Label>
-                <Input
-                  id="permitExpiry"
-                  name="permitExpiry"
-                  type="date"
-                  defaultValue={editingVehicle?.permit_expiry || ""}
-                />
+                <p className="text-xs text-muted-foreground">
+                  Upload vehicle registration, insurance, or other relevant documents (Image or PDF)
+                </p>
               </div>
 
               {error && (
@@ -314,11 +323,8 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
                 <TableHead>Vehicle Number</TableHead>
                 <TableHead>Body Type</TableHead>
                 <TableHead>Capacity (Tons)</TableHead>
-                <TableHead>Fuel Type</TableHead>
-                <TableHead>Registration</TableHead>
-                <TableHead>Insurance</TableHead>
-                <TableHead>Fitness</TableHead>
-                <TableHead>Permit</TableHead>
+                <TableHead>Number of Vehicles</TableHead>
+                <TableHead>Document</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Added Date</TableHead>
                 <TableHead>Actions</TableHead>
@@ -327,13 +333,13 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
             <TableBody>
               {isFetching ? (
                 <TableRow>
-                  <TableCell colSpan={11} className="text-center py-8">
+                  <TableCell colSpan={8} className="text-center py-8">
                     <p>Loading trucks...</p>
                   </TableCell>
                 </TableRow>
               ) : vehicles.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={11} className="text-center py-8">
+                  <TableCell colSpan={8} className="text-center py-8">
                     <p>No trucks found. Add a new one!</p>
                   </TableCell>
                 </TableRow>
@@ -343,11 +349,21 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
                     <TableCell className="font-medium">{vehicle.vehicle_number}</TableCell>
                     <TableCell>{vehicle.body_type}</TableCell>
                     <TableCell>{vehicle.capacity_tons || "N/A"}</TableCell>
-                    <TableCell>{vehicle.fuel_type || "N/A"}</TableCell>
-                    <TableCell>{vehicle.registration_number || "N/A"}</TableCell>
-                    <TableCell>{vehicle.insurance_expiry || "N/A"}</TableCell>
-                    <TableCell>{vehicle.fitness_expiry || "N/A"}</TableCell>
-                    <TableCell>{vehicle.permit_expiry || "N/A"}</TableCell>
+                    <TableCell>{vehicle.number_of_vehicles || "N/A"}</TableCell>
+                    <TableCell>
+                      {vehicle.document_url ? (
+                        <div className="flex items-center gap-2">
+                          <Button variant="outline" size="sm" asChild>
+                            <a href={vehicle.document_url} target="_blank" rel="noopener noreferrer">
+                              <Eye className="h-4 w-4" />
+                            </a>
+                          </Button>
+                          <span className="text-xs text-muted-foreground">View</span>
+                        </div>
+                      ) : (
+                        "No document"
+                      )}
+                    </TableCell>
                     <TableCell>
                       <Badge
                         variant={vehicle.is_active ? "default" : "secondary"}
