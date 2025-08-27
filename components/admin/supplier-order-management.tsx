@@ -359,7 +359,7 @@ export function SupplierOrderManagement() {
       {/* Orders Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Supplier Transport Orders</CardTitle>
+          <CardTitle>Supplier Vehicle Locations</CardTitle>
           <CardDescription>{filteredOrders.length} orders found</CardDescription>
         </CardHeader>
         <CardContent>

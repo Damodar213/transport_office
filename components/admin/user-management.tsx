@@ -16,10 +16,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Eye, Filter, Download, UserCheck, UserX, MessageCircle } from "lucide-react"
+import { Eye, Filter, Download, UserCheck, UserX, MessageCircle, FileSpreadsheet, FileText } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { config } from "@/lib/config"
+import { exportToExcel, exportToPDF, exportToCSV, ExportableUser } from "@/lib/export-utils"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface User {
   id: number
@@ -123,8 +130,61 @@ export function UserManagement() {
     applyFilters()
   }
 
-  const handleExport = () => {
-    console.log("Exporting user data...")
+  const handleExportExcel = () => {
+    const exportData: ExportableUser[] = filteredUsers.map(user => ({
+      id: user.id,
+      userId: user.userId,
+      name: user.name,
+      email: user.email,
+      mobile: user.mobile,
+      role: user.role,
+      companyName: user.companyName,
+      isActive: user.isActive,
+      isVerified: user.isVerified,
+      registrationDate: user.registrationDate,
+      lastLogin: user.lastLogin,
+      totalOrders: user.totalOrders,
+      gstNumber: user.gstNumber
+    }))
+    exportToExcel(exportData, 'users_export')
+  }
+
+  const handleExportPDF = () => {
+    const exportData: ExportableUser[] = filteredUsers.map(user => ({
+      id: user.id,
+      userId: user.userId,
+      name: user.name,
+      email: user.email,
+      mobile: user.mobile,
+      role: user.role,
+      companyName: user.companyName,
+      isActive: user.isActive,
+      isVerified: user.isVerified,
+      registrationDate: user.registrationDate,
+      lastLogin: user.lastLogin,
+      totalOrders: user.totalOrders,
+      gstNumber: user.gstNumber
+    }))
+    exportToPDF(exportData, 'users_export')
+  }
+
+  const handleExportCSV = () => {
+    const exportData: ExportableUser[] = filteredUsers.map(user => ({
+      id: user.id,
+      userId: user.userId,
+      name: user.name,
+      email: user.email,
+      mobile: user.mobile,
+      role: user.role,
+      companyName: user.companyName,
+      isActive: user.isActive,
+      isVerified: user.isVerified,
+      registrationDate: user.registrationDate,
+      lastLogin: user.lastLogin,
+      totalOrders: user.totalOrders,
+      gstNumber: user.gstNumber
+    }))
+    exportToCSV(exportData, 'users_export')
   }
 
   const openWhatsappDialog = (user: User) => {
@@ -203,10 +263,28 @@ export function UserManagement() {
           <h2 className="text-2xl font-bold text-foreground">User Management</h2>
           <p className="text-muted-foreground">Manage suppliers and buyers in the system</p>
         </div>
-        <Button onClick={handleExport} variant="outline">
-          <Download className="h-4 w-4 mr-2" />
-          Export Users
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline">
+              <Download className="h-4 w-4 mr-2" />
+              Export Users
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={handleExportExcel}>
+              <FileSpreadsheet className="h-4 w-4 mr-2" />
+              Export to Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleExportPDF}>
+              <FileText className="h-4 w-4 mr-2" />
+              Export to PDF
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleExportCSV}>
+              <Download className="h-4 w-4 mr-2" />
+              Export to CSV
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Filters */}

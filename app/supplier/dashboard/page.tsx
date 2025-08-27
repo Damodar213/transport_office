@@ -204,7 +204,7 @@ export default function SupplierDashboard() {
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="trucks">Truck Info</TabsTrigger>
             <TabsTrigger value="drivers">Driver Info</TabsTrigger>
-            <TabsTrigger value="orders">Transport Orders</TabsTrigger>
+            <TabsTrigger value="orders">Suppliers Vehicle Location</TabsTrigger>
             <TabsTrigger value="confirmed">Confirmed Orders</TabsTrigger>
           </TabsList>
 

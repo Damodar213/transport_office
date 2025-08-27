@@ -45,7 +45,7 @@ export async function GET() {
 
     // Get pending reviews count (pending transport orders)
     const pendingReviewsResult = await dbQuery(
-      "SELECT COUNT(*) as count FROM transport_orders WHERE status = 'pending'"
+      "SELECT COUNT(*) as count FROM suppliers_vehicle_location WHERE status = 'pending'"
     )
     const pendingReviews = pendingReviewsResult.rows[0].count
 
@@ -56,7 +56,7 @@ export async function GET() {
     tomorrow.setDate(tomorrow.getDate() + 1)
     
     const ordersTodayResult = await dbQuery(
-      "SELECT COUNT(*) as count FROM transport_orders WHERE created_at >= $1 AND created_at < $2",
+      "SELECT COUNT(*) as count FROM suppliers_vehicle_location WHERE created_at >= $1 AND created_at < $2",
       [today.toISOString(), tomorrow.toISOString()]
     )
     const ordersToday = ordersTodayResult.rows[0].count
@@ -65,7 +65,7 @@ export async function GET() {
     const yesterday = new Date(today)
     yesterday.setDate(yesterday.getDate() - 1)
     const yesterdayOrdersResult = await dbQuery(
-      "SELECT COUNT(*) as count FROM transport_orders WHERE created_at >= $1 AND created_at < $2",
+      "SELECT COUNT(*) as count FROM suppliers_vehicle_location WHERE created_at >= $1 AND created_at < $2",
       [yesterday.toISOString(), today.toISOString()]
     )
     const yesterdayOrders = yesterdayOrdersResult.rows[0].count
@@ -76,12 +76,12 @@ export async function GET() {
                              ordersChange < 0 ? `${ordersChange} from yesterday` : "Same as yesterday"
 
     // Get total orders count
-    const totalOrdersResult = await dbQuery("SELECT COUNT(*) as count FROM transport_orders")
+    const totalOrdersResult = await dbQuery("SELECT COUNT(*) as count FROM suppliers_vehicle_location")
     const totalOrders = totalOrdersResult.rows[0].count
 
     // Get completed orders count
     const completedOrdersResult = await dbQuery(
-      "SELECT COUNT(*) as count FROM transport_orders WHERE status = 'confirmed'"
+      "SELECT COUNT(*) as count FROM suppliers_vehicle_location WHERE status = 'confirmed'"
     )
     const completedOrders = completedOrdersResult.rows[0].count
 
@@ -98,7 +98,7 @@ export async function GET() {
       `SELECT
          COUNT(*) FILTER (WHERE status = 'confirmed') as completed_count,
          COUNT(*) as total_count
-       FROM transport_orders
+       FROM suppliers_vehicle_location
        WHERE created_at >= $1`,
       [thirtyDaysAgo.toISOString()]
     )
@@ -110,7 +110,7 @@ export async function GET() {
       `SELECT
          COUNT(*) FILTER (WHERE status = 'confirmed') as completed_count,
          COUNT(*) as total_count
-       FROM transport_orders
+       FROM suppliers_vehicle_location
        WHERE created_at >= $1 AND created_at < $2`,
       [sixtyDaysAgo.toISOString(), thirtyDaysAgo.toISOString()]
     )
@@ -137,7 +137,7 @@ export async function GET() {
     
     const recentOrdersResult = await dbQuery(
       `SELECT id, status, created_at, supplier_id 
-       FROM transport_orders 
+       FROM suppliers_vehicle_location 
        ORDER BY created_at DESC LIMIT 5`
     )
 

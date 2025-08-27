@@ -199,7 +199,7 @@ export function ConfirmedOrders({ onDataChange }: ConfirmedOrdersProps) {
       {/* Orders Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Confirmed Transport Orders</CardTitle>
+          <CardTitle>Confirmed Vehicle Locations</CardTitle>
           <CardDescription>{filteredOrders.length} orders found</CardDescription>
         </CardHeader>
         <CardContent>

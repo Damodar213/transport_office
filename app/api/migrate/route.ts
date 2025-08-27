@@ -119,10 +119,10 @@ export async function POST() {
     }
 
     // Insert sample transport order data (only if table is empty)
-    const existingOrders = await dbQuery("SELECT COUNT(*) as count FROM transport_orders")
+    const existingOrders = await dbQuery("SELECT COUNT(*) as count FROM suppliers_vehicle_location")
     if (parseInt(existingOrders.rows[0].count) === 0) {
       await dbQuery(`
-        INSERT INTO transport_orders (supplier_id, state, district, place, taluk, vehicle_number, body_type, status)
+        INSERT INTO suppliers_vehicle_location (supplier_id, state, district, place, taluk, vehicle_number, body_type, status)
         VALUES 
           ($1, 'Karnataka', 'Bangalore', 'Electronic City', 'Anekal', 'KA01AB1234', 'Full Body', 'pending'),
           ($1, 'Tamil Nadu', 'Chennai', 'Guindy', NULL, 'TN01CD5678', 'Container', 'confirmed')

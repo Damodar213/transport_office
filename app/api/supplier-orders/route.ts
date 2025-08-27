@@ -150,11 +150,23 @@ export async function POST(request: NextRequest) {
 
     const supplierId = supplierResult.rows[0].user_id
 
+    // Get driver name if driverId is provided
+    let driverName = null
+    if (body.driverId) {
+      const driverResult = await dbQuery(
+        "SELECT driver_name FROM drivers WHERE id = $1",
+        [body.driverId]
+      )
+      if (driverResult.rows.length > 0) {
+        driverName = driverResult.rows[0].driver_name
+      }
+    }
+
     const sql = `
       INSERT INTO suppliers_vehicle_location (
         supplier_id, state, district, place, taluk, 
-        vehicle_number, body_type, driver_id, status, created_at, submitted_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        vehicle_number, body_type, driver_id, driver_name, status, created_at, submitted_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       RETURNING *
     `
 
@@ -167,6 +179,7 @@ export async function POST(request: NextRequest) {
       body.vehicleNumber,
       body.bodyType,
       body.driverId || null,
+      driverName,
       "pending",
       new Date().toISOString(),
       new Date().toISOString()

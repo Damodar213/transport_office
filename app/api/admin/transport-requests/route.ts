@@ -32,7 +32,7 @@ export async function GET() {
         u.user_id as "buyerId",
         u.name as "buyerName",
         u.email as "buyerEmail"
-      FROM transport_orders tr
+      FROM suppliers_vehicle_location tr
       LEFT JOIN users u ON tr.supplier_id = u.user_id
       ORDER BY tr.created_at DESC
     `)
@@ -85,7 +85,7 @@ export async function POST(request: Request) {
     if (action === 'assign') {
       // Update transport order status to assigned
       await dbQuery(`
-        UPDATE transport_orders 
+        UPDATE suppliers_vehicle_location 
         SET status = 'confirmed', admin_notes = $1, updated_at = CURRENT_TIMESTAMP
         WHERE id = $2
       `, [notes, requestId])
@@ -105,7 +105,7 @@ export async function POST(request: Request) {
     if (action === 'reject') {
       // Update transport order status to rejected
       await dbQuery(`
-        UPDATE transport_orders 
+        UPDATE suppliers_vehicle_location 
         SET status = 'rejected', admin_notes = $1, updated_at = CURRENT_TIMESTAMP
         WHERE id = $2
       `, [notes, requestId])

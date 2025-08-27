@@ -50,7 +50,7 @@ interface SupplierVehicleLocationProps {
   onDataChange?: () => void
 }
 
-export function SupplierVehicleLocation({ onDataChange }: SupplierVehicleLocationProps) {
+export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) {
   const [orders, setOrders] = useState<SupplierVehicleLocation[]>([])
   const [drivers, setDrivers] = useState<Driver[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -351,6 +351,7 @@ export function SupplierVehicleLocation({ onDataChange }: SupplierVehicleLocatio
                   <TableHead>Location</TableHead>
                   <TableHead>Vehicle</TableHead>
                   <TableHead>Body Type</TableHead>
+                  <TableHead>Driver Name</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Submitted</TableHead>
                   <TableHead>Actions</TableHead>
@@ -367,6 +368,13 @@ export function SupplierVehicleLocation({ onDataChange }: SupplierVehicleLocatio
                     </TableCell>
                     <TableCell className="font-medium">{order.vehicle_number}</TableCell>
                     <TableCell>{order.body_type}</TableCell>
+                    <TableCell>
+                      {order.driver_name ? (
+                        <div className="font-medium text-blue-600">{order.driver_name}</div>
+                      ) : (
+                        <div className="text-muted-foreground italic">No driver assigned</div>
+                      )}
+                    </TableCell>
                     <TableCell>{getStatusBadge(order.status)}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">

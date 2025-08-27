@@ -45,8 +45,8 @@ export async function GET(request: NextRequest) {
     const checkConfirmedOrders = await dbQuery("SELECT COUNT(*) as count FROM confirmed_orders")
     console.log("Confirmed orders count in table:", checkConfirmedOrders.rows[0].count)
 
-    console.log("Checking if transport_orders table has data...")
-    const checkTransportOrders = await dbQuery("SELECT COUNT(*) as count FROM transport_orders")
+    console.log("Checking if suppliers_vehicle_location table has data...")
+    const checkTransportOrders = await dbQuery("SELECT COUNT(*) as count FROM suppliers_vehicle_location")
     console.log("Transport orders count in table:", checkTransportOrders.rows[0].count)
 
     // Check if there are any confirmed orders for this supplier
@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
         t.admin_notes,
         t.admin_action_date
       FROM confirmed_orders co
-      JOIN transport_orders t ON co.transport_order_id = t.id
+      JOIN suppliers_vehicle_location t ON co.transport_order_id = t.id
       WHERE co.supplier_id = $1
       ORDER BY co.created_at DESC
     `
