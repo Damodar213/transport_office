@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Bell, CheckCircle, AlertTriangle, Info, X, Trash2, Filter } from "lucide-react"
+import { Bell, CheckCircle, AlertTriangle, Info, X, Trash2, Filter, RefreshCw } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface Notification {
@@ -24,22 +24,74 @@ export default function NotificationsPage() {
   const [filter, setFilter] = useState<string>("all")
   const [priority, setPriority] = useState<string>("all")
   const [isLoading, setIsLoading] = useState(true)
+  const [lastRefresh, setLastRefresh] = useState<Date>(new Date())
 
   useEffect(() => {
+    console.log("Component mounted, fetching notifications...")
     fetchNotifications()
+    
+    // Set up periodic refresh every 10 seconds to get new notifications more frequently
+    const interval = setInterval(() => {
+      console.log("Auto-refreshing notifications...")
+      fetchNotifications()
+    }, 10000)
+    
+    // Set up a global function that can be called to refresh notifications
+    // This allows other parts of the app to trigger a refresh
+    ;(window as any).refreshAdminNotifications = () => {
+      console.log("Manual refresh triggered")
+      fetchNotifications()
+    }
+    
+    return () => {
+      clearInterval(interval)
+      delete (window as any).refreshAdminNotifications
+    }
   }, [])
+
+  // Debug effect to log when notifications state changes
+  useEffect(() => {
+    console.log("Notifications state changed:", notifications.length, "notifications")
+  }, [notifications])
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetch("/api/admin/notifications")
+      setIsLoading(true)
+      console.log("Fetching notifications from API...")
+      
+      // Fetch transport request notifications from the dedicated API with cache busting
+      const response = await fetch("/api/admin/transport-request-notifications?" + new Date().getTime(), {
+        cache: 'no-cache',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      })
+      console.log("API response status:", response.status)
+      
       if (response.ok) {
         const data = await response.json()
-        setNotifications(data.notifications)
+        console.log("API data received:", data)
+        console.log("Number of notifications:", data.notifications?.length || 0)
+        
+        if (data.notifications && Array.isArray(data.notifications)) {
+          setNotifications(data.notifications)
+          setLastRefresh(new Date())
+          console.log(`Successfully set ${data.notifications.length} notifications`)
+        } else {
+          console.error("Invalid notifications data format:", data)
+          setNotifications([])
+        }
+      } else {
+        console.error("API failed with status:", response.status)
+        // Don't fallback to mock data, just show empty
+        setNotifications([])
       }
     } catch (error) {
       console.error("Failed to fetch notifications:", error)
-      // Fallback to mock data
-      setNotifications(generateMockNotifications())
+      // Don't fallback to mock data, just show empty
+      setNotifications([])
     } finally {
       setIsLoading(false)
     }
@@ -48,6 +100,16 @@ export default function NotificationsPage() {
   const generateMockNotifications = (): Notification[] => [
     {
       id: "1",
+      type: "info",
+      title: "New Transport Request",
+      message: "New transport request ORD-7 for Cotton has been created by buyer arun",
+      timestamp: "5 hours ago",
+      isRead: false,
+      category: "order",
+      priority: "medium"
+    },
+    {
+      id: "2",
       type: "success",
       title: "Order Confirmed",
       message: "Transport order #123 has been successfully confirmed by supplier",
@@ -57,7 +119,7 @@ export default function NotificationsPage() {
       priority: "high"
     },
     {
-      id: "2",
+      id: "3",
       type: "warning",
       title: "Document Review Required",
       message: "5 supplier documents are pending review and approval",
@@ -67,7 +129,7 @@ export default function NotificationsPage() {
       priority: "medium"
     },
     {
-      id: "3",
+      id: "4",
       type: "info",
       title: "New User Registration",
       message: "New supplier 'Kumar Transport Co.' has registered",
@@ -77,7 +139,7 @@ export default function NotificationsPage() {
       priority: "low"
     },
     {
-      id: "4",
+      id: "5",
       type: "error",
       title: "System Alert",
       message: "Database connection timeout detected, investigating...",
@@ -85,22 +147,12 @@ export default function NotificationsPage() {
       isRead: false,
       category: "system",
       priority: "high"
-    },
-    {
-      id: "5",
-      type: "success",
-      title: "Payment Processed",
-      message: "Payment of ₹1,500 received for order #123",
-      timestamp: "3 hours ago",
-      isRead: true,
-      category: "order",
-      priority: "medium"
     }
   ]
 
   const markAsRead = async (id: string) => {
     try {
-      const response = await fetch(`/api/admin/notifications/${id}/read`, {
+      const response = await fetch(`/api/admin/transport-request-notifications/${id}/read`, {
         method: "PUT"
       })
       if (response.ok) {
@@ -121,16 +173,20 @@ export default function NotificationsPage() {
     }
   }
 
+
+
   const markAllAsRead = async () => {
     try {
-      const response = await fetch("/api/admin/notifications/mark-all-read", {
-        method: "PUT"
-      })
-      if (response.ok) {
-        setNotifications(prev => 
-          prev.map(notif => ({ ...notif, isRead: true }))
-        )
-      }
+      // Mark all transport request notifications as read
+      const promises = notifications
+        .filter(n => !n.isRead)
+        .map(n => fetch(`/api/admin/transport-request-notifications/${n.id}/read`, { method: "PUT" }))
+      
+      await Promise.all(promises)
+      
+      setNotifications(prev => 
+        prev.map(notif => ({ ...notif, isRead: true }))
+      )
     } catch (error) {
       console.error("Failed to mark all notifications as read:", error)
       // Update locally if API fails
@@ -142,7 +198,7 @@ export default function NotificationsPage() {
 
   const deleteNotification = async (id: string) => {
     try {
-      const response = await fetch(`/api/admin/notifications/${id}`, {
+      const response = await fetch(`/api/admin/transport-request-notifications/${id}`, {
         method: "DELETE"
       })
       if (response.ok) {
@@ -157,12 +213,13 @@ export default function NotificationsPage() {
 
   const clearAll = async () => {
     try {
-      const response = await fetch("/api/admin/notifications/clear-all", {
-        method: "DELETE"
-      })
-      if (response.ok) {
-        setNotifications([])
-      }
+      // Delete all transport request notifications
+      const promises = notifications.map(n => 
+        fetch(`/api/admin/transport-request-notifications/${n.id}`, { method: "DELETE" })
+      )
+      
+      await Promise.all(promises)
+      setNotifications([])
     } catch (error) {
       console.error("Failed to clear all notifications:", error)
       // Clear locally if API fails
@@ -245,16 +302,37 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" key={`notifications-${notifications.length}-${lastRefresh.getTime()}`}>
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Notifications</h1>
           <p className="text-muted-foreground">Manage system notifications and alerts</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Last updated: {lastRefresh.toLocaleTimeString()}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Debug: {notifications.length} notifications loaded
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="secondary" className="text-sm">
             {unreadCount} unread
           </Badge>
+          <Button onClick={fetchNotifications} variant="outline" size="sm" disabled={isLoading}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            {isLoading ? 'Refreshing...' : 'Refresh'}
+          </Button>
+          <Button 
+            onClick={() => {
+              console.log("Test button clicked")
+              console.log("Current notifications:", notifications)
+              console.log("Current count:", notifications.length)
+            }} 
+            variant="outline" 
+            size="sm"
+          >
+            Test
+          </Button>
           <Button onClick={markAllAsRead} variant="outline" size="sm">
             Mark All Read
           </Button>
@@ -293,10 +371,16 @@ export default function NotificationsPage() {
 
       <Tabs defaultValue="all" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="all">All ({notifications.length})</TabsTrigger>
-          <TabsTrigger value="unread">Unread ({unreadCount})</TabsTrigger>
+          <TabsTrigger value="all">
+            All ({isLoading ? "..." : notifications.length})
+          </TabsTrigger>
+          <TabsTrigger value="unread">
+            Unread ({isLoading ? "..." : unreadCount})
+          </TabsTrigger>
           <TabsTrigger value="system">System</TabsTrigger>
-          <TabsTrigger value="orders">Orders</TabsTrigger>
+          <TabsTrigger value="order">
+            Orders ({isLoading ? "..." : notifications.filter(n => n.category === "order").length})
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="space-y-4">
@@ -500,7 +584,7 @@ export default function NotificationsPage() {
           )}
         </TabsContent>
 
-        <TabsContent value="orders" className="space-y-4">
+        <TabsContent value="order" className="space-y-4">
           {notifications.filter(n => n.category === "order").length === 0 ? (
             <Card>
               <CardContent className="p-8 text-center">

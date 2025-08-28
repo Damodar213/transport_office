@@ -5,6 +5,16 @@ import { dbQuery, getPool } from "@/lib/db"
 const mockNotifications = [
   {
     id: "1",
+    type: "info",
+    title: "New Transport Request",
+    message: "New transport request ORD-7 for Cotton has been created by buyer arun",
+    timestamp: "5 hours ago",
+    isRead: false,
+    category: "order",
+    priority: "medium"
+  },
+  {
+    id: "2",
     type: "success",
     title: "Order Confirmed",
     message: "Transport order #123 has been successfully confirmed by supplier",
@@ -14,7 +24,7 @@ const mockNotifications = [
     priority: "high"
   },
   {
-    id: "2",
+    id: "3",
     type: "warning",
     title: "Document Review Required",
     message: "5 supplier documents are pending review and approval",
@@ -24,7 +34,7 @@ const mockNotifications = [
     priority: "medium"
   },
   {
-    id: "3",
+    id: "4",
     type: "info",
     title: "New User Registration",
     message: "New supplier 'Kumar Transport Co.' has registered",
@@ -34,7 +44,7 @@ const mockNotifications = [
     priority: "low"
   },
   {
-    id: "4",
+    id: "5",
     type: "error",
     title: "System Alert",
     message: "Database connection timeout detected, investigating...",
@@ -42,16 +52,6 @@ const mockNotifications = [
     isRead: false,
     category: "system",
     priority: "high"
-  },
-  {
-    id: "5",
-    type: "success",
-    title: "Payment Processed",
-    message: "Payment of ₹1,500 received for order #123",
-    timestamp: "3 hours ago",
-    isRead: true,
-    category: "order",
-    priority: "medium"
   }
 ]
 
