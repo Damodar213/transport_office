@@ -5,12 +5,13 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { Shield, Users, FileCheck, Truck, Package, LogOut, Bell, Settings, ClipboardList, TrendingUp, TrendingDown, Minus } from "lucide-react"
+import { Shield, Users, FileCheck, Truck, Package, LogOut, Bell, Settings, ClipboardList, TrendingUp, TrendingDown, Minus, ShoppingCart } from "lucide-react"
 import { UserManagement } from "@/components/admin/user-management"
 import { DocumentVerification } from "@/components/admin/document-verification"
 import { OrderAssignment } from "@/components/admin/order-assignment"
 import { SystemOverview } from "@/components/admin/system-overview"
 import { SupplierOrderManagement } from "@/components/admin/supplier-order-management"
+import { BuyersOrders } from "@/components/admin/buyers-orders"
 
 interface DashboardStats {
   totalUsers: { count: number; change: string; trend: string }
@@ -247,7 +248,7 @@ export default function AdminDashboard() {
 
         {/* Main Dashboard Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
               Overview
@@ -263,6 +264,10 @@ export default function AdminDashboard() {
             <TabsTrigger value="orders" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
               Order Assignment
+            </TabsTrigger>
+            <TabsTrigger value="buyers-orders" className="flex items-center gap-2">
+              <ShoppingCart className="h-4 w-4" />
+              Buyers Orders
             </TabsTrigger>
             <TabsTrigger value="supplier-orders" className="flex items-center gap-2">
               <ClipboardList className="h-4 w-4" />
@@ -284,6 +289,10 @@ export default function AdminDashboard() {
 
           <TabsContent value="orders" className="mt-6">
             <OrderAssignment />
+          </TabsContent>
+
+          <TabsContent value="buyers-orders" className="mt-6">
+            <BuyersOrders />
           </TabsContent>
 
           <TabsContent value="supplier-orders" className="mt-6">
