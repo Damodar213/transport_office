@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -9,9 +9,73 @@ import { Building, Package, MapPin, LogOut, Bell } from "lucide-react"
 import { TransportRequests } from "@/components/buyer/transport-requests"
 import { OrderTracking } from "@/components/buyer/order-tracking"
 
+interface DashboardStats {
+  activeRequests: number
+  confirmedOrders: number
+  completedOrders: number
+}
+
 export default function BuyerDashboard() {
   const [activeTab, setActiveTab] = useState("requests")
   const [notifications] = useState(2) // Mock notification count
+  const [stats, setStats] = useState<DashboardStats>({
+    activeRequests: 0,
+    confirmedOrders: 0,
+    completedOrders: 0
+  })
+  const [isLoadingStats, setIsLoadingStats] = useState(true)
+
+  // Fetch dashboard statistics
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      try {
+        setIsLoadingStats(true)
+        
+        // Fetch transport requests (active requests)
+        const requestsResponse = await fetch("/api/buyer-requests?buyer_id=arun")
+        let activeRequests = 0
+        if (requestsResponse.ok) {
+          const requestsData = await requestsResponse.json()
+          if (requestsData.success) {
+            activeRequests = requestsData.data.filter((req: any) => 
+              req.status === "submitted" || req.status === "draft"
+            ).length
+          }
+        }
+
+        // Fetch orders for confirmed and completed counts
+        const ordersResponse = await fetch("/api/orders")
+        let confirmedOrders = 0
+        let completedOrders = 0
+        
+        if (ordersResponse.ok) {
+          const ordersData = await ordersResponse.json()
+          if (ordersData.orders) {
+            confirmedOrders = ordersData.orders.filter((order: any) => 
+              order.status === "confirmed" || order.status === "picked_up" || order.status === "in_transit"
+            ).length
+            
+            completedOrders = ordersData.orders.filter((order: any) => 
+              order.status === "delivered"
+            ).length
+          }
+        }
+
+        setStats({
+          activeRequests,
+          confirmedOrders,
+          completedOrders
+        })
+      } catch (error) {
+        console.error("Failed to fetch dashboard stats:", error)
+        // Keep default values if API fails
+      } finally {
+        setIsLoadingStats(false)
+      }
+    }
+
+    fetchDashboardStats()
+  }, [])
 
   const handleLogout = async () => {
     try {
@@ -63,7 +127,9 @@ export default function BuyerDashboard() {
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">7</div>
+              <div className="text-2xl font-bold">
+                {isLoadingStats ? "..." : stats.activeRequests}
+              </div>
               <p className="text-xs text-muted-foreground">Pending approval</p>
             </CardContent>
           </Card>
@@ -73,7 +139,9 @@ export default function BuyerDashboard() {
               <MapPin className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">15</div>
+              <div className="text-2xl font-bold">
+                {isLoadingStats ? "..." : stats.confirmedOrders}
+              </div>
               <p className="text-xs text-muted-foreground">In progress</p>
             </CardContent>
           </Card>
@@ -83,7 +151,9 @@ export default function BuyerDashboard() {
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">42</div>
+              <div className="text-2xl font-bold">
+                {isLoadingStats ? "..." : stats.completedOrders}
+              </div>
               <p className="text-xs text-muted-foreground">This month</p>
             </CardContent>
           </Card>
@@ -103,11 +173,107 @@ export default function BuyerDashboard() {
           </TabsList>
 
           <TabsContent value="requests" className="mt-6">
-            <TransportRequests />
+            <TransportRequests onDataChange={() => {
+              // Refresh stats when transport requests change
+              const refreshStats = async () => {
+                try {
+                  setIsLoadingStats(true)
+                  
+                  // Fetch transport requests (active requests)
+                  const requestsResponse = await fetch("/api/buyer-requests?buyer_id=arun")
+                  let activeRequests = 0
+                  if (requestsResponse.ok) {
+                    const requestsData = await requestsResponse.json()
+                    if (requestsData.success) {
+                      activeRequests = requestsData.data.filter((req: any) => 
+                        req.status === "submitted" || req.status === "draft"
+                      ).length
+                    }
+                  }
+
+                  // Fetch orders for confirmed and completed counts
+                  const ordersResponse = await fetch("/api/orders")
+                  let confirmedOrders = 0
+                  let completedOrders = 0
+                  
+                  if (ordersResponse.ok) {
+                    const ordersData = await ordersResponse.json()
+                    if (ordersData.orders) {
+                      confirmedOrders = ordersData.orders.filter((order: any) => 
+                        order.status === "confirmed" || order.status === "picked_up" || order.status === "in_transit"
+                      ).length
+                      
+                      completedOrders = ordersData.orders.filter((order: any) => 
+                        order.status === "delivered"
+                      ).length
+                    }
+                  }
+
+                  setStats({
+                    activeRequests,
+                    confirmedOrders,
+                    completedOrders
+                  })
+                } catch (error) {
+                  console.error("Failed to refresh dashboard stats:", error)
+                } finally {
+                  setIsLoadingStats(false)
+                }
+              }
+              refreshStats()
+            }} />
           </TabsContent>
 
           <TabsContent value="tracking" className="mt-6">
-            <OrderTracking />
+            <OrderTracking onDataChange={() => {
+              // Refresh stats when orders change
+              const refreshStats = async () => {
+                try {
+                  setIsLoadingStats(true)
+                  
+                  // Fetch transport requests (active requests)
+                  const requestsResponse = await fetch("/api/buyer-requests?buyer_id=arun")
+                  let activeRequests = 0
+                  if (requestsResponse.ok) {
+                    const requestsData = await requestsResponse.json()
+                    if (requestsData.success) {
+                      activeRequests = requestsData.data.filter((req: any) => 
+                        req.status === "submitted" || req.status === "draft"
+                      ).length
+                    }
+                  }
+
+                  // Fetch orders for confirmed and completed counts
+                  const ordersResponse = await fetch("/api/orders")
+                  let confirmedOrders = 0
+                  let completedOrders = 0
+                  
+                  if (ordersResponse.ok) {
+                    const ordersData = await ordersResponse.json()
+                    if (ordersData.orders) {
+                      confirmedOrders = ordersData.orders.filter((order: any) => 
+                        order.status === "confirmed" || order.status === "picked_up" || order.status === "in_transit"
+                      ).length
+                      
+                      completedOrders = ordersData.orders.filter((order: any) => 
+                        order.status === "delivered"
+                      ).length
+                    }
+                  }
+
+                  setStats({
+                    activeRequests,
+                    confirmedOrders,
+                    completedOrders
+                  })
+                } catch (error) {
+                  console.error("Failed to refresh dashboard stats:", error)
+                } finally {
+                  setIsLoadingStats(false)
+                }
+              }
+              refreshStats()
+            }} />
           </TabsContent>
         </Tabs>
       </div>

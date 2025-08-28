@@ -148,13 +148,14 @@ export default function SignupPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="supplier-vehicles">Number of Vehicles</Label>
+                      <Label htmlFor="supplier-wheels">Number of Wheels</Label>
                       <Input
-                        id="supplier-vehicles"
-                        name="numberOfVehicles"
+                        id="supplier-wheels"
+                        name="numberOfWheels"
                         type="number"
-                        min="0"
-                        placeholder="Enter number of vehicles"
+                        min="2"
+                        max="18"
+                        placeholder="Enter number of wheels"
                       />
                     </div>
                   </div>

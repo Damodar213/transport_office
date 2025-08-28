@@ -304,7 +304,7 @@ export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) 
                     ) : (
                       drivers.map((driver) => (
                         <SelectItem key={driver.id} value={driver.id.toString()}>
-                          {driver.driver_name} - {driver.license_number}
+                          {driver.driver_name}
                         </SelectItem>
                       ))
                     )}

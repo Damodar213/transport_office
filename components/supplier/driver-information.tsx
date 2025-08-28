@@ -22,9 +22,7 @@ interface Driver {
   supplier_id: number
   driver_name: string
   mobile: string
-  license_number: string
   license_document_url?: string
-  aadhaar_number?: string
   is_active: boolean
   created_at: string
   updated_at: string
@@ -69,33 +67,54 @@ export function DriverInformation({ onDataChange }: DriverInformationProps) {
     setError("")
 
     try {
-      // Debug: Log all form data
-      console.log("Form data entries:")
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`)
-      }
-
-      // Get and validate required fields
       const driverName = formData.get("name") as string
       const mobile = formData.get("mobile") as string
-      const licenseNumber = formData.get("licenseNumber") as string
+      const licenseFile = formData.get("licenseDocument") as File
 
       // Validate required fields
-      if (!driverName || !mobile || !licenseNumber) {
-        setError("Driver Name, Mobile Number, and License Number are required")
+      if (!driverName || !mobile) {
+        setError("Driver Name and Mobile Number are required")
         setIsLoading(false)
         return
       }
 
-      // Handle optional fields properly
-      const aadhaarNumber = formData.get("aadhaarNumber") as string
+      let licenseDocumentUrl: string | undefined
+
+      // Handle file upload if a file was selected
+      if (licenseFile && licenseFile.size > 0) {
+        try {
+          const uploadFormData = new FormData()
+          uploadFormData.append("file", licenseFile)
+          uploadFormData.append("category", "drivers")
+
+          const uploadResponse = await fetch("/api/upload", {
+            method: "POST",
+            body: uploadFormData,
+          })
+
+          if (uploadResponse.ok) {
+            const uploadResult = await uploadResponse.json()
+            licenseDocumentUrl = uploadResult.url
+            console.log("File uploaded successfully:", licenseDocumentUrl)
+          } else {
+            console.error("File upload failed")
+            setError("Failed to upload driving license document")
+            setIsLoading(false)
+            return
+          }
+        } catch (uploadError) {
+          console.error("File upload error:", uploadError)
+          setError("Failed to upload driving license document")
+          setIsLoading(false)
+          return
+        }
+      }
 
       const driverData = {
         supplierId: "111111", // Use the actual supplier ID from your existing data
         driverName: driverName.trim(),
         mobile: mobile.trim(),
-        licenseNumber: licenseNumber.trim(),
-        aadhaarNumber: aadhaarNumber ? aadhaarNumber.trim() : undefined,
+        licenseDocumentUrl: licenseDocumentUrl,
       }
 
       console.log("Driver data being sent:", driverData)
@@ -173,10 +192,19 @@ export function DriverInformation({ onDataChange }: DriverInformationProps) {
         await fetchDrivers() // Refresh the list
         onDataChange?.() // Refresh dashboard stats
       } else {
-        setError("Failed to delete driver")
+        const errorData = await response.json()
+        console.error("Delete failed:", errorData)
+        
+        if (response.status === 400) {
+          // Show specific error message for constraint violations
+          setError(errorData.error || "Cannot delete driver due to system constraints")
+        } else {
+          setError(`Failed to delete driver: ${errorData.error || 'Unknown error'}`)
+        }
       }
     } catch (err) {
-      setError("Failed to delete driver")
+      console.error("Delete error:", err)
+      setError("Failed to delete driver due to network error")
     }
   }
 
@@ -265,27 +293,7 @@ export function DriverInformation({ onDataChange }: DriverInformationProps) {
                   placeholder="Enter mobile number"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="licenseNumber">Driving License Number *</Label>
-                <Input
-                  id="licenseNumber"
-                  name="licenseNumber"
-                  type="text"
-                  required
-                  defaultValue={editingDriver?.license_number || ""}
-                  placeholder="Enter license number"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="aadhaarNumber">Aadhaar Number</Label>
-                <Input
-                  id="aadhaarNumber"
-                  name="aadhaarNumber"
-                  type="text"
-                  defaultValue={editingDriver?.aadhaar_number || ""}
-                  placeholder="Enter Aadhaar number"
-                />
-              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="licenseDocument">Driving License Photo</Label>
                 <div className="flex items-center gap-2">
@@ -328,7 +336,6 @@ export function DriverInformation({ onDataChange }: DriverInformationProps) {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Mobile Number</TableHead>
-                <TableHead>License Number</TableHead>
                 <TableHead>License Document</TableHead>
                 <TableHead>Added Date</TableHead>
                 <TableHead>Actions</TableHead>
@@ -339,7 +346,6 @@ export function DriverInformation({ onDataChange }: DriverInformationProps) {
                 <TableRow key={driver.id}>
                   <TableCell className="font-medium">{driver.driver_name}</TableCell>
                   <TableCell>{driver.mobile}</TableCell>
-                  <TableCell>{driver.license_number}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       {driver.license_document_url ? (

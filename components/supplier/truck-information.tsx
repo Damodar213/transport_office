@@ -25,7 +25,7 @@ interface Vehicle {
   vehicle_number: string
   body_type: string
   capacity_tons?: number
-  number_of_vehicles?: number
+  number_of_wheels?: number
   document_url?: string
   is_active: boolean
   created_at: string
@@ -259,14 +259,15 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="numberOfVehicles">Number of Vehicles</Label>
+                <Label htmlFor="numberOfWheels">Number of Wheels</Label>
                 <Input
-                  id="numberOfVehicles"
-                  name="numberOfVehicles"
+                  id="numberOfWheels"
+                  name="numberOfWheels"
                   type="number"
-                  min="1"
-                  defaultValue={editingVehicle?.number_of_vehicles || ""}
-                  placeholder="Enter number of vehicles"
+                  min="2"
+                  max="18"
+                  defaultValue={editingVehicle?.number_of_wheels || ""}
+                  placeholder="Enter number of wheels"
                 />
               </div>
 
@@ -323,7 +324,7 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
                 <TableHead>Vehicle Number</TableHead>
                 <TableHead>Body Type</TableHead>
                 <TableHead>Capacity (Tons)</TableHead>
-                <TableHead>Number of Vehicles</TableHead>
+                <TableHead>Number of Wheels</TableHead>
                 <TableHead>Document</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Added Date</TableHead>
@@ -349,7 +350,7 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
                     <TableCell className="font-medium">{vehicle.vehicle_number}</TableCell>
                     <TableCell>{vehicle.body_type}</TableCell>
                     <TableCell>{vehicle.capacity_tons || "N/A"}</TableCell>
-                    <TableCell>{vehicle.number_of_vehicles || "N/A"}</TableCell>
+                    <TableCell>{vehicle.number_of_wheels || "N/A"}</TableCell>
                     <TableCell>
                       {vehicle.document_url ? (
                         <div className="flex items-center gap-2">

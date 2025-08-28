@@ -563,7 +563,7 @@ export function UserManagement() {
           <div className="space-y-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="vehicleCount">Number of Vehicles Needed</Label>
+                                        <Label htmlFor="vehicleCount">Number of Wheels</Label>
                 <Input
                   id="vehicleCount"
                   placeholder="e.g., 5"

@@ -7,7 +7,7 @@ export interface Truck {
   vehicle_number: string
   body_type: string
   capacity_tons?: number
-  number_of_vehicles?: number
+  number_of_wheels?: number
   document_url?: string
   is_active: boolean
   created_at: string
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
         t.vehicle_number,
         t.body_type,
         t.capacity_tons,
-        t.number_of_vehicles,
+        t.number_of_wheels,
         t.document_url,
         t.is_active,
         t.created_at,
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
 
     const sql = `
       INSERT INTO trucks (
-        supplier_id, vehicle_number, body_type, capacity_tons, number_of_vehicles, document_url
+        supplier_id, vehicle_number, body_type, capacity_tons, number_of_wheels, document_url
       ) VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *
     `
@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
       body.vehicleNumber,
       body.bodyType,
       body.capacityTons || null,
-      body.numberOfVehicles || null,
+      body.numberOfWheels || null,
       body.documentUrl || null
     ]
 
@@ -159,7 +159,7 @@ export async function PUT(request: NextRequest) {
         vehicle_number = $1,
         body_type = $2,
         capacity_tons = $3,
-        number_of_vehicles = $4,
+        number_of_wheels = $4,
         document_url = $5,
         updated_at = $6
       WHERE id = $7
@@ -170,7 +170,7 @@ export async function PUT(request: NextRequest) {
       updateData.vehicleNumber,
       updateData.bodyType,
       updateData.capacityTons || null,
-      updateData.numberOfVehicles || null,
+      updateData.numberOfWheels || null,
       updateData.documentUrl || null,
       new Date().toISOString(),
       id

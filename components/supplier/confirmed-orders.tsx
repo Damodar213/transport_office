@@ -30,7 +30,6 @@ interface ConfirmedOrder {
   driver_details: {
     driver_name: string
     mobile: string
-    license_number: string
   }
   truck_details: {
     vehicle_number: string

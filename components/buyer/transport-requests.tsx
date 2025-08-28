@@ -41,7 +41,11 @@ interface TransportRequest {
   created_at: string
 }
 
-export function TransportRequests() {
+interface TransportRequestsProps {
+  onDataChange?: () => void
+}
+
+export function TransportRequests({ onDataChange }: TransportRequestsProps) {
   const [requests, setRequests] = useState<TransportRequest[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingRequest, setEditingRequest] = useState<TransportRequest | null>(null)
@@ -178,6 +182,11 @@ export function TransportRequests() {
 
       setIsDialogOpen(false)
       setEditingRequest(null)
+      
+      // Notify parent component about data change
+      if (onDataChange) {
+        onDataChange()
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save transport request")
     } finally {
@@ -200,6 +209,11 @@ export function TransportRequests() {
         setRequests((prev) =>
           prev.map((request) => (request.id === requestId ? { ...request, status: "submitted" } : request)),
         )
+        
+        // Notify parent component about data change
+        if (onDataChange) {
+          onDataChange()
+        }
       } else {
         setError("Failed to submit request")
       }
@@ -222,6 +236,11 @@ export function TransportRequests() {
 
         if (response.ok) {
           setRequests((prev) => prev.filter((request) => request.id !== requestId))
+          
+          // Notify parent component about data change
+          if (onDataChange) {
+            onDataChange()
+          }
         } else {
           setError("Failed to delete request")
         }
