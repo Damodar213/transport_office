@@ -22,7 +22,11 @@ import {
   RefreshCw,
   CheckCircle,
   AlertTriangle,
-  Info
+  Info,
+  Package,
+  Plus,
+  Trash2,
+  Edit
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
@@ -64,6 +68,14 @@ interface DatabaseSettings {
   autoOptimization: boolean
   queryLogging: boolean
   connectionPoolSize: number
+}
+
+interface LoadType {
+  id: string
+  name: string
+  description?: string
+  isActive: boolean
+  createdAt: string
 }
 
 export default function SettingsPage() {
@@ -115,8 +127,15 @@ export default function SettingsPage() {
     connectionPoolSize: 10
   })
 
+  // Load Types Management
+  const [loadTypes, setLoadTypes] = useState<LoadType[]>([])
+  const [editingLoadType, setEditingLoadType] = useState<LoadType | null>(null)
+  const [newLoadType, setNewLoadType] = useState({ name: "", description: "" })
+  const [isLoadingLoadTypes, setIsLoadingLoadTypes] = useState(false)
+
   useEffect(() => {
     loadSettings()
+    loadLoadTypes()
   }, [])
 
   const loadSettings = async () => {
@@ -139,6 +158,26 @@ export default function SettingsPage() {
     }
   }
 
+  const loadLoadTypes = async () => {
+    try {
+      setIsLoadingLoadTypes(true)
+      const response = await fetch("/api/admin/load-types")
+      if (response.ok) {
+        const data = await response.json()
+        setLoadTypes(data.loadTypes || [])
+      }
+    } catch (error) {
+      console.error("Failed to load load types:", error)
+      toast({
+        title: "Error",
+        description: "Failed to load load types.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoadingLoadTypes(false)
+    }
+  }
+
   const handleSystemSettingChange = (key: keyof SystemSettings, value: string) => {
     setSystemSettings(prev => ({ ...prev, [key]: value }))
     setHasChanges(true)
@@ -157,6 +196,141 @@ export default function SettingsPage() {
   const handleDatabaseSettingChange = (key: keyof DatabaseSettings, value: any) => {
     setDatabaseSettings(prev => ({ ...prev, [key]: value }))
     setHasChanges(true)
+  }
+
+  // Load Type Management Functions
+  const addLoadType = async () => {
+    if (!newLoadType.name.trim()) return
+    
+    try {
+      const response = await fetch("/api/admin/load-types", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name: newLoadType.name.trim(),
+          description: newLoadType.description.trim() || undefined
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setLoadTypes(prev => [...prev, data.loadType])
+        setNewLoadType({ name: "", description: "" })
+        toast({
+          title: "Success",
+          description: "Load type added successfully!",
+        })
+      } else {
+        throw new Error("Failed to add load type")
+      }
+    } catch (error) {
+      console.error("Failed to add load type:", error)
+      toast({
+        title: "Error",
+        description: "Failed to add load type. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const updateLoadType = async (id: string, updates: Partial<LoadType>) => {
+    try {
+      const response = await fetch("/api/admin/load-types", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          id,
+          ...updates
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setLoadTypes(prev => prev.map(lt => 
+          lt.id === id ? data.loadType : lt
+        ))
+        toast({
+          title: "Success",
+          description: "Load type updated successfully!",
+        })
+      } else {
+        throw new Error("Failed to update load type")
+      }
+    } catch (error) {
+      console.error("Failed to update load type:", error)
+      toast({
+        title: "Error",
+        description: "Failed to update load type. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const deleteLoadType = async (id: string) => {
+    try {
+      const response = await fetch(`/api/admin/load-types?id=${id}`, {
+        method: "DELETE"
+      })
+
+      if (response.ok) {
+        setLoadTypes(prev => prev.filter(lt => lt.id !== id))
+        toast({
+          title: "Success",
+          description: "Load type deleted successfully!",
+        })
+      } else {
+        throw new Error("Failed to delete load type")
+      }
+    } catch (error) {
+      console.error("Failed to delete load type:", error)
+      toast({
+        title: "Error",
+        description: "Failed to delete load type. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const toggleLoadTypeStatus = async (id: string) => {
+    const loadType = loadTypes.find(lt => lt.id === id)
+    if (!loadType) return
+
+    try {
+      const response = await fetch("/api/admin/load-types", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          id,
+          isActive: !loadType.isActive
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setLoadTypes(prev => prev.map(lt => 
+          lt.id === id ? data.loadType : lt
+        ))
+        toast({
+          title: "Success",
+          description: `Load type ${data.loadType.isActive ? 'activated' : 'deactivated'} successfully!`,
+        })
+      } else {
+        throw new Error("Failed to update load type status")
+      }
+    } catch (error) {
+      console.error("Failed to update load type status:", error)
+      toast({
+        title: "Error",
+        description: "Failed to update load type status. Please try again.",
+        variant: "destructive"
+      })
+    }
   }
 
   const saveSettings = async () => {
@@ -315,8 +489,9 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="system" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="system">System</TabsTrigger>
+          <TabsTrigger value="business">Business</TabsTrigger>
           <TabsTrigger value="security">Security</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="database">Database</TabsTrigger>
@@ -420,6 +595,174 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Business Settings */}
+        <TabsContent value="business" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Package className="h-5 w-5" />
+                Load Type Management
+              </CardTitle>
+              <CardDescription>
+                Manage load types that buyers can select when creating transport requests
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Add New Load Type */}
+              <div className="space-y-4">
+                <h4 className="font-medium">Add New Load Type</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="newLoadTypeName">Name *</Label>
+                    <Input
+                      id="newLoadTypeName"
+                      value={newLoadType.name}
+                      onChange={(e) => setNewLoadType(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="Enter load type name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="newLoadTypeDescription">Description</Label>
+                    <Input
+                      id="newLoadTypeDescription"
+                      value={newLoadType.description}
+                      onChange={(e) => setNewLoadType(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="Enter description (optional)"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>&nbsp;</Label>
+                    <Button onClick={addLoadType} className="w-full" disabled={!newLoadType.name.trim()}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Load Type
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Load Types List */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium">Current Load Types</h4>
+                  <Button onClick={loadLoadTypes} variant="outline" size="sm" disabled={isLoadingLoadTypes}>
+                    <RefreshCw className={`h-4 w-4 mr-2 ${isLoadingLoadTypes ? 'animate-spin' : ''}`} />
+                    {isLoadingLoadTypes ? 'Loading...' : 'Refresh'}
+                  </Button>
+                </div>
+                {isLoadingLoadTypes ? (
+                  <div className="text-center py-8">
+                    <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-muted-foreground">Loading load types...</p>
+                  </div>
+                ) : loadTypes.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Package className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-muted-foreground">No load types found</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {loadTypes.map((loadType) => (
+                      <div key={loadType.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1">
+                              <div className="font-medium">{loadType.name}</div>
+                              {loadType.description && (
+                                <div className="text-sm text-muted-foreground">{loadType.description}</div>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge variant={loadType.isActive ? "default" : "secondary"}>
+                                {loadType.isActive ? "Active" : "Inactive"}
+                              </Badge>
+                              <span className="text-xs text-muted-foreground">
+                                Created: {new Date(loadType.createdAt).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => toggleLoadTypeStatus(loadType.id)}
+                          >
+                            {loadType.isActive ? "Deactivate" : "Activate"}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setEditingLoadType(loadType)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => deleteLoadType(loadType.id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Edit Load Type Dialog */}
+          {editingLoadType && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Edit Load Type</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="editLoadTypeName">Name</Label>
+                  <Input
+                    id="editLoadTypeName"
+                    value={editingLoadType.name}
+                    onChange={(e) => setEditingLoadType(prev => prev ? { ...prev, name: e.target.value } : null)}
+                    placeholder="Enter load type name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="editLoadTypeDescription">Description</Label>
+                  <Input
+                    id="editLoadTypeDescription"
+                    value={editingLoadType.description || ""}
+                    onChange={(e) => setEditingLoadType(prev => prev ? { ...prev, description: e.target.value } : null)}
+                    placeholder="Enter description (optional)"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => {
+                      if (editingLoadType) {
+                        updateLoadType(editingLoadType.id, {
+                          name: editingLoadType.name,
+                          description: editingLoadType.description
+                        })
+                        setEditingLoadType(null)
+                      }
+                    }}
+                  >
+                    Save Changes
+                  </Button>
+                  <Button variant="outline" onClick={() => setEditingLoadType(null)}>
+                    Cancel
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         {/* Security Settings */}
@@ -763,6 +1106,8 @@ export default function SettingsPage() {
     </div>
   )
 }
+
+
 
 
 

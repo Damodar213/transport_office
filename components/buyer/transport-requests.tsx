@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -31,7 +31,7 @@ interface TransportRequest {
   toDistrict: string
   toPlace: string
   toTaluk?: string
-  estimatedTons: number
+  estimatedTons?: number
   numberOfGoods?: number
   deliveryPlace: string
   requiredDate: string
@@ -82,25 +82,46 @@ export function TransportRequests() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const loadTypes = [
-    "Rice",
-    "Wheat",
-    "Cotton",
-    "Sugar",
-    "Cement",
-    "Steel",
-    "Textiles",
-    "Electronics",
-    "Furniture",
-    "Other",
-  ]
+  const [loadTypes, setLoadTypes] = useState<string[]>([])
   const states = ["Karnataka", "Tamil Nadu", "Andhra Pradesh", "Telangana", "Kerala", "Maharashtra", "Gujarat"]
+
+  // Load load types from API
+  useEffect(() => {
+    const loadLoadTypes = async () => {
+      try {
+        const response = await fetch("/api/admin/load-types")
+        if (response.ok) {
+          const data = await response.json()
+          setLoadTypes(data.loadTypes.map((lt: any) => lt.name))
+        }
+      } catch (error) {
+        console.error("Failed to load load types:", error)
+        // Fallback to default load types if API fails
+        setLoadTypes([
+          "Rice", "Wheat", "Cotton", "Sugar", "Cement", 
+          "Steel", "Textiles", "Electronics", "Furniture", "Other"
+        ])
+      }
+    }
+
+    loadLoadTypes()
+  }, [])
 
   const handleSubmit = async (formData: FormData) => {
     setIsLoading(true)
     setError("")
 
     try {
+      const estimatedTons = formData.get("estimatedTons") as string
+      const numberOfGoods = formData.get("numberOfGoods") as string
+      
+      // Validate that either estimatedTons or numberOfGoods is provided
+      if (!estimatedTons && !numberOfGoods) {
+        setError("Either Estimated Tons or Number of Goods is required")
+        setIsLoading(false)
+        return
+      }
+
       const requestData = {
         loadType: formData.get("loadType") as string,
         fromState: formData.get("fromState") as string,
@@ -111,8 +132,8 @@ export function TransportRequests() {
         toDistrict: formData.get("toDistrict") as string,
         toPlace: formData.get("toPlace") as string,
         toTaluk: formData.get("toTaluk") as string,
-        estimatedTons: Number.parseFloat(formData.get("estimatedTons") as string),
-        numberOfGoods: Number.parseInt(formData.get("numberOfGoods") as string) || undefined,
+        estimatedTons: estimatedTons ? Number.parseFloat(estimatedTons) : undefined,
+        numberOfGoods: numberOfGoods ? Number.parseInt(numberOfGoods) : undefined,
         deliveryPlace: formData.get("deliveryPlace") as string,
         requiredDate: formData.get("requiredDate") as string,
         specialInstructions: formData.get("specialInstructions") as string,
@@ -204,7 +225,7 @@ export function TransportRequests() {
               {/* Load Information */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Load Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="loadType">Load Type *</Label>
                     <Select name="loadType" defaultValue={editingRequest?.loadType || ""} required>
@@ -221,26 +242,25 @@ export function TransportRequests() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="estimatedTons">Estimated Tons *</Label>
-                    <Input
-                      id="estimatedTons"
-                      name="estimatedTons"
-                      type="number"
-                      step="0.1"
-                      required
-                      defaultValue={editingRequest?.estimatedTons || ""}
-                      placeholder="Enter weight in tons"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="numberOfGoods">Number of Goods</Label>
-                    <Input
-                      id="numberOfGoods"
-                      name="numberOfGoods"
-                      type="number"
-                      defaultValue={editingRequest?.numberOfGoods || ""}
-                      placeholder="Enter quantity"
-                    />
+                    <Label htmlFor="estimatedTons">Estimated Tons / Number of Goods *</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        id="estimatedTons"
+                        name="estimatedTons"
+                        type="number"
+                        step="0.1"
+                        defaultValue={editingRequest?.estimatedTons || ""}
+                        placeholder="Weight in tons"
+                      />
+                      <Input
+                        id="numberOfGoods"
+                        name="numberOfGoods"
+                        type="number"
+                        defaultValue={editingRequest?.numberOfGoods || ""}
+                        placeholder="Quantity"
+                      />
+                    </div>
+                    <p className="text-sm text-muted-foreground">Fill at least one field</p>
                   </div>
                 </div>
               </div>
@@ -425,7 +445,7 @@ export function TransportRequests() {
               <TableRow>
                 <TableHead>Load Type</TableHead>
                 <TableHead>Route</TableHead>
-                <TableHead>Weight</TableHead>
+                <TableHead>Load Details</TableHead>
                 <TableHead>Required Date</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Created</TableHead>
@@ -446,7 +466,15 @@ export function TransportRequests() {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>{request.estimatedTons} tons</TableCell>
+                  <TableCell>
+                    {request.estimatedTons ? (
+                      <span>{request.estimatedTons} tons</span>
+                    ) : request.numberOfGoods ? (
+                      <span>{request.numberOfGoods} goods</span>
+                    ) : (
+                      <span className="text-muted-foreground">Not specified</span>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
