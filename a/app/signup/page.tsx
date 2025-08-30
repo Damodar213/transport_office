@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Truck, Building, Upload, Shield } from "lucide-react"
+import { Truck, Building, Upload, Shield, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 
 export default function SignupPage() {
@@ -17,6 +17,12 @@ export default function SignupPage() {
   const [success, setSuccess] = useState("")
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState("supplier")
+  
+  // Password visibility states
+  const [showSupplierPassword, setShowSupplierPassword] = useState(false)
+  const [showBuyerPassword, setShowBuyerPassword] = useState(false)
+  const [showAdminPassword, setShowAdminPassword] = useState(false)
+  const [showAdminKey, setShowAdminKey] = useState(false)
 
   useEffect(() => {
     const role = searchParams.get("role")
@@ -139,13 +145,27 @@ export default function SignupPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="supplier-password">Password *</Label>
-                      <Input
-                        id="supplier-password"
-                        name="password"
-                        type="password"
-                        required
-                        placeholder="Create a password"
-                      />
+                      <div className="relative">
+                        <Input
+                          id="supplier-password"
+                          name="password"
+                          type={showSupplierPassword ? "text" : "password"}
+                          required
+                          placeholder="Create a password"
+                          className="pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowSupplierPassword(!showSupplierPassword)}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                        >
+                          {showSupplierPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="supplier-wheels">Number of Wheels</Label>
@@ -269,13 +289,27 @@ export default function SignupPage() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="buyer-password">Password *</Label>
-                      <Input
-                        id="buyer-password"
-                        name="password"
-                        type="password"
-                        required
-                        placeholder="Create a password"
-                      />
+                      <div className="relative">
+                        <Input
+                          id="buyer-password"
+                          name="password"
+                          type={showBuyerPassword ? "text" : "password"}
+                          required
+                          placeholder="Create a password"
+                          className="pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowBuyerPassword(!showBuyerPassword)}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                        >
+                          {showBuyerPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -344,23 +378,51 @@ export default function SignupPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="admin-password">Password *</Label>
-                      <Input
-                        id="admin-password"
-                        name="password"
-                        type="password"
-                        required
-                        placeholder="Create a secure password"
-                      />
+                      <div className="relative">
+                        <Input
+                          id="admin-password"
+                          name="password"
+                          type={showAdminPassword ? "text" : "password"}
+                          required
+                          placeholder="Create a secure password"
+                          className="pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowAdminPassword(!showAdminPassword)}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                        >
+                          {showAdminPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="admin-key">Admin Authorization Key *</Label>
-                      <Input
-                        id="admin-key"
-                        name="adminKey"
-                        type="password"
-                        required
-                        placeholder="Enter admin authorization key"
-                      />
+                      <div className="relative">
+                        <Input
+                          id="admin-key"
+                          name="adminKey"
+                          type={showAdminKey ? "text" : "password"}
+                          required
+                          placeholder="Enter admin authorization key"
+                          className="pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowAdminKey(!showAdminKey)}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                        >
+                          {showAdminKey ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
 

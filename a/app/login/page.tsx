@@ -7,13 +7,18 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Truck, User, Building } from "lucide-react"
+import { Truck, User, Building, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [showAdminLogin, setShowAdminLogin] = useState(false)
+  
+  // Password visibility states
+  const [showSupplierPassword, setShowSupplierPassword] = useState(false)
+  const [showBuyerPassword, setShowBuyerPassword] = useState(false)
+  const [showAdminPassword, setShowAdminPassword] = useState(false)
 
   const handleLogin = async (formData: FormData, role: string) => {
     setIsLoading(true)
@@ -83,13 +88,27 @@ export default function LoginPage() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="supplier-password">Password</Label>
-                      <Input
-                        id="supplier-password"
-                        name="password"
-                        type="password"
-                        required
-                        placeholder="Enter your password"
-                      />
+                      <div className="relative">
+                        <Input
+                          id="supplier-password"
+                          name="password"
+                          type={showSupplierPassword ? "text" : "password"}
+                          required
+                          placeholder="Enter your password"
+                          className="pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowSupplierPassword(!showSupplierPassword)}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                        >
+                          {showSupplierPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                     </div>
                     {error && (
                       <Alert variant="destructive">
@@ -118,13 +137,27 @@ export default function LoginPage() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="buyer-password">Password</Label>
-                      <Input
-                        id="buyer-password"
-                        name="password"
-                        type="password"
-                        required
-                        placeholder="Enter your password"
-                      />
+                      <div className="relative">
+                        <Input
+                          id="buyer-password"
+                          name="password"
+                          type={showBuyerPassword ? "text" : "password"}
+                          required
+                          placeholder="Enter your password"
+                          className="pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowBuyerPassword(!showBuyerPassword)}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                        >
+                          {showBuyerPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                     </div>
                     {error && (
                       <Alert variant="destructive">
@@ -156,13 +189,27 @@ export default function LoginPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="admin-password">Password</Label>
-                  <Input
-                    id="admin-password"
-                    name="password"
-                    type="password"
-                    required
-                    placeholder="Enter admin password"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="admin-password"
+                      name="password"
+                      type={showAdminPassword ? "text" : "password"}
+                      required
+                      placeholder="Enter admin password"
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowAdminPassword(!showAdminPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                    >
+                      {showAdminPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
                 </div>
                 {error && (
                   <Alert variant="destructive">
