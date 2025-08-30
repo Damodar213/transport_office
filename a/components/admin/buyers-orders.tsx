@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Search, Filter, Eye, Edit, Trash2, RefreshCw, Download, Calendar, MapPin, Package, Truck, FileText } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+import { Search, Filter, Eye, Edit, Trash2, RefreshCw, Download, Calendar, MapPin, Package, Truck, FileText, Send, Users } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -63,6 +64,7 @@ interface BuyersOrder {
 }
 
 export function BuyersOrders() {
+  const { toast } = useToast()
   const [orders, setOrders] = useState<BuyersOrder[]>([])
   const [filteredOrders, setFilteredOrders] = useState<BuyersOrder[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -72,6 +74,11 @@ export function BuyersOrders() {
   const [dateFilter, setDateFilter] = useState("all")
   const [selectedOrder, setSelectedOrder] = useState<BuyersOrder | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [suppliers, setSuppliers] = useState<any[]>([])
+  const [selectedSuppliers, setSelectedSuppliers] = useState<string[]>([])
+  const [isSupplierDialogOpen, setIsSupplierDialogOpen] = useState(false)
+  const [isLoadingSuppliers, setIsLoadingSuppliers] = useState(false)
+  const [isSendingOrder, setIsSendingOrder] = useState(false)
 
   // Fetch orders from API
   const fetchOrders = async () => {
@@ -103,6 +110,78 @@ export function BuyersOrders() {
   useEffect(() => {
     fetchOrders()
   }, [])
+
+  // Fetch suppliers
+  const fetchSuppliers = async () => {
+    try {
+      setIsLoadingSuppliers(true)
+      const response = await fetch("/api/admin/suppliers")
+      if (response.ok) {
+        const data = await response.json()
+        setSuppliers(data.suppliers || [])
+      } else {
+        throw new Error("Failed to fetch suppliers")
+      }
+    } catch (error) {
+      console.error("Error fetching suppliers:", error)
+    } finally {
+      setIsLoadingSuppliers(false)
+    }
+  }
+
+  // Send order to suppliers
+  const sendOrderToSuppliers = async () => {
+    if (!selectedOrder || selectedSuppliers.length === 0) return
+
+    try {
+      setIsSendingOrder(true)
+      const response = await fetch("/api/admin/send-order-to-suppliers", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          orderId: selectedOrder.id,
+          supplierIds: selectedSuppliers,
+          orderDetails: {
+            orderNumber: selectedOrder.order_number,
+            loadType: selectedOrder.load_type,
+            fromPlace: selectedOrder.from_place,
+            toPlace: selectedOrder.to_place
+          }
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        toast({
+          title: "Success",
+          description: `Order sent to ${data.totalSent} suppliers successfully!`,
+        })
+        setIsSupplierDialogOpen(false)
+        setSelectedSuppliers([])
+      } else {
+        throw new Error("Failed to send order to suppliers")
+      }
+    } catch (error) {
+      console.error("Error sending order to suppliers:", error)
+      toast({
+        title: "Error",
+        description: "Failed to send order to suppliers. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSendingOrder(false)
+    }
+  }
+
+  // Handle send to suppliers
+  const handleSendToSuppliers = (order: BuyersOrder) => {
+    setSelectedOrder(order)
+    setSelectedSuppliers([])
+    fetchSuppliers()
+    setIsSupplierDialogOpen(true)
+  }
 
   // Filter orders based on search and filters
   useEffect(() => {
@@ -528,13 +607,24 @@ export function BuyersOrders() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleViewOrder(order)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleViewOrder(order)}
+                            title="View Details"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleSendToSuppliers(order)}
+                            title="Send to Suppliers"
+                          >
+                            <Send className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -727,6 +817,136 @@ export function BuyersOrders() {
                   </CardContent>
                 </Card>
               )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Supplier Selection Dialog */}
+      <Dialog open={isSupplierDialogOpen} onOpenChange={setIsSupplierDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Send Order to Suppliers</DialogTitle>
+            <DialogDescription>
+              Select suppliers to send order details via WhatsApp
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedOrder && (
+            <div className="space-y-6">
+              {/* Order Summary */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Order Summary</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <span className="font-medium">Order:</span>
+                      <div className="text-sm text-muted-foreground">{selectedOrder.order_number}</div>
+                    </div>
+                    <div>
+                      <span className="font-medium">Load Type:</span>
+                      <div className="text-sm text-muted-foreground">{selectedOrder.load_type}</div>
+                    </div>
+                    <div>
+                      <span className="font-medium">From:</span>
+                      <div className="text-sm text-muted-foreground">{selectedOrder.from_place}</div>
+                    </div>
+                    <div>
+                      <span className="font-medium">To:</span>
+                      <div className="text-sm text-muted-foreground">{selectedOrder.to_place}</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Supplier Selection */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Select Suppliers</CardTitle>
+                  <CardDescription>
+                    Choose suppliers to send this order to (selected: {selectedSuppliers.length})
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {isLoadingSuppliers ? (
+                    <div className="text-center py-8">
+                      <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2 text-muted-foreground" />
+                      <p className="text-muted-foreground">Loading suppliers...</p>
+                    </div>
+                  ) : suppliers.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Users className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                      <p className="text-muted-foreground">No suppliers found</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3 max-h-60 overflow-y-auto">
+                      {suppliers.map((supplier) => (
+                        <div
+                          key={supplier.id}
+                          className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-colors ${
+                            selectedSuppliers.includes(supplier.id)
+                              ? 'border-primary bg-primary/5'
+                              : 'border-border hover:border-primary/50'
+                          }`}
+                          onClick={() => {
+                            setSelectedSuppliers(prev =>
+                              prev.includes(supplier.id)
+                                ? prev.filter(id => id !== supplier.id)
+                                : [...prev, supplier.id]
+                            )
+                          }}
+                        >
+                          <div className="flex-1">
+                            <div className="font-medium">{supplier.company_name}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {supplier.contact_person} • {supplier.whatsapp || supplier.mobile}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={selectedSuppliers.includes(supplier.id)}
+                              onChange={() => {}}
+                              className="h-4 w-4"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsSupplierDialogOpen(false)
+                    setSelectedSuppliers([])
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={sendOrderToSuppliers}
+                  disabled={selectedSuppliers.length === 0 || isSendingOrder}
+                >
+                  {isSendingOrder ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4 mr-2" />
+                      Send to {selectedSuppliers.length} Suppliers
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>

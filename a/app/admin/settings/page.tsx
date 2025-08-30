@@ -216,7 +216,8 @@ export default function SettingsPage() {
 
       if (response.ok) {
         const data = await response.json()
-        setLoadTypes(prev => [...prev, data.loadType])
+        // Refresh the load types from server to ensure we have the latest data
+        await loadLoadTypes()
         setNewLoadType({ name: "", description: "" })
         toast({
           title: "Success",
@@ -249,10 +250,8 @@ export default function SettingsPage() {
       })
 
       if (response.ok) {
-        const data = await response.json()
-        setLoadTypes(prev => prev.map(lt => 
-          lt.id === id ? data.loadType : lt
-        ))
+        // Refresh the load types from server to ensure we have the latest data
+        await loadLoadTypes()
         toast({
           title: "Success",
           description: "Load type updated successfully!",
@@ -277,7 +276,8 @@ export default function SettingsPage() {
       })
 
       if (response.ok) {
-        setLoadTypes(prev => prev.filter(lt => lt.id !== id))
+        // Refresh the load types from server to ensure we have the latest data
+        await loadLoadTypes()
         toast({
           title: "Success",
           description: "Load type deleted successfully!",
@@ -312,13 +312,11 @@ export default function SettingsPage() {
       })
 
       if (response.ok) {
-        const data = await response.json()
-        setLoadTypes(prev => prev.map(lt => 
-          lt.id === id ? data.loadType : lt
-        ))
+        // Refresh the load types from server to ensure we have the latest data
+        await loadLoadTypes()
         toast({
           title: "Success",
-          description: `Load type ${data.loadType.isActive ? 'activated' : 'deactivated'} successfully!`,
+          description: `Load type ${!loadType.isActive ? 'activated' : 'deactivated'} successfully!`,
         })
       } else {
         throw new Error("Failed to update load type status")

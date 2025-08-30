@@ -28,7 +28,16 @@ export default function SupplierDashboard() {
   const fetchDashboardStats = async () => {
     try {
       setIsLoadingStats(true)
-      const supplierId = "111111" // Use the actual supplier ID
+      
+      // Get current supplier ID
+      const userResponse = await fetch("/api/auth/me")
+      if (!userResponse.ok) {
+        console.error("Failed to get current supplier")
+        return
+      }
+      
+      const userData = await userResponse.json()
+      const supplierId = userData.user.id
 
       // Fetch drivers count
       const driversResponse = await fetch(`/api/supplier-drivers?supplierId=${supplierId}`)
@@ -66,7 +75,16 @@ export default function SupplierDashboard() {
   // Fetch notification count
   const fetchNotificationCount = async () => {
     try {
-      const supplierId = "111111" // Use the actual supplier ID
+      // Get current supplier ID
+      const userResponse = await fetch("/api/auth/me")
+      if (!userResponse.ok) {
+        console.error("Failed to get current supplier")
+        return
+      }
+      
+      const userData = await userResponse.json()
+      const supplierId = userData.user.id
+      
       const response = await fetch(`/api/supplier/notifications/count?supplierId=${supplierId}`)
       if (response.ok) {
         const data = await response.json()

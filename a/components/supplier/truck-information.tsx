@@ -44,17 +44,43 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
   const [isFetching, setIsFetching] = useState(false)
   const [error, setError] = useState("")
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [currentSupplierId, setCurrentSupplierId] = useState<string>("")
 
   const bodyTypes = ["Half Body", "Full Body", "Container", "Open Body", "Closed Body", "Tanker", "Trailer"]
 
-  // Fetch trucks from database
+  // Get current supplier ID
+  const getCurrentSupplier = async () => {
+    try {
+      const response = await fetch("/api/auth/me")
+      if (response.ok) {
+        const data = await response.json()
+        setCurrentSupplierId(data.user.id)
+        return data.user.id
+      } else {
+        console.error("Failed to get current supplier")
+        return null
+      }
+    } catch (err) {
+      console.error("Error getting current supplier:", err)
+      return null
+    }
+  }
+
+  // Fetch trucks from database for current supplier
   const fetchTrucks = async () => {
     try {
       setIsFetching(true)
-      const response = await fetch("/api/supplier-trucks?supplierId=111111") // Use the actual supplier ID from your existing data
+      const supplierId = await getCurrentSupplier()
+      
+      if (!supplierId) {
+        setError("Failed to get supplier information")
+        return
+      }
+
+      const response = await fetch(`/api/supplier-trucks?supplierId=${supplierId}`)
       if (response.ok) {
         const data = await response.json()
-        setVehicles(data.trucks)
+        setVehicles(data.trucks || [])
       } else {
         setError("Failed to fetch trucks")
       }
@@ -98,11 +124,11 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
       }
 
       const vehicleData = {
-        supplierId: "111111", // Use the actual supplier ID from your existing data
+        supplierId: currentSupplierId, // Use the current supplier ID
         vehicleNumber: formData.get("vehicleNumber") as string,
         bodyType: formData.get("bodyType") as string,
         capacityTons: parseFloat(formData.get("capacityTons") as string) || undefined,
-        numberOfVehicles: parseInt(formData.get("numberOfVehicles") as string) || undefined,
+        numberOfWheels: parseInt(formData.get("numberOfWheels") as string) || undefined,
         documentUrl: documentUrl,
       }
 
