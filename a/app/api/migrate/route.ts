@@ -3,8 +3,66 @@ import { dbQuery } from "@/lib/db"
 
 export async function POST() {
   try {
-    // Skip suppliers table creation since it already exists
-    console.log("Skipping suppliers table creation - already exists")
+    // Create users table first
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        user_id VARCHAR(50) UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'supplier', 'buyer')),
+        email VARCHAR(255),
+        name VARCHAR(100),
+        mobile VARCHAR(20),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+    console.log("Users table created/verified")
+
+    // Create suppliers table
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS suppliers (
+        id SERIAL PRIMARY KEY,
+        user_id VARCHAR(50) UNIQUE NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+        company_name VARCHAR(255),
+        contact_person VARCHAR(100),
+        email VARCHAR(255),
+        mobile VARCHAR(20),
+        whatsapp VARCHAR(20),
+        address TEXT,
+        city VARCHAR(100),
+        state VARCHAR(100),
+        pincode VARCHAR(10),
+        gst_number VARCHAR(20),
+        pan_number VARCHAR(20),
+        number_of_vehicles INTEGER DEFAULT 0,
+        is_verified BOOLEAN DEFAULT FALSE,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+    console.log("Suppliers table created/verified")
+
+    // Create buyers table
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS buyers (
+        id SERIAL PRIMARY KEY,
+        user_id VARCHAR(50) UNIQUE NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+        company_name VARCHAR(255),
+        contact_person VARCHAR(100),
+        email VARCHAR(255),
+        mobile VARCHAR(20),
+        address TEXT,
+        city VARCHAR(100),
+        state VARCHAR(100),
+        pincode VARCHAR(10),
+        gst_number VARCHAR(20),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+    console.log("Buyers table created/verified")
 
     // Create drivers table - reference user_id instead of id
     await dbQuery(`
@@ -85,6 +143,110 @@ export async function POST() {
     `)
     console.log("Confirmed orders table created/verified")
 
+    // Create notifications table
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS notifications (
+        id SERIAL PRIMARY KEY,
+        type VARCHAR(20) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        message TEXT NOT NULL,
+        category VARCHAR(50) NOT NULL,
+        priority VARCHAR(20) NOT NULL,
+        is_read BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+    console.log("Notifications table created/verified")
+
+    // Create supplier_notifications table
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS supplier_notifications (
+        id SERIAL PRIMARY KEY,
+        supplier_id VARCHAR(50) NOT NULL,
+        type VARCHAR(20) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        message TEXT NOT NULL,
+        category VARCHAR(50) NOT NULL,
+        priority VARCHAR(20) NOT NULL,
+        is_read BOOLEAN DEFAULT FALSE,
+        order_id VARCHAR(50),
+        driver_id VARCHAR(50),
+        vehicle_id VARCHAR(50),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+    console.log("Supplier notifications table created/verified")
+
+    // Create buyers_orders table
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS buyers_orders (
+        id SERIAL PRIMARY KEY,
+        buyer_id VARCHAR(50) NOT NULL,
+        order_number VARCHAR(50) UNIQUE NOT NULL,
+        buyer_company VARCHAR(255),
+        buyer_name VARCHAR(100),
+        load_type VARCHAR(100) NOT NULL,
+        from_place VARCHAR(255) NOT NULL,
+        to_place VARCHAR(255) NOT NULL,
+        quantity DECIMAL(10,2),
+        unit VARCHAR(20),
+        status VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft', 'submitted', 'pending', 'assigned', 'confirmed', 'picked_up', 'in_transit', 'delivered', 'cancelled', 'rejected')),
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+    console.log("Buyers orders table created/verified")
+
+    // Create buyer_requests table
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS buyer_requests (
+        id SERIAL PRIMARY KEY,
+        buyer_id VARCHAR(50) NOT NULL REFERENCES buyers(user_id) ON DELETE CASCADE,
+        order_number VARCHAR(50) UNIQUE NOT NULL,
+        load_type VARCHAR(100) NOT NULL,
+        from_state VARCHAR(100) NOT NULL,
+        from_district VARCHAR(100) NOT NULL,
+        from_place VARCHAR(255) NOT NULL,
+        from_taluk VARCHAR(100),
+        to_state VARCHAR(100) NOT NULL,
+        to_district VARCHAR(100) NOT NULL,
+        to_place VARCHAR(255) NOT NULL,
+        to_taluk VARCHAR(100),
+        estimated_tons DECIMAL(10,2),
+        number_of_goods INTEGER,
+        delivery_place VARCHAR(255) NOT NULL,
+        required_date DATE,
+        special_instructions TEXT,
+        supplier_id VARCHAR(50) REFERENCES suppliers(user_id),
+        driver_id INTEGER REFERENCES drivers(id),
+        vehicle_id INTEGER REFERENCES trucks(id),
+        status VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft', 'submitted', 'pending', 'assigned', 'confirmed', 'picked_up', 'in_transit', 'delivered', 'cancelled', 'rejected')),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+    console.log("Buyer requests table created/verified")
+
+    // Create admins table
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS admins (
+        id SERIAL PRIMARY KEY,
+        user_id VARCHAR(50) UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        name VARCHAR(100),
+        email VARCHAR(255),
+        mobile VARCHAR(20),
+        role VARCHAR(20) NOT NULL DEFAULT 'admin',
+        permissions TEXT[] DEFAULT ARRAY['all'],
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+    console.log("Admins table created/verified")
+
     // Get existing supplier user_id for sample data
     const existingSupplier = await dbQuery("SELECT user_id FROM suppliers LIMIT 1")
     let supplierId = "111111" // Default fallback
@@ -132,7 +294,7 @@ export async function POST() {
 
     return NextResponse.json({ 
       message: "Database migration completed successfully",
-      tables: ["suppliers (existing)", "drivers", "trucks", "transport_orders", "confirmed_orders"],
+      tables: ["users", "suppliers", "buyers", "drivers", "trucks", "transport_orders", "confirmed_orders", "notifications", "supplier_notifications", "buyers_orders", "buyer_requests", "admins"],
       supplierId: supplierId
     })
 

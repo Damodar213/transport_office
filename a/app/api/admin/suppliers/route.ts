@@ -37,13 +37,17 @@ export async function GET() {
     // Fetch all suppliers with basic information
     const result = await dbQuery(`
       SELECT 
-        user_id as id,
-        user_id,
-        company_name,
-        gst_number,
-        number_of_vehicles
-      FROM suppliers
-      ORDER BY company_name
+        s.user_id as id,
+        s.user_id,
+        s.company_name,
+        u.name as contact_person,
+        u.mobile,
+        u.mobile as whatsapp,
+        s.gst_number,
+        s.number_of_vehicles
+      FROM suppliers s
+      LEFT JOIN users u ON u.user_id = s.user_id
+      ORDER BY s.company_name
     `)
 
     const suppliers = result.rows

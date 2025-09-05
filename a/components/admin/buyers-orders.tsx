@@ -111,6 +111,13 @@ export function BuyersOrders() {
     fetchOrders()
   }, [])
 
+  // Fetch suppliers when dialog opens
+  useEffect(() => {
+    if (isSupplierDialogOpen) {
+      fetchSuppliers()
+    }
+  }, [isSupplierDialogOpen])
+
   // Fetch suppliers
   const fetchSuppliers = async () => {
     try {
@@ -118,12 +125,18 @@ export function BuyersOrders() {
       const response = await fetch("/api/admin/suppliers")
       if (response.ok) {
         const data = await response.json()
-        setSuppliers(data.suppliers || [])
+        if (data.success && data.suppliers) {
+          setSuppliers(data.suppliers)
+        } else {
+          console.error("Suppliers API returned error:", data.error)
+          setSuppliers([])
+        }
       } else {
-        throw new Error("Failed to fetch suppliers")
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
     } catch (error) {
       console.error("Error fetching suppliers:", error)
+      setSuppliers([])
     } finally {
       setIsLoadingSuppliers(false)
     }
@@ -135,34 +148,101 @@ export function BuyersOrders() {
 
     try {
       setIsSendingOrder(true)
-      const response = await fetch("/api/admin/send-order-to-suppliers", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          orderId: selectedOrder.id,
-          supplierIds: selectedSuppliers,
-          orderDetails: {
-            orderNumber: selectedOrder.order_number,
-            loadType: selectedOrder.load_type,
-            fromPlace: selectedOrder.from_place,
-            toPlace: selectedOrder.to_place
+      
+      // Get supplier details with phone numbers
+      const suppliersWithPhones = suppliers.filter(s => 
+        selectedSuppliers.includes(s.id) && (s.whatsapp || s.mobile)
+      )
+
+      // Create WhatsApp message
+      const message = createWhatsAppMessage(selectedOrder)
+      const encodedMessage = encodeURIComponent(message)
+
+      // Send internal notifications to suppliers
+      const notificationPromises = selectedSuppliers.map(async (supplierId) => {
+        try {
+          const response = await fetch("/api/supplier/notifications", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              type: "info",
+              title: "New Transport Order Available",
+              message: `New transport order ${selectedOrder.order_number} is available for your consideration. Load: ${selectedOrder.load_type}, Route: ${selectedOrder.from_place} → ${selectedOrder.to_place}`,
+              category: "order",
+              priority: "high",
+              supplierId: supplierId,
+              orderId: selectedOrder.id
+            })
+          })
+          
+          if (!response.ok) {
+            console.error(`Failed to create notification for supplier ${supplierId}`)
           }
-        })
+        } catch (error) {
+          console.error(`Error creating notification for supplier ${supplierId}:`, error)
+        }
       })
 
-      if (response.ok) {
-        const data = await response.json()
-        toast({
-          title: "Success",
-          description: `Order sent to ${data.totalSent} suppliers successfully!`,
+      // Wait for all notifications to be created
+      await Promise.all(notificationPromises)
+
+      // Update order status to "submitted"
+      try {
+        const updateResponse = await fetch(`/api/buyer-requests/${selectedOrder.id}/status`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            status: "submitted"
+          })
         })
-        setIsSupplierDialogOpen(false)
-        setSelectedSuppliers([])
-      } else {
-        throw new Error("Failed to send order to suppliers")
+        
+        if (updateResponse.ok) {
+          // Update the order in local state
+          setOrders(prevOrders => 
+            prevOrders.map(order => 
+              order.id === selectedOrder.id 
+                ? { ...order, status: "submitted" }
+                : order
+            )
+          )
+          setFilteredOrders(prevOrders => 
+            prevOrders.map(order => 
+              order.id === selectedOrder.id 
+                ? { ...order, status: "submitted" }
+                : order
+            )
+          )
+          console.log("Order status updated to submitted")
+        } else {
+          console.error("Failed to update order status")
+        }
+      } catch (error) {
+        console.error("Error updating order status:", error)
       }
+
+      // Send to each supplier via WhatsApp (if they have phone numbers)
+      suppliersWithPhones.forEach((supplier, index) => {
+        const phoneNumber = (supplier.whatsapp || supplier.mobile).replace(/[^0-9]/g, "")
+        const cleanPhoneNumber = phoneNumber.startsWith("91") ? phoneNumber.substring(2) : phoneNumber
+        const whatsappUrl = `https://wa.me/91${cleanPhoneNumber}?text=${encodedMessage}`
+        
+        // Open WhatsApp with a slight delay to avoid browser blocking multiple windows
+        setTimeout(() => {
+          window.open(whatsappUrl, "_blank")
+        }, index * 500)
+      })
+
+      toast({
+        title: "Success",
+        description: `Order ${selectedOrder.order_number} submitted and sent to ${selectedSuppliers.length} suppliers! Status updated to "Submitted". Internal notifications created and WhatsApp opened for ${suppliersWithPhones.length} suppliers with phone numbers.`,
+      })
+      setIsSupplierDialogOpen(false)
+      setSelectedSuppliers([])
+      
     } catch (error) {
       console.error("Error sending order to suppliers:", error)
       toast({
@@ -175,11 +255,24 @@ export function BuyersOrders() {
     }
   }
 
+  // Create WhatsApp message for order
+  const createWhatsAppMessage = (order: BuyersOrder) => {
+    return `🚛 *New Transport Order Available*
+
+*Order:* ${order.order_number}
+*Load Type:* ${order.load_type}
+*Route:* ${order.from_place} → ${order.to_place}
+*Status:* Submitted
+
+*Contact Admin for more details*
+
+*Transport Office Management System*`
+  }
+
   // Handle send to suppliers
   const handleSendToSuppliers = (order: BuyersOrder) => {
     setSelectedOrder(order)
     setSelectedSuppliers([])
-    fetchSuppliers()
     setIsSupplierDialogOpen(true)
   }
 
@@ -828,7 +921,7 @@ export function BuyersOrders() {
           <DialogHeader>
             <DialogTitle>Send Order to Suppliers</DialogTitle>
             <DialogDescription>
-              Select suppliers to send order details via WhatsApp
+              Select suppliers to send order details. Internal notifications will be created in their accounts, and WhatsApp Web will open for suppliers with phone numbers.
             </DialogDescription>
           </DialogHeader>
           
@@ -867,6 +960,11 @@ export function BuyersOrders() {
                   <CardTitle className="text-lg">Select Suppliers</CardTitle>
                   <CardDescription>
                     Choose suppliers to send this order to (selected: {selectedSuppliers.length})
+                    {suppliers.filter(s => !s.mobile && !s.whatsapp).length > 0 && (
+                      <span className="block text-orange-600 mt-1">
+                        ⚠️ Some suppliers don't have phone numbers and won't receive WhatsApp messages
+                      </span>
+                    )}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -889,7 +987,7 @@ export function BuyersOrders() {
                             selectedSuppliers.includes(supplier.id)
                               ? 'border-primary bg-primary/5'
                               : 'border-border hover:border-primary/50'
-                          }`}
+                          } ${!supplier.mobile && !supplier.whatsapp ? 'opacity-60' : ''}`}
                           onClick={() => {
                             setSelectedSuppliers(prev =>
                               prev.includes(supplier.id)
@@ -901,10 +999,13 @@ export function BuyersOrders() {
                           <div className="flex-1">
                             <div className="font-medium">{supplier.company_name}</div>
                             <div className="text-sm text-muted-foreground">
-                              {supplier.contact_person} • {supplier.whatsapp || supplier.mobile}
+                              {supplier.contact_person} • {supplier.whatsapp || supplier.mobile || 'No phone number'}
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
+                            {!supplier.mobile && !supplier.whatsapp && (
+                              <span className="text-xs text-orange-600">No WhatsApp</span>
+                            )}
                             <input
                               type="checkbox"
                               checked={selectedSuppliers.includes(supplier.id)}
@@ -937,7 +1038,7 @@ export function BuyersOrders() {
                   {isSendingOrder ? (
                     <>
                       <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                      Sending...
+                      Sending Notifications & WhatsApp...
                     </>
                   ) : (
                     <>

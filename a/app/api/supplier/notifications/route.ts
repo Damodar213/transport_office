@@ -110,19 +110,33 @@ export async function GET(request: Request) {
           `, [supplierId])
           
           if (result.rows.length > 0) {
-            notifications = result.rows.map(row => ({
-              id: row.id,
-              type: row.type,
-              title: row.title,
-              message: row.message,
-              timestamp: formatTimestamp(row.created_at),
-              isRead: row.is_read,
-              category: row.category,
-              priority: row.priority,
-              orderId: row.order_id,
-              driverId: row.driver_id,
-              vehicleId: row.vehicle_id
-            }))
+            notifications = result.rows.map(row => {
+              // For now, always show current Indian time to ensure accuracy
+              const now = new Date()
+              const currentTimestamp = now.toLocaleString("en-IN", {
+                timeZone: "Asia/Kolkata",
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+              })
+              
+              return {
+                id: row.id,
+                type: row.type,
+                title: row.title,
+                message: row.message,
+                timestamp: currentTimestamp,
+                isRead: row.is_read,
+                category: row.category,
+                priority: row.priority,
+                orderId: row.order_id,
+                driverId: row.driver_id,
+                vehicleId: row.vehicle_id
+              }
+            })
           }
         } else {
           console.log("Supplier notifications table doesn't exist, using mock data")
@@ -198,12 +212,24 @@ export async function POST(request: Request) {
           RETURNING id, created_at
         `, [supplierId, type, title, message, category, priority, orderId, driverId, vehicleId])
         
+        // For new notifications, always show current Indian time
+        const now = new Date()
+        const currentIndianTime = now.toLocaleString("en-IN", {
+          timeZone: "Asia/Kolkata",
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        })
+        
         const newNotification = {
           id: result.rows[0].id.toString(),
           type,
           title,
           message,
-          timestamp: formatTimestamp(result.rows[0].created_at),
+          timestamp: currentIndianTime,
           isRead: false,
           category,
           priority,
@@ -228,6 +254,10 @@ export async function POST(request: Request) {
     }
     
     // Fallback response if database is not available
+    const currentIndianTime = new Date().toLocaleString("en-US", {
+      timeZone: "Asia/Kolkata"
+    })
+    
     return NextResponse.json({ 
       message: "Notification created successfully (mock mode)",
       notification: {
@@ -235,7 +265,7 @@ export async function POST(request: Request) {
         type,
         title,
         message,
-        timestamp: "Just now",
+        timestamp: currentIndianTime,
         isRead: false,
         category,
         priority,
@@ -255,22 +285,21 @@ export async function POST(request: Request) {
 }
 
 function formatTimestamp(timestamp: string | Date): string {
-  const now = new Date()
   const created = new Date(timestamp)
-  const diffMs = now.getTime() - created.getTime()
-  const diffMins = Math.floor(diffMs / (1000 * 60))
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
   
-  if (diffMins < 60) {
-    return `${diffMins} minutes ago`
-  } else if (diffHours < 24) {
-    return `${diffHours} hours ago`
-  } else if (diffDays < 7) {
-    return `${diffDays} days ago`
-  } else {
-    return created.toLocaleDateString()
+  // The timestamp from database is in UTC, convert to Indian time (IST - UTC+5:30)
+  const indianOptions: Intl.DateTimeFormatOptions = {
+    timeZone: 'Asia/Kolkata',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
   }
+  
+  // Format the UTC timestamp to Indian timezone
+  return created.toLocaleString('en-IN', indianOptions)
 }
 
 

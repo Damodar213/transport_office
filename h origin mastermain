@@ -1,0 +1,3 @@
+[33md9062cd[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m Add password visibility toggle with eye icons to login and signup forms
+[33m5bc53cb[m[33m ([m[1;31morigin/main[m[33m, [m[1;31mnew-origin/main[m[33m, [m[1;32mmain[m[33m)[m Clean up project structure: Remove duplicate directories and files, keep only essential files. All recent changes preserved in active project directory.
+[33m28fd3ef[m Resolve merge conflict in .gitignore

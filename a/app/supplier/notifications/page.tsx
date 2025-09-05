@@ -27,10 +27,30 @@ export default function SupplierNotificationsPage() {
   const [filter, setFilter] = useState<string>("all")
   const [priority, setPriority] = useState<string>("all")
   const [isLoading, setIsLoading] = useState(true)
-  const [supplierId] = useState("111111") // In real app, get from auth context
+  const [supplierId, setSupplierId] = useState<string>("")
+
+  // Get current supplier ID from auth
+  useEffect(() => {
+    const getCurrentSupplier = async () => {
+      try {
+        const response = await fetch("/api/auth/me")
+        if (response.ok) {
+          const data = await response.json()
+          setSupplierId(data.user.id)
+        } else {
+          console.error("Failed to get current supplier")
+        }
+      } catch (error) {
+        console.error("Error getting current supplier:", error)
+      }
+    }
+    getCurrentSupplier()
+  }, [])
 
   useEffect(() => {
-    fetchNotifications()
+    if (supplierId) {
+      fetchNotifications()
+    }
   }, [supplierId])
 
   const fetchNotifications = async () => {
