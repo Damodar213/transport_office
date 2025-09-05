@@ -17,23 +17,11 @@ export async function GET() {
     // Check if database is available
     const pool = getPool()
     if (!pool) {
-      console.log("Database not available, returning default load types")
-      return NextResponse.json({
-        loadTypes: [
-          { id: "1", name: "Rice", description: "Agricultural products", isActive: true, createdAt: new Date().toISOString() },
-          { id: "2", name: "Wheat", description: "Agricultural products", isActive: true, createdAt: new Date().toISOString() },
-          { id: "3", name: "Cotton", description: "Textile materials", isActive: true, createdAt: new Date().toISOString() },
-          { id: "4", name: "Sugar", description: "Food products", isActive: true, createdAt: new Date().toISOString() },
-          { id: "5", name: "Cement", description: "Construction materials", isActive: true, createdAt: new Date().toISOString() },
-          { id: "6", name: "Steel", description: "Industrial materials", isActive: true, createdAt: new Date().toISOString() },
-          { id: "7", name: "Textiles", description: "Fabric and clothing", isActive: true, createdAt: new Date().toISOString() },
-          { id: "8", name: "Electronics", description: "Electronic devices", isActive: true, createdAt: new Date().toISOString() },
-          { id: "9", name: "Furniture", description: "Home and office furniture", isActive: true, createdAt: new Date().toISOString() },
-          { id: "10", name: "Other", description: "Miscellaneous items", isActive: true, createdAt: new Date().toISOString() }
-        ],
-        total: 10,
-        message: "Default load types (database not configured)"
-      })
+      return NextResponse.json({ 
+        error: "Database not available",
+        loadTypes: [],
+        message: "Database connection failed"
+      }, { status: 500 })
     }
 
     // Simple approach: try to create table and insert data
@@ -114,10 +102,9 @@ export async function POST(request: Request) {
 
     const pool = getPool()
     if (!pool) {
-      console.log("Database not available, cannot create load type")
       return NextResponse.json({ 
-        error: "Database not available - cannot create load types without database" 
-      }, { status: 503 })
+        error: "Database not available" 
+      }, { status: 500 })
     }
 
     // Ensure table exists
@@ -177,10 +164,9 @@ export async function PUT(request: Request) {
 
     const pool = getPool()
     if (!pool) {
-      console.log("Database not available, cannot update load type")
       return NextResponse.json({ 
-        error: "Database not available - cannot update load types without database" 
-      }, { status: 503 })
+        error: "Database not available" 
+      }, { status: 500 })
     }
 
     const result = await dbQuery(`
@@ -230,10 +216,9 @@ export async function DELETE(request: NextRequest) {
 
     const pool = getPool()
     if (!pool) {
-      console.log("Database not available, cannot delete load type")
       return NextResponse.json({ 
-        error: "Database not available - cannot delete load types without database" 
-      }, { status: 503 })
+        error: "Database not available" 
+      }, { status: 500 })
     }
 
     const result = await dbQuery(`

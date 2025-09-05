@@ -14,10 +14,9 @@ export async function POST(request: Request) {
 
     const pool = getPool()
     if (!pool) {
-      console.log("Database not available, cannot send order to suppliers")
       return NextResponse.json({ 
-        error: "Database not available - cannot send orders without database" 
-      }, { status: 503 })
+        error: "Database not available" 
+      }, { status: 500 })
     }
 
     // Create WhatsApp message

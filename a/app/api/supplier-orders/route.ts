@@ -24,17 +24,6 @@ export interface SupplierVehicleLocation {
 // GET - Fetch supplier transport orders with filtering
 export async function GET(request: NextRequest) {
   try {
-    // Check if database is available
-    const pool = await import("@/lib/db").then(m => m.getPool())
-    if (!pool) {
-      console.log("Database not available, returning empty supplier orders")
-      return NextResponse.json({
-        orders: [],
-        total: 0,
-        message: "No supplier orders available (database not configured)"
-      })
-    }
-
     const { searchParams } = new URL(request.url)
     const supplierId = searchParams.get("supplierId")
 
@@ -147,15 +136,6 @@ export async function GET(request: NextRequest) {
 // POST - Create new supplier transport order
 export async function POST(request: NextRequest) {
   try {
-    // Check if database is available
-    const pool = await import("@/lib/db").then(m => m.getPool())
-    if (!pool) {
-      console.log("Database not available, cannot create supplier order")
-      return NextResponse.json({ 
-        error: "Database not available - cannot create supplier orders without database" 
-      }, { status: 503 })
-    }
-
     const body = await request.json()
 
     // First, get the supplier user_id from suppliers table
@@ -234,15 +214,6 @@ export async function POST(request: NextRequest) {
 // PUT - Update supplier transport order (for admin actions)
 export async function PUT(request: NextRequest) {
   try {
-    // Check if database is available
-    const pool = await import("@/lib/db").then(m => m.getPool())
-    if (!pool) {
-      console.log("Database not available, cannot update supplier order")
-      return NextResponse.json({ 
-        error: "Database not available - cannot update supplier orders without database" 
-      }, { status: 503 })
-    }
-
     const body = await request.json()
     const { id, ...updateData } = body
 

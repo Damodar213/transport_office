@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -32,79 +32,45 @@ interface DocumentSubmission {
 }
 
 export function DocumentVerification() {
-  const [documents, setDocuments] = useState<DocumentSubmission[]>([
-    {
-      id: 1,
-      userId: "SUP001",
-      supplierName: "Rajesh Kumar",
-      companyName: "Kumar Transport Co.",
-      documentType: "aadhaar",
-      documentUrl: "/placeholder.svg?key=aadhaar1",
-      submittedAt: "2024-02-10 14:30",
-      status: "pending",
-    },
-    {
-      id: 2,
-      userId: "SUP001",
-      supplierName: "Rajesh Kumar",
-      companyName: "Kumar Transport Co.",
-      documentType: "pan",
-      documentUrl: "/placeholder.svg?key=pan1",
-      submittedAt: "2024-02-10 14:32",
-      status: "approved",
-      reviewNotes: "Document verified successfully",
-      reviewedBy: "Admin",
-      reviewedAt: "2024-02-10 16:45",
-    },
-    {
-      id: 3,
-      userId: "SUP002",
-      supplierName: "Mohan Singh",
-      companyName: "Singh Transport Co.",
-      documentType: "gst",
-      documentUrl: "/placeholder.svg?key=gst1",
-      submittedAt: "2024-02-09 11:20",
-      status: "rejected",
-      reviewNotes: "Document quality is poor, please resubmit with clearer image",
-      reviewedBy: "Admin",
-      reviewedAt: "2024-02-09 15:30",
-    },
-    {
-      id: 4,
-      userId: "SUP003",
-      supplierName: "Suresh Patel",
-      companyName: "Patel Logistics",
-      documentType: "rc",
-      documentUrl: "/placeholder.svg?key=rc1",
-      submittedAt: "2024-02-08 09:15",
-      status: "pending",
-    },
-  ])
+  const [documents, setDocuments] = useState<DocumentSubmission[]>([])
+  const [loading, setLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string>("")
 
   const [selectedDocument, setSelectedDocument] = useState<DocumentSubmission | null>(null)
   const [reviewNotes, setReviewNotes] = useState("")
   const [isReviewing, setIsReviewing] = useState(false)
 
+  const fetchDocuments = async () => {
+    try {
+      setLoading(true)
+      setError("")
+      const res = await fetch("/api/documents", { cache: "no-store" })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Failed to fetch documents")
+      setDocuments(data.documents || [])
+    } catch (e: any) {
+      setError(e.message || "Failed to fetch documents")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchDocuments()
+  }, [])
+
   const handleReview = async (documentId: number, status: "approved" | "rejected", notes: string) => {
     setIsReviewing(true)
 
     try {
-      // Mock API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      setDocuments((prev) =>
-        prev.map((doc) =>
-          doc.id === documentId
-            ? {
-                ...doc,
-                status,
-                reviewNotes: notes,
-                reviewedBy: "Admin",
-                reviewedAt: new Date().toISOString().replace("T", " ").substring(0, 16),
-              }
-            : doc,
-        ),
-      )
+      const res = await fetch("/api/documents", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: documentId, status, reviewNotes: notes, reviewer: "Admin" }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Failed to update document")
+      await fetchDocuments()
 
       setSelectedDocument(null)
       setReviewNotes("")
@@ -206,6 +172,12 @@ export function DocumentVerification() {
           <CardDescription>Review supplier documents and verify authenticity</CardDescription>
         </CardHeader>
         <CardContent>
+          {error && (
+            <Alert>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          {loading && <div className="text-sm text-muted-foreground">Loading documents...</div>}
           <Table>
             <TableHeader>
               <TableRow>

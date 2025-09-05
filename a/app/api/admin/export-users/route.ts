@@ -8,13 +8,7 @@ export async function GET(request: Request) {
     const format = searchParams.get('format') || 'excel'
     
     if (!getPool()) {
-      console.log("Database not available, returning empty user export")
-      return NextResponse.json({
-        users: [],
-        exportedAt: new Date().toISOString(),
-        totalUsers: 0,
-        message: "No users available (database not configured)"
-      })
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
 
     const users = await getAllUsersAsync()

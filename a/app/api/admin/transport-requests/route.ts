@@ -6,12 +6,11 @@ export async function GET() {
     // Check if database is available
     const pool = await import("@/lib/db").then(m => m.getPool())
     if (!pool) {
-      console.log("Database not available, returning empty transport requests")
-      return NextResponse.json({
+      return NextResponse.json({ 
+        error: "Database not available",
         requests: [],
-        total: 0,
-        message: "No transport requests available (database not configured)"
-      })
+        message: "Using fallback data"
+      }, { status: 503 })
     }
 
     // Fetch transport requests with buyer and supplier information

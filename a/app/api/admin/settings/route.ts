@@ -109,10 +109,7 @@ export async function PUT(request: Request) {
     console.log("PUT /api/admin/settings - updating settings...")
     
     if (!getPool()) {
-      console.log("Database not available, cannot update settings")
-      return NextResponse.json({ 
-        error: "Database not available - cannot update settings without database" 
-      }, { status: 503 })
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
     
     try {

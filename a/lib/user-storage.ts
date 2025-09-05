@@ -106,6 +106,63 @@ function createUserDb(userData: Omit<User, "id" | "createdAt">): User {
   )
 }
 
+export async function createBuyerAsync(buyerData: {
+  userId: string
+  passwordHash: string
+  companyName: string
+  gstNumber: string
+}): Promise<User> {
+  if (!getPool()) {
+    return createUser({ ...buyerData, role: "buyer" })
+  }
+  
+  try {
+    const now = new Date()
+    const { userId, passwordHash, companyName, gstNumber } = buyerData
+    console.log("createBuyerAsync called with:", { userId, companyName, gstNumber })
+    
+    const res = await dbQuery<{ id: number }>(
+      `INSERT INTO users (user_id, password_hash, role, email, name, mobile, created_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+      [userId, passwordHash, 'buyer', null, null, null, now],
+    )
+    
+    if (res.rows.length === 0) {
+      throw new Error("No rows returned from users insert")
+    }
+    
+    const id = res.rows[0].id
+    console.log("✅ User created with ID:", id)
+    
+    // Insert into buyers table
+    await dbQuery(
+      `INSERT INTO buyers (user_id, company_name, gst_number) VALUES ($1,$2,$3)
+       ON CONFLICT (user_id) DO UPDATE SET company_name=EXCLUDED.company_name, gst_number=EXCLUDED.gst_number`,
+      [userId, companyName, gstNumber],
+    )
+    
+    console.log("✅ Buyer data inserted successfully")
+    
+    return { 
+      id, 
+      userId, 
+      passwordHash, 
+      role: "buyer" as const,
+      email: undefined,
+      name: undefined,
+      mobile: undefined,
+      companyName, 
+      gstNumber, 
+      numberOfVehicles: undefined,
+      documents: undefined,
+      createdAt: now 
+    }
+  } catch (error) {
+    console.error("Database operation failed:", error)
+    throw error
+  }
+}
+
 export async function createUserAsync(userData: Omit<User, "id" | "createdAt">): Promise<User> {
   if (!getPool()) {
     return createUser(userData)
@@ -113,11 +170,13 @@ export async function createUserAsync(userData: Omit<User, "id" | "createdAt">):
   
   try {
     const now = new Date()
-    const { userId, passwordHash, role, email, name, mobile, companyName, gstNumber, numberOfVehicles, documents } = userData
+    const { userId, passwordHash, role } = userData
+    console.log("createUserAsync called with:", { userId, role })
+    
     const res = await dbQuery<{ id: number }>(
       `INSERT INTO users (user_id, password_hash, role, email, name, mobile, created_at)
        VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
-      [userId, passwordHash, role, email || null, name || null, mobile || null, now.toISOString()],
+      [userId, passwordHash, role, userData.email || null, userData.name || null, userData.mobile || null, now],
     )
     
     // Check if database operation was successful
@@ -131,17 +190,30 @@ export async function createUserAsync(userData: Omit<User, "id" | "createdAt">):
       await dbQuery(
         `INSERT INTO suppliers (user_id, company_name, gst_number, number_of_vehicles) VALUES ($1,$2,$3,$4)
          ON CONFLICT (user_id) DO UPDATE SET company_name=EXCLUDED.company_name, gst_number=EXCLUDED.gst_number, number_of_vehicles=EXCLUDED.number_of_vehicles`,
-        [userId, companyName || null, gstNumber || null, numberOfVehicles || null],
+        [userId, userData.companyName || null, userData.gstNumber || null, userData.numberOfVehicles || null],
       )
     } else if (role === "buyer") {
       await dbQuery(
         `INSERT INTO buyers (user_id, company_name, gst_number) VALUES ($1,$2,$3)
          ON CONFLICT (user_id) DO UPDATE SET company_name=EXCLUDED.company_name, gst_number=EXCLUDED.gst_number`,
-        [userId, companyName || null, gstNumber || null],
+        [userId, userData.companyName || null, userData.gstNumber || null],
       )
     }
     // documents persistence can be added later via upload route
-    return { id, userId, passwordHash, role, email, name, mobile, companyName, gstNumber, numberOfVehicles, documents, createdAt: now }
+    return { 
+      id, 
+      userId, 
+      passwordHash, 
+      role, 
+      email: userData.email, 
+      name: userData.name, 
+      mobile: userData.mobile, 
+      companyName: userData.companyName, 
+      gstNumber: userData.gstNumber, 
+      numberOfVehicles: userData.numberOfVehicles, 
+      documents: userData.documents, 
+      createdAt: now 
+    }
   } catch (error) {
     console.log("Database operation failed, falling back to file storage:", error)
     return createUser(userData)

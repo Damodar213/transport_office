@@ -36,8 +36,8 @@ export async function GET(request: NextRequest) {
 
     // Check if database is available
     if (!getPool()) {
-      console.log("Database not available, returning empty confirmed orders")
-      return NextResponse.json({ confirmedOrders: [] })
+      console.log("Database not available")
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
 
     // First, let's check if the tables exist and have data

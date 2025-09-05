@@ -6,12 +6,11 @@ export async function GET() {
     // Check if database is available
     const pool = await import("@/lib/db").then(m => m.getPool())
     if (!pool) {
-      console.log("Database not available, returning empty available suppliers")
-      return NextResponse.json({
+      return NextResponse.json({ 
+        error: "Database not available",
         suppliers: [],
-        total: 0,
-        message: "No available suppliers (database not configured)"
-      })
+        message: "Using fallback data"
+      }, { status: 503 })
     }
 
     // Fetch verified suppliers with their vehicle and driver information

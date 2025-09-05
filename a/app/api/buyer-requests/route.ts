@@ -5,14 +5,7 @@ import { dbQuery, getPool } from "@/lib/db"
 export async function GET(request: Request) {
   try {
     if (!getPool()) {
-      console.log("Database not available, returning empty buyer requests")
-      return NextResponse.json({
-        success: true,
-        data: [],
-        total: 0,
-        limit: 100,
-        offset: 0
-      })
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
 
     const { searchParams } = new URL(request.url)
@@ -81,10 +74,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     if (!getPool()) {
-      console.log("Database not available, cannot create buyer request")
-      return NextResponse.json({ 
-        error: "Database not available - cannot create requests without database" 
-      }, { status: 503 })
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
 
     const body = await request.json()
@@ -112,6 +102,32 @@ export async function POST(request: Request) {
       return NextResponse.json({ 
         error: "Missing required fields" 
       }, { status: 400 })
+    }
+
+    // Check if buyer exists in buyers table, if not create a basic entry
+    const buyerCheck = await dbQuery(`
+      SELECT user_id FROM buyers WHERE user_id = $1
+    `, [buyer_id])
+    
+    if (buyerCheck.rows.length === 0) {
+      // Check if user exists with buyer role
+      const userCheck = await dbQuery(`
+        SELECT user_id FROM users WHERE user_id = $1 AND role = 'buyer'
+      `, [buyer_id])
+      
+      if (userCheck.rows.length === 0) {
+        return NextResponse.json({ 
+          error: "Buyer not found. Please register as a buyer first." 
+        }, { status: 400 })
+      }
+      
+      // Create basic buyer entry
+      await dbQuery(`
+        INSERT INTO buyers (user_id, company_name, gst_number)
+        VALUES ($1, $2, $3)
+      `, [buyer_id, "Unknown Company", "GST000000000"])
+      
+      console.log(`Created buyer entry for user_id: ${buyer_id}`)
     }
 
     // Generate unique order number in simple format (ORD-1, ORD-2, ORD-3, etc.)

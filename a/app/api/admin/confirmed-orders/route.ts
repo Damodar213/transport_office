@@ -3,16 +3,6 @@ import { dbQuery } from "@/lib/db"
 
 export async function GET() {
   try {
-    // Check if database is available
-    const pool = await import("@/lib/db").then(m => m.getPool())
-    if (!pool) {
-      console.log("Database not available, returning empty confirmed orders")
-      return NextResponse.json({
-        confirmedOrders: [],
-        totalCount: 0
-      })
-    }
-
     // First, check if confirmed_orders table has any data
     const countResult = await dbQuery("SELECT COUNT(*) as count FROM confirmed_orders")
     console.log("Confirmed orders count:", countResult.rows[0].count)

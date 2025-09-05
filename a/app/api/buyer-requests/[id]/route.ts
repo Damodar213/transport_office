@@ -8,10 +8,7 @@ export async function GET(
 ) {
   try {
     if (!getPool()) {
-      console.log("Database not available, cannot fetch buyer request")
-      return NextResponse.json({ 
-        error: "Database not available - cannot fetch buyer request without database" 
-      }, { status: 503 })
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
 
     const id = params.id
@@ -63,10 +60,7 @@ export async function PUT(
 ) {
   try {
     if (!getPool()) {
-      console.log("Database not available, cannot update buyer request")
-      return NextResponse.json({ 
-        error: "Database not available - cannot update buyer request without database" 
-      }, { status: 503 })
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
 
     const id = params.id
@@ -323,10 +317,7 @@ export async function DELETE(
 ) {
   try {
     if (!getPool()) {
-      console.log("Database not available, cannot delete buyer request")
-      return NextResponse.json({ 
-        error: "Database not available - cannot delete buyer request without database" 
-      }, { status: 503 })
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
 
     const id = params.id
