@@ -39,12 +39,29 @@ export function DriverInformation({ onDataChange }: DriverInformationProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
   const [error, setError] = useState("")
+  const [blockingOrders, setBlockingOrders] = useState<any[]>([])
+  const [uploadingDriverId, setUploadingDriverId] = useState<number | null>(null)
 
   // Fetch drivers from database
   const fetchDrivers = async () => {
     try {
       setIsFetching(true)
-      const response = await fetch("/api/supplier-drivers?supplierId=111111") // Use the actual supplier ID from your existing data
+      
+      // Get current supplier ID from auth
+      const userResponse = await fetch("/api/auth/me", {
+        credentials: 'include'
+      })
+      if (!userResponse.ok) {
+        setError("Failed to get current supplier")
+        return
+      }
+      
+      const userData = await userResponse.json()
+      const supplierId = userData.user.id
+      
+      const response = await fetch(`/api/supplier-drivers?supplierId=${supplierId}`, {
+        credentials: 'include'
+      })
       if (response.ok) {
         const data = await response.json()
         setDrivers(data.drivers)
@@ -110,8 +127,19 @@ export function DriverInformation({ onDataChange }: DriverInformationProps) {
         }
       }
 
+      // Get current supplier ID from auth
+      const userResponse = await fetch("/api/auth/me")
+      if (!userResponse.ok) {
+        setError("Failed to get current supplier")
+        setIsLoading(false)
+        return
+      }
+      
+      const userData = await userResponse.json()
+      const supplierId = userData.user.id
+
       const driverData = {
-        supplierId: "111111", // Use the actual supplier ID from your existing data
+        supplierId: supplierId,
         driverName: driverName.trim(),
         mobile: mobile.trim(),
         licenseDocumentUrl: licenseDocumentUrl,
@@ -180,10 +208,26 @@ export function DriverInformation({ onDataChange }: DriverInformationProps) {
     setIsDialogOpen(true)
   }
 
+  const getBlockingOrders = async (driverId: number) => {
+    try {
+      const response = await fetch(`/api/driver-blocking-orders?driverId=${driverId}`)
+      if (response.ok) {
+        const data = await response.json()
+        return data.blockingOrders
+      }
+    } catch (error) {
+      console.error("Failed to get blocking orders:", error)
+    }
+    return { confirmedOrders: [], vehicleLocationOrders: [] }
+  }
+
   const handleDelete = async (driverId: number) => {
     if (!confirm("Are you sure you want to delete this driver?")) return
 
     try {
+      setError("")
+      setBlockingOrders([])
+      
       const response = await fetch(`/api/supplier-drivers?id=${driverId}`, {
         method: "DELETE",
       })
@@ -192,14 +236,43 @@ export function DriverInformation({ onDataChange }: DriverInformationProps) {
         await fetchDrivers() // Refresh the list
         onDataChange?.() // Refresh dashboard stats
       } else {
-        const errorData = await response.json()
-        console.error("Delete failed:", errorData)
+        console.error("Delete failed with status:", response.status)
+        console.error("Response headers:", response.headers)
+        
+        let errorData = {}
+        try {
+          const responseText = await response.text()
+          console.error("Response text:", responseText)
+          
+          if (responseText) {
+            errorData = JSON.parse(responseText)
+          }
+        } catch (parseError) {
+          console.error("Failed to parse error response:", parseError)
+        }
+        
+        console.error("Parsed error data:", errorData)
         
         if (response.status === 400) {
           // Show specific error message for constraint violations
-          setError(errorData.error || "Cannot delete driver due to system constraints")
+          const errorMessage = (errorData as any).error || "Cannot delete driver due to system constraints"
+          setError(errorMessage)
+          console.error("400 Error message:", errorMessage)
+          
+          // If it's a constraint violation, get more details about blocking orders
+          if (errorMessage.includes("assigned to") || errorMessage.includes("referenced")) {
+            console.log("Driver deletion blocked due to active orders")
+            const blockingOrdersData = await getBlockingOrders(driverId)
+            setBlockingOrders([
+              ...blockingOrdersData.confirmedOrders,
+              ...blockingOrdersData.vehicleLocationOrders
+            ])
+          }
+        } else if (response.status === 503) {
+          // Database connection error
+          setError("Database connection error. Please try again in a moment.")
         } else {
-          setError(`Failed to delete driver: ${errorData.error || 'Unknown error'}`)
+          setError(`Failed to delete driver: ${(errorData as any).error || 'Unknown error'}`)
         }
       }
     } catch (err) {
@@ -210,19 +283,29 @@ export function DriverInformation({ onDataChange }: DriverInformationProps) {
 
   const handleDocumentUpload = async (driverId: number, file: File) => {
     try {
+      setError("") // Clear any previous errors
+      setUploadingDriverId(driverId) // Set loading state
+      console.log("Starting document upload for driver:", driverId, "File:", file.name)
+      
       const formData = new FormData()
       formData.append("file", file)
       formData.append("category", "drivers")
       formData.append("driverId", driverId.toString())
 
+      console.log("Uploading file to /api/upload...")
       const response = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       })
 
+      console.log("Upload response status:", response.status)
+      
       if (response.ok) {
         const data = await response.json()
+        console.log("Upload successful, data:", data)
+        
         // Update the driver's license document URL
+        console.log("Updating driver with new document URL...")
         const updateResponse = await fetch("/api/supplier-drivers", {
           method: "PUT",
           headers: {
@@ -234,21 +317,58 @@ export function DriverInformation({ onDataChange }: DriverInformationProps) {
           }),
         })
 
+        console.log("Update response status:", updateResponse.status)
+        
         if (updateResponse.ok) {
+          console.log("Driver updated successfully, refreshing list...")
           await fetchDrivers() // Refresh the list
           onDataChange?.() // Refresh dashboard stats
+          console.log("Document upload completed successfully")
+        } else {
+          const updateError = await updateResponse.json()
+          console.error("Failed to update driver:", updateError)
+          setError("Failed to update driver with new document")
         }
+      } else {
+        const uploadError = await response.json()
+        console.error("Upload failed:", uploadError)
+        setError(`Upload failed: ${uploadError.error || 'Unknown error'}`)
       }
     } catch (err) {
-      setError("Failed to upload document")
+      console.error("Document upload error:", err)
+      setError("Failed to upload document due to network error")
+    } finally {
+      setUploadingDriverId(null) // Clear loading state
     }
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, driverId: number) => {
     const file = e.target.files?.[0]
+    console.log("File selected:", file)
+    
     if (file) {
+      // Validate file type
+      const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "application/pdf"]
+      if (!allowedTypes.includes(file.type)) {
+        setError("Invalid file type. Only JPG, PNG, and PDF files are allowed.")
+        return
+      }
+      
+      // Validate file size (5MB limit)
+      const maxSize = 5 * 1024 * 1024
+      if (file.size > maxSize) {
+        setError("File size too large. Maximum 5MB allowed.")
+        return
+      }
+      
+      console.log("File validation passed, starting upload...")
       handleDocumentUpload(driverId, file)
+    } else {
+      console.log("No file selected")
     }
+    
+    // Reset the input value so the same file can be selected again
+    e.target.value = ""
   }
 
   return (
@@ -309,7 +429,27 @@ export function DriverInformation({ onDataChange }: DriverInformationProps) {
               </div>
               {error && (
                 <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
+                  <AlertDescription>
+                    {error}
+                    {blockingOrders.length > 0 && (
+                      <div className="mt-2">
+                        <p className="font-semibold">Active orders preventing deletion:</p>
+                        <ul className="list-disc list-inside mt-1 space-y-1">
+                          {blockingOrders.map((order, index) => (
+                            <li key={index} className="text-sm">
+                              {order.state && order.district && order.place 
+                                ? `${order.state} - ${order.district} - ${order.place} (${order.vehicle_number || 'N/A'})`
+                                : `Order ID: ${order.id} (${order.status || 'Unknown status'})`
+                              }
+                            </li>
+                          ))}
+                        </ul>
+                        <p className="text-sm mt-2 text-muted-foreground">
+                          Please complete or reassign these orders before deleting the driver.
+                        </p>
+                      </div>
+                    )}
+                  </AlertDescription>
                 </Alert>
               )}
               <div className="flex gap-2">
@@ -349,7 +489,11 @@ export function DriverInformation({ onDataChange }: DriverInformationProps) {
                   <TableCell>
                     <div className="flex gap-2">
                       {driver.license_document_url ? (
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => window.open(driver.license_document_url, '_blank')}
+                        >
                           <Eye className="h-4 w-4 mr-1" />
                           View
                         </Button>
@@ -360,12 +504,24 @@ export function DriverInformation({ onDataChange }: DriverInformationProps) {
                         <Input
                           type="file"
                           accept=".pdf,.jpg,.jpeg,.png"
-                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                           onChange={(e) => handleFileChange(e, driver.id)}
+                          id={`file-input-${driver.id}`}
                         />
-                        <Button variant="outline" size="sm" className="relative">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="relative"
+                          disabled={uploadingDriverId === driver.id}
+                          onClick={() => {
+                            console.log("Upload button clicked for driver:", driver.id)
+                            const fileInput = document.getElementById(`file-input-${driver.id}`)
+                            console.log("File input element:", fileInput)
+                            fileInput?.click()
+                          }}
+                        >
                           <Upload className="h-4 w-4 mr-1" />
-                          Upload
+                          {uploadingDriverId === driver.id ? "Uploading..." : "Upload"}
                         </Button>
                       </div>
                     </div>

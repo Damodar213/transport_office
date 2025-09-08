@@ -1,20 +1,53 @@
 import { NextResponse } from "next/server"
+import { getSession } from "@/lib/auth"
+import { dbQuery } from "@/lib/db"
 
 export async function GET() {
   try {
-    // For demo purposes, return a default supplier
-    // In production, you'd get this from the authenticated session
+    // Get the current authenticated session
+    const session = await getSession()
+    
+    if (!session) {
+      return NextResponse.json({ 
+        error: "Not authenticated" 
+      }, { status: 401 })
+    }
+
+    // Get additional user details from database
+    let userDetails = {
+      id: session.userIdString,
+      role: session.role,
+      email: session.email,
+      name: session.name,
+      companyName: session.companyName
+    }
+
+    // If user is a supplier, get supplier-specific details
+    if (session.role === 'supplier') {
+      try {
+        const supplierResult = await dbQuery(
+          "SELECT company_name, gst_number, number_of_vehicles FROM suppliers WHERE user_id = $1",
+          [session.userIdString]
+        )
+        
+        if (supplierResult.rows.length > 0) {
+          const supplier = supplierResult.rows[0]
+          userDetails = {
+            ...userDetails,
+            companyName: supplier.company_name || userDetails.companyName,
+            gstNumber: supplier.gst_number,
+            numberOfVehicles: supplier.number_of_vehicles
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching supplier details:", error)
+        // Continue with basic user details if supplier lookup fails
+      }
+    }
+
     return NextResponse.json({
       success: true,
-      user: {
-        id: "anush", // Use a supplier ID that exists in your database
-        companyName: "abcd",
-        contactPerson: "Contact Person",
-        email: "contact@abcd.com",
-        mobile: "+91-9876543210",
-        whatsapp: "+91-9876543210",
-        role: 'supplier'
-      }
+      user: userDetails
     })
 
   } catch (error) {

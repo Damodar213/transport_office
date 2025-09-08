@@ -66,7 +66,18 @@ export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) 
   const fetchOrders = async () => {
     try {
       setIsFetching(true)
-      const response = await fetch("/api/supplier-orders?supplierId=111111") // Use the actual supplier ID from your existing data
+      
+      // Get current supplier ID from auth
+      const userResponse = await fetch("/api/auth/me")
+      if (!userResponse.ok) {
+        setError("Failed to get current supplier")
+        return
+      }
+      
+      const userData = await userResponse.json()
+      const supplierId = userData.user.id
+      
+      const response = await fetch(`/api/supplier-orders?supplierId=${supplierId}`)
       if (response.ok) {
         const data = await response.json()
         setOrders(data.orders)
@@ -83,7 +94,17 @@ export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) 
   // Fetch drivers from API
   const fetchDrivers = async () => {
     try {
-      const response = await fetch("/api/supplier-drivers?supplierId=111111")
+      // Get current supplier ID from auth
+      const userResponse = await fetch("/api/auth/me")
+      if (!userResponse.ok) {
+        console.error("Failed to get current supplier")
+        return
+      }
+      
+      const userData = await userResponse.json()
+      const supplierId = userData.user.id
+      
+      const response = await fetch(`/api/supplier-drivers?supplierId=${supplierId}`)
       if (response.ok) {
         const data = await response.json()
         setDrivers(data.drivers)
@@ -103,8 +124,19 @@ export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) 
     setError("")
 
     try {
+      // Get current supplier ID from auth
+      const userResponse = await fetch("/api/auth/me")
+      if (!userResponse.ok) {
+        setError("Failed to get current supplier")
+        setIsLoading(false)
+        return
+      }
+      
+      const userData = await userResponse.json()
+      const supplierId = userData.user.id
+
       const orderData = {
-        supplierId: "111111", // Use the actual supplier ID from your existing data
+        supplierId: supplierId,
         state: formData.get("state") as string,
         district: formData.get("district") as string,
         place: formData.get("place") as string,

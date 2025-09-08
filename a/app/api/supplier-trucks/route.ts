@@ -1,4 +1,4 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { dbQuery } from "@/lib/db"
 
 export interface Truck {
@@ -15,7 +15,7 @@ export interface Truck {
 }
 
 // GET - Fetch trucks for a specific supplier
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const supplierId = searchParams.get("supplierId")
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
 }
 
 // POST - Create new truck
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
     const body = await request.json()
     console.log("Creating truck with data:", body)
@@ -129,6 +129,23 @@ export async function POST(request: NextRequest) {
     }
 
     console.log("Truck created successfully:", result.rows[0])
+    
+    // If there's a document URL, create a vehicle document submission for admin review
+    if (body.documentUrl) {
+      try {
+        const now = new Date().toISOString()
+        await dbQuery(
+          `INSERT INTO vehicle_documents (vehicle_id, supplier_id, vehicle_number, document_type, document_url, submitted_at, status)
+           VALUES ($1, $2, $3, $4, $5, $6, 'pending')`,
+          [result.rows[0].id, supplierId, body.vehicleNumber, 'rc', body.documentUrl, now]
+        )
+        console.log("Vehicle document submission created for admin review")
+      } catch (docError) {
+        console.error("Error creating vehicle document submission:", docError)
+        // Don't fail the truck creation if document submission creation fails
+      }
+    }
+    
     return NextResponse.json({ 
       message: "Truck created successfully", 
       truck: result.rows[0] 
@@ -148,7 +165,7 @@ export async function POST(request: NextRequest) {
 }
 
 // PUT - Update truck
-export async function PUT(request: NextRequest) {
+export async function PUT(request: Request) {
   try {
     const body = await request.json()
     const { id, ...updateData } = body
@@ -194,7 +211,7 @@ export async function PUT(request: NextRequest) {
 }
 
 // DELETE - Delete truck (hard delete - completely remove from database)
-export async function DELETE(request: NextRequest) {
+export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get("id")

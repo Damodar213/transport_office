@@ -1,0 +1,37 @@
+import { type NextRequest, NextResponse } from "next/server"
+
+export async function POST(request: NextRequest) {
+  try {
+    console.log("=== TESTING FORMDATA ===")
+    
+    console.log("Attempting to parse form data...")
+    const formData = await request.formData()
+    console.log("Form data parsed successfully")
+    
+    const role = formData.get("role") as string
+    const userId = formData.get("userId") as string
+    const password = formData.get("password") as string
+    
+    console.log("Form fields extracted:", { role, userId, hasPassword: !!password })
+    
+    return NextResponse.json({
+      success: true,
+      message: "Form data test completed successfully",
+      formData: {
+        role,
+        userId,
+        hasPassword: !!password
+      }
+    })
+    
+  } catch (error) {
+    console.error("=== FORMDATA TEST ERROR ===", error)
+    return NextResponse.json({ 
+      error: "Form data test failed",
+      details: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined
+    }, { status: 500 })
+  }
+}
+
+

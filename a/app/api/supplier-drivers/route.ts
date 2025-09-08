@@ -1,4 +1,4 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { dbQuery } from "@/lib/db"
 
 export interface Driver {
@@ -13,7 +13,7 @@ export interface Driver {
 }
 
 // GET - Fetch drivers for a specific supplier
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const supplierId = searchParams.get("supplierId")
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
 }
 
 // POST - Create new driver
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
     const body = await request.json()
     console.log("Received driver data:", body)
@@ -97,6 +97,22 @@ export async function POST(request: NextRequest) {
     const result = await dbQuery(sql, params)
     console.log("Driver created successfully:", result.rows[0])
     
+    // If there's a license document URL, create a driver document submission for admin review
+    if (body.licenseDocumentUrl) {
+      try {
+        const now = new Date().toISOString()
+        await dbQuery(
+          `INSERT INTO driver_documents (driver_id, supplier_id, driver_name, document_type, document_url, submitted_at, status)
+           VALUES ($1, $2, $3, $4, $5, $6, 'pending')`,
+          [result.rows[0].id, supplierId, body.driverName, 'license', body.licenseDocumentUrl, now]
+        )
+        console.log("Driver document submission created for admin review")
+      } catch (docError) {
+        console.error("Error creating driver document submission:", docError)
+        // Don't fail the driver creation if document submission creation fails
+      }
+    }
+    
     return NextResponse.json({ 
       message: "Driver created successfully", 
       driver: result.rows[0] 
@@ -109,7 +125,7 @@ export async function POST(request: NextRequest) {
 }
 
 // PUT - Update driver
-export async function PUT(request: NextRequest) {
+export async function PUT(request: Request) {
   try {
     const body = await request.json()
     console.log("Received update data:", body)
@@ -144,6 +160,23 @@ export async function PUT(request: NextRequest) {
     }
 
     console.log("Driver updated successfully:", result.rows[0])
+    
+    // If there's a new license document URL, create a driver document submission for admin review
+    if (updateData.licenseDocumentUrl && updateData.licenseDocumentUrl !== result.rows[0].license_document_url) {
+      try {
+        const now = new Date().toISOString()
+        await dbQuery(
+          `INSERT INTO driver_documents (driver_id, supplier_id, driver_name, document_type, document_url, submitted_at, status)
+           VALUES ($1, $2, $3, $4, $5, $6, 'pending')`,
+          [id, result.rows[0].supplier_id, updateData.driverName, 'license', updateData.licenseDocumentUrl, now]
+        )
+        console.log("Driver document submission created for admin review")
+      } catch (docError) {
+        console.error("Error creating driver document submission:", docError)
+        // Don't fail the driver update if document submission creation fails
+      }
+    }
+    
     return NextResponse.json({ 
       message: "Driver updated successfully", 
       driver: result.rows[0] 
@@ -156,7 +189,7 @@ export async function PUT(request: NextRequest) {
 }
 
 // DELETE - Delete driver (hard delete - completely remove from database)
-export async function DELETE(request: NextRequest) {
+export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get("id")
@@ -169,69 +202,48 @@ export async function DELETE(request: NextRequest) {
 
     // First check if driver exists
     const checkResult = await dbQuery("SELECT id, driver_name FROM drivers WHERE id = $1", [id])
+    console.log("Driver check result:", checkResult.rows)
     
     if (checkResult.rows.length === 0) {
+      console.log("Driver not found in database")
       return NextResponse.json({ error: "Driver not found" }, { status: 404 })
     }
 
+    console.log("Driver found:", checkResult.rows[0])
+
     // Check for foreign key references before deleting
     try {
-      // Check if driver is referenced in confirmed_orders table
-      const confirmedOrdersCheck = await dbQuery(
-        "SELECT COUNT(*) as count FROM confirmed_orders WHERE driver_id = $1",
-        [id]
-      )
-      
-      if (parseInt(confirmedOrdersCheck.rows[0].count) > 0) {
-        return NextResponse.json({ 
-          error: "Cannot delete driver. Driver is assigned to confirmed orders. Please reassign or complete the orders first.",
-          details: "Driver has active orders"
-        }, { status: 400 })
-      }
-
-      // Check if driver is referenced in transport_orders table (if it exists)
+      // Check if driver is referenced in confirmed_orders table (this table has driver_id)
       try {
-        const transportOrdersCheck = await dbQuery(
-          "SELECT COUNT(*) as count FROM transport_orders WHERE driver_id = $1",
+        console.log("Checking confirmed_orders for driver_id:", id)
+        const confirmedOrdersCheck = await dbQuery(
+          "SELECT COUNT(*) as count FROM confirmed_orders WHERE driver_id = $1",
           [id]
         )
+        console.log("Confirmed orders check result:", confirmedOrdersCheck.rows[0])
         
-        if (parseInt(transportOrdersCheck.rows[0].count) > 0) {
+        if (parseInt(confirmedOrdersCheck.rows[0].count) > 0) {
+          console.log("Driver has confirmed orders, blocking deletion")
           return NextResponse.json({ 
-            error: "Cannot delete driver. Driver is assigned to transport orders. Please reassign or complete the orders first.",
-            details: "Driver has active transport orders"
+            error: "Cannot delete driver. Driver is assigned to confirmed orders. Please reassign or complete the orders first.",
+            details: "Driver has active orders"
           }, { status: 400 })
         }
       } catch (error) {
-        // transport_orders table might not exist or might not have driver_id column
-        console.log("transport_orders check skipped:", error)
+        console.log("confirmed_orders check skipped:", error)
       }
 
-      // Check if driver is referenced in buyer_requests table
+      // Check if driver is referenced in suppliers_vehicle_location table (this table has driver_id)
       try {
-        const buyerRequestsCheck = await dbQuery(
-          "SELECT COUNT(*) as count FROM buyer_requests WHERE driver_id = $1",
-          [id]
-        )
-        
-        if (parseInt(buyerRequestsCheck.rows[0].count) > 0) {
-          return NextResponse.json({ 
-            error: "Cannot delete driver. Driver is assigned to buyer requests. Please reassign or complete the requests first.",
-            details: "Driver has active buyer requests"
-          }, { status: 400 })
-        }
-      } catch (error) {
-        console.log("buyer_requests check skipped:", error)
-      }
-
-      // Check if driver is referenced in suppliers_vehicle_location table
-      try {
+        console.log("Checking suppliers_vehicle_location for driver_id:", id)
         const vehicleLocationCheck = await dbQuery(
           "SELECT COUNT(*) as count FROM suppliers_vehicle_location WHERE driver_id = $1",
           [id]
         )
+        console.log("Vehicle location check result:", vehicleLocationCheck.rows[0])
         
         if (parseInt(vehicleLocationCheck.rows[0].count) > 0) {
+          console.log("Driver has vehicle location requests, blocking deletion")
           return NextResponse.json({ 
             error: "Cannot delete driver. Driver is assigned to vehicle location requests. Please reassign or complete the requests first.",
             details: "Driver has active vehicle location requests"
@@ -246,9 +258,33 @@ export async function DELETE(request: NextRequest) {
       // Continue with deletion if constraint check fails
     }
 
-    // Perform hard delete
+    // Perform hard delete with retry mechanism
     const sql = `DELETE FROM drivers WHERE id = $1`
-    const result = await dbQuery(sql, [id])
+    console.log("Attempting to delete driver with SQL:", sql, "and ID:", id)
+    let result
+    let retryCount = 0
+    const maxRetries = 3
+
+    while (retryCount < maxRetries) {
+      try {
+        console.log(`Delete attempt ${retryCount + 1} for driver ID: ${id}`)
+        result = await dbQuery(sql, [id])
+        console.log("Delete query result:", result)
+        break // Success, exit retry loop
+      } catch (error) {
+        retryCount++
+        console.log(`Delete attempt ${retryCount} failed:`, error)
+        
+        if (retryCount >= maxRetries) {
+          console.log("All delete attempts failed, throwing error")
+          throw error // Re-throw if all retries failed
+        }
+        
+        // Wait before retry (exponential backoff)
+        console.log(`Waiting ${1000 * retryCount}ms before retry...`)
+        await new Promise(resolve => setTimeout(resolve, 1000 * retryCount))
+      }
+    }
 
     console.log("Driver deleted successfully:", checkResult.rows[0].driver_name)
     
@@ -259,6 +295,19 @@ export async function DELETE(request: NextRequest) {
 
   } catch (error) {
     console.error("Delete driver error:", error)
+    
+    // Check if it's a database connection error
+    if (error instanceof Error && (
+      error.message.includes('connection') || 
+      error.message.includes('timeout') ||
+      error.message.includes('ECONNRESET') ||
+      error.message.includes('Connection terminated')
+    )) {
+      return NextResponse.json({ 
+        error: "Database connection error. Please try again.",
+        details: "Connection timeout or database unavailable"
+      }, { status: 503 })
+    }
     
     // Check if it's a foreign key constraint violation
     if (error instanceof Error && error.message.includes('violates foreign key constraint')) {

@@ -51,7 +51,9 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
   // Get current supplier ID
   const getCurrentSupplier = async () => {
     try {
-      const response = await fetch("/api/auth/me")
+      const response = await fetch("/api/auth/me", {
+        credentials: 'include'
+      })
       if (response.ok) {
         const data = await response.json()
         setCurrentSupplierId(data.user.id)
@@ -77,7 +79,9 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
         return
       }
 
-      const response = await fetch(`/api/supplier-trucks?supplierId=${supplierId}`)
+      const response = await fetch(`/api/supplier-trucks?supplierId=${supplierId}`, {
+        credentials: 'include'
+      })
       if (response.ok) {
         const data = await response.json()
         setVehicles(data.trucks || [])
@@ -111,6 +115,7 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
         const uploadResponse = await fetch('/api/upload', {
           method: 'POST',
           body: uploadFormData,
+          credentials: 'include'
         })
         
         if (uploadResponse.ok) {
@@ -145,6 +150,7 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
             id: editingVehicle.id,
             ...vehicleData,
           }),
+          credentials: 'include'
         })
 
         if (response.ok) {
@@ -164,6 +170,7 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(vehicleData),
+          credentials: 'include'
         })
 
         if (response.ok) {

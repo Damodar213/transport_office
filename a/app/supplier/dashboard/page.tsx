@@ -32,7 +32,9 @@ export default function SupplierDashboard() {
       setIsLoadingStats(true)
       
       // Get current supplier ID
-      const userResponse = await fetch("/api/auth/me")
+      const userResponse = await fetch("/api/auth/me", {
+        credentials: 'include'
+      })
       if (!userResponse.ok) {
         console.error("Failed to get current supplier")
         return
@@ -42,22 +44,30 @@ export default function SupplierDashboard() {
       const supplierId = userData.user.id
 
       // Fetch drivers count
-      const driversResponse = await fetch(`/api/supplier-drivers?supplierId=${supplierId}`)
+      const driversResponse = await fetch(`/api/supplier-drivers?supplierId=${supplierId}`, {
+        credentials: 'include'
+      })
       const driversData = await driversResponse.json()
       const totalDrivers = driversData.drivers?.length || 0
 
       // Fetch trucks count
-      const trucksResponse = await fetch(`/api/supplier-trucks?supplierId=${supplierId}`)
+      const trucksResponse = await fetch(`/api/supplier-trucks?supplierId=${supplierId}`, {
+        credentials: 'include'
+      })
       const trucksData = await trucksResponse.json()
       const totalVehicles = trucksData.trucks?.length || 0
 
       // Fetch pending orders count
-      const ordersResponse = await fetch(`/api/supplier-orders?supplierId=${supplierId}`)
+      const ordersResponse = await fetch(`/api/supplier-orders?supplierId=${supplierId}`, {
+        credentials: 'include'
+      })
       const ordersData = await ordersResponse.json()
       const pendingOrders = ordersData.orders?.filter((order: any) => order.status === "pending").length || 0
 
       // Fetch confirmed orders count
-      const confirmedResponse = await fetch(`/api/supplier-confirmed-orders?supplierId=${supplierId}`)
+      const confirmedResponse = await fetch(`/api/supplier-confirmed-orders?supplierId=${supplierId}`, {
+        credentials: 'include'
+      })
       const confirmedData = await confirmedResponse.json()
       const confirmedOrders = confirmedData.confirmedOrders?.length || 0
 
@@ -78,7 +88,9 @@ export default function SupplierDashboard() {
   const fetchNotificationCount = async () => {
     try {
       // Get current supplier ID
-      const userResponse = await fetch("/api/auth/me")
+      const userResponse = await fetch("/api/auth/me", {
+        credentials: 'include'
+      })
       if (!userResponse.ok) {
         console.error("Failed to get current supplier")
         return
@@ -87,7 +99,9 @@ export default function SupplierDashboard() {
       const userData = await userResponse.json()
       const supplierId = userData.user.id
       
-      const response = await fetch(`/api/supplier/notifications/count?supplierId=${supplierId}`)
+      const response = await fetch(`/api/supplier/notifications/count?supplierId=${supplierId}`, {
+        credentials: 'include'
+      })
       if (response.ok) {
         const data = await response.json()
         setNotifications(data.unreadCount || 0)
@@ -111,7 +125,10 @@ export default function SupplierDashboard() {
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" })
+      await fetch("/api/auth/logout", { 
+        method: "POST",
+        credentials: 'include'
+      })
       window.location.href = "/login"
     } catch (error) {
       console.error("Logout error:", error)

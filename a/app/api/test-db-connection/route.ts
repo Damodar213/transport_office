@@ -1,62 +1,69 @@
 import { NextResponse } from "next/server"
-import { dbQuery } from "@/lib/db"
+import { checkDatabaseHealth, getPool, dbQuery } from "@/lib/db"
+import { config } from "@/lib/config"
+import { createApiResponse, createApiError } from "@/lib/api-utils"
 
 export async function GET() {
   try {
     console.log("Testing database connection...")
     
-    // Test basic connection
-    const testResult = await dbQuery("SELECT 1 as test")
-    console.log("Basic connection test:", testResult.rows[0])
+    // Check if database is configured
+    if (!config.database.enabled) {
+      return createApiError(
+        "Database not configured",
+        "DATABASE_URL environment variable is not set",
+        503
+      )
+    }
     
-    // Test drivers table structure
-    const driversStructure = await dbQuery(`
-      SELECT column_name, data_type, is_nullable, column_default
-      FROM information_schema.columns 
-      WHERE table_name = 'drivers' 
-      ORDER BY ordinal_position
-    `)
+    const pool = getPool()
+    if (!pool) {
+      return createApiError(
+        "Database pool not available",
+        "Failed to create database connection pool",
+        503
+      )
+    }
+
+    // Test basic connection with health check
+    const health = await checkDatabaseHealth()
     
-    console.log("Drivers table structure:", driversStructure.rows)
-    
-    // Test if we can query drivers table
-    const driversCount = await dbQuery("SELECT COUNT(*) as count FROM drivers")
-    console.log("Total drivers:", driversCount.rows[0].count)
-    
-    // Test foreign key constraints
-    const constraints = await dbQuery(`
-      SELECT 
-        tc.constraint_name, 
-        tc.table_name, 
-        kcu.column_name, 
-        ccu.table_name AS foreign_table_name,
-        ccu.column_name AS foreign_column_name 
-      FROM information_schema.table_constraints AS tc 
-      JOIN information_schema.key_column_usage AS kcu
-        ON tc.constraint_name = kcu.constraint_name
-      JOIN information_schema.constraint_column_usage AS ccu
-        ON ccu.constraint_name = tc.constraint_name
-      WHERE tc.constraint_type = 'FOREIGN KEY' 
-        AND tc.table_name = 'drivers'
-    `)
-    
-    console.log("Foreign key constraints:", constraints.rows)
-    
-    return NextResponse.json({ 
-      message: "Database connection test successful",
-      results: {
-        connection: "OK",
-        driversCount: driversCount.rows[0].count,
-        tableStructure: driversStructure.rows,
-        foreignKeys: constraints.rows
-      }
-    })
-    
+    if (health.healthy) {
+      // Get additional database info
+      const versionResult = await dbQuery("SELECT version()")
+      const tablesResult = await dbQuery(`
+        SELECT table_name 
+        FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        LIMIT 10
+      `)
+      
+      return createApiResponse({
+        connected: true,
+        message: "Database connection successful",
+        health: health.message,
+        version: versionResult.rows[0]?.version?.split(' ')[0] + ' ' + versionResult.rows[0]?.version?.split(' ')[1],
+        tables: tablesResult.rows.length,
+        config: {
+          databaseEnabled: config.database.enabled,
+          nodeEnv: config.app.nodeEnv,
+          websiteUrl: config.app.websiteUrl
+        }
+      }, "Database connection test successful")
+    } else {
+      return createApiError(
+        "Database health check failed",
+        health.message,
+        503
+      )
+    }
+
   } catch (error) {
     console.error("Database connection test failed:", error)
-    return NextResponse.json({ 
-      error: "Database connection test failed", 
-      details: error instanceof Error ? error.message : "Unknown error" 
-    }, { status: 500 })
+    return createApiError(
+      "Database connection failed",
+      error instanceof Error ? error.message : "Unknown error",
+      503
+    )
   }
 }

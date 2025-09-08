@@ -1,0 +1,70 @@
+import { type NextRequest, NextResponse } from "next/server"
+
+export async function POST(request: NextRequest) {
+  try {
+    console.log("=== TESTING SIGNUP IMPORTS ===")
+    
+    // Test each import one by one
+    try {
+      const bcrypt = await import("bcryptjs")
+      console.log("bcryptjs import successful")
+    } catch (error) {
+      console.error("bcryptjs import error:", error)
+      return NextResponse.json({ error: "bcryptjs import failed" }, { status: 500 })
+    }
+
+    try {
+      const userStorage = await import("@/lib/user-storage")
+      console.log("user-storage import successful")
+    } catch (error) {
+      console.error("user-storage import error:", error)
+      return NextResponse.json({ error: "user-storage import failed" }, { status: 500 })
+    }
+
+    try {
+      const documentStorage = await import("@/lib/document-storage")
+      console.log("document-storage import successful")
+    } catch (error) {
+      console.error("document-storage import error:", error)
+      return NextResponse.json({ error: "document-storage import failed" }, { status: 500 })
+    }
+
+    try {
+      const adminStorage = await import("@/lib/admin-storage")
+      console.log("admin-storage import successful")
+    } catch (error) {
+      console.error("admin-storage import error:", error)
+      return NextResponse.json({ error: "admin-storage import failed" }, { status: 500 })
+    }
+
+    try {
+      const db = await import("@/lib/db")
+      console.log("db import successful")
+    } catch (error) {
+      console.error("db import error:", error)
+      return NextResponse.json({ error: "db import failed" }, { status: 500 })
+    }
+
+    try {
+      const cloudflare = await import("@/lib/cloudflare-r2")
+      console.log("cloudflare-r2 import successful")
+    } catch (error) {
+      console.error("cloudflare-r2 import error:", error)
+      return NextResponse.json({ error: "cloudflare-r2 import failed" }, { status: 500 })
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "All imports successful"
+    })
+
+  } catch (error) {
+    console.error("Import test error:", error)
+    return NextResponse.json({ 
+      error: "Import test failed",
+      details: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 })
+  }
+}
+
+

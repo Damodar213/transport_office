@@ -12,64 +12,50 @@ export async function GET(request: NextRequest) {
 
     console.log("Checking references for driver ID:", driverId)
 
-    const references = {}
+    const references = {
+      confirmedOrders: 0,
+      vehicleLocation: 0,
+      totalReferences: 0
+    }
 
     // Check confirmed_orders table
     try {
-      const confirmedOrders = await dbQuery(
-        "SELECT id, transport_order_id, status, created_at FROM confirmed_orders WHERE driver_id = $1",
+      const confirmedOrdersResult = await dbQuery(
+        "SELECT COUNT(*) as count FROM confirmed_orders WHERE driver_id = $1",
         [driverId]
       )
-      references.confirmedOrders = confirmedOrders.rows
+      references.confirmedOrders = parseInt(confirmedOrdersResult.rows[0].count)
     } catch (error) {
-      references.confirmedOrders = []
       console.log("confirmed_orders check failed:", error)
     }
 
-    // Check transport_orders table
+    // Check suppliers_vehicle_location table
     try {
-      const transportOrders = await dbQuery(
-        "SELECT id, state, district, place, status, created_at FROM transport_orders WHERE driver_id = $1",
+      const vehicleLocationResult = await dbQuery(
+        "SELECT COUNT(*) as count FROM suppliers_vehicle_location WHERE driver_id = $1",
         [driverId]
       )
-      references.transportOrders = transportOrders.rows
+      references.vehicleLocation = parseInt(vehicleLocationResult.rows[0].count)
     } catch (error) {
-      references.transportOrders = []
-      console.log("transport_orders check failed:", error)
+      console.log("suppliers_vehicle_location check failed:", error)
     }
 
-    // Check any other tables that might reference drivers
-    try {
-      const otherReferences = await dbQuery(`
-        SELECT 
-          tc.table_name,
-          kcu.column_name,
-          COUNT(*) as reference_count
-        FROM information_schema.table_constraints AS tc 
-        JOIN information_schema.key_column_usage AS kcu
-          ON tc.constraint_name = kcu.constraint_name
-        WHERE tc.constraint_type = 'FOREIGN KEY' 
-          AND kcu.column_name = 'driver_id'
-          AND tc.table_name NOT IN ('confirmed_orders', 'transport_orders')
-        GROUP BY tc.table_name, kcu.column_name
-      `)
-      references.otherTables = otherReferences.rows
-    } catch (error) {
-      references.otherTables = []
-      console.log("Other tables check failed:", error)
-    }
+    references.totalReferences = references.confirmedOrders + references.vehicleLocation
 
-    return NextResponse.json({ 
-      message: "Driver references checked successfully",
-      driverId: driverId,
-      references: references
+    return NextResponse.json({
+      driverId,
+      references,
+      canDelete: references.totalReferences === 0,
+      message: references.totalReferences === 0 
+        ? "Driver can be deleted safely" 
+        : `Driver has ${references.totalReferences} references and cannot be deleted`
     })
-    
+
   } catch (error) {
-    console.error("Check driver references failed:", error)
+    console.error("Check driver references error:", error)
     return NextResponse.json({ 
-      error: "Failed to check driver references", 
-      details: error instanceof Error ? error.message : "Unknown error" 
+      error: "Failed to check driver references",
+      details: error instanceof Error ? error.message : "Unknown error"
     }, { status: 500 })
   }
 }

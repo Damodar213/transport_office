@@ -181,30 +181,8 @@ export async function createUserAsync(userData: Omit<User, "id" | "createdAt">):
     
     // Check if database operation was successful
     if (res.rows.length === 0) {
-      console.log("Database insert failed, falling back to file storage")
-      // Use the file-based storage directly instead of the sync createUser function
-      const now = new Date()
-      const newUser: User = {
-        id: Date.now(), // Simple ID generation
-        userId: userData.userId,
-        passwordHash: userData.passwordHash,
-        role: userData.role,
-        email: userData.email,
-        name: userData.name,
-        mobile: userData.mobile,
-        companyName: userData.companyName,
-        gstNumber: userData.gstNumber,
-        numberOfVehicles: userData.numberOfVehicles,
-        documents: userData.documents,
-        createdAt: now
-      }
-      
-      // Save to file storage
-      users = loadUsersFromDisk()
-      users.push(newUser)
-      saveUsersToDisk(users)
-      
-      return newUser
+      console.error("Database insert failed - no rows returned")
+      throw new Error("Failed to insert user into database")
     }
     
     const id = res.rows[0].id
@@ -237,30 +215,9 @@ export async function createUserAsync(userData: Omit<User, "id" | "createdAt">):
       createdAt: now 
     }
   } catch (error) {
-    console.log("Database operation failed, falling back to file storage:", error)
-    // Use the file-based storage directly instead of the sync createUser function
-    const now = new Date()
-    const newUser: User = {
-      id: Date.now(), // Simple ID generation
-      userId: userData.userId,
-      passwordHash: userData.passwordHash,
-      role: userData.role,
-      email: userData.email,
-      name: userData.name,
-      mobile: userData.mobile,
-      companyName: userData.companyName,
-      gstNumber: userData.gstNumber,
-      numberOfVehicles: userData.numberOfVehicles,
-      documents: userData.documents,
-      createdAt: now
-    }
-    
-    // Save to file storage
-    users = loadUsersFromDisk()
-    users.push(newUser)
-    saveUsersToDisk(users)
-    
-    return newUser
+    console.error("Database operation failed:", error)
+    // Do NOT fallback to file-based storage for security
+    throw new Error(`Database operation failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
 
@@ -350,18 +307,18 @@ export async function findUserByCredentialsAsync(userId: string, role: string): 
         }
       }
       
-      // If no user found in database, fall back to file storage
-      console.log("No user found in database, falling back to file storage")
-      return findUserByCredentials(userId, role)
+      // If no user found in database, do NOT fall back to file storage for security
+      console.log("No user found in database - authentication failed")
+      return undefined
     } catch (error) {
       console.error("Database query error:", error)
-      // Fallback to file-based search
-      return findUserByCredentials(userId, role)
+      // Do NOT fallback to file-based search for security
+      return undefined
     }
   }
   
-  // Fallback to file-based search
-  return findUserByCredentials(userId, role)
+  // Do NOT fallback to file-based search for security
+  return undefined
 }
 
 export function getAllUsers(): User[] {

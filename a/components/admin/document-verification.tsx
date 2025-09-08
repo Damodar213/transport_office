@@ -19,18 +19,21 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Eye, Check, X, Clock, FileText, Upload, User, Truck } from "lucide-react"
 
 interface DocumentSubmission {
-  id: number
+  id: number | string
   userId: string
   supplierName: string
   companyName: string
-  documentType: "aadhaar" | "pan" | "gst" | "rc" | "insurance" | "license" | "puc" | "fitness"
+  documentType: "aadhaar" | "pan" | "gst" | "rc" | "insurance" | "license" | "puc" | "fitness" | "Multiple Documents"
   documentUrl: string
   submittedAt: string
-  status: "pending" | "approved" | "rejected"
+  status: "pending" | "approved" | "rejected" | "mixed"
   reviewNotes?: string
   reviewedBy?: string
   reviewedAt?: string
   category: "supplier" | "driver" | "vehicle"
+  documents?: any[] // For grouped supplier documents
+  vehicleNumber?: string
+  driverName?: string
 }
 
 interface DriverDocumentSubmission extends DocumentSubmission {
@@ -59,11 +62,91 @@ export function DocumentVerification() {
     try {
       setLoading(true)
       setError("")
-      const res = await fetch("/api/documents", { cache: "no-store" })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || "Failed to fetch documents")
-      setDocuments(data.documents || [])
+      console.log("Fetching all documents from API...")
+      
+      // Fetch all three types of documents in parallel
+      const [supplierRes, vehicleRes, driverRes] = await Promise.allSettled([
+        fetch("/api/admin/supplier-documents-test", { cache: "no-store" }),
+        fetch("/api/admin/vehicle-documents-simple", { cache: "no-store" }),
+        fetch("/api/admin/driver-documents-simple", { cache: "no-store" })
+      ])
+      
+      // Handle responses safely
+      const supplierData = supplierRes.status === 'fulfilled' ? await supplierRes.value.json() : null
+      const vehicleData = vehicleRes.status === 'fulfilled' ? await vehicleRes.value.json() : null
+      const driverData = driverRes.status === 'fulfilled' ? await driverRes.value.json() : null
+      
+      console.log("Supplier documents:", supplierData)
+      console.log("Vehicle documents:", vehicleData)
+      console.log("Driver documents:", driverData)
+      
+      let allDocuments: DocumentSubmission[] = []
+      
+      // Transform supplier documents - keep them grouped by supplier
+      if (supplierRes.status === 'fulfilled' && supplierRes.value.ok && supplierData?.data?.documents) {
+        const supplierDocs = supplierData.data.documents.map((supplier: any) => ({
+          id: `supplier-${supplier.userId}`,
+          userId: supplier.userId,
+          supplierName: supplier.supplierName,
+          companyName: supplier.companyName,
+          documentType: "Multiple Documents",
+          documentUrl: "",
+          submittedAt: supplier.documents[0]?.submittedAt || new Date().toISOString(),
+          status: supplier.documents.some((doc: any) => doc.status === 'pending') ? 'pending' : 
+                  supplier.documents.every((doc: any) => doc.status === 'approved') ? 'approved' : 'mixed',
+          reviewNotes: "",
+          reviewedBy: "",
+          reviewedAt: "",
+          category: "supplier" as const,
+          documents: supplier.documents // Store all documents for this supplier
+        }))
+        allDocuments = [...allDocuments, ...supplierDocs]
+      }
+      
+      // Transform vehicle documents
+      if (vehicleRes.status === 'fulfilled' && vehicleRes.value.ok && vehicleData?.documents) {
+        const vehicleDocs = vehicleData.documents.map((doc: any) => ({
+          id: doc.id,
+          userId: doc.supplier_id,
+          supplierName: doc.supplier_name || "Unknown Supplier",
+          companyName: doc.company_name || "Unknown Company",
+          documentType: doc.document_type,
+          documentUrl: doc.document_url,
+          submittedAt: doc.submitted_at,
+          status: doc.status,
+          reviewNotes: doc.review_notes,
+          reviewedBy: doc.reviewed_by,
+          reviewedAt: doc.reviewed_at,
+          category: "vehicle" as const,
+          vehicleNumber: doc.vehicle_number
+        }))
+        allDocuments = [...allDocuments, ...vehicleDocs]
+      }
+      
+      // Transform driver documents
+      if (driverRes.status === 'fulfilled' && driverRes.value.ok && driverData?.documents) {
+        const driverDocs = driverData.documents.map((doc: any) => ({
+          id: doc.id,
+          userId: doc.supplier_id,
+          supplierName: doc.supplier_name || "Unknown Supplier",
+          companyName: doc.company_name || "Unknown Company",
+          documentType: doc.document_type,
+          documentUrl: doc.document_url,
+          submittedAt: doc.submitted_at,
+          status: doc.status,
+          reviewNotes: doc.review_notes,
+          reviewedBy: doc.reviewed_by,
+          reviewedAt: doc.reviewed_at,
+          category: "driver" as const,
+          driverName: doc.driver_name
+        }))
+        allDocuments = [...allDocuments, ...driverDocs]
+      }
+      
+      console.log("All documents combined:", allDocuments)
+      setDocuments(allDocuments)
     } catch (e: any) {
+      console.error("Error fetching documents:", e)
       setError(e.message || "Failed to fetch documents")
     } finally {
       setLoading(false)
@@ -74,19 +157,43 @@ export function DocumentVerification() {
     fetchDocuments()
   }, [])
 
-  const handleReview = async (documentId: number, status: "approved" | "rejected", notes: string) => {
+  const handleReview = async (documentId: number | string, status: "approved" | "rejected", notes: string, category: string) => {
     setIsReviewing(true)
 
     try {
-      const res = await fetch("/api/documents", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: documentId, status, reviewNotes: notes, reviewer: "Admin" }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || "Failed to update document")
-      await fetchDocuments()
+      // Handle grouped supplier documents
+      if (category === "supplier" && typeof documentId === "string" && documentId.startsWith("supplier-")) {
+        const selectedDoc = documents.find(doc => doc.id === documentId)
+        if (selectedDoc?.documents) {
+          // Review all documents for this supplier
+          const promises = selectedDoc.documents.map((doc: any) => 
+            fetch("/api/admin/supplier-documents", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id: doc.id, status, reviewNotes: notes, reviewer: "Admin" }),
+            })
+          )
+          await Promise.all(promises)
+        }
+      } else {
+        // Handle individual documents
+        let apiEndpoint = "/api/admin/supplier-documents"
+        if (category === "vehicle") {
+          apiEndpoint = "/api/admin/vehicle-documents"
+        } else if (category === "driver") {
+          apiEndpoint = "/api/admin/driver-documents"
+        }
 
+        const res = await fetch(apiEndpoint, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: documentId, status, reviewNotes: notes, reviewer: "Admin" }),
+        })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || "Failed to update document")
+      }
+      
+      await fetchDocuments()
       setSelectedDocument(null)
       setReviewNotes("")
     } catch (error) {
@@ -139,6 +246,10 @@ export function DocumentVerification() {
   const supplierDocuments = documents.filter((doc) => doc.category === "supplier")
   const driverDocuments = documents.filter((doc) => doc.category === "driver")
   const vehicleDocuments = documents.filter((doc) => doc.category === "vehicle")
+  
+  console.log("Total documents:", documents.length)
+  console.log("Supplier documents:", supplierDocuments.length)
+  console.log("All documents:", documents)
 
   const renderDocumentTable = (documents: DocumentSubmission[], title: string, description: string) => (
     <Card>
@@ -172,12 +283,27 @@ export function DocumentVerification() {
                     <div className="font-medium">{document.supplierName}</div>
                     <div className="text-sm text-muted-foreground">{document.companyName}</div>
                     <div className="text-sm text-muted-foreground">{document.userId}</div>
+                    {document.driverName && (
+                      <div className="text-sm text-blue-600">Driver: {document.driverName}</div>
+                    )}
+                    {document.vehicleNumber && (
+                      <div className="text-sm text-green-600">Vehicle: {document.vehicleNumber}</div>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <FileText className="h-4 w-4 text-muted-foreground" />
-                    {getDocumentTypeLabel(document.documentType)}
+                    {document.documentType === "Multiple Documents" ? (
+                      <div>
+                        <div className="font-medium">Multiple Documents</div>
+                        <div className="text-sm text-muted-foreground">
+                          {document.documents?.map((doc: any) => getDocumentTypeLabel(doc.documentType)).join(", ")}
+                        </div>
+                      </div>
+                    ) : (
+                      getDocumentTypeLabel(document.documentType)
+                    )}
                   </div>
                 </TableCell>
                 <TableCell className="text-sm">{document.submittedAt}</TableCell>
@@ -210,13 +336,35 @@ export function DocumentVerification() {
                         {/* Document Preview */}
                         <div className="space-y-4">
                           <h3 className="font-semibold">Document Preview</h3>
-                          <div className="border rounded-lg p-4 bg-muted/50">
-                            <img
-                              src={document.documentUrl || "/placeholder.svg"}
-                              alt={`${document.documentType} document`}
-                              className="w-full h-auto max-h-96 object-contain rounded"
-                            />
-                          </div>
+                          {document.documentType === "Multiple Documents" ? (
+                            <div className="space-y-4">
+                              {document.documents?.map((doc: any, index: number) => (
+                                <div key={index} className="border rounded-lg p-4 bg-muted/50">
+                                  <div className="mb-2">
+                                    <h4 className="font-medium">{getDocumentTypeLabel(doc.documentType)}</h4>
+                                    <Badge className={`mt-1 ${doc.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                                                      doc.status === 'approved' ? 'bg-green-100 text-green-800' : 
+                                                      'bg-red-100 text-red-800'}`}>
+                                      {doc.status}
+                                    </Badge>
+                                  </div>
+                                  <img
+                                    src={doc.documentUrl || "/placeholder.svg"}
+                                    alt={`${doc.documentType} document`}
+                                    className="w-full h-auto max-h-64 object-contain rounded"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="border rounded-lg p-4 bg-muted/50">
+                              <img
+                                src={document.documentUrl || "/placeholder.svg"}
+                                alt={`${document.documentType} document`}
+                                className="w-full h-auto max-h-96 object-contain rounded"
+                              />
+                            </div>
+                          )}
                           <Button variant="outline" className="w-full bg-transparent">
                             <Upload className="h-4 w-4 mr-2" />
                             Download Original
@@ -267,23 +415,53 @@ export function DocumentVerification() {
                           </div>
 
                           <div className="flex gap-2">
-                            <Button
-                              onClick={() => handleReview(document.id, "approved", reviewNotes)}
-                              disabled={isReviewing}
-                              className="flex-1 bg-green-600 hover:bg-green-700"
-                            >
-                              <Check className="h-4 w-4 mr-2" />
-                              {isReviewing ? "Processing..." : "Approve"}
-                            </Button>
-                            <Button
-                              onClick={() => handleReview(document.id, "rejected", reviewNotes)}
-                              disabled={isReviewing}
-                              variant="destructive"
-                              className="flex-1"
-                            >
-                              <X className="h-4 w-4 mr-2" />
-                              {isReviewing ? "Processing..." : "Reject"}
-                            </Button>
+                            {document.documentType === "Multiple Documents" ? (
+                              <div className="w-full space-y-2">
+                                <div className="text-sm font-medium">Review All Documents:</div>
+                                <div className="flex gap-2">
+                                  <Button
+                                    onClick={() => handleReview(document.id, "approved", reviewNotes, document.category)}
+                                    disabled={isReviewing}
+                                    className="flex-1 bg-green-600 hover:bg-green-700"
+                                  >
+                                    <Check className="h-4 w-4 mr-2" />
+                                    {isReviewing ? "Processing..." : "Approve All"}
+                                  </Button>
+                                  <Button
+                                    onClick={() => handleReview(document.id, "rejected", reviewNotes, document.category)}
+                                    disabled={isReviewing}
+                                    variant="destructive"
+                                    className="flex-1"
+                                  >
+                                    <X className="h-4 w-4 mr-2" />
+                                    {isReviewing ? "Processing..." : "Reject All"}
+                                  </Button>
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  This will approve/reject all documents for this supplier
+                                </div>
+                              </div>
+                            ) : (
+                              <>
+                                <Button
+                                  onClick={() => handleReview(document.id, "approved", reviewNotes, document.category)}
+                                  disabled={isReviewing}
+                                  className="flex-1 bg-green-600 hover:bg-green-700"
+                                >
+                                  <Check className="h-4 w-4 mr-2" />
+                                  {isReviewing ? "Processing..." : "Approve"}
+                                </Button>
+                                <Button
+                                  onClick={() => handleReview(document.id, "rejected", reviewNotes, document.category)}
+                                  disabled={isReviewing}
+                                  variant="destructive"
+                                  className="flex-1"
+                                >
+                                  <X className="h-4 w-4 mr-2" />
+                                  {isReviewing ? "Processing..." : "Reject"}
+                                </Button>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>

@@ -3,7 +3,8 @@ import bcrypt from "bcryptjs"
 import { createUser, createUserAsync, createBuyerAsync } from "@/lib/user-storage"
 import { bulkAddSupplierDocuments } from "@/lib/document-storage"
 import { createAdminAsync } from "@/lib/admin-storage"
-import { getPool } from "@/lib/db"
+import { getPool, dbQuery } from "@/lib/db"
+import { uploadToR2, generateFileKey } from "@/lib/cloudflare-r2"
 import { writeFile, mkdir } from "fs/promises"
 import { join } from "path"
 import { existsSync } from "fs"
@@ -12,8 +13,28 @@ export async function POST(request: NextRequest) {
   try {
     console.log("=== SIGNUP REQUEST START ===")
     
-    const formData = await request.formData()
-    console.log("FormData parsed successfully")
+    // Handle form data with error handling for Next.js 15 compatibility
+    let formData: FormData
+    try {
+      formData = await request.formData()
+      console.log("FormData parsed successfully")
+    } catch (formDataError) {
+      console.error("FormData parsing error:", formDataError)
+      // Fallback: try to get as JSON if form data fails
+      try {
+        const jsonBody = await request.json()
+        console.log("Fallback to JSON parsing successful")
+        // Convert JSON to FormData-like object
+        const mockFormData = new FormData()
+        Object.entries(jsonBody).forEach(([key, value]) => {
+          mockFormData.append(key, String(value))
+        })
+        formData = mockFormData
+      } catch (jsonError) {
+        console.error("JSON parsing also failed:", jsonError)
+        return NextResponse.json({ error: "Failed to parse request data" }, { status: 400 })
+      }
+    }
 
     const role = formData.get("role") as string
     const userId = formData.get("userId") as string
@@ -77,42 +98,84 @@ export async function POST(request: NextRequest) {
         }
 
         if (aadhaar && aadhaar.size > 0) {
-          const timestamp = Date.now()
-          const filename = `aadhaar_${timestamp}_${aadhaar.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`
-          const filePath = join(uploadDir, filename)
-          
+          console.log("Uploading Aadhaar document to Cloudflare...")
           const bytes = await aadhaar.arrayBuffer()
           const buffer = Buffer.from(bytes)
-          await writeFile(filePath, buffer)
+          const key = generateFileKey("supplier-documents", aadhaar.name, userId)
           
-          documentUrls.aadhaar = `/uploads/supplier-documents/${filename}`
-          console.log("Aadhaar file uploaded:", documentUrls.aadhaar)
+          try {
+            const uploadResult = await uploadToR2(buffer, key, aadhaar.type, {
+              originalName: aadhaar.name,
+              uploadedAt: new Date().toISOString(),
+              userId: userId,
+              documentType: "aadhaar"
+            })
+            documentUrls.aadhaar = uploadResult.url
+            console.log("Aadhaar document uploaded to Cloudflare:", documentUrls.aadhaar)
+          } catch (r2Error) {
+            console.log("Cloudflare upload failed, using local storage:", r2Error)
+            // Fallback to local storage
+            const timestamp = Date.now()
+            const filename = `aadhaar_${timestamp}_${aadhaar.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`
+            const filePath = join(uploadDir, filename)
+            await writeFile(filePath, buffer)
+            documentUrls.aadhaar = `/uploads/supplier-documents/${filename}`
+            console.log("Aadhaar document saved locally:", documentUrls.aadhaar)
+          }
         }
 
         if (pan && pan.size > 0) {
-          const timestamp = Date.now()
-          const filename = `pan_${timestamp}_${pan.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`
-          const filePath = join(uploadDir, filename)
-          
+          console.log("Uploading PAN document to Cloudflare...")
           const bytes = await pan.arrayBuffer()
           const buffer = Buffer.from(bytes)
-          await writeFile(filePath, buffer)
+          const key = generateFileKey("supplier-documents", pan.name, userId)
           
-          documentUrls.pan = `/uploads/supplier-documents/${filename}`
-          console.log("PAN file uploaded:", documentUrls.pan)
+          try {
+            const uploadResult = await uploadToR2(buffer, key, pan.type, {
+              originalName: pan.name,
+              uploadedAt: new Date().toISOString(),
+              userId: userId,
+              documentType: "pan"
+            })
+            documentUrls.pan = uploadResult.url
+            console.log("PAN document uploaded to Cloudflare:", documentUrls.pan)
+          } catch (r2Error) {
+            console.log("Cloudflare upload failed, using local storage:", r2Error)
+            // Fallback to local storage
+            const timestamp = Date.now()
+            const filename = `pan_${timestamp}_${pan.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`
+            const filePath = join(uploadDir, filename)
+            await writeFile(filePath, buffer)
+            documentUrls.pan = `/uploads/supplier-documents/${filename}`
+            console.log("PAN document saved locally:", documentUrls.pan)
+          }
         }
 
         if (gstCertificate && gstCertificate.size > 0) {
-          const timestamp = Date.now()
-          const filename = `gst_${timestamp}_${gstCertificate.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`
-          const filePath = join(uploadDir, filename)
-          
+          console.log("Uploading GST document to Cloudflare...")
           const bytes = await gstCertificate.arrayBuffer()
           const buffer = Buffer.from(bytes)
-          await writeFile(filePath, buffer)
+          const key = generateFileKey("supplier-documents", gstCertificate.name, userId)
           
-          documentUrls.gstCertificate = `/uploads/supplier-documents/${filename}`
-          console.log("GST certificate uploaded:", documentUrls.gstCertificate)
+          try {
+            const uploadResult = await uploadToR2(buffer, key, gstCertificate.type, {
+              originalName: gstCertificate.name,
+              uploadedAt: new Date().toISOString(),
+              userId: userId,
+              documentType: "gst"
+            })
+            documentUrls.gstCertificate = uploadResult.url
+            console.log("GST document uploaded to Cloudflare:", documentUrls.gstCertificate)
+          } catch (r2Error) {
+            console.log("Cloudflare upload failed, using local storage:", r2Error)
+            // Fallback to local storage
+            const timestamp = Date.now()
+            const filename = `gst_${timestamp}_${gstCertificate.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`
+            const filePath = join(uploadDir, filename)
+            await writeFile(filePath, buffer)
+            documentUrls.gstCertificate = `/uploads/supplier-documents/${filename}`
+            console.log("GST document saved locally:", documentUrls.gstCertificate)
+          }
         }
       } catch (uploadError) {
         console.error("File upload error:", uploadError)
@@ -127,17 +190,40 @@ export async function POST(request: NextRequest) {
           : createUser({ ...supplierData, documents: documentUrls })
         console.log("Supplier registered with ID:", newUser.id)
 
-        // Record document submissions for admin review (file-backed store for now)
-        bulkAddSupplierDocuments({
-          userId,
-          supplierName: supplierData.name,
-          companyName: supplierData.companyName,
-          documentUrls: {
-            aadhaar: documentUrls.aadhaar,
-            pan: documentUrls.pan,
-            gst: (documentUrls as any).gstCertificate,
-          },
-        })
+        // Record document submissions for admin review
+        if (getPool()) {
+          // Use database for document submissions
+          const now = new Date().toISOString()
+          const documentEntries = [
+            { type: 'aadhaar', url: documentUrls.aadhaar },
+            { type: 'pan', url: documentUrls.pan },
+            { type: 'gst', url: (documentUrls as any).gstCertificate }
+          ].filter(entry => entry.url)
+
+          for (const entry of documentEntries) {
+            try {
+              await dbQuery(
+                `INSERT INTO supplier_documents (user_id, supplier_name, company_name, document_type, document_url, submitted_at, status)
+                 VALUES ($1, $2, $3, $4, $5, $6, 'pending')`,
+                [userId, supplierData.name, supplierData.companyName, entry.type, entry.url, now]
+              )
+            } catch (docError) {
+              console.error(`Error saving document ${entry.type}:`, docError)
+            }
+          }
+        } else {
+          // Fallback to file storage
+          bulkAddSupplierDocuments({
+            userId,
+            supplierName: supplierData.name,
+            companyName: supplierData.companyName,
+            documentUrls: {
+              aadhaar: documentUrls.aadhaar,
+              pan: documentUrls.pan,
+              gst: (documentUrls as any).gstCertificate,
+            },
+          })
+        }
       } catch (dbError) {
         console.error("Database save error:", dbError)
         return NextResponse.json({ 

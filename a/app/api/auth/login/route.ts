@@ -9,7 +9,11 @@ export async function POST(request: NextRequest) {
     const normalizedUserId = String(userId || "").trim()
     const normalizedRole = String(role || "").trim().toLowerCase()
 
+    // Security logging
+    console.log(`[AUTH] Login attempt for user: ${normalizedUserId}, role: ${normalizedRole}`)
+
     if (!normalizedUserId || !password || !normalizedRole) {
+      console.log(`[AUTH] Missing required fields for user: ${normalizedUserId}`)
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
@@ -17,6 +21,7 @@ export async function POST(request: NextRequest) {
     const user = await findUserByCredentialsAsync(normalizedUserId, normalizedRole)
 
     if (!user) {
+      console.log(`[AUTH] User not found: ${normalizedUserId}`)
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
     }
 
@@ -24,8 +29,11 @@ export async function POST(request: NextRequest) {
     const isValidPassword = await bcrypt.compare(password, user.passwordHash)
 
     if (!isValidPassword) {
+      console.log(`[AUTH] Invalid password for user: ${normalizedUserId}`)
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
     }
+
+    console.log(`[AUTH] Successful login for user: ${normalizedUserId}`)
 
     // Create session (simplified - use proper JWT or session management in production)
     const sessionData = {

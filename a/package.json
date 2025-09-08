@@ -7,6 +7,9 @@
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
+    "setup": "node scripts/setup-dev-environment.js",
+    "setup-documents": "node scripts/setup-supplier-documents.js",
+    "test-db": "curl http://localhost:3000/api/test-db-connection",
     "migrate-to-cloudflare": "node scripts/migrate-to-cloudflare.js",
     "migrate-to-cloudflare:dry-run": "node scripts/migrate-to-cloudflare.js --dry-run"
   },

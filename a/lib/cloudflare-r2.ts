@@ -1,35 +1,66 @@
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+// Conditional imports to avoid issues in browser environment
+let S3Client: any, PutObjectCommand: any, GetObjectCommand: any, DeleteObjectCommand: any, getSignedUrl: any
 
-// Validate environment variables
-if (!process.env.CLOUDFLARE_ACCOUNT_ID) {
-  throw new Error('CLOUDFLARE_ACCOUNT_ID environment variable is required')
-}
-if (!process.env.CLOUDFLARE_ACCESS_KEY_ID) {
-  throw new Error('CLOUDFLARE_ACCESS_KEY_ID environment variable is required')
-}
-if (!process.env.CLOUDFLARE_SECRET_ACCESS_KEY) {
-  throw new Error('CLOUDFLARE_SECRET_ACCESS_KEY environment variable is required')
-}
-if (!process.env.CLOUDFLARE_R2_BUCKET_NAME) {
-  throw new Error('CLOUDFLARE_R2_BUCKET_NAME environment variable is required')
-}
-if (!process.env.CLOUDFLARE_R2_PUBLIC_URL) {
-  throw new Error('CLOUDFLARE_R2_PUBLIC_URL environment variable is required')
+try {
+  if (typeof window === 'undefined') {
+    // Only import AWS SDK on server side
+    const s3Module = require('@aws-sdk/client-s3')
+    const presignerModule = require('@aws-sdk/s3-request-presigner')
+    
+    S3Client = s3Module.S3Client
+    PutObjectCommand = s3Module.PutObjectCommand
+    GetObjectCommand = s3Module.GetObjectCommand
+    DeleteObjectCommand = s3Module.DeleteObjectCommand
+    getSignedUrl = presignerModule.getSignedUrl
+  }
+} catch (error) {
+  console.log('AWS SDK not available:', error)
 }
 
-// Cloudflare R2 configuration
-const r2Client = new S3Client({
-  region: 'auto',
-  endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  credentials: {
-    accessKeyId: process.env.CLOUDFLARE_ACCESS_KEY_ID,
-    secretAccessKey: process.env.CLOUDFLARE_SECRET_ACCESS_KEY,
-  },
-})
+// Validate environment variables (only in runtime, not during build)
+const validateCloudflareConfig = () => {
+  if (!process.env.CLOUDFLARE_ACCOUNT_ID) {
+    throw new Error('CLOUDFLARE_ACCOUNT_ID environment variable is required')
+  }
+  if (!process.env.CLOUDFLARE_ACCESS_KEY_ID) {
+    throw new Error('CLOUDFLARE_ACCESS_KEY_ID environment variable is required')
+  }
+  if (!process.env.CLOUDFLARE_SECRET_ACCESS_KEY) {
+    throw new Error('CLOUDFLARE_SECRET_ACCESS_KEY environment variable is required')
+  }
+  if (!process.env.CLOUDFLARE_R2_BUCKET_NAME) {
+    throw new Error('CLOUDFLARE_R2_BUCKET_NAME environment variable is required')
+  }
+  if (!process.env.CLOUDFLARE_R2_PUBLIC_URL) {
+    throw new Error('CLOUDFLARE_R2_PUBLIC_URL environment variable is required')
+  }
+}
 
-const BUCKET_NAME = process.env.CLOUDFLARE_R2_BUCKET_NAME
-const PUBLIC_URL = process.env.CLOUDFLARE_R2_PUBLIC_URL
+// Cloudflare R2 configuration (created when needed)
+const getR2Client = () => {
+  if (!S3Client) {
+    throw new Error('AWS SDK not available - cannot create R2 client')
+  }
+  validateCloudflareConfig()
+  return new S3Client({
+    region: 'auto',
+    endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    credentials: {
+      accessKeyId: process.env.CLOUDFLARE_ACCESS_KEY_ID,
+      secretAccessKey: process.env.CLOUDFLARE_SECRET_ACCESS_KEY,
+    },
+  })
+}
+
+const getBucketName = () => {
+  validateCloudflareConfig()
+  return process.env.CLOUDFLARE_R2_BUCKET_NAME!
+}
+
+const getPublicUrl = () => {
+  validateCloudflareConfig()
+  return process.env.CLOUDFLARE_R2_PUBLIC_URL!
+}
 
 export interface CloudflareUploadResult {
   url: string
@@ -56,16 +87,24 @@ export async function uploadToR2(
   metadata?: Record<string, string>
 ): Promise<CloudflareUploadResult> {
   try {
+    if (!PutObjectCommand) {
+      throw new Error('AWS SDK not available - PutObjectCommand not loaded')
+    }
+    
+    const r2Client = getR2Client()
+    const bucketName = getBucketName()
+    const publicUrl = getPublicUrl()
+    
     console.log("Uploading to R2:", {
       key,
       contentType,
       fileSize: file.length,
-      bucketName: BUCKET_NAME,
+      bucketName,
       endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`
     })
 
     const command = new PutObjectCommand({
-      Bucket: BUCKET_NAME,
+      Bucket: bucketName,
       Key: key,
       Body: file,
       ContentType: contentType,
@@ -76,7 +115,7 @@ export async function uploadToR2(
     console.log("Successfully uploaded to R2:", key)
 
     return {
-      url: `${PUBLIC_URL}/${key}`,
+      url: `${publicUrl}/${key}`,
       key,
       size: file.length,
       type: contentType,
@@ -100,8 +139,15 @@ export async function uploadToR2(
  */
 export async function getSignedDownloadUrl(key: string, expiresIn: number = 3600): Promise<string> {
   try {
+    if (!GetObjectCommand || !getSignedUrl) {
+      throw new Error('AWS SDK not available - GetObjectCommand or getSignedUrl not loaded')
+    }
+    
+    const r2Client = getR2Client()
+    const bucketName = getBucketName()
+    
     const command = new GetObjectCommand({
-      Bucket: BUCKET_NAME,
+      Bucket: bucketName,
       Key: key,
     })
 
@@ -117,8 +163,15 @@ export async function getSignedDownloadUrl(key: string, expiresIn: number = 3600
  */
 export async function deleteFromR2(key: string): Promise<void> {
   try {
+    if (!DeleteObjectCommand) {
+      throw new Error('AWS SDK not available - DeleteObjectCommand not loaded')
+    }
+    
+    const r2Client = getR2Client()
+    const bucketName = getBucketName()
+    
     const command = new DeleteObjectCommand({
-      Bucket: BUCKET_NAME,
+      Bucket: bucketName,
       Key: key,
     })
 
@@ -155,5 +208,11 @@ export function extractKeyFromUrl(url: string): string {
  * Check if URL is a Cloudflare R2 URL
  */
 export function isR2Url(url: string): boolean {
-  return url.includes('r2.cloudflarestorage.com') || url.includes(PUBLIC_URL)
+  try {
+    const publicUrl = getPublicUrl()
+    return url.includes('r2.cloudflarestorage.com') || url.includes(publicUrl)
+  } catch {
+    // If environment variables are not set, just check for R2 domain
+    return url.includes('r2.cloudflarestorage.com')
+  }
 }

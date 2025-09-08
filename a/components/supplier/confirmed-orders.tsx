@@ -54,7 +54,18 @@ export function ConfirmedOrders({ onDataChange }: ConfirmedOrdersProps) {
   const fetchConfirmedOrders = async () => {
     try {
       setIsFetching(true)
-      const response = await fetch("/api/supplier-confirmed-orders?supplierId=111111") // Use the actual supplier ID from your existing data
+      
+      // Get current supplier ID from auth
+      const userResponse = await fetch("/api/auth/me")
+      if (!userResponse.ok) {
+        setError("Failed to get current supplier")
+        return
+      }
+      
+      const userData = await userResponse.json()
+      const supplierId = userData.user.id
+      
+      const response = await fetch(`/api/supplier-confirmed-orders?supplierId=${supplierId}`)
       if (response.ok) {
         const data = await response.json()
         setOrders(data.confirmedOrders)
