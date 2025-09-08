@@ -17,6 +17,7 @@ interface FileUploadProps {
   required?: boolean
   maxSize?: number // in MB
   existingFile?: string
+  userId?: string
   onFileChange?: (file: File | null, url?: string) => void
   className?: string
 }
@@ -28,6 +29,7 @@ export function FileUpload({
   required = false,
   maxSize = 5,
   existingFile,
+  userId,
   onFileChange,
   className = "",
 }: FileUploadProps) {
@@ -63,6 +65,9 @@ export function FileUpload({
       const formData = new FormData()
       formData.append("file", selectedFile)
       formData.append("category", name)
+      if (userId) {
+        formData.append("userId", userId)
+      }
 
       // Simulate upload progress
       const progressInterval = setInterval(() => {
@@ -116,9 +121,28 @@ export function FileUpload({
     onFileChange?.(null)
   }
 
-  const handleViewFile = () => {
+  const handleViewFile = async () => {
     if (uploadedUrl) {
-      window.open(uploadedUrl, "_blank")
+      try {
+        // Check if it's a Cloudflare URL that needs a signed URL
+        if (uploadedUrl.includes('r2.cloudflarestorage.com')) {
+          const response = await fetch(`/api/upload?url=${encodeURIComponent(uploadedUrl)}`)
+          if (response.ok) {
+            const data = await response.json()
+            window.open(data.signedUrl, "_blank")
+          } else {
+            // Fallback to direct URL
+            window.open(uploadedUrl, "_blank")
+          }
+        } else {
+          // For local files, open directly
+          window.open(uploadedUrl, "_blank")
+        }
+      } catch (error) {
+        console.error("Error opening file:", error)
+        // Fallback to direct URL
+        window.open(uploadedUrl, "_blank")
+      }
     }
   }
 

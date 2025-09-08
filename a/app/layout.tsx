@@ -5,9 +5,9 @@ import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.app',
+  title: 'Mahalaxmi Transport Co - Transport Management System',
+  description: 'Professional transport and logistics management system for Mahalaxmi Transport Company',
+  generator: 'Mahalaxmi Transport Co',
   icons: { icon: '/favicon.svg' },
 }
 

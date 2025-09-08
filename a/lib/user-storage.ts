@@ -182,7 +182,29 @@ export async function createUserAsync(userData: Omit<User, "id" | "createdAt">):
     // Check if database operation was successful
     if (res.rows.length === 0) {
       console.log("Database insert failed, falling back to file storage")
-      return createUser(userData)
+      // Use the file-based storage directly instead of the sync createUser function
+      const now = new Date()
+      const newUser: User = {
+        id: Date.now(), // Simple ID generation
+        userId: userData.userId,
+        passwordHash: userData.passwordHash,
+        role: userData.role,
+        email: userData.email,
+        name: userData.name,
+        mobile: userData.mobile,
+        companyName: userData.companyName,
+        gstNumber: userData.gstNumber,
+        numberOfVehicles: userData.numberOfVehicles,
+        documents: userData.documents,
+        createdAt: now
+      }
+      
+      // Save to file storage
+      users = loadUsersFromDisk()
+      users.push(newUser)
+      saveUsersToDisk(users)
+      
+      return newUser
     }
     
     const id = res.rows[0].id
@@ -216,7 +238,29 @@ export async function createUserAsync(userData: Omit<User, "id" | "createdAt">):
     }
   } catch (error) {
     console.log("Database operation failed, falling back to file storage:", error)
-    return createUser(userData)
+    // Use the file-based storage directly instead of the sync createUser function
+    const now = new Date()
+    const newUser: User = {
+      id: Date.now(), // Simple ID generation
+      userId: userData.userId,
+      passwordHash: userData.passwordHash,
+      role: userData.role,
+      email: userData.email,
+      name: userData.name,
+      mobile: userData.mobile,
+      companyName: userData.companyName,
+      gstNumber: userData.gstNumber,
+      numberOfVehicles: userData.numberOfVehicles,
+      documents: userData.documents,
+      createdAt: now
+    }
+    
+    // Save to file storage
+    users = loadUsersFromDisk()
+    users.push(newUser)
+    saveUsersToDisk(users)
+    
+    return newUser
   }
 }
 

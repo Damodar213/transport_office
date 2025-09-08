@@ -1,15 +1,24 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { writeFile, mkdir } from "fs/promises"
-import { join } from "path"
-import { existsSync } from "fs"
+import { uploadToR2, generateFileKey, deleteFromR2, extractKeyFromUrl, getSignedDownloadUrl } from "@/lib/cloudflare-r2"
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData()
     const file = formData.get("file") as File
     const category = formData.get("category") as string
+    const userId = formData.get("userId") as string
+
+    console.log("Upload request received:", {
+      hasFile: !!file,
+      fileName: file?.name,
+      fileSize: file?.size,
+      fileType: file?.type,
+      category,
+      userId
+    })
 
     if (!file) {
+      console.log("No file provided in request")
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
 
@@ -28,37 +37,34 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create unique filename
-    const timestamp = Date.now()
-    const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_")
-    const filename = `${timestamp}_${originalName}`
-
-    // Create upload directory structure
-    const uploadDir = join(process.cwd(), "public", "uploads", category || "general")
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true })
-    }
-
-    // Convert file to buffer and save
+    // Convert file to buffer
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
-    const filePath = join(uploadDir, filename)
 
-    await writeFile(filePath, buffer)
+    // Generate unique key for Cloudflare R2
+    const key = generateFileKey(category || "general", file.name, userId)
 
-    // Return the public URL
-    const publicUrl = `/uploads/${category || "general"}/${filename}`
+    // Upload to Cloudflare R2
+    const uploadResult = await uploadToR2(buffer, key, file.type, {
+      originalName: file.name,
+      uploadedAt: new Date().toISOString(),
+      userId: userId || "anonymous",
+    })
 
     return NextResponse.json({
       message: "File uploaded successfully",
-      url: publicUrl,
-      filename: filename,
+      url: uploadResult.url,
+      key: uploadResult.key,
+      filename: file.name,
       size: file.size,
       type: file.type,
     })
   } catch (error) {
     console.error("Upload error:", error)
-    return NextResponse.json({ error: "Upload failed" }, { status: 500 })
+    return NextResponse.json({ 
+      error: "Upload failed", 
+      details: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 })
   }
 }
 
@@ -66,29 +72,64 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const filePath = searchParams.get("path")
+    const key = searchParams.get("key")
+    const url = searchParams.get("url")
 
-    if (!filePath) {
-      return NextResponse.json({ error: "No file path provided" }, { status: 400 })
+    if (!key && !url) {
+      return NextResponse.json({ error: "File key or URL is required" }, { status: 400 })
     }
 
-    // Security check - ensure path is within uploads directory
-    if (!filePath.startsWith("/uploads/")) {
-      return NextResponse.json({ error: "Invalid file path" }, { status: 400 })
+    const fileKey = key || (url ? extractKeyFromUrl(url) : null)
+    
+    if (!fileKey) {
+      return NextResponse.json({ error: "Invalid file key or URL" }, { status: 400 })
     }
 
-    const fullPath = join(process.cwd(), "public", filePath)
+    await deleteFromR2(fileKey)
 
-    // Check if file exists and delete
-    if (existsSync(fullPath)) {
-      const { unlink } = await import("fs/promises")
-      await unlink(fullPath)
-      return NextResponse.json({ message: "File deleted successfully" })
-    } else {
-      return NextResponse.json({ error: "File not found" }, { status: 404 })
-    }
+    return NextResponse.json({
+      message: "File deleted successfully",
+      key: fileKey,
+    })
   } catch (error) {
     console.error("Delete error:", error)
-    return NextResponse.json({ error: "Delete failed" }, { status: 500 })
+    return NextResponse.json({ 
+      error: "Delete failed", 
+      details: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 })
+  }
+}
+
+// Handle signed URL generation for viewing files
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const key = searchParams.get("key")
+    const url = searchParams.get("url")
+
+    if (!key && !url) {
+      return NextResponse.json({ error: "File key or URL is required" }, { status: 400 })
+    }
+
+    const fileKey = key || (url ? extractKeyFromUrl(url) : null)
+    
+    if (!fileKey) {
+      return NextResponse.json({ error: "Invalid file key or URL" }, { status: 400 })
+    }
+
+    // Generate signed URL valid for 1 hour
+    const signedUrl = await getSignedDownloadUrl(fileKey, 3600)
+
+    return NextResponse.json({
+      signedUrl,
+      key: fileKey,
+      expiresIn: 3600
+    })
+  } catch (error) {
+    console.error("Signed URL generation error:", error)
+    return NextResponse.json({ 
+      error: "Failed to generate signed URL", 
+      details: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 })
   }
 }

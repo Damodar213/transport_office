@@ -13,6 +13,7 @@ import { SystemOverview } from "@/components/admin/system-overview"
 import { SupplierOrderManagement } from "@/components/admin/supplier-order-management"
 import { BuyersOrders } from "@/components/admin/buyers-orders"
 import { NotificationBar, useNotificationBar } from "@/components/admin/notification-bar"
+import { Logo } from "@/components/ui/logo"
 
 interface DashboardStats {
   totalUsers: { count: number; change: string; trend: string }
@@ -149,10 +150,10 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <Shield className="h-8 w-8 text-primary" />
+                <Logo size="md" />
                 <div>
                   <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
-                  <p className="text-sm text-muted-foreground">Transport Office Management System</p>
+                  <p className="text-sm text-muted-foreground">Mahalaxmi Transport Co. Management System</p>
                 </div>
               </div>
             </div>

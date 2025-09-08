@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Building, Package, MapPin, LogOut, Bell } from "lucide-react"
 import { TransportRequests } from "@/components/buyer/transport-requests"
 import { OrderTracking } from "@/components/buyer/order-tracking"
+import { Logo } from "@/components/ui/logo"
 
 interface DashboardStats {
   activeRequests: number
@@ -94,10 +95,10 @@ export default function BuyerDashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <Building className="h-8 w-8 text-primary" />
+                <Logo size="md" />
                 <div>
                   <h1 className="text-2xl font-bold text-foreground">Buyer Dashboard</h1>
-                  <p className="text-sm text-muted-foreground">Welcome back, ABC Industries</p>
+                  <p className="text-sm text-muted-foreground">Welcome back to Mahalaxmi Transport Co.</p>
                 </div>
               </div>
             </div>

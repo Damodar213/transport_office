@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Truck, Building, Upload, Shield, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
+import { Logo } from "@/components/ui/logo"
 
 export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -60,9 +61,8 @@ export default function SignupPage() {
     <div className="min-h-screen bg-background py-8 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Truck className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold">Transport Office</h1>
+          <div className="flex items-center justify-center mb-4">
+            <Logo size="lg" />
           </div>
           <p className="text-muted-foreground">Create your account</p>
         </div>

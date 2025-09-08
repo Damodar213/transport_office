@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { dbQuery } from "@/lib/db"
 
 export interface TransportOrder {
   id: number
@@ -38,6 +39,13 @@ export interface TransportOrder {
   distance?: number
   createdAt: string
   updatedAt: string
+  // Additional fields for enhanced tracking
+  supplierName?: string
+  driverName?: string
+  driverContact?: string
+  vehicleNumber?: string
+  currentLocation?: string
+  progress?: number
 }
 
 // Mock database - replace with actual database implementation
@@ -101,6 +109,110 @@ export async function GET(request: NextRequest) {
     const supplierId = searchParams.get("supplierId")
     const search = searchParams.get("search")
 
+    // Try to fetch from database first
+    try {
+      let query = `
+        SELECT 
+          o.*,
+          s.name as supplier_name,
+          d.name as driver_name,
+          d.phone as driver_contact,
+          t.vehicle_number,
+          t.current_location
+        FROM transport_orders o
+        LEFT JOIN suppliers s ON o.supplier_id = s.id
+        LEFT JOIN drivers d ON o.driver_id = d.id
+        LEFT JOIN trucks t ON o.vehicle_id = t.id
+        WHERE 1=1
+      `
+      const params: any[] = []
+      let paramIndex = 1
+
+      // Filter by status
+      if (status && status !== "all") {
+        query += ` AND o.status = $${paramIndex}`
+        params.push(status)
+        paramIndex++
+      }
+
+      // Filter by buyer
+      if (buyerId) {
+        query += ` AND o.buyer_id = $${paramIndex}`
+        params.push(buyerId)
+        paramIndex++
+      }
+
+      // Filter by supplier
+      if (supplierId) {
+        query += ` AND o.supplier_id = $${paramIndex}`
+        params.push(supplierId)
+        paramIndex++
+      }
+
+      // Search functionality
+      if (search) {
+        query += ` AND (
+          o.order_number ILIKE $${paramIndex} OR
+          o.load_type ILIKE $${paramIndex} OR
+          o.from_location ILIKE $${paramIndex} OR
+          o.to_location ILIKE $${paramIndex} OR
+          o.buyer_company ILIKE $${paramIndex} OR
+          s.name ILIKE $${paramIndex}
+        )`
+        params.push(`%${search}%`)
+        paramIndex++
+      }
+
+      query += ` ORDER BY o.created_at DESC`
+
+      const result = await dbQuery<TransportOrder>(query, params)
+      
+      if (result.rows.length > 0) {
+        // Transform database results to match interface
+        const transformedOrders = result.rows.map((row: any) => ({
+          id: row.id,
+          orderNumber: row.order_number || `ORD-${row.id}`,
+          buyerId: row.buyer_id,
+          buyerCompany: row.buyer_company,
+          supplierId: row.supplier_id,
+          supplierCompany: row.supplier_company,
+          supplierName: row.supplier_name,
+          driverId: row.driver_id,
+          driverName: row.driver_name,
+          driverContact: row.driver_contact,
+          vehicleId: row.vehicle_id,
+          vehicleNumber: row.vehicle_number,
+          loadType: row.load_type,
+          fromLocation: row.from_location,
+          toLocation: row.to_location,
+          estimatedTons: row.estimated_tons,
+          deliveryPlace: row.delivery_place,
+          state: row.state,
+          district: row.district,
+          taluk: row.taluk,
+          status: row.status,
+          adminNotes: row.admin_notes,
+          assignedBy: row.assigned_by,
+          assignedAt: row.assigned_at,
+          confirmedAt: row.confirmed_at,
+          pickupDate: row.pickup_date,
+          deliveryDate: row.delivery_date,
+          estimatedDeliveryDate: row.estimated_delivery_date,
+          rate: row.rate,
+          distance: row.distance,
+          currentLocation: row.current_location,
+          progress: calculateProgress(row.status),
+          createdAt: row.created_at,
+          updatedAt: row.updated_at,
+        }))
+
+        return NextResponse.json({ orders: transformedOrders })
+      }
+    } catch (dbError) {
+      console.log("Database query failed, falling back to mock data:", dbError)
+    }
+
+    // Fallback to mock data if database is not available
     let filteredOrders = [...orders]
 
     // Filter by status
@@ -140,6 +252,22 @@ export async function GET(request: NextRequest) {
     console.error("Get orders error:", error)
     return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 })
   }
+}
+
+// Helper function to calculate progress based on status
+function calculateProgress(status: string): number {
+  const progressMap: { [key: string]: number } = {
+    draft: 0,
+    pending: 10,
+    assigned: 20,
+    confirmed: 30,
+    picked_up: 50,
+    in_transit: 75,
+    delivered: 100,
+    cancelled: 0,
+    rejected: 0,
+  }
+  return progressMap[status] || 0
 }
 
 // POST - Create new order

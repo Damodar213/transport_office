@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Truck, User, Building, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
+import { Logo } from "@/components/ui/logo"
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -54,9 +55,8 @@ export default function LoginPage() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Truck className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold">Transport Office</h1>
+          <div className="flex items-center justify-center mb-4">
+            <Logo size="lg" />
           </div>
           <p className="text-muted-foreground">Sign in to your account</p>
         </div>

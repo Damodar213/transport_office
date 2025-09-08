@@ -10,6 +10,8 @@ import { DriverInformation } from "@/components/supplier/driver-information"
 import { TransportOrders } from "@/components/supplier/transport-orders"
 import { TruckInformation } from "@/components/supplier/truck-information"
 import { ConfirmedOrders } from "@/components/supplier/confirmed-orders"
+import { PageHeader } from "@/components/ui/page-header"
+import { Logo } from "@/components/ui/logo"
 
 export default function SupplierDashboard() {
   const [activeTab, setActiveTab] = useState("trucks")
@@ -124,10 +126,10 @@ export default function SupplierDashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <Truck className="h-8 w-8 text-primary" />
+                <Logo size="md" />
                 <div>
                   <h1 className="text-2xl font-bold text-foreground">Supplier Dashboard</h1>
-                  <p className="text-sm text-muted-foreground">Welcome back, John Transport Co.</p>
+                  <p className="text-sm text-muted-foreground">Welcome back to Mahalaxmi Transport Co.</p>
                 </div>
               </div>
             </div>
