@@ -64,7 +64,7 @@ export default function AdminDashboard() {
         const newCount = data.count || 0
         
         // Show notification bar if there are new notifications
-        if (newCount > notifications && notifications > 0) {
+        if (newCount > notifications && notifications >= 0) {
           showNotification(`New transport request received! You have ${newCount} unread notifications.`, "info")
         }
         
@@ -92,6 +92,11 @@ export default function AdminDashboard() {
     }
   }, [notifications])
 
+  // Add manual refresh function for notifications
+  const refreshNotifications = () => {
+    fetchNotificationCount()
+  }
+
   // Refresh stats when tab changes
   useEffect(() => {
     if (activeTab === "overview") {
@@ -103,10 +108,10 @@ export default function AdminDashboard() {
   useEffect(() => {
     const interval = setInterval(() => {
       fetchNotificationCount()
-    }, 5000) // Check every 5 seconds for new notifications
+    }, 3000) // Check every 3 seconds for new notifications
 
     return () => clearInterval(interval)
-  }, [notifications]) // Include notifications in dependency to detect changes
+  }, []) // Remove notifications dependency to prevent interval recreation
 
   const handleLogout = async () => {
     try {
@@ -163,13 +168,13 @@ export default function AdminDashboard() {
                 size="sm" 
                 className="relative bg-transparent"
                 onClick={() => {
-                  fetchNotificationCount()
+                  refreshNotifications()
                   window.location.href = '/admin/notifications'
                 }}
               >
                 <Bell className="h-4 w-4" />
                 {notifications > 0 && (
-                  <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs">{notifications}</Badge>
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs bg-red-500 text-white">{notifications}</Badge>
                 )}
               </Button>
               <Button variant="outline" size="sm" onClick={() => {

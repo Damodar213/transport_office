@@ -26,21 +26,28 @@ export default function LoginPage() {
     setError("")
 
     try {
-      const response = await fetch("/api/auth/login", {
+      // Use different endpoints for admin vs regular users
+      const endpoint = role === "admin" ? "/api/auth/admin-login" : "/api/auth/login"
+      
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: formData.get("userId"),
           password: formData.get("password"),
-          role,
+          ...(role !== "admin" && { role }), // Only include role for non-admin logins
         }),
       })
 
       const data = await response.json()
 
       if (response.ok) {
-        // Redirect based on role
-        window.location.href = `/${role}/dashboard`
+        // Clear any cached data and force a fresh page load
+        localStorage.clear()
+        sessionStorage.clear()
+        
+        // Force a hard redirect to ensure fresh data loading
+        window.location.replace(`/${role}/dashboard`)
       } else {
         setError(data.error || "Login failed")
       }

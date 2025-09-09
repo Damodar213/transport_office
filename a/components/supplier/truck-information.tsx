@@ -21,7 +21,7 @@ import { Plus, Edit, Trash2, Upload, Eye } from "lucide-react"
 
 interface Vehicle {
   id: number
-  supplier_id: number
+  supplier_id: string
   vehicle_number: string
   body_type: string
   capacity_tons?: number
@@ -97,6 +97,33 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
 
   useEffect(() => {
     fetchTrucks()
+  }, [])
+
+  // Add a key to force re-render when supplier changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      // Clear current data and refetch when storage changes (user login/logout)
+      setVehicles([])
+      setError("")
+      fetchTrucks()
+    }
+
+    // Listen for storage changes (login/logout)
+    window.addEventListener('storage', handleStorageChange)
+    
+    // Also refetch when component becomes visible (in case of tab switching)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchTrucks()
+      }
+    }
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
   }, [])
 
   const handleSubmit = async (formData: FormData) => {

@@ -42,7 +42,7 @@ export default function BuyerDashboard() {
         }
         
         const userData = await userResponse.json()
-        const buyerId = userData.user?.userIdString || userData.user?.userId
+        const buyerId = userData.user?.id
         
         if (!buyerId) {
           console.error("No buyer ID found in session")
@@ -207,7 +207,7 @@ export default function BuyerDashboard() {
                   }
                   
                   const userData = await userResponse.json()
-                  const buyerId = userData.user?.userIdString || userData.user?.userId
+                  const buyerId = userData.user?.id
                   
                   if (!buyerId) {
                     console.error("No buyer ID found in session")
@@ -276,7 +276,7 @@ export default function BuyerDashboard() {
                   }
                   
                   const userData = await userResponse.json()
-                  const buyerId = userData.user?.userIdString || userData.user?.userId
+                  const buyerId = userData.user?.id
                   
                   if (!buyerId) {
                     console.error("No buyer ID found in session")

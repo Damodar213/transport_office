@@ -24,10 +24,32 @@ export async function POST(request: NextRequest) {
 
     // Return admin info (without password)
     const { passwordHash, ...adminInfo } = admin
-    return NextResponse.json({
+    
+    // Create session data
+    const sessionData = {
+      userId: admin.id,
+      userIdString: admin.userId,
+      role: admin.role,
+      email: admin.email,
+      name: admin.name,
+      companyName: admin.name, // Use name as company name for admin
+    }
+
+    const response = NextResponse.json({
       message: "Admin login successful",
       admin: adminInfo
     })
+
+    // Set session cookie
+    response.cookies.set("session", JSON.stringify(sessionData), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: "/", // Ensure cookie is available for all paths
+    })
+
+    return response
 
   } catch (error) {
     console.error("Admin login error:", error)

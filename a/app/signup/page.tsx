@@ -182,20 +182,7 @@ export default function SignupPage() {
 
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold">Document Uploads</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="aadhaar">Aadhaar Card</Label>
-                        <div className="flex items-center gap-2">
-                          <Input
-                            id="aadhaar"
-                            name="aadhaar"
-                            type="file"
-                            accept=".pdf,.jpg,.jpeg,.png"
-                            className="file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-sm file:bg-primary file:text-primary-foreground"
-                          />
-                          <Upload className="h-4 w-4 text-muted-foreground" />
-                        </div>
-                      </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="pan">PAN Card</Label>
                         <div className="flex items-center gap-2">

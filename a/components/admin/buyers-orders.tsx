@@ -79,6 +79,7 @@ export function BuyersOrders() {
   const [isSupplierDialogOpen, setIsSupplierDialogOpen] = useState(false)
   const [isLoadingSuppliers, setIsLoadingSuppliers] = useState(false)
   const [isSendingOrder, setIsSendingOrder] = useState(false)
+  const [orderSubmissions, setOrderSubmissions] = useState<any[]>([])
 
   // Fetch orders from API
   const fetchOrders = async () => {
@@ -149,17 +150,99 @@ export function BuyersOrders() {
     try {
       setIsSendingOrder(true)
       
+      // Check if order is already assigned to a specific supplier
+      if (selectedOrder.supplier_id) {
+        toast({
+          title: "Order Already Assigned",
+          description: `This order has already been assigned to a supplier and cannot be sent to additional suppliers.`,
+          variant: "destructive"
+        })
+        setIsSendingOrder(false)
+        return
+      }
+
+      // Check if order has already been submitted to any suppliers
+      if (selectedOrder.status === "submitted") {
+        const existingSubmissionsResponse = await fetch(`/api/order-submissions/${selectedOrder.id}`)
+        if (existingSubmissionsResponse.ok) {
+          const data = await existingSubmissionsResponse.json()
+          const existingSubmissions = data.submissions || []
+          
+          if (existingSubmissions.length > 0) {
+            toast({
+              title: "Order Already Submitted",
+              description: `This order has already been submitted to ${existingSubmissions.length} supplier(s) and cannot be sent to additional suppliers.`,
+              variant: "destructive"
+            })
+            setIsSendingOrder(false)
+            return
+          }
+        }
+      }
+
+      // Check which suppliers have already been sent this order
+      const existingSubmissionsResponse = await fetch(`/api/order-submissions/${selectedOrder.id}`)
+      let existingSubmissions: any[] = []
+      if (existingSubmissionsResponse.ok) {
+        const data = await existingSubmissionsResponse.json()
+        existingSubmissions = data.submissions || []
+      }
+
+      // Filter out suppliers who have already been sent this order
+      const alreadySentTo = existingSubmissions.map(sub => sub.supplier_id)
+      const newSuppliers = selectedSuppliers.filter(supplierId => !alreadySentTo.includes(supplierId))
+
+      if (newSuppliers.length === 0) {
+        toast({
+          title: "All Selected Suppliers Already Notified",
+          description: `All selected suppliers have already been sent this order.`,
+          variant: "destructive"
+        })
+        setIsSendingOrder(false)
+        return
+      }
+
+      if (newSuppliers.length < selectedSuppliers.length) {
+        toast({
+          title: "Some Suppliers Already Notified",
+          description: `${selectedSuppliers.length - newSuppliers.length} suppliers were already sent this order. Sending to ${newSuppliers.length} new suppliers.`,
+        })
+      }
+      
       // Get supplier details with phone numbers
       const suppliersWithPhones = suppliers.filter(s => 
-        selectedSuppliers.includes(s.id) && (s.whatsapp || s.mobile)
+        newSuppliers.includes(s.id) && (s.whatsapp || s.mobile)
       )
 
       // Create WhatsApp message
       const message = createWhatsAppMessage(selectedOrder)
       const encodedMessage = encodeURIComponent(message)
 
+      // Record order submissions in database
+      const submissionPromises = newSuppliers.map(async (supplierId) => {
+        try {
+          const response = await fetch("/api/order-submissions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              orderId: selectedOrder.id,
+              supplierId: supplierId,
+              submittedBy: "admin" // You might want to get this from session
+            })
+          })
+          
+          if (!response.ok) {
+            console.error(`Failed to record submission for supplier ${supplierId}`)
+          }
+        } catch (error) {
+          console.error(`Error recording submission for supplier ${supplierId}:`, error)
+        }
+      })
+
       // Send internal notifications to suppliers
-      const notificationPromises = selectedSuppliers.map(async (supplierId) => {
+      const notificationPromises = newSuppliers.map(async (supplierId) => {
         try {
           const response = await fetch("/api/supplier/notifications", {
             method: "POST",
@@ -185,8 +268,8 @@ export function BuyersOrders() {
         }
       })
 
-      // Wait for all notifications to be created
-      await Promise.all(notificationPromises)
+      // Wait for all submissions and notifications to be created
+      await Promise.all([...submissionPromises, ...notificationPromises])
 
       // Update order status to "submitted"
       try {
@@ -238,7 +321,7 @@ export function BuyersOrders() {
 
       toast({
         title: "Success",
-        description: `Order ${selectedOrder.order_number} submitted and sent to ${selectedSuppliers.length} suppliers! Status updated to "Submitted". Internal notifications created and WhatsApp opened for ${suppliersWithPhones.length} suppliers with phone numbers.`,
+        description: `Order ${selectedOrder.order_number} submitted and sent to ${newSuppliers.length} new suppliers! Status updated to "Submitted". Internal notifications created and WhatsApp opened for ${suppliersWithPhones.length} suppliers with phone numbers.`,
       })
       setIsSupplierDialogOpen(false)
       setSelectedSuppliers([])
@@ -270,10 +353,73 @@ export function BuyersOrders() {
   }
 
   // Handle send to suppliers
-  const handleSendToSuppliers = (order: BuyersOrder) => {
+  const handleSendToSuppliers = async (order: BuyersOrder) => {
+    // First check if order is already assigned to a specific supplier
+    if (order.supplier_id) {
+      toast({
+        title: "Order Already Assigned",
+        description: `This order has already been assigned to a supplier and cannot be sent to additional suppliers.`,
+        variant: "destructive"
+      })
+      return
+    }
+
+    // Check if order has already been submitted to any suppliers
+    if (order.status === "submitted") {
+      try {
+        const response = await fetch(`/api/order-submissions/${order.id}`)
+        if (response.ok) {
+          const data = await response.json()
+          const existingSubmissions = data.submissions || []
+          
+          if (existingSubmissions.length > 0) {
+            toast({
+              title: "Order Already Submitted",
+              description: `This order has already been submitted to ${existingSubmissions.length} supplier(s) and cannot be sent to additional suppliers.`,
+              variant: "destructive"
+            })
+            return
+          }
+        }
+      } catch (error) {
+        console.error("Error checking order submissions:", error)
+        // If we can't check, we'll allow opening the dialog but show a warning
+      }
+    }
+
     setSelectedOrder(order)
     setSelectedSuppliers([])
+    
+    // Fetch existing submissions for this order
+    try {
+      const response = await fetch(`/api/order-submissions/${order.id}`)
+      if (response.ok) {
+        const data = await response.json()
+        setOrderSubmissions(data.submissions || [])
+      } else {
+        setOrderSubmissions([])
+      }
+    } catch (error) {
+      console.error("Error fetching order submissions:", error)
+      setOrderSubmissions([])
+    }
+    
     setIsSupplierDialogOpen(true)
+  }
+
+  // Check if order can be sent to suppliers
+  const canSendToSuppliers = (order: BuyersOrder) => {
+    // Cannot send if already assigned to a specific supplier
+    if (order.supplier_id) {
+      return false
+    }
+    
+    // Cannot send if order status is submitted (regardless of submissions)
+    if (order.status === "submitted") {
+      return false
+    }
+    
+    return true
   }
 
   // Filter orders based on search and filters
@@ -693,7 +839,16 @@ export function BuyersOrders() {
                           <div className="text-sm text-muted-foreground">→ {order.to_place}</div>
                         </div>
                       </TableCell>
-                      <TableCell>{getStatusBadge(order.status)}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {getStatusBadge(order.status)}
+                          {order.status === "submitted" && (
+                            <Badge variant="outline" className="text-xs">
+                              Cannot Send
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell>
                         <div className="text-sm">
                           {new Date(order.created_at).toLocaleDateString()}
@@ -713,7 +868,14 @@ export function BuyersOrders() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleSendToSuppliers(order)}
-                            title="Send to Suppliers"
+                            title={
+                              order.supplier_id 
+                                ? "Order Already Assigned" 
+                                : order.status === "submitted" 
+                                  ? "Order Already Submitted - Cannot send to additional suppliers"
+                                  : "Send to Suppliers"
+                            }
+                            disabled={!canSendToSuppliers(order)}
                           >
                             <Send className="h-4 w-4" />
                           </Button>
@@ -927,6 +1089,16 @@ export function BuyersOrders() {
           
           {selectedOrder && (
             <div className="space-y-6">
+              {/* Warning for submitted orders */}
+              {selectedOrder.status === "submitted" && orderSubmissions.length > 0 && (
+                <Alert variant="destructive">
+                  <AlertDescription>
+                    ⚠️ This order has already been submitted to {orderSubmissions.length} supplier(s). 
+                    You cannot send it to additional suppliers.
+                  </AlertDescription>
+                </Alert>
+              )}
+
               {/* Order Summary */}
               <Card>
                 <CardHeader>
@@ -960,6 +1132,11 @@ export function BuyersOrders() {
                   <CardTitle className="text-lg">Select Suppliers</CardTitle>
                   <CardDescription>
                     Choose suppliers to send this order to (selected: {selectedSuppliers.length})
+                    {orderSubmissions.length > 0 && (
+                      <span className="block text-blue-600 mt-1">
+                        ℹ️ {orderSubmissions.length} supplier(s) have already been sent this order
+                      </span>
+                    )}
                     {suppliers.filter(s => !s.mobile && !s.whatsapp).length > 0 && (
                       <span className="block text-orange-600 mt-1">
                         ⚠️ Some suppliers don't have phone numbers and won't receive WhatsApp messages
@@ -980,41 +1157,56 @@ export function BuyersOrders() {
                     </div>
                   ) : (
                     <div className="space-y-3 max-h-60 overflow-y-auto">
-                      {suppliers.map((supplier) => (
-                        <div
-                          key={supplier.id}
-                          className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-colors ${
-                            selectedSuppliers.includes(supplier.id)
-                              ? 'border-primary bg-primary/5'
-                              : 'border-border hover:border-primary/50'
-                          } ${!supplier.mobile && !supplier.whatsapp ? 'opacity-60' : ''}`}
-                          onClick={() => {
-                            setSelectedSuppliers(prev =>
-                              prev.includes(supplier.id)
-                                ? prev.filter(id => id !== supplier.id)
-                                : [...prev, supplier.id]
-                            )
-                          }}
-                        >
-                          <div className="flex-1">
-                            <div className="font-medium">{supplier.company_name}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {supplier.contact_person} • {supplier.whatsapp || supplier.mobile || 'No phone number'}
+                      {suppliers.map((supplier) => {
+                        const alreadySent = orderSubmissions.some(sub => sub.supplier_id === supplier.id)
+                        return (
+                          <div
+                            key={supplier.id}
+                            className={`flex items-center justify-between p-3 border rounded-lg transition-colors ${
+                              alreadySent 
+                                ? 'border-gray-300 bg-gray-50 opacity-60 cursor-not-allowed'
+                                : selectedSuppliers.includes(supplier.id)
+                                  ? 'border-primary bg-primary/5 cursor-pointer'
+                                  : 'border-border hover:border-primary/50 cursor-pointer'
+                            } ${!supplier.mobile && !supplier.whatsapp ? 'opacity-60' : ''}`}
+                            onClick={() => {
+                              if (!alreadySent) {
+                                setSelectedSuppliers(prev =>
+                                  prev.includes(supplier.id)
+                                    ? prev.filter(id => id !== supplier.id)
+                                    : [...prev, supplier.id]
+                                )
+                              }
+                            }}
+                          >
+                            <div className="flex-1">
+                              <div className="font-medium flex items-center gap-2">
+                                {supplier.company_name}
+                                {alreadySent && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    Already Sent
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                {supplier.contact_person} • {supplier.whatsapp || supplier.mobile || 'No phone number'}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {!supplier.mobile && !supplier.whatsapp && (
+                                <span className="text-xs text-orange-600">No WhatsApp</span>
+                              )}
+                              <input
+                                type="checkbox"
+                                checked={selectedSuppliers.includes(supplier.id)}
+                                disabled={alreadySent}
+                                onChange={() => {}}
+                                className="h-4 w-4"
+                              />
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            {!supplier.mobile && !supplier.whatsapp && (
-                              <span className="text-xs text-orange-600">No WhatsApp</span>
-                            )}
-                            <input
-                              type="checkbox"
-                              checked={selectedSuppliers.includes(supplier.id)}
-                              onChange={() => {}}
-                              className="h-4 w-4"
-                            />
-                          </div>
-                        </div>
-                      ))}
+                        )
+                      })}
                     </div>
                   )}
                 </CardContent>
@@ -1033,12 +1225,21 @@ export function BuyersOrders() {
                 </Button>
                 <Button
                   onClick={sendOrderToSuppliers}
-                  disabled={selectedSuppliers.length === 0 || isSendingOrder}
+                  disabled={
+                    selectedSuppliers.length === 0 || 
+                    isSendingOrder ||
+                    (selectedOrder.status === "submitted" && orderSubmissions.length > 0)
+                  }
                 >
                   {isSendingOrder ? (
                     <>
                       <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                       Sending Notifications & WhatsApp...
+                    </>
+                  ) : selectedOrder.status === "submitted" && orderSubmissions.length > 0 ? (
+                    <>
+                      <Send className="h-4 w-4 mr-2" />
+                      Order Already Submitted
                     </>
                   ) : (
                     <>

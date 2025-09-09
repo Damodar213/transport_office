@@ -41,12 +41,22 @@ interface TransportRequest {
   created_at: string
 }
 
+interface District {
+  id: string
+  name: string
+  state: string
+  description?: string
+  isActive: boolean
+  createdAt: string
+}
+
 interface TransportRequestsProps {
   onDataChange?: () => void
 }
 
 export function TransportRequests({ onDataChange }: TransportRequestsProps) {
   const [requests, setRequests] = useState<TransportRequest[]>([])
+  const [districts, setDistricts] = useState<District[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingRequest, setEditingRequest] = useState<TransportRequest | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -78,6 +88,29 @@ export function TransportRequests({ onDataChange }: TransportRequestsProps) {
     loadLoadTypes()
   }, [])
 
+  // Load districts from database
+  useEffect(() => {
+    const loadDistricts = async () => {
+      try {
+        console.log("Loading districts from API...")
+        const response = await fetch("/api/admin/districts")
+        if (response.ok) {
+          const data = await response.json()
+          console.log("Districts loaded:", data.districts?.length || 0, "districts")
+          setDistricts(data.districts || [])
+        } else {
+          console.error("Failed to load districts - response not ok:", response.status)
+        }
+      } catch (error) {
+        console.error("Failed to load districts:", error)
+        // Fallback to empty array if API fails
+        setDistricts([])
+      }
+    }
+
+    loadDistricts()
+  }, [])
+
   // Fetch existing requests from database
   useEffect(() => {
     const fetchRequests = async () => {
@@ -94,7 +127,7 @@ export function TransportRequests({ onDataChange }: TransportRequestsProps) {
         }
         
         const userData = await userResponse.json()
-        const buyerId = userData.user?.userIdString || userData.user?.userId
+        const buyerId = userData.user?.id
         
         if (!buyerId) {
           console.error("No buyer ID found in session")
@@ -146,7 +179,7 @@ export function TransportRequests({ onDataChange }: TransportRequestsProps) {
       }
       
       const userData = await userResponse.json()
-      const buyerId = userData.user?.userIdString || userData.user?.userId
+      const buyerId = userData.user?.id
       
       if (!buyerId) {
         setError("No buyer ID found in session")
@@ -237,12 +270,12 @@ export function TransportRequests({ onDataChange }: TransportRequestsProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ status: "submitted" }),
+        body: JSON.stringify({ status: "pending" }),
       })
 
       if (response.ok) {
         setRequests((prev) =>
-          prev.map((request) => (request.id === requestId ? { ...request, status: "submitted" } : request)),
+          prev.map((request) => (request.id === requestId ? { ...request, status: "pending" } : request)),
         )
         
         // Notify parent component about data change
@@ -288,8 +321,9 @@ export function TransportRequests({ onDataChange }: TransportRequestsProps) {
   const getStatusBadge = (status: string) => {
     const colors = {
       draft: "bg-gray-100 text-gray-800",
+      pending: "bg-yellow-100 text-yellow-800",
       submitted: "bg-blue-100 text-blue-800",
-      assigned: "bg-yellow-100 text-yellow-800",
+      assigned: "bg-purple-100 text-purple-800",
       in_progress: "bg-orange-100 text-orange-800",
       completed: "bg-green-100 text-green-800",
     }
@@ -402,14 +436,22 @@ export function TransportRequests({ onDataChange }: TransportRequestsProps) {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="fromDistrict">District *</Label>
-                    <Input
-                      id="fromDistrict"
-                      name="fromDistrict"
-                      type="text"
-                      required
-                      defaultValue={editingRequest?.from_district || ""}
-                      placeholder="Enter district"
-                    />
+                    <Select name="fromDistrict" defaultValue={editingRequest?.from_district || ""} required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select district" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {districts.length === 0 ? (
+                          <SelectItem value="" disabled>Loading districts...</SelectItem>
+                        ) : (
+                          districts.map((district) => (
+                            <SelectItem key={district.id} value={district.name}>
+                              {district.name}, {district.state}
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -458,14 +500,22 @@ export function TransportRequests({ onDataChange }: TransportRequestsProps) {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="toDistrict">District *</Label>
-                    <Input
-                      id="toDistrict"
-                      name="toDistrict"
-                      type="text"
-                      required
-                      defaultValue={editingRequest?.to_district || ""}
-                      placeholder="Enter district"
-                    />
+                    <Select name="toDistrict" defaultValue={editingRequest?.to_district || ""} required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select district" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {districts.length === 0 ? (
+                          <SelectItem value="" disabled>Loading districts...</SelectItem>
+                        ) : (
+                          districts.map((district) => (
+                            <SelectItem key={district.id} value={district.name}>
+                              {district.name}, {district.state}
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -79,6 +79,33 @@ export function DriverInformation({ onDataChange }: DriverInformationProps) {
     fetchDrivers()
   }, [])
 
+  // Add a key to force re-render when supplier changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      // Clear current data and refetch when storage changes (user login/logout)
+      setDrivers([])
+      setError("")
+      fetchDrivers()
+    }
+
+    // Listen for storage changes (login/logout)
+    window.addEventListener('storage', handleStorageChange)
+    
+    // Also refetch when component becomes visible (in case of tab switching)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchDrivers()
+      }
+    }
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [])
+
   const handleSubmit = async (formData: FormData) => {
     setIsLoading(true)
     setError("")

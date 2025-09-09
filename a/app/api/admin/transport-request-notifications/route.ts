@@ -168,12 +168,13 @@ export async function POST(request: Request) {
       INSERT INTO transport_request_notifications (
         order_number, load_type, buyer_name, buyer_id, from_location, to_location,
         estimated_tons, number_of_goods, delivery_place, required_date, special_instructions,
-        created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW() AT TIME ZONE 'Asia/Kolkata', NOW() AT TIME ZONE 'Asia/Kolkata')
+        is_read, created_at, updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW() AT TIME ZONE 'Asia/Kolkata', NOW() AT TIME ZONE 'Asia/Kolkata')
       RETURNING id, created_at
     `, [
       order_number, load_type, buyer_name, buyer_id, from_location, to_location,
-      estimated_tons, number_of_goods, delivery_place, required_date, special_instructions
+      estimated_tons, number_of_goods, delivery_place, required_date, special_instructions,
+      false  // is_read = false (unread)
     ])
 
     const newNotification = {

@@ -12,7 +12,7 @@ export interface User {
 
 export async function getSession(): Promise<User | null> {
   try {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const sessionCookie = cookieStore.get("session")
 
     if (!sessionCookie) {
@@ -22,12 +22,23 @@ export async function getSession(): Promise<User | null> {
     const session = JSON.parse(sessionCookie.value)
     
     // Validate session against database if available
-    if (session.userId && session.role) {
+    if (session.userIdString && session.role) {
       try {
-        const result = await dbQuery(
+        let result
+        
+        // Check users table first
+        result = await dbQuery(
           "SELECT user_id, role, email, name FROM users WHERE user_id = $1 AND role = $2",
-          [session.userId, session.role]
+          [session.userIdString, session.role]
         )
+        
+        // If not found in users table and role is admin, check admins table
+        if (result.rows.length === 0 && session.role === 'admin') {
+          result = await dbQuery(
+            "SELECT user_id, role, email, name FROM admins WHERE user_id = $1 AND role = $2",
+            [session.userIdString, session.role]
+          )
+        }
         
         if (result.rows.length === 0) {
           console.warn("Session validation failed: user not found in database")

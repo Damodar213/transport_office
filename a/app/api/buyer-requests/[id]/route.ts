@@ -197,10 +197,10 @@ export async function PUT(
 
     const updatedRequest = result.rows[0]
 
-    // Create notification only when status is changed to "submitted"
-    if (status === 'submitted') {
+    // Create notification when status is changed to "pending" (buyer submission)
+    if (status === 'pending') {
       try {
-        console.log("Creating notification for submitted request...")
+        console.log("Creating notification for pending request...")
         
         // Get buyer details for the notification
         const buyerResult = await dbQuery(`
@@ -253,7 +253,7 @@ export async function PUT(
               required_date DATE,
               special_instructions TEXT,
               status VARCHAR(50) DEFAULT 'pending',
-              is_read BOOLEAN DEFAULT FALSE,
+              is_read BOOLEAN DEFAULT FALSE NOT NULL,
               created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() AT TIME ZONE 'Asia/Kolkata',
               updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() AT TIME ZONE 'Asia/Kolkata'
             )
@@ -276,12 +276,13 @@ export async function PUT(
             INSERT INTO transport_request_notifications (
               order_number, load_type, buyer_name, buyer_id, from_location, to_location,
               estimated_tons, number_of_goods, delivery_place, required_date, special_instructions,
-              created_at, updated_at
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW() AT TIME ZONE 'Asia/Kolkata', NOW() AT TIME ZONE 'Asia/Kolkata')
+              is_read, created_at, updated_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW() AT TIME ZONE 'Asia/Kolkata', NOW() AT TIME ZONE 'Asia/Kolkata')
             RETURNING id, created_at
           `, [
             updatedRequest.order_number, updatedRequest.load_type, buyerName, updatedRequest.buyer_id, fromLocation, toLocation,
-            updatedRequest.estimated_tons, updatedRequest.number_of_goods, updatedRequest.delivery_place, updatedRequest.required_date, updatedRequest.special_instructions
+            updatedRequest.estimated_tons, updatedRequest.number_of_goods, updatedRequest.delivery_place, updatedRequest.required_date, updatedRequest.special_instructions,
+            false  // is_read = false (unread)
           ])
           
           console.log(`Notification created successfully with ID: ${insertResult.rows[0].id} at ${insertResult.rows[0].created_at}`)

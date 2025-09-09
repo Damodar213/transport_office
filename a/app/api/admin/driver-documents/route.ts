@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { dbQuery, getPool } from "@/lib/db"
 import { withAuth, withDatabase, createApiResponse, createApiError } from "@/lib/api-utils"
+import { deleteFromR2, extractKeyFromUrl, isR2Url } from "@/lib/cloudflare-r2"
 
 export interface DriverDocument {
   id: number
@@ -125,6 +126,52 @@ export async function PATCH(request: NextRequest) {
       }
 
       return createApiResponse(result.rows[0], "Driver document status updated successfully")
+    })
+  }, ["admin"])
+}
+
+// DELETE - Delete driver document
+export async function DELETE(request: NextRequest) {
+  return withAuth(async (session) => {
+    return withDatabase(async () => {
+      const { searchParams } = new URL(request.url)
+      const id = searchParams.get('id')
+
+      if (!id) {
+        return createApiError("Document ID is required", null, 400)
+      }
+
+      // First, get the document to retrieve the file URL before deleting
+      const getResult = await dbQuery(
+        `SELECT document_url FROM driver_documents WHERE id = $1`,
+        [id]
+      )
+
+      if (getResult.rows.length === 0) {
+        return createApiError("Document not found", null, 404)
+      }
+
+      const documentUrl = getResult.rows[0].document_url
+
+      // Delete from database
+      const result = await dbQuery(
+        `DELETE FROM driver_documents WHERE id = $1 RETURNING *`,
+        [id]
+      )
+
+      // Delete from Cloudflare R2 if the URL is an R2 URL
+      if (documentUrl && isR2Url(documentUrl)) {
+        try {
+          const key = extractKeyFromUrl(documentUrl)
+          await deleteFromR2(key)
+          console.log(`Successfully deleted file from R2: ${key}`)
+        } catch (error) {
+          console.error(`Failed to delete file from R2: ${error}`)
+          // Don't fail the entire operation if R2 deletion fails
+        }
+      }
+
+      return createApiResponse(result.rows[0], "Driver document deleted successfully")
     })
   }, ["admin"])
 }

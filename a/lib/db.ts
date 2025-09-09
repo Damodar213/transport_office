@@ -13,18 +13,18 @@ export function getPool(): Pool | null {
   if (pool) return pool
   
   try {
-    // Configure connection pool with better settings for reliability
+    // Configure connection pool with Railway-friendly settings
     pool = new Pool({ 
       connectionString: url, 
       ssl: getSslOption(url),
-      max: 20, // Increased pool size for better concurrency
-      min: 2, // Minimum connections to maintain
-      idleTimeoutMillis: 30000, // Increased idle timeout
-      connectionTimeoutMillis: 30000, // Increased connection timeout
-      maxUses: 7500, // Increased max uses per connection
-      statement_timeout: 30000, // Increased statement timeout
-      query_timeout: 30000, // Increased query timeout
-      allowExitOnIdle: false, // Keep pool alive
+      max: 5, // Reduced pool size for Railway free tier (max 20 connections total)
+      min: 1, // Minimum connections to maintain
+      idleTimeoutMillis: 10000, // Reduced idle timeout to free connections faster
+      connectionTimeoutMillis: 10000, // Reduced connection timeout
+      maxUses: 1000, // Reduced max uses per connection
+      statement_timeout: 10000, // Reduced statement timeout
+      query_timeout: 10000, // Reduced query timeout
+      allowExitOnIdle: true, // Allow pool to close when idle
     })
     
     // Handle pool errors with better error handling
@@ -135,6 +135,29 @@ export async function closeDatabasePool(): Promise<void> {
       console.error("Error closing database pool:", error)
     } finally {
       pool = null
+    }
+  }
+}
+
+// Add function to check current connection count
+export async function getConnectionCount(): Promise<number> {
+  try {
+    const result = await dbQuery("SELECT count(*) as connection_count FROM pg_stat_activity WHERE state = 'active'")
+    return result.rows[0]?.connection_count || 0
+  } catch (error) {
+    console.error("Error getting connection count:", error)
+    return 0
+  }
+}
+
+// Add function to close idle connections
+export async function closeIdleConnections(): Promise<void> {
+  if (pool) {
+    try {
+      await pool.query("SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE state = 'idle' AND state_change < now() - interval '5 minutes'")
+      console.log("Closed idle connections")
+    } catch (error) {
+      console.error("Error closing idle connections:", error)
     }
   }
 }

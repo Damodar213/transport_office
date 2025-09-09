@@ -77,12 +77,10 @@ export async function POST(request: NextRequest) {
 
       const documentUrls: Record<string, string> = {}
 
-      const aadhaar = formData.get("aadhaar") as File
       const pan = formData.get("pan") as File
       const gstCertificate = formData.get("gstCertificate") as File
 
       console.log("File uploads:", {
-        aadhaar: aadhaar ? `${aadhaar.name} (${aadhaar.size} bytes)` : "none",
         pan: pan ? `${pan.name} (${pan.size} bytes)` : "none",
         gstCertificate: gstCertificate ? `${gstCertificate.name} (${gstCertificate.size} bytes)` : "none"
       })
@@ -97,32 +95,6 @@ export async function POST(request: NextRequest) {
           console.log("Upload directory exists")
         }
 
-        if (aadhaar && aadhaar.size > 0) {
-          console.log("Uploading Aadhaar document to Cloudflare...")
-          const bytes = await aadhaar.arrayBuffer()
-          const buffer = Buffer.from(bytes)
-          const key = generateFileKey("supplier-documents", aadhaar.name, userId)
-          
-          try {
-            const uploadResult = await uploadToR2(buffer, key, aadhaar.type, {
-              originalName: aadhaar.name,
-              uploadedAt: new Date().toISOString(),
-              userId: userId,
-              documentType: "aadhaar"
-            })
-            documentUrls.aadhaar = uploadResult.url
-            console.log("Aadhaar document uploaded to Cloudflare:", documentUrls.aadhaar)
-          } catch (r2Error) {
-            console.log("Cloudflare upload failed, using local storage:", r2Error)
-            // Fallback to local storage
-            const timestamp = Date.now()
-            const filename = `aadhaar_${timestamp}_${aadhaar.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`
-            const filePath = join(uploadDir, filename)
-            await writeFile(filePath, buffer)
-            documentUrls.aadhaar = `/uploads/supplier-documents/${filename}`
-            console.log("Aadhaar document saved locally:", documentUrls.aadhaar)
-          }
-        }
 
         if (pan && pan.size > 0) {
           console.log("Uploading PAN document to Cloudflare...")
@@ -195,7 +167,6 @@ export async function POST(request: NextRequest) {
           // Use database for document submissions
           const now = new Date().toISOString()
           const documentEntries = [
-            { type: 'aadhaar', url: documentUrls.aadhaar },
             { type: 'pan', url: documentUrls.pan },
             { type: 'gst', url: (documentUrls as any).gstCertificate }
           ].filter(entry => entry.url)
@@ -218,7 +189,6 @@ export async function POST(request: NextRequest) {
             supplierName: supplierData.name,
             companyName: supplierData.companyName,
             documentUrls: {
-              aadhaar: documentUrls.aadhaar,
               pan: documentUrls.pan,
               gst: (documentUrls as any).gstCertificate,
             },

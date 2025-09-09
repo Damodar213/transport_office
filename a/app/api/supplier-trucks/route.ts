@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server"
 import { dbQuery } from "@/lib/db"
+import { getSession } from "@/lib/auth"
 
 export interface Truck {
   id: number
-  supplier_id: number
+  supplier_id: string
   vehicle_number: string
   body_type: string
   capacity_tons?: number
@@ -17,6 +18,17 @@ export interface Truck {
 // GET - Fetch trucks for a specific supplier
 export async function GET(request: Request) {
   try {
+    // First, verify the user is authenticated
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+
+    // Only allow suppliers to access this endpoint
+    if (session.role !== 'supplier') {
+      return NextResponse.json({ error: "Access denied - supplier role required" }, { status: 403 })
+    }
+
     const { searchParams } = new URL(request.url)
     const supplierId = searchParams.get("supplierId")
 
@@ -24,7 +36,13 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Supplier ID is required" }, { status: 400 })
     }
 
-    // Get supplier user_id from suppliers table
+    // SECURITY CHECK: Ensure the logged-in user can only access their own data
+    if (session.userIdString !== supplierId) {
+      console.warn(`Security violation: User ${session.userIdString} attempted to access supplier ${supplierId} data`)
+      return NextResponse.json({ error: "Access denied - you can only access your own data" }, { status: 403 })
+    }
+
+    // Verify supplier exists
     const supplierResult = await dbQuery(
       "SELECT user_id FROM suppliers WHERE user_id = $1",
       [supplierId]
@@ -33,8 +51,6 @@ export async function GET(request: Request) {
     if (supplierResult.rows.length === 0) {
       return NextResponse.json({ error: "Supplier not found" }, { status: 404 })
     }
-
-    const supplierDbId = supplierResult.rows[0].user_id
 
     const sql = `
       SELECT 
@@ -53,7 +69,7 @@ export async function GET(request: Request) {
       ORDER BY t.created_at DESC
     `
 
-    const result = await dbQuery<Truck>(sql, [supplierDbId])
+    const result = await dbQuery<Truck>(sql, [supplierId])
     return NextResponse.json({ trucks: result.rows })
 
   } catch (error) {
@@ -65,6 +81,17 @@ export async function GET(request: Request) {
 // POST - Create new truck
 export async function POST(request: Request) {
   try {
+    // First, verify the user is authenticated
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+
+    // Only allow suppliers to access this endpoint
+    if (session.role !== 'supplier') {
+      return NextResponse.json({ error: "Access denied - supplier role required" }, { status: 403 })
+    }
+
     const body = await request.json()
     console.log("Creating truck with data:", body)
 
@@ -79,7 +106,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Body type is required" }, { status: 400 })
     }
 
-    // Get supplier user_id from suppliers table
+    // SECURITY CHECK: Ensure the logged-in user can only create trucks for themselves
+    if (session.userIdString !== body.supplierId) {
+      console.warn(`Security violation: User ${session.userIdString} attempted to create truck for supplier ${body.supplierId}`)
+      return NextResponse.json({ error: "Access denied - you can only create trucks for yourself" }, { status: 403 })
+    }
+
+    // Verify supplier exists
     const supplierResult = await dbQuery(
       "SELECT user_id FROM suppliers WHERE user_id = $1",
       [body.supplierId]
@@ -90,7 +123,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Supplier not found" }, { status: 404 })
     }
 
-    const supplierId = supplierResult.rows[0].user_id
+    const supplierId = body.supplierId
     console.log("Found supplier ID:", supplierId)
 
     // Check if vehicle number already exists
@@ -167,8 +200,34 @@ export async function POST(request: Request) {
 // PUT - Update truck
 export async function PUT(request: Request) {
   try {
+    // First, verify the user is authenticated
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+
+    // Only allow suppliers to access this endpoint
+    if (session.role !== 'supplier') {
+      return NextResponse.json({ error: "Access denied - supplier role required" }, { status: 403 })
+    }
+
     const body = await request.json()
     const { id, ...updateData } = body
+
+    // SECURITY CHECK: First verify the truck belongs to the logged-in supplier
+    const truckCheck = await dbQuery(
+      "SELECT supplier_id FROM trucks WHERE id = $1",
+      [id]
+    )
+
+    if (truckCheck.rows.length === 0) {
+      return NextResponse.json({ error: "Truck not found" }, { status: 404 })
+    }
+
+    if (truckCheck.rows[0].supplier_id !== session.userIdString) {
+      console.warn(`Security violation: User ${session.userIdString} attempted to update truck ${id} belonging to supplier ${truckCheck.rows[0].supplier_id}`)
+      return NextResponse.json({ error: "Access denied - you can only update your own trucks" }, { status: 403 })
+    }
 
     const sql = `
       UPDATE trucks 
@@ -179,7 +238,7 @@ export async function PUT(request: Request) {
         number_of_wheels = $4,
         document_url = $5,
         updated_at = $6
-      WHERE id = $7
+      WHERE id = $7 AND supplier_id = $8
       RETURNING *
     `
 
@@ -190,7 +249,8 @@ export async function PUT(request: Request) {
       updateData.numberOfWheels || null,
       updateData.documentUrl || null,
       new Date().toISOString(),
-      id
+      id,
+      session.userIdString
     ]
 
     const result = await dbQuery(sql, params)
@@ -213,6 +273,17 @@ export async function PUT(request: Request) {
 // DELETE - Delete truck (hard delete - completely remove from database)
 export async function DELETE(request: Request) {
   try {
+    // First, verify the user is authenticated
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+
+    // Only allow suppliers to access this endpoint
+    if (session.role !== 'supplier') {
+      return NextResponse.json({ error: "Access denied - supplier role required" }, { status: 403 })
+    }
+
     const { searchParams } = new URL(request.url)
     const id = searchParams.get("id")
 
@@ -222,16 +293,22 @@ export async function DELETE(request: Request) {
 
     console.log("Deleting truck with ID:", id)
 
-    // First check if truck exists
-    const checkResult = await dbQuery("SELECT id, vehicle_number FROM trucks WHERE id = $1", [id])
+    // First check if truck exists and belongs to the logged-in supplier
+    const checkResult = await dbQuery("SELECT id, vehicle_number, supplier_id FROM trucks WHERE id = $1", [id])
     
     if (checkResult.rows.length === 0) {
       return NextResponse.json({ error: "Truck not found" }, { status: 404 })
     }
 
-    // Perform hard delete
-    const sql = `DELETE FROM trucks WHERE id = $1`
-    const result = await dbQuery(sql, [id])
+    // SECURITY CHECK: Ensure the truck belongs to the logged-in supplier
+    if (checkResult.rows[0].supplier_id !== session.userIdString) {
+      console.warn(`Security violation: User ${session.userIdString} attempted to delete truck ${id} belonging to supplier ${checkResult.rows[0].supplier_id}`)
+      return NextResponse.json({ error: "Access denied - you can only delete your own trucks" }, { status: 403 })
+    }
+
+    // Perform hard delete with supplier check
+    const sql = `DELETE FROM trucks WHERE id = $1 AND supplier_id = $2`
+    const result = await dbQuery(sql, [id, session.userIdString])
 
     console.log("Truck deleted successfully:", checkResult.rows[0].vehicle_number)
     

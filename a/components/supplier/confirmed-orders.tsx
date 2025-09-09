@@ -18,24 +18,14 @@ interface ConfirmedOrder {
   notes?: string
   created_at: string
   updated_at: string
-  transport_order_details: {
-    state: string
-    district: string
-    place: string
-    taluk?: string
-    vehicle_number: string
-    body_type: string
-  }
-  supplier_company: string
-  driver_details: {
-    driver_name: string
-    mobile: string
-  }
-  truck_details: {
-    vehicle_number: string
-    body_type: string
-    capacity: string
-  }
+  state: string
+  district: string
+  place: string
+  taluk?: string
+  vehicle_number: string
+  body_type: string
+  admin_notes?: string
+  admin_action_date?: string
 }
 
 interface ConfirmedOrdersProps {
@@ -94,12 +84,10 @@ export function ConfirmedOrders({ onDataChange }: ConfirmedOrdersProps) {
     if (searchTerm) {
       filtered = filtered.filter(
         (order) =>
-          order.transport_order_details?.place.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          order.transport_order_details?.district.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          order.transport_order_details?.state.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          order.transport_order_details?.vehicle_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          order.driver_details?.driver_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          order.truck_details?.vehicle_number.toLowerCase().includes(searchTerm.toLowerCase()),
+          order.place.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          order.district.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          order.state.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          order.vehicle_number.toLowerCase().includes(searchTerm.toLowerCase()),
       )
     }
 
@@ -108,6 +96,7 @@ export function ConfirmedOrders({ onDataChange }: ConfirmedOrdersProps) {
 
   const getStatusBadge = (status: string) => {
     const colors = {
+      confirmed: "bg-green-100 text-green-800",
       assigned: "bg-blue-100 text-blue-800",
       picked_up: "bg-yellow-100 text-yellow-800",
       in_transit: "bg-orange-100 text-orange-800",
@@ -192,6 +181,7 @@ export function ConfirmedOrders({ onDataChange }: ConfirmedOrdersProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="confirmed">Confirmed</SelectItem>
                 <SelectItem value="assigned">Assigned</SelectItem>
                 <SelectItem value="picked_up">Picked Up</SelectItem>
                 <SelectItem value="in_transit">In Transit</SelectItem>
@@ -244,33 +234,26 @@ export function ConfirmedOrders({ onDataChange }: ConfirmedOrdersProps) {
                 filteredOrders.map((order) => (
                   <TableRow key={order.id}>
                     <TableCell className="font-medium">{order.transport_order_id}</TableCell>
-                    <TableCell>{order.transport_order_details?.place}</TableCell>
+                    <TableCell>{order.place}</TableCell>
                     <TableCell>
                       <div>
-                        <div className="font-medium">{order.transport_order_details?.body_type}</div>
+                        <div className="font-medium">{order.body_type}</div>
                         <div className="text-sm text-muted-foreground">
-                          {order.truck_details?.capacity_tons || "N/A"} tons
+                          {order.vehicle_number}
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div>
-                        <div className="text-sm font-medium">{order.transport_order_details?.place}, {order.transport_order_details?.district}</div>
-                        <div className="text-sm text-muted-foreground">{order.transport_order_details?.state}</div>
+                        <div className="text-sm font-medium">{order.place}, {order.district}</div>
+                        <div className="text-sm text-muted-foreground">{order.state}</div>
                       </div>
                     </TableCell>
-                    <TableCell className="font-medium">{order.truck_details?.vehicle_number || "Not assigned"}</TableCell>
-                    <TableCell>{order.delivery_date || "Not set"}</TableCell>
+                    <TableCell className="font-medium">{order.vehicle_number}</TableCell>
+                    <TableCell>{order.admin_action_date ? new Date(order.admin_action_date).toLocaleDateString() : "Not set"}</TableCell>
                     <TableCell>{getStatusBadge(order.status)}</TableCell>
                     <TableCell>
-                      {order.driver_details ? (
-                        <div>
-                          <div className="text-sm font-medium">{order.driver_details.driver_name}</div>
-                          <div className="text-xs text-muted-foreground">{order.driver_details.mobile}</div>
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground text-sm">Not assigned</span>
-                      )}
+                      <span className="text-muted-foreground text-sm">Confirmed by Admin</span>
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">

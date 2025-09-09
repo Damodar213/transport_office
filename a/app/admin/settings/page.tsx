@@ -78,6 +78,15 @@ interface LoadType {
   createdAt: string
 }
 
+interface District {
+  id: string
+  name: string
+  state: string
+  description?: string
+  isActive: boolean
+  createdAt: string
+}
+
 export default function SettingsPage() {
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
@@ -133,9 +142,16 @@ export default function SettingsPage() {
   const [newLoadType, setNewLoadType] = useState({ name: "", description: "" })
   const [isLoadingLoadTypes, setIsLoadingLoadTypes] = useState(false)
 
+  // Districts Management
+  const [districts, setDistricts] = useState<District[]>([])
+  const [editingDistrict, setEditingDistrict] = useState<District | null>(null)
+  const [newDistrict, setNewDistrict] = useState({ name: "", state: "", description: "" })
+  const [isLoadingDistricts, setIsLoadingDistricts] = useState(false)
+
   useEffect(() => {
     loadSettings()
     loadLoadTypes()
+    loadDistricts()
   }, [])
 
   const loadSettings = async () => {
@@ -326,6 +342,175 @@ export default function SettingsPage() {
       toast({
         title: "Error",
         description: "Failed to update load type status. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
+  // Districts Management Functions
+  const loadDistricts = async () => {
+    try {
+      setIsLoadingDistricts(true)
+      const response = await fetch("/api/admin/districts")
+      if (response.ok) {
+        const data = await response.json()
+        setDistricts(data.districts || [])
+      } else {
+        throw new Error("Failed to load districts")
+      }
+    } catch (error) {
+      console.error("Failed to load districts:", error)
+      toast({
+        title: "Error",
+        description: "Failed to load districts. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoadingDistricts(false)
+    }
+  }
+
+  const addDistrict = async () => {
+    if (!newDistrict.name.trim() || !newDistrict.state.trim()) return
+    
+    try {
+      const response = await fetch("/api/admin/districts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name: newDistrict.name.trim(),
+          state: newDistrict.state.trim(),
+          description: newDistrict.description.trim() || undefined
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        // Refresh the districts from server to ensure we have the latest data
+        await loadDistricts()
+        setNewDistrict({ name: "", state: "", description: "" })
+        toast({
+          title: "Success",
+          description: "District added successfully!",
+        })
+      } else {
+        throw new Error("Failed to add district")
+      }
+    } catch (error) {
+      console.error("Failed to add district:", error)
+      toast({
+        title: "Error",
+        description: "Failed to add district. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const editDistrict = (district: District) => {
+    setEditingDistrict(district)
+  }
+
+  const updateDistrict = async () => {
+    if (!editingDistrict) return
+    
+    try {
+      const response = await fetch("/api/admin/districts", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          id: editingDistrict.id,
+          name: editingDistrict.name.trim(),
+          state: editingDistrict.state.trim(),
+          description: editingDistrict.description?.trim() || undefined,
+          isActive: editingDistrict.isActive
+        })
+      })
+
+      if (response.ok) {
+        // Refresh the districts from server to ensure we have the latest data
+        await loadDistricts()
+        setEditingDistrict(null)
+        toast({
+          title: "Success",
+          description: "District updated successfully!",
+        })
+      } else {
+        throw new Error("Failed to update district")
+      }
+    } catch (error) {
+      console.error("Failed to update district:", error)
+      toast({
+        title: "Error",
+        description: "Failed to update district. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const deleteDistrict = async (id: string) => {
+    try {
+      const response = await fetch(`/api/admin/districts?id=${id}`, {
+        method: "DELETE"
+      })
+
+      if (response.ok) {
+        // Refresh the districts from server to ensure we have the latest data
+        await loadDistricts()
+        toast({
+          title: "Success",
+          description: "District deleted successfully!",
+        })
+      } else {
+        throw new Error("Failed to delete district")
+      }
+    } catch (error) {
+      console.error("Failed to delete district:", error)
+      toast({
+        title: "Error",
+        description: "Failed to delete district. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const toggleDistrictStatus = async (id: string) => {
+    const district = districts.find(d => d.id === id)
+    if (!district) return
+
+    try {
+      const response = await fetch("/api/admin/districts", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          id: district.id,
+          name: district.name,
+          state: district.state,
+          description: district.description,
+          isActive: !district.isActive
+        })
+      })
+
+      if (response.ok) {
+        // Refresh the districts from server to ensure we have the latest data
+        await loadDistricts()
+        toast({
+          title: "Success",
+          description: `District ${!district.isActive ? 'activated' : 'deactivated'} successfully!`,
+        })
+      } else {
+        throw new Error("Failed to update district status")
+      }
+    } catch (error) {
+      console.error("Failed to update district status:", error)
+      toast({
+        title: "Error",
+        description: "Failed to update district status. Please try again.",
         variant: "destructive"
       })
     }
@@ -755,6 +940,192 @@ export default function SettingsPage() {
                     Save Changes
                   </Button>
                   <Button variant="outline" onClick={() => setEditingLoadType(null)}>
+                    Cancel
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Districts Management */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Districts Management
+              </CardTitle>
+              <CardDescription>
+                Manage districts that buyers can select when creating transport requests
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Add New District */}
+              <div className="space-y-4">
+                <h4 className="font-medium">Add New District</h4>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="newDistrictName">District Name *</Label>
+                    <Input
+                      id="newDistrictName"
+                      value={newDistrict.name}
+                      onChange={(e) => setNewDistrict(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="Enter district name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="newDistrictState">State *</Label>
+                    <Input
+                      id="newDistrictState"
+                      value={newDistrict.state}
+                      onChange={(e) => setNewDistrict(prev => ({ ...prev, state: e.target.value }))}
+                      placeholder="Enter state name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="newDistrictDescription">Description</Label>
+                    <Input
+                      id="newDistrictDescription"
+                      value={newDistrict.description}
+                      onChange={(e) => setNewDistrict(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="Enter description (optional)"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>&nbsp;</Label>
+                    <Button onClick={addDistrict} className="w-full" disabled={!newDistrict.name.trim() || !newDistrict.state.trim()}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add District
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Districts List */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium">Current Districts</h4>
+                  <Button onClick={loadDistricts} variant="outline" size="sm" disabled={isLoadingDistricts}>
+                    <RefreshCw className={`h-4 w-4 mr-2 ${isLoadingDistricts ? 'animate-spin' : ''}`} />
+                    {isLoadingDistricts ? 'Loading...' : 'Refresh'}
+                  </Button>
+                </div>
+                {isLoadingDistricts ? (
+                  <div className="text-center py-8">
+                    <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-muted-foreground">Loading districts...</p>
+                  </div>
+                ) : districts.length === 0 ? (
+                  <div className="text-center py-8">
+                    <FileText className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-muted-foreground">No districts found</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {districts.map((district) => (
+                      <div key={district.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1">
+                              <div className="font-medium">{district.name}, {district.state}</div>
+                              {district.description && (
+                                <div className="text-sm text-muted-foreground">{district.description}</div>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge variant={district.isActive ? "default" : "secondary"}>
+                                {district.isActive ? "Active" : "Inactive"}
+                              </Badge>
+                              <span className="text-xs text-muted-foreground">
+                                Created: {new Date(district.createdAt).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => toggleDistrictStatus(district.id)}
+                          >
+                            {district.isActive ? "Deactivate" : "Activate"}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => editDistrict(district)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => deleteDistrict(district.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Edit District Dialog */}
+          {editingDistrict && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Edit District</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="editDistrictName">District Name</Label>
+                    <Input
+                      id="editDistrictName"
+                      value={editingDistrict.name}
+                      onChange={(e) => setEditingDistrict(prev => prev ? { ...prev, name: e.target.value } : null)}
+                      placeholder="Enter district name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="editDistrictState">State</Label>
+                    <Input
+                      id="editDistrictState"
+                      value={editingDistrict.state}
+                      onChange={(e) => setEditingDistrict(prev => prev ? { ...prev, state: e.target.value } : null)}
+                      placeholder="Enter state name"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="editDistrictDescription">Description</Label>
+                  <Input
+                    id="editDistrictDescription"
+                    value={editingDistrict.description || ""}
+                    onChange={(e) => setEditingDistrict(prev => prev ? { ...prev, description: e.target.value } : null)}
+                    placeholder="Enter description (optional)"
+                  />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="editDistrictActive"
+                    checked={editingDistrict.isActive}
+                    onCheckedChange={(checked) => setEditingDistrict(prev => prev ? { ...prev, isActive: checked } : null)}
+                  />
+                  <Label htmlFor="editDistrictActive">Active</Label>
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={updateDistrict}
+                    disabled={!editingDistrict.name.trim() || !editingDistrict.state.trim()}
+                  >
+                    Save Changes
+                  </Button>
+                  <Button variant="outline" onClick={() => setEditingDistrict(null)}>
                     Cancel
                   </Button>
                 </div>

@@ -49,30 +49,16 @@ export async function GET(request: NextRequest) {
     const checkTransportOrders = await dbQuery("SELECT COUNT(*) as count FROM suppliers_vehicle_location")
     console.log("Transport orders count in table:", checkTransportOrders.rows[0].count)
 
-    // Check if there are any confirmed orders for this supplier
-    const checkSupplierConfirmed = await dbQuery(
-      "SELECT COUNT(*) as count FROM confirmed_orders WHERE supplier_id = $1",
-      [supplierId]
-    )
-    console.log("Confirmed orders for supplier", supplierId, ":", checkSupplierConfirmed.rows[0].count)
-
-    // If no confirmed orders exist, return empty array
-    if (checkSupplierConfirmed.rows[0].count === 0) {
-      console.log("No confirmed orders found for supplier, returning empty array")
-      return NextResponse.json({ confirmedOrders: [] })
-    }
-
-    // Fetch confirmed orders with transport order details
-    // Fixed: Changed table alias from 'to' to 't' since 'to' is a reserved keyword
+    // Fetch confirmed orders directly from suppliers_vehicle_location table
     const sql = `
       SELECT 
-        co.id,
-        co.transport_order_id,
-        co.supplier_id,
-        co.status,
-        co.notes,
-        co.created_at,
-        co.updated_at,
+        t.id,
+        t.id as transport_order_id,
+        t.supplier_id,
+        t.status,
+        t.admin_notes as notes,
+        t.created_at,
+        t.updated_at,
         t.state,
         t.district,
         t.place,
@@ -81,10 +67,9 @@ export async function GET(request: NextRequest) {
         t.body_type,
         t.admin_notes,
         t.admin_action_date
-      FROM confirmed_orders co
-      JOIN suppliers_vehicle_location t ON co.transport_order_id = t.id
-      WHERE co.supplier_id = $1
-      ORDER BY co.created_at DESC
+      FROM suppliers_vehicle_location t
+      WHERE t.supplier_id = $1 AND t.status = 'confirmed'
+      ORDER BY t.created_at DESC
     `
 
     const params = [supplierId]

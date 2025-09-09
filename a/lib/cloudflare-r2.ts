@@ -1,5 +1,5 @@
 // Conditional imports to avoid issues in browser environment
-let S3Client: any, PutObjectCommand: any, GetObjectCommand: any, DeleteObjectCommand: any, getSignedUrl: any
+let S3Client: any, PutObjectCommand: any, GetObjectCommand: any, DeleteObjectCommand: any, ListObjectsV2Command: any, getSignedUrl: any
 
 try {
   if (typeof window === 'undefined') {
@@ -11,6 +11,7 @@ try {
     PutObjectCommand = s3Module.PutObjectCommand
     GetObjectCommand = s3Module.GetObjectCommand
     DeleteObjectCommand = s3Module.DeleteObjectCommand
+    ListObjectsV2Command = s3Module.ListObjectsV2Command
     getSignedUrl = presignerModule.getSignedUrl
   }
 } catch (error) {
@@ -179,6 +180,39 @@ export async function deleteFromR2(key: string): Promise<void> {
   } catch (error) {
     console.error('Error deleting from R2:', error)
     throw new Error('Failed to delete file from Cloudflare R2')
+  }
+}
+
+/**
+ * List all files in R2 bucket
+ */
+export async function listR2Files(prefix?: string): Promise<CloudflareFileInfo[]> {
+  try {
+    if (!ListObjectsV2Command) {
+      throw new Error('AWS SDK not available - ListObjectsV2Command not loaded')
+    }
+    
+    const r2Client = getR2Client()
+    const bucketName = getBucketName()
+    const publicUrl = getPublicUrl()
+    
+    const command = new ListObjectsV2Command({
+      Bucket: bucketName,
+      Prefix: prefix,
+    })
+
+    const response = await r2Client.send(command)
+    
+    return (response.Contents || []).map((obj: any) => ({
+      key: obj.Key,
+      url: `${publicUrl}/${obj.Key}`,
+      size: obj.Size,
+      type: obj.ContentType || 'application/octet-stream',
+      lastModified: obj.LastModified,
+    }))
+  } catch (error) {
+    console.error('Error listing R2 files:', error)
+    throw new Error('Failed to list files from Cloudflare R2')
   }
 }
 

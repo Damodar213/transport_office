@@ -1,10 +1,21 @@
 import { NextResponse } from "next/server"
 import { dbQuery, getPool } from "@/lib/db"
-import { withAuth, AuthenticatedRequest } from "@/lib/auth-middleware"
+import { getSession } from "@/lib/auth"
 
 // GET - Fetch all buyer requests (with optional filtering)
-export const GET = withAuth(async (request: AuthenticatedRequest) => {
+export async function GET(request: Request) {
   try {
+    // First, verify the user is authenticated
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+
+    // Allow buyers and admins to access this endpoint
+    if (session.role !== 'buyer' && session.role !== 'admin') {
+      return NextResponse.json({ error: "Access denied - buyer or admin role required" }, { status: 403 })
+    }
+
     if (!getPool()) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
@@ -14,8 +25,8 @@ export const GET = withAuth(async (request: AuthenticatedRequest) => {
     const limit = parseInt(searchParams.get('limit') || '100')
     const offset = parseInt(searchParams.get('offset') || '0')
     
-    // Get buyer_id from authenticated user (buyers can only see their own requests)
-    const buyerId = request.user?.userIdString || request.user?.userId
+    // Get buyer_id from authenticated user (buyers can only see their own requests, admins see all)
+    const buyerId = session.userIdString
 
     let query = `
       SELECT 
@@ -39,8 +50,8 @@ export const GET = withAuth(async (request: AuthenticatedRequest) => {
     const params: any[] = []
     let paramCount = 0
 
-    // Always filter by authenticated user's buyer_id
-    if (buyerId) {
+    // Filter by authenticated user's buyer_id only if user is a buyer (not admin)
+    if (session.role === 'buyer' && buyerId) {
       paramCount++
       query += ` AND br.buyer_id = $${paramCount}`
       params.push(buyerId)
@@ -72,11 +83,22 @@ export const GET = withAuth(async (request: AuthenticatedRequest) => {
       details: error instanceof Error ? error.message : "Unknown error"
     }, { status: 500 })
   }
-})
+}
 
 // POST - Create a new buyer request
-export const POST = withAuth(async (request: AuthenticatedRequest) => {
+export async function POST(request: Request) {
   try {
+    // First, verify the user is authenticated
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+
+    // Allow buyers and admins to access this endpoint
+    if (session.role !== 'buyer' && session.role !== 'admin') {
+      return NextResponse.json({ error: "Access denied - buyer or admin role required" }, { status: 403 })
+    }
+
     if (!getPool()) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
@@ -100,7 +122,7 @@ export const POST = withAuth(async (request: AuthenticatedRequest) => {
     } = body
 
     // Get buyer_id from authenticated user
-    const buyer_id = request.user?.userIdString || request.user?.userId
+    const buyer_id = session.userIdString
 
     // Validate required fields
     if (!buyer_id || !load_type || !from_state || !from_district || !from_place || 
@@ -178,4 +200,4 @@ export const POST = withAuth(async (request: AuthenticatedRequest) => {
       details: error instanceof Error ? error.message : "Unknown error"
     }, { status: 500 })
   }
-})
+}

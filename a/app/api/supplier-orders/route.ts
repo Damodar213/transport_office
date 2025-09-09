@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     let params: any[] = []
 
     if (supplierId) {
-      // Fetch orders for a specific supplier
+      // Fetch only pending orders for a specific supplier (not confirmed or rejected)
       sql = `
         SELECT 
           t.id,
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
           t.admin_action_date
         FROM suppliers_vehicle_location t
         LEFT JOIN drivers d ON t.driver_id = d.id
-        WHERE t.supplier_id = $1
+        WHERE t.supplier_id = $1 AND t.status = 'pending'
         ORDER BY t.created_at DESC
       `
       params = [supplierId]
@@ -244,9 +244,10 @@ export async function PUT(request: NextRequest) {
 
     const updatedOrder = result.rows[0]
 
-    // If order is confirmed, create a record in confirmed_orders table
+    // If order is confirmed, create a record in confirmed_orders table and update order_submissions
     if (updateData.status === "confirmed") {
       try {
+        // Create confirmed order record
         const confirmedOrderSql = `
           INSERT INTO confirmed_orders (
             vehicle_location_id, supplier_id, status, notes, created_at, updated_at
@@ -265,6 +266,20 @@ export async function PUT(request: NextRequest) {
 
         await dbQuery(confirmedOrderSql, confirmedOrderParams)
         console.log("Created confirmed order record for vehicle location:", updatedOrder.id)
+
+        // Update order_submissions table to mark as confirmed
+        const updateOrderSubmissionsSql = `
+          UPDATE order_submissions 
+          SET submission_status = 'confirmed', updated_at = $1
+          WHERE order_id = $2 AND supplier_id = $3
+        `
+        
+        await dbQuery(updateOrderSubmissionsSql, [
+          new Date().toISOString(),
+          updatedOrder.order_id || updatedOrder.id,
+          updatedOrder.supplier_id
+        ])
+        console.log("Updated order_submissions status to confirmed for order:", updatedOrder.id)
       } catch (error) {
         console.error("Error creating confirmed order record:", error)
         // Don't fail the main update if confirmed order creation fails
