@@ -1,18 +1,21 @@
 import { NextResponse } from "next/server"
 import { dbQuery, getPool } from "@/lib/db"
+import { withAuth, AuthenticatedRequest } from "@/lib/auth-middleware"
 
 // GET - Fetch all buyer requests (with optional filtering)
-export async function GET(request: Request) {
+export const GET = withAuth(async (request: AuthenticatedRequest) => {
   try {
     if (!getPool()) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
 
     const { searchParams } = new URL(request.url)
-    const buyerId = searchParams.get('buyer_id')
     const status = searchParams.get('status')
     const limit = parseInt(searchParams.get('limit') || '100')
     const offset = parseInt(searchParams.get('offset') || '0')
+    
+    // Get buyer_id from authenticated user (buyers can only see their own requests)
+    const buyerId = request.user?.userIdString || request.user?.userId
 
     let query = `
       SELECT 
@@ -36,6 +39,7 @@ export async function GET(request: Request) {
     const params: any[] = []
     let paramCount = 0
 
+    // Always filter by authenticated user's buyer_id
     if (buyerId) {
       paramCount++
       query += ` AND br.buyer_id = $${paramCount}`
@@ -68,10 +72,10 @@ export async function GET(request: Request) {
       details: error instanceof Error ? error.message : "Unknown error"
     }, { status: 500 })
   }
-}
+})
 
 // POST - Create a new buyer request
-export async function POST(request: Request) {
+export const POST = withAuth(async (request: AuthenticatedRequest) => {
   try {
     if (!getPool()) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
@@ -79,7 +83,6 @@ export async function POST(request: Request) {
 
     const body = await request.json()
     const {
-      buyer_id,
       load_type,
       from_state,
       from_district,
@@ -95,6 +98,9 @@ export async function POST(request: Request) {
       required_date,
       special_instructions
     } = body
+
+    // Get buyer_id from authenticated user
+    const buyer_id = request.user?.userIdString || request.user?.userId
 
     // Validate required fields
     if (!buyer_id || !load_type || !from_state || !from_district || !from_place || 
@@ -172,4 +178,4 @@ export async function POST(request: Request) {
       details: error instanceof Error ? error.message : "Unknown error"
     }, { status: 500 })
   }
-}
+})

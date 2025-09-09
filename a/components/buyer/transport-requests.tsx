@@ -83,8 +83,25 @@ export function TransportRequests({ onDataChange }: TransportRequestsProps) {
     const fetchRequests = async () => {
       try {
         setIsLoadingRequests(true)
-        // Use an existing buyer_id from the database
-        const response = await fetch("/api/buyer-requests?buyer_id=arun")
+        
+        // Get current user session
+        const userResponse = await fetch("/api/auth/me", {
+          credentials: 'include'
+        })
+        if (!userResponse.ok) {
+          console.error("Failed to get current user")
+          return
+        }
+        
+        const userData = await userResponse.json()
+        const buyerId = userData.user?.userIdString || userData.user?.userId
+        
+        if (!buyerId) {
+          console.error("No buyer ID found in session")
+          return
+        }
+        
+        const response = await fetch("/api/buyer-requests")
         if (response.ok) {
           const result = await response.json()
           if (result.success) {
@@ -118,8 +135,26 @@ export function TransportRequests({ onDataChange }: TransportRequestsProps) {
         return
       }
 
+      // Get current user session
+      const userResponse = await fetch("/api/auth/me", {
+        credentials: 'include'
+      })
+      if (!userResponse.ok) {
+        setError("Failed to get current user session")
+        setIsLoading(false)
+        return
+      }
+      
+      const userData = await userResponse.json()
+      const buyerId = userData.user?.userIdString || userData.user?.userId
+      
+      if (!buyerId) {
+        setError("No buyer ID found in session")
+        setIsLoading(false)
+        return
+      }
+
       const requestData = {
-        buyer_id: "arun", // Use existing buyer ID from database
         load_type: formData.get("loadType") as string,
         from_state: formData.get("fromState") as string,
         from_district: formData.get("fromDistrict") as string,

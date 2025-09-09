@@ -32,8 +32,25 @@ export default function BuyerDashboard() {
       try {
         setIsLoadingStats(true)
         
+        // Get current user session
+        const userResponse = await fetch("/api/auth/me", {
+          credentials: 'include'
+        })
+        if (!userResponse.ok) {
+          console.error("Failed to get current user")
+          return
+        }
+        
+        const userData = await userResponse.json()
+        const buyerId = userData.user?.userIdString || userData.user?.userId
+        
+        if (!buyerId) {
+          console.error("No buyer ID found in session")
+          return
+        }
+        
         // Fetch transport requests (active requests)
-        const requestsResponse = await fetch("/api/buyer-requests?buyer_id=arun")
+        const requestsResponse = await fetch("/api/buyer-requests")
         let activeRequests = 0
         if (requestsResponse.ok) {
           const requestsData = await requestsResponse.json()
@@ -180,8 +197,25 @@ export default function BuyerDashboard() {
                 try {
                   setIsLoadingStats(true)
                   
+                  // Get current user session
+                  const userResponse = await fetch("/api/auth/me", {
+                    credentials: 'include'
+                  })
+                  if (!userResponse.ok) {
+                    console.error("Failed to get current user")
+                    return
+                  }
+                  
+                  const userData = await userResponse.json()
+                  const buyerId = userData.user?.userIdString || userData.user?.userId
+                  
+                  if (!buyerId) {
+                    console.error("No buyer ID found in session")
+                    return
+                  }
+                  
                   // Fetch transport requests (active requests)
-                  const requestsResponse = await fetch("/api/buyer-requests?buyer_id=arun")
+                  const requestsResponse = await fetch("/api/buyer-requests")
                   let activeRequests = 0
                   if (requestsResponse.ok) {
                     const requestsData = await requestsResponse.json()
@@ -232,8 +266,25 @@ export default function BuyerDashboard() {
                 try {
                   setIsLoadingStats(true)
                   
+                  // Get current user session
+                  const userResponse = await fetch("/api/auth/me", {
+                    credentials: 'include'
+                  })
+                  if (!userResponse.ok) {
+                    console.error("Failed to get current user")
+                    return
+                  }
+                  
+                  const userData = await userResponse.json()
+                  const buyerId = userData.user?.userIdString || userData.user?.userId
+                  
+                  if (!buyerId) {
+                    console.error("No buyer ID found in session")
+                    return
+                  }
+                  
                   // Fetch transport requests (active requests)
-                  const requestsResponse = await fetch("/api/buyer-requests?buyer_id=arun")
+                  const requestsResponse = await fetch("/api/buyer-requests")
                   let activeRequests = 0
                   if (requestsResponse.ok) {
                     const requestsData = await requestsResponse.json()
