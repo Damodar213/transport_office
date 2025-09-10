@@ -185,13 +185,6 @@ export default function AdminDashboard() {
               </Button>
               <Button 
                 variant="outline" 
-                size="sm" 
-                onClick={() => showNotification("Test notification: New transport request received!", "info")}
-              >
-                Test Notification
-              </Button>
-              <Button 
-                variant="outline" 
                 size="sm"
                 onClick={() => window.location.href = '/admin/settings'}
               >

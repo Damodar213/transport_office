@@ -73,7 +73,7 @@ export function RecentOrders() {
       if (result.success) {
         // Get only orders that are not yet confirmed (still pending)
         const pendingOrders = result.orders.filter((order: RecentOrder) => 
-          order.status === "submitted" || order.status === "pending"
+          order.status === "new" || order.status === "viewed" || order.status === "submitted" || order.status === "pending"
         )
         // Get only the 5 most recent pending orders
         const recentOrders = pendingOrders.slice(0, 5)
@@ -96,9 +96,12 @@ export function RecentOrders() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { color: string; label: string; icon: any }> = {
-      submitted: { color: "bg-blue-100 text-blue-800", label: "New", icon: Clock },
+      new: { color: "bg-blue-100 text-blue-800", label: "New", icon: Clock },
       viewed: { color: "bg-yellow-100 text-yellow-800", label: "Viewed", icon: Eye },
       responded: { color: "bg-green-100 text-green-800", label: "Responded", icon: CheckCircle },
+      confirmed: { color: "bg-green-100 text-green-800", label: "Confirmed", icon: CheckCircle },
+      rejected: { color: "bg-red-100 text-red-800", label: "Rejected", icon: XCircle },
+      submitted: { color: "bg-blue-100 text-blue-800", label: "Submitted", icon: Clock },
       ignored: { color: "bg-red-100 text-red-800", label: "Ignored", icon: XCircle },
     }
 
@@ -288,29 +291,6 @@ export function RecentOrders() {
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Buyer Information</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="font-medium">Company:</span>
-                      <span>{selectedOrder.buyer_company || 'N/A'}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium">Contact Person:</span>
-                      <span>{selectedOrder.buyer_name || 'N/A'}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium">Email:</span>
-                      <span>{selectedOrder.buyer_email || 'N/A'}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium">Mobile:</span>
-                      <span>{selectedOrder.buyer_mobile || 'N/A'}</span>
-                    </div>
-                  </CardContent>
-                </Card>
               </div>
 
               {/* Location Information */}

@@ -143,6 +143,57 @@ export async function POST(request: NextRequest) {
     const result = await dbQuery(sql, params)
     const newConfirmedOrder = result.rows[0]
 
+    // Create notification for admin when supplier confirms an order
+    try {
+      console.log("Creating notification for supplier confirmed order...")
+      
+      // Get supplier details for the notification
+      const supplierResult = await dbQuery(
+        "SELECT company_name FROM suppliers WHERE user_id = $1",
+        [supplier_id]
+      )
+      
+      const supplierCompany = supplierResult.rows.length > 0 
+        ? supplierResult.rows[0].company_name 
+        : `Supplier ${supplier_id}`
+
+      // Get transport order details for the notification
+      const transportOrderResult = await dbQuery(
+        "SELECT order_number, load_type, from_place, to_place FROM transport_requests WHERE id = $1",
+        [transport_order_id]
+      )
+      
+      const orderDetails = transportOrderResult.rows.length > 0 
+        ? transportOrderResult.rows[0]
+        : { order_number: `Order ${transport_order_id}`, load_type: "Unknown", from_place: "Unknown", to_place: "Unknown" }
+
+      const notificationResponse = await fetch(`${process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000'}/api/admin/notifications`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: "success",
+          title: "Supplier Confirmed Order",
+          message: `Supplier ${supplierCompany} has confirmed order ${orderDetails.order_number} for ${orderDetails.load_type} transport from ${orderDetails.from_place} to ${orderDetails.to_place}`,
+          category: "order",
+          priority: "high",
+          orderId: transport_order_id,
+          supplierId: supplier_id,
+          status: status
+        })
+      })
+
+      if (notificationResponse.ok) {
+        console.log("✅ Notification created successfully for supplier confirmed order")
+      } else {
+        console.error("❌ Failed to create notification:", await notificationResponse.text())
+      }
+    } catch (notificationError) {
+      console.error("Error creating notification for supplier confirmed order:", notificationError)
+      // Don't fail the main operation if notification creation fails
+    }
+
     return NextResponse.json({ 
       message: "Confirmed order created successfully", 
       confirmedOrder: newConfirmedOrder 

@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     let params: any[] = []
 
     if (supplierId) {
-      // Fetch only pending orders for a specific supplier (not confirmed or rejected)
+      // Fetch all orders for a specific supplier (pending, confirmed, rejected)
       sql = `
         SELECT 
           t.id,
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
           t.admin_action_date
         FROM suppliers_vehicle_location t
         LEFT JOIN drivers d ON t.driver_id = d.id
-        WHERE t.supplier_id = $1 AND t.status = 'pending'
+        WHERE t.supplier_id = $1
         ORDER BY t.created_at DESC
       `
       params = [supplierId]
@@ -198,6 +198,41 @@ export async function POST(request: NextRequest) {
       ...newOrder,
       supplier_name: "John Transport Co.", // Use the company name from your existing data
       supplier_company: supplierDetails.rows[0].company_name
+    }
+
+    // Create notification for admin
+    try {
+      console.log("Creating notification for new supplier vehicle location order...")
+      
+      const notificationResponse = await fetch(`${process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000'}/api/admin/supplier-vehicle-location-notifications`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          vehicle_location_id: newOrder.id,
+          supplier_id: supplierId,
+          supplier_name: "John Transport Co.", // You might want to get this from user data
+          supplier_company: supplierDetails.rows[0].company_name,
+          state: body.state,
+          district: body.district,
+          place: body.place,
+          taluk: body.taluk,
+          vehicle_number: body.vehicleNumber,
+          body_type: body.bodyType,
+          driver_name: driverName,
+          status: "pending"
+        })
+      })
+
+      if (notificationResponse.ok) {
+        console.log("✅ Notification created successfully for supplier vehicle location order")
+      } else {
+        console.error("❌ Failed to create notification:", await notificationResponse.text())
+      }
+    } catch (notificationError) {
+      console.error("Error creating notification for supplier vehicle location order:", notificationError)
+      // Don't fail the main operation if notification creation fails
     }
 
     return NextResponse.json({ 

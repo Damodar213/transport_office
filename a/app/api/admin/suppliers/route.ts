@@ -22,9 +22,12 @@ export interface Supplier {
   updated_at?: string
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    console.log("Fetching real suppliers from database...")
+    const { searchParams } = new URL(request.url)
+    const userId = searchParams.get("userId")
+    
+    console.log("Fetching suppliers from database...", userId ? `for userId: ${userId}` : "all suppliers")
     
     const pool = getPool()
     if (!pool) {
@@ -34,8 +37,7 @@ export async function GET() {
       }, { status: 500 })
     }
 
-    // Fetch all suppliers with basic information
-    const result = await dbQuery(`
+    let sql = `
       SELECT 
         s.user_id as id,
         s.user_id,
@@ -47,12 +49,33 @@ export async function GET() {
         s.number_of_vehicles
       FROM suppliers s
       LEFT JOIN users u ON u.user_id = s.user_id
-      ORDER BY s.company_name
-    `)
+    `
+    
+    let params: string[] = []
+    
+    if (userId) {
+      sql += ` WHERE s.user_id = $1`
+      params = [userId]
+    } else {
+      sql += ` ORDER BY s.company_name`
+    }
+
+    const result = await dbQuery(sql, params)
 
     const suppliers = result.rows
-    console.log(`Found ${suppliers.length} real suppliers`)
+    console.log(`Found ${suppliers.length} suppliers`)
 
+    // If userId was provided, return the single supplier or null
+    if (userId) {
+      const supplier = suppliers.length > 0 ? suppliers[0] : null
+      return NextResponse.json({
+        success: true,
+        data: supplier,
+        message: supplier ? "Supplier found" : "Supplier not found"
+      })
+    }
+
+    // Return all suppliers
     return NextResponse.json({
       success: true,
       suppliers: suppliers,

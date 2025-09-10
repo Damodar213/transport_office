@@ -4,8 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Building, Package, MapPin, LogOut, Bell } from "lucide-react"
+import { Building, Package, MapPin, LogOut } from "lucide-react"
 import { TransportRequests } from "@/components/buyer/transport-requests"
 import { OrderTracking } from "@/components/buyer/order-tracking"
 import { Logo } from "@/components/ui/logo"
@@ -18,7 +17,6 @@ interface DashboardStats {
 
 export default function BuyerDashboard() {
   const [activeTab, setActiveTab] = useState("requests")
-  const [notifications] = useState(2) // Mock notification count
   const [stats, setStats] = useState<DashboardStats>({
     activeRequests: 0,
     confirmedOrders: 0,
@@ -120,12 +118,6 @@ export default function BuyerDashboard() {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <Button variant="outline" size="sm" className="relative bg-transparent">
-                <Bell className="h-4 w-4" />
-                {notifications > 0 && (
-                  <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs">{notifications}</Badge>
-                )}
-              </Button>
               <Button variant="outline" size="sm" onClick={handleLogout}>
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout

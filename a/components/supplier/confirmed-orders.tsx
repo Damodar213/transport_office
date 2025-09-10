@@ -7,8 +7,24 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Eye, Download, Filter, Trash } from "lucide-react"
+import { Eye, Download, Filter, Trash, FileText, Table as TableIcon } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import jsPDF from "jspdf"
+import autoTable from "jspdf-autotable"
+import * as XLSX from "xlsx"
 
 interface ConfirmedOrder {
   id: number
@@ -39,6 +55,8 @@ export function ConfirmedOrders({ onDataChange }: ConfirmedOrdersProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [isFetching, setIsFetching] = useState(false)
   const [error, setError] = useState("")
+  const [selectedOrder, setSelectedOrder] = useState<ConfirmedOrder | null>(null)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   // Fetch confirmed orders from database
   const fetchConfirmedOrders = async () => {
@@ -111,9 +129,97 @@ export function ConfirmedOrders({ onDataChange }: ConfirmedOrdersProps) {
     )
   }
 
-  const handleExport = () => {
-    // Mock export functionality
-    console.log("Exporting orders...")
+  const handleExportPDF = () => {
+    try {
+      const doc = new jsPDF()
+      
+      // Add title
+      doc.setFontSize(20)
+      doc.text("Confirmed Orders Report", 14, 22)
+      
+      // Add date
+      doc.setFontSize(10)
+      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30)
+      
+      // Prepare table data
+      const tableData = filteredOrders.map(order => [
+        order.transport_order_id,
+        order.place,
+        `${order.body_type} - ${order.vehicle_number}`,
+        `${order.place}, ${order.district}, ${order.state}`,
+        order.vehicle_number,
+        order.admin_action_date ? new Date(order.admin_action_date).toLocaleDateString() : "Not set",
+        order.status.toUpperCase(),
+        "Confirmed by Admin"
+      ])
+      
+      // Add table
+      autoTable(doc, {
+        head: [['Order ID', 'Location', 'Vehicle Details', 'Route', 'Assigned Truck', 'Delivery Date', 'Status', 'Driver']],
+        body: tableData,
+        startY: 40,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [59, 130, 246] },
+        alternateRowStyles: { fillColor: [248, 250, 252] }
+      })
+      
+      // Save the PDF
+      doc.save(`confirmed-orders-${new Date().toISOString().split('T')[0]}.pdf`)
+    } catch (error) {
+      console.error("Error generating PDF:", error)
+      alert("Failed to generate PDF")
+    }
+  }
+
+  const handleExportExcel = () => {
+    try {
+      // Prepare data for Excel
+      const excelData = filteredOrders.map(order => ({
+        'Order ID': order.transport_order_id,
+        'Location': order.place,
+        'Vehicle Details': `${order.body_type} - ${order.vehicle_number}`,
+        'Route': `${order.place}, ${order.district}, ${order.state}`,
+        'Assigned Truck': order.vehicle_number,
+        'Delivery Date': order.admin_action_date ? new Date(order.admin_action_date).toLocaleDateString() : "Not set",
+        'Status': order.status.toUpperCase(),
+        'Driver': "Confirmed by Admin",
+        'Created Date': new Date(order.created_at).toLocaleDateString(),
+        'Updated Date': new Date(order.updated_at).toLocaleDateString()
+      }))
+      
+      // Create workbook and worksheet
+      const wb = XLSX.utils.book_new()
+      const ws = XLSX.utils.json_to_sheet(excelData)
+      
+      // Set column widths
+      const colWidths = [
+        { wch: 10 }, // Order ID
+        { wch: 15 }, // Location
+        { wch: 25 }, // Vehicle Details
+        { wch: 30 }, // Route
+        { wch: 15 }, // Assigned Truck
+        { wch: 15 }, // Delivery Date
+        { wch: 12 }, // Status
+        { wch: 20 }, // Driver
+        { wch: 15 }, // Created Date
+        { wch: 15 }  // Updated Date
+      ]
+      ws['!cols'] = colWidths
+      
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(wb, ws, "Confirmed Orders")
+      
+      // Save the Excel file
+      XLSX.writeFile(wb, `confirmed-orders-${new Date().toISOString().split('T')[0]}.xlsx`)
+    } catch (error) {
+      console.error("Error generating Excel:", error)
+      alert("Failed to generate Excel file")
+    }
+  }
+
+  const handleViewOrder = (order: ConfirmedOrder) => {
+    setSelectedOrder(order)
+    setIsDialogOpen(true)
   }
 
   // Delete confirmed order
@@ -151,10 +257,24 @@ export function ConfirmedOrders({ onDataChange }: ConfirmedOrdersProps) {
           <h2 className="text-2xl font-bold text-foreground">Confirmed Orders</h2>
           <p className="text-muted-foreground">Orders confirmed by admin and ready for execution</p>
         </div>
-        <Button onClick={handleExport} variant="outline">
-          <Download className="h-4 w-4 mr-2" />
-          Export
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline">
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={handleExportPDF}>
+              <FileText className="h-4 w-4 mr-2" />
+              Export as PDF
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleExportExcel}>
+              <TableIcon className="h-4 w-4 mr-2" />
+              Export as Excel
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
         {/* Error Display */}
@@ -257,13 +377,9 @@ export function ConfirmedOrders({ onDataChange }: ConfirmedOrdersProps) {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => handleViewOrder(order)}>
                           <Eye className="h-4 w-4 mr-1" />
                           View
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Download className="h-4 w-4 mr-1" />
-                          Download
                         </Button>
                         <Button variant="destructive" size="sm" onClick={() => handleDelete(order.id)}>
                           <Trash className="h-4 w-4 mr-1" />
@@ -309,6 +425,147 @@ export function ConfirmedOrders({ onDataChange }: ConfirmedOrdersProps) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Order Details Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Order Details - {selectedOrder?.transport_order_id}</DialogTitle>
+            <DialogDescription>
+              Complete information about this confirmed order
+            </DialogDescription>
+          </DialogHeader>
+          {selectedOrder && (
+            <div className="space-y-6">
+              {/* Order Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Order Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="font-medium">Order ID:</span>
+                      <span>{selectedOrder.transport_order_id}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium">Supplier ID:</span>
+                      <span>{selectedOrder.supplier_id}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium">Status:</span>
+                      <span>{getStatusBadge(selectedOrder.status)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium">Created Date:</span>
+                      <span>{new Date(selectedOrder.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium">Updated Date:</span>
+                      <span>{new Date(selectedOrder.updated_at).toLocaleDateString()}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Vehicle Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="font-medium">Vehicle Number:</span>
+                      <span>{selectedOrder.vehicle_number}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium">Body Type:</span>
+                      <span>{selectedOrder.body_type}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium">Delivery Date:</span>
+                      <span>{selectedOrder.admin_action_date ? new Date(selectedOrder.admin_action_date).toLocaleDateString() : "Not set"}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Location Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Location Details</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="font-medium mb-2">Current Location</h4>
+                      <div className="space-y-1 text-sm">
+                        <div><span className="font-medium">State:</span> {selectedOrder.state}</div>
+                        <div><span className="font-medium">District:</span> {selectedOrder.district}</div>
+                        <div><span className="font-medium">Place:</span> {selectedOrder.place}</div>
+                        {selectedOrder.taluk && (
+                          <div><span className="font-medium">Taluk:</span> {selectedOrder.taluk}</div>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="font-medium mb-2">Route Information</h4>
+                      <div className="space-y-1 text-sm">
+                        <div><span className="font-medium">From:</span> {selectedOrder.place}, {selectedOrder.district}</div>
+                        <div><span className="font-medium">State:</span> {selectedOrder.state}</div>
+                        <div><span className="font-medium">Assigned Truck:</span> {selectedOrder.vehicle_number}</div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Admin Notes */}
+              {(selectedOrder.admin_notes || selectedOrder.notes) && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Admin Notes</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm">{selectedOrder.admin_notes || selectedOrder.notes}</p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Confirmation Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Confirmation Details</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="font-medium">Confirmed By:</span>
+                        <span className="text-sm">Admin</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium">Confirmation Date:</span>
+                        <span className="text-sm">{new Date(selectedOrder.created_at).toLocaleString()}</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="font-medium">Last Updated:</span>
+                        <span className="text-sm">{new Date(selectedOrder.updated_at).toLocaleString()}</span>
+                      </div>
+                      {selectedOrder.admin_action_date && (
+                        <div className="flex justify-between">
+                          <span className="font-medium">Action Date:</span>
+                          <span className="text-sm">{new Date(selectedOrder.admin_action_date).toLocaleString()}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { getAllUsers, getAllUsersAsync } from "@/lib/user-storage"
-import { getPool } from "@/lib/db"
+import { getPool, dbQuery } from "@/lib/db"
+import { getSession } from "@/lib/auth"
 
 export async function GET() {
   try {
@@ -10,6 +11,124 @@ export async function GET() {
     return NextResponse.json({ users: safe })
   } catch (e) {
     return NextResponse.json({ error: "Failed to load users" }, { status: 500 })
+  }
+}
+
+// PUT - Update user status (admin only)
+export async function PUT(request: Request) {
+  try {
+    // Check if user is authenticated and is admin
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+
+    if (session.role !== 'admin') {
+      return NextResponse.json({ error: "Access denied - admin role required" }, { status: 403 })
+    }
+
+    const body = await request.json()
+    const { userId, isActive, isVerified } = body
+
+    if (!userId) {
+      return NextResponse.json({ error: "User ID is required" }, { status: 400 })
+    }
+
+    const pool = getPool()
+    if (!pool) {
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+    }
+
+    // Update user status in the appropriate table based on role
+    const userCheck = await dbQuery("SELECT role FROM users WHERE user_id = $1", [userId])
+    
+    if (userCheck.rows.length === 0) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
+    }
+
+    const userRole = userCheck.rows[0].role
+    let updateResult
+
+    if (userRole === 'supplier') {
+      // Update supplier table
+      const updateFields = []
+      const updateValues = []
+      let paramCount = 1
+
+      if (isActive !== undefined) {
+        updateFields.push(`is_active = $${paramCount}`)
+        updateValues.push(isActive)
+        paramCount++
+      }
+
+      if (isVerified !== undefined) {
+        updateFields.push(`is_verified = $${paramCount}`)
+        updateValues.push(isVerified)
+        paramCount++
+      }
+
+      if (updateFields.length === 0) {
+        return NextResponse.json({ error: "No fields to update" }, { status: 400 })
+      }
+
+      updateValues.push(userId)
+      const updateQuery = `
+        UPDATE suppliers 
+        SET ${updateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP
+        WHERE user_id = $${paramCount}
+        RETURNING *
+      `
+      updateResult = await dbQuery(updateQuery, updateValues)
+    } else if (userRole === 'buyer') {
+      // Update buyer table
+      const updateFields = []
+      const updateValues = []
+      let paramCount = 1
+
+      if (isActive !== undefined) {
+        updateFields.push(`is_active = $${paramCount}`)
+        updateValues.push(isActive)
+        paramCount++
+      }
+
+      if (isVerified !== undefined) {
+        updateFields.push(`is_verified = $${paramCount}`)
+        updateValues.push(isVerified)
+        paramCount++
+      }
+
+      if (updateFields.length === 0) {
+        return NextResponse.json({ error: "No fields to update" }, { status: 400 })
+      }
+
+      updateValues.push(userId)
+      const updateQuery = `
+        UPDATE buyers 
+        SET ${updateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP
+        WHERE user_id = $${paramCount}
+        RETURNING *
+      `
+      updateResult = await dbQuery(updateQuery, updateValues)
+    } else {
+      return NextResponse.json({ error: "Cannot update admin user status" }, { status: 400 })
+    }
+
+    if (updateResult.rows.length === 0) {
+      return NextResponse.json({ error: "User not found in role table" }, { status: 404 })
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "User status updated successfully",
+      user: updateResult.rows[0]
+    })
+
+  } catch (error) {
+    console.error("Error updating user status:", error)
+    return NextResponse.json({ 
+      error: "Failed to update user status",
+      details: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 })
   }
 }
 

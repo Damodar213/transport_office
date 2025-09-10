@@ -19,10 +19,10 @@ export async function POST(request: Request) {
 
     // Insert the order submission record
     const result = await dbQuery(
-      `INSERT INTO order_submissions (order_id, supplier_id, submitted_by, submitted_at, created_at, updated_at)
-       VALUES ($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      `INSERT INTO order_submissions (order_id, supplier_id, submitted_by, submitted_at, whatsapp_sent, notification_sent, status, created_at, updated_at)
+       VALUES ($1, $2, $3, CURRENT_TIMESTAMP, $4, $5, 'new', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
        RETURNING *`,
-      [orderId, supplierId, submittedBy]
+      [orderId, supplierId, submittedBy, body.whatsappSent || false, body.notificationSent || false]
     )
 
     return NextResponse.json({

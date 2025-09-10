@@ -76,9 +76,12 @@ export function DocumentVerification() {
       const response = await fetch(`/api/admin/suppliers?userId=${userId}`)
       if (response.ok) {
         const data = await response.json()
-        const supplier = data.data?.suppliers?.[0] || data.suppliers?.[0] || data.data || data
-        if (supplier && (supplier.name || supplier.company_name)) {
-          return supplier
+        const supplier = data.data
+        if (supplier && (supplier.contact_person || supplier.company_name)) {
+          return {
+            name: supplier.contact_person,
+            company_name: supplier.company_name
+          }
         }
       }
     } catch (error) {
@@ -150,8 +153,8 @@ export function DocumentVerification() {
           .map((doc: any) => ({
             id: `vehicle-${doc.id}`,
             userId: doc.supplier_id,
-            supplierName: doc.supplier_name || doc.supplierName || "Unknown Supplier",
-            companyName: doc.company_name || doc.companyName || "Unknown Company",
+            supplierName: doc.supplier_name || "Unknown Supplier",
+            companyName: doc.company_name || "Unknown Company",
             documentType: doc.document_type,
             documentUrl: doc.document_url,
             submittedAt: doc.submitted_at,
@@ -172,8 +175,8 @@ export function DocumentVerification() {
           .map((doc: any) => ({
             id: `driver-${doc.id}`,
             userId: doc.supplier_id,
-            supplierName: doc.supplier_name || doc.supplierName || "Unknown Supplier",
-            companyName: doc.company_name || doc.companyName || "Unknown Company",
+            supplierName: doc.supplier_name || "Unknown Supplier",
+            companyName: doc.company_name || "Unknown Company",
             documentType: doc.document_type,
             documentUrl: doc.document_url,
             submittedAt: doc.submitted_at,

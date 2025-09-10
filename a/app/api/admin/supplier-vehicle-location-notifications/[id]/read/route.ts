@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { dbQuery, getPool } from "@/lib/db"
 
-// PUT - Mark a transport request notification as read
+// PUT - Mark a supplier vehicle location notification as read
 export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
@@ -15,7 +15,7 @@ export async function PUT(
 
     // Update the notification to mark as read
     const result = await dbQuery(`
-      UPDATE transport_request_notifications 
+      UPDATE supplier_vehicle_location_notifications 
       SET is_read = TRUE, updated_at = CURRENT_TIMESTAMP
       WHERE id = $1
       RETURNING id
@@ -33,12 +33,11 @@ export async function PUT(
     })
 
   } catch (error) {
-    console.error("Error marking notification as read:", error)
+    console.error("Error marking supplier notification as read:", error)
     return NextResponse.json({ 
       error: "Failed to mark notification as read",
       details: error instanceof Error ? error.message : "Unknown error"
     }, { status: 500 })
   }
 }
-
 

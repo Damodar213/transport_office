@@ -51,6 +51,7 @@ interface Supplier {
 export function OrderAssignment() {
   const [requests, setRequests] = useState<TransportRequest[]>([])
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
+  const [loadTypes, setLoadTypes] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -102,10 +103,29 @@ export function OrderAssignment() {
     }
   }
 
+  // Fetch load types
+  const fetchLoadTypes = async () => {
+    try {
+      const response = await fetch("/api/admin/load-types")
+      if (response.ok) {
+        const data = await response.json()
+        setLoadTypes(data.loadTypes.map((lt: any) => lt.name))
+      }
+    } catch (error) {
+      console.error("Failed to load load types:", error)
+      // Fallback to default load types if API fails
+      setLoadTypes([
+        "Rice", "Wheat", "Cotton", "Sugar", "Cement", 
+        "Steel", "Textiles", "Electronics", "Furniture", "Other"
+      ])
+    }
+  }
+
   // Fetch data on component mount
   useEffect(() => {
     fetchTransportRequests()
     fetchSuppliers()
+    fetchLoadTypes()
   }, [])
 
   // Refresh data when filters change
@@ -308,12 +328,21 @@ export function OrderAssignment() {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="manual-loadType">Load Type</Label>
-                  <Input
-                    id="manual-loadType"
+                  <Select
                     value={manualOrder.loadType}
-                    onChange={(e) => setManualOrder((prev) => ({ ...prev, loadType: e.target.value }))}
-                    placeholder="Enter load type"
-                  />
+                    onValueChange={(value) => setManualOrder((prev) => ({ ...prev, loadType: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select load type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {loadTypes.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="manual-tons">Estimated Tons</Label>

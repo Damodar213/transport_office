@@ -9,7 +9,7 @@ export async function GET() {
       return NextResponse.json({ error: "Database not available" }, { status: 503 })
     }
 
-    // Simple query without JOIN for now
+    // Query with JOIN to get supplier information
     const result = await dbQuery(`
       SELECT 
         dd.id,
@@ -22,8 +22,12 @@ export async function GET() {
         dd.status,
         dd.review_notes,
         dd.reviewed_by,
-        dd.reviewed_at
+        dd.reviewed_at,
+        u.name as supplier_name,
+        s.company_name
       FROM driver_documents dd
+      LEFT JOIN users u ON dd.supplier_id = u.user_id
+      LEFT JOIN suppliers s ON dd.supplier_id = s.user_id
       ORDER BY dd.submitted_at DESC
     `)
 

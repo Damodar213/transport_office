@@ -15,8 +15,18 @@ interface Notification {
   message: string
   timestamp: string
   isRead: boolean
-  category: "system" | "order" | "user" | "document"
+  category: "system" | "order" | "user" | "document" | "supplier_order"
   priority: "low" | "medium" | "high"
+  // Additional fields for supplier vehicle location notifications
+  vehicleLocationId?: number
+  supplierId?: string
+  supplierName?: string
+  supplierCompany?: string
+  location?: string
+  vehicleNumber?: string
+  bodyType?: string
+  driverName?: string
+  status?: string
 }
 
 export default function NotificationsPage() {
@@ -24,23 +34,24 @@ export default function NotificationsPage() {
   const [filter, setFilter] = useState<string>("all")
   const [priority, setPriority] = useState<string>("all")
   const [isLoading, setIsLoading] = useState(true)
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date())
 
   useEffect(() => {
     console.log("Component mounted, fetching notifications...")
-    fetchNotifications()
+    fetchNotifications(true) // Initial load with loading state
     
-    // Set up periodic refresh every 10 seconds to get new notifications more frequently
+    // Set up periodic refresh every 30 seconds (less frequent to reduce blinking)
     const interval = setInterval(() => {
       console.log("Auto-refreshing notifications...")
-      fetchNotifications()
-    }, 10000)
+      fetchNotifications(false) // Auto-refresh without loading state
+    }, 30000)
     
     // Set up a global function that can be called to refresh notifications
     // This allows other parts of the app to trigger a refresh
     ;(window as any).refreshAdminNotifications = () => {
       console.log("Manual refresh triggered")
-      fetchNotifications()
+      fetchNotifications(false) // Manual refresh without loading state
     }
     
     return () => {
@@ -54,46 +65,92 @@ export default function NotificationsPage() {
     console.log("Notifications state changed:", notifications.length, "notifications")
   }, [notifications])
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = async (showLoading = false) => {
     try {
-      setIsLoading(true)
+      if (showLoading) {
+        setIsLoading(true)
+      } else {
+        setIsRefreshing(true)
+      }
       console.log("Fetching notifications from API...")
       
-      // Fetch transport request notifications from the dedicated API with cache busting
-      const response = await fetch("/api/admin/transport-request-notifications?" + new Date().getTime(), {
-        cache: 'no-cache',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
-      })
-      console.log("API response status:", response.status)
+      // Fetch both transport request notifications and supplier vehicle location notifications
+      const [transportResponse, supplierResponse] = await Promise.all([
+        fetch("/api/admin/transport-request-notifications?" + new Date().getTime(), {
+          cache: 'no-cache',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        }),
+        fetch("/api/admin/supplier-vehicle-location-notifications?" + new Date().getTime(), {
+          cache: 'no-cache',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        })
+      ])
       
-      if (response.ok) {
-        const data = await response.json()
-        console.log("API data received:", data)
-        console.log("Number of notifications:", data.notifications?.length || 0)
+      console.log("Transport API response status:", transportResponse.status)
+      console.log("Supplier API response status:", supplierResponse.status)
+      
+      let allNotifications: Notification[] = []
+      
+      // Process transport request notifications
+      if (transportResponse.ok) {
+        const transportData = await transportResponse.json()
+        console.log("Transport notifications data received:", transportData)
         
-        if (data.notifications && Array.isArray(data.notifications)) {
-          setNotifications(data.notifications)
-          setLastRefresh(new Date())
-          console.log(`Successfully set ${data.notifications.length} notifications`)
-        } else {
-          console.error("Invalid notifications data format:", data)
-          setNotifications([])
+        if (transportData.notifications && Array.isArray(transportData.notifications)) {
+          allNotifications = [...allNotifications, ...transportData.notifications]
+          console.log(`Added ${transportData.notifications.length} transport notifications`)
         }
       } else {
-        console.error("API failed with status:", response.status)
-        // Don't fallback to mock data, just show empty
-        setNotifications([])
+        console.error("Transport API failed with status:", transportResponse.status)
       }
+      
+      // Process supplier vehicle location notifications
+      if (supplierResponse.ok) {
+        const supplierData = await supplierResponse.json()
+        console.log("Supplier notifications data received:", supplierData)
+        
+        if (supplierData.notifications && Array.isArray(supplierData.notifications)) {
+          allNotifications = [...allNotifications, ...supplierData.notifications]
+          console.log(`Added ${supplierData.notifications.length} supplier notifications`)
+        }
+      } else {
+        console.error("Supplier API failed with status:", supplierResponse.status)
+      }
+      
+      // Sort notifications by timestamp (newest first)
+      allNotifications.sort((a, b) => {
+        // Convert timestamp strings to dates for comparison
+        const getTimeValue = (timestamp: string) => {
+          if (timestamp.includes('seconds ago')) return Date.now() - parseInt(timestamp) * 1000
+          if (timestamp.includes('minutes ago')) return Date.now() - parseInt(timestamp) * 60 * 1000
+          if (timestamp.includes('hours ago')) return Date.now() - parseInt(timestamp) * 60 * 60 * 1000
+          if (timestamp.includes('days ago')) return Date.now() - parseInt(timestamp) * 24 * 60 * 60 * 1000
+          return new Date(timestamp).getTime()
+        }
+        return getTimeValue(b.timestamp) - getTimeValue(a.timestamp)
+      })
+      
+      setNotifications(allNotifications)
+      setLastRefresh(new Date())
+      console.log(`Successfully set ${allNotifications.length} total notifications`)
+      
     } catch (error) {
       console.error("Failed to fetch notifications:", error)
-      // Don't fallback to mock data, just show empty
       setNotifications([])
     } finally {
-      setIsLoading(false)
+      if (showLoading) {
+        setIsLoading(false)
+      } else {
+        setIsRefreshing(false)
+      }
     }
   }
 
@@ -152,10 +209,36 @@ export default function NotificationsPage() {
 
   const markAsRead = async (id: string) => {
     try {
-      const response = await fetch(`/api/admin/transport-request-notifications/${id}/read`, {
+      // Find the notification to determine its type
+      const notification = notifications.find(n => n.id === id)
+      if (!notification) {
+        console.error("Notification not found:", id)
+        return
+      }
+
+      // Determine the API endpoint based on notification category
+      let apiEndpoint
+      if (notification.category === 'supplier_order') {
+        apiEndpoint = `/api/admin/supplier-vehicle-location-notifications/${id}/read`
+      } else {
+        // For any other categories, use a generic endpoint or skip
+        return
+      }
+
+      const response = await fetch(apiEndpoint, {
         method: "PUT"
       })
+      
       if (response.ok) {
+        setNotifications(prev => 
+          prev.map(notif => 
+            notif.id === id ? { ...notif, isRead: true } : notif
+          )
+        )
+        console.log(`Successfully marked notification ${id} as read`)
+      } else {
+        console.error("Failed to mark notification as read:", response.status, response.statusText)
+        // Update locally if API fails
         setNotifications(prev => 
           prev.map(notif => 
             notif.id === id ? { ...notif, isRead: true } : notif
@@ -177,10 +260,19 @@ export default function NotificationsPage() {
 
   const markAllAsRead = async () => {
     try {
-      // Mark all transport request notifications as read
+      // Mark all notifications as read based on their category
       const promises = notifications
-        .filter(n => !n.isRead)
-        .map(n => fetch(`/api/admin/transport-request-notifications/${n.id}/read`, { method: "PUT" }))
+        .filter(n => !n.isRead && n.category === 'supplier_order')
+        .map(n => {
+          let apiEndpoint
+          if (n.category === 'supplier_order') {
+            apiEndpoint = `/api/admin/supplier-vehicle-location-notifications/${n.id}/read`
+          } else {
+            // Skip other categories
+            return null
+          }
+          return fetch(apiEndpoint, { method: "PUT" })
+        })
       
       await Promise.all(promises)
       
@@ -309,6 +401,7 @@ export default function NotificationsPage() {
           <p className="text-muted-foreground">Manage system notifications and alerts</p>
           <p className="text-xs text-muted-foreground mt-1">
             Last updated: {lastRefresh.toLocaleTimeString()}
+            {isRefreshing && <span className="ml-2 text-blue-500">🔄 Updating...</span>}
           </p>
           <p className="text-xs text-muted-foreground">
             Debug: {notifications.length} notifications loaded
@@ -321,17 +414,6 @@ export default function NotificationsPage() {
           <Button onClick={fetchNotifications} variant="outline" size="sm" disabled={isLoading}>
             <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             {isLoading ? 'Refreshing...' : 'Refresh'}
-          </Button>
-          <Button 
-            onClick={() => {
-              console.log("Test button clicked")
-              console.log("Current notifications:", notifications)
-              console.log("Current count:", notifications.length)
-            }} 
-            variant="outline" 
-            size="sm"
-          >
-            Test
           </Button>
           <Button onClick={markAllAsRead} variant="outline" size="sm">
             Mark All Read
@@ -350,7 +432,8 @@ export default function NotificationsPage() {
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
             <SelectItem value="system">System</SelectItem>
-            <SelectItem value="order">Orders</SelectItem>
+            <SelectItem value="order">Buyer Orders</SelectItem>
+            <SelectItem value="supplier_order">Supplier Orders</SelectItem>
             <SelectItem value="user">Users</SelectItem>
             <SelectItem value="document">Documents</SelectItem>
           </SelectContent>

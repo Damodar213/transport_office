@@ -20,43 +20,41 @@ export async function GET() {
       return NextResponse.json({ count: 0 })
     }
 
-    // Check if transport_request_notifications table exists
-    let tableExists
+    // Check if supplier notification table exists
+    let supplierTableExists
     try {
-      tableExists = await dbQuery(`
-        SELECT EXISTS (
-          SELECT FROM information_schema.tables 
-          WHERE table_schema = 'public' 
-          AND table_name = 'transport_request_notifications'
-        )
+      const tableCheckResult = await dbQuery(`
+        SELECT 
+          EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'supplier_vehicle_location_notifications') as supplier_exists
       `)
+      
+      supplierTableExists = tableCheckResult.rows[0].supplier_exists
     } catch (tableCheckError) {
       console.error("Error checking table existence:", tableCheckError)
       return NextResponse.json({ count: 0 })
     }
     
-    // If table doesn't exist, return 0
-    if (!tableExists.rows[0].exists) {
-      return NextResponse.json({ count: 0 })
+    // Count unread notifications from supplier table only
+    let totalCount = 0
+    
+    // Count supplier vehicle location notifications
+    if (supplierTableExists) {
+      try {
+        const supplierResult = await dbQuery(`
+          SELECT COUNT(*) as count 
+          FROM supplier_vehicle_location_notifications 
+          WHERE is_read = FALSE
+        `)
+        totalCount += parseInt(supplierResult.rows[0].count) || 0
+        console.log(`Found ${supplierResult.rows[0].count} unread supplier vehicle location notifications`)
+      } catch (countError) {
+        console.error("Error counting supplier notifications:", countError)
+      }
     }
 
-    // Count unread notifications
-    let result
-    try {
-      result = await dbQuery(`
-        SELECT COUNT(*) as count 
-        FROM transport_request_notifications 
-        WHERE is_read = FALSE
-      `)
-    } catch (countError) {
-      console.error("Error counting notifications:", countError)
-      return NextResponse.json({ count: 0 })
-    }
+    console.log(`Total unread notifications: ${totalCount}`)
 
-    const count = parseInt(result.rows[0].count) || 0
-    console.log(`Found ${count} unread notifications`)
-
-    return NextResponse.json({ count })
+    return NextResponse.json({ count: totalCount })
 
   } catch (error) {
     console.error("Error fetching notification count:", error)

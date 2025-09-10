@@ -229,7 +229,9 @@ export function BuyersOrders() {
             body: JSON.stringify({
               orderId: selectedOrder.id,
               supplierId: supplierId,
-              submittedBy: "admin" // You might want to get this from session
+              submittedBy: "admin", // You might want to get this from session
+              whatsappSent: suppliersWithPhones.some(s => s.id === supplierId),
+              notificationSent: true
             })
           })
           
