@@ -20,21 +20,23 @@ export async function GET() {
       return NextResponse.json({ count: 0 })
     }
 
-    // Check if supplier notification table exists
-    let supplierTableExists
+    // Check if notification tables exist
+    let supplierTableExists, transportRequestTableExists
     try {
       const tableCheckResult = await dbQuery(`
         SELECT 
-          EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'supplier_vehicle_location_notifications') as supplier_exists
+          EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'supplier_vehicle_location_notifications') as supplier_exists,
+          EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'transport_request_notifications') as transport_request_exists
       `)
       
       supplierTableExists = tableCheckResult.rows[0].supplier_exists
+      transportRequestTableExists = tableCheckResult.rows[0].transport_request_exists
     } catch (tableCheckError) {
       console.error("Error checking table existence:", tableCheckError)
       return NextResponse.json({ count: 0 })
     }
     
-    // Count unread notifications from supplier table only
+    // Count unread notifications from both tables
     let totalCount = 0
     
     // Count supplier vehicle location notifications
@@ -49,6 +51,21 @@ export async function GET() {
         console.log(`Found ${supplierResult.rows[0].count} unread supplier vehicle location notifications`)
       } catch (countError) {
         console.error("Error counting supplier notifications:", countError)
+      }
+    }
+
+    // Count transport request notifications (buyer orders)
+    if (transportRequestTableExists) {
+      try {
+        const transportResult = await dbQuery(`
+          SELECT COUNT(*) as count 
+          FROM transport_request_notifications 
+          WHERE is_read = FALSE
+        `)
+        totalCount += parseInt(transportResult.rows[0].count) || 0
+        console.log(`Found ${transportResult.rows[0].count} unread transport request notifications`)
+      } catch (countError) {
+        console.error("Error counting transport request notifications:", countError)
       }
     }
 

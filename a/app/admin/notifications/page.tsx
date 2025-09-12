@@ -220,6 +220,8 @@ export default function NotificationsPage() {
       let apiEndpoint
       if (notification.category === 'supplier_order') {
         apiEndpoint = `/api/admin/supplier-vehicle-location-notifications/${id}/read`
+      } else if (notification.category === 'order') {
+        apiEndpoint = `/api/admin/transport-request-notifications/${id}/read`
       } else {
         // For any other categories, use a generic endpoint or skip
         return
@@ -262,11 +264,13 @@ export default function NotificationsPage() {
     try {
       // Mark all notifications as read based on their category
       const promises = notifications
-        .filter(n => !n.isRead && n.category === 'supplier_order')
+        .filter(n => !n.isRead && (n.category === 'supplier_order' || n.category === 'order'))
         .map(n => {
           let apiEndpoint
           if (n.category === 'supplier_order') {
             apiEndpoint = `/api/admin/supplier-vehicle-location-notifications/${n.id}/read`
+          } else if (n.category === 'order') {
+            apiEndpoint = `/api/admin/transport-request-notifications/${n.id}/read`
           } else {
             // Skip other categories
             return null
@@ -290,7 +294,26 @@ export default function NotificationsPage() {
 
   const deleteNotification = async (id: string) => {
     try {
-      const response = await fetch(`/api/admin/transport-request-notifications/${id}`, {
+      // Find the notification to determine its type
+      const notification = notifications.find(n => n.id === id)
+      if (!notification) {
+        console.error("Notification not found:", id)
+        return
+      }
+
+      // Determine the API endpoint based on notification category
+      let apiEndpoint
+      if (notification.category === 'supplier_order') {
+        apiEndpoint = `/api/admin/supplier-vehicle-location-notifications/${id}`
+      } else if (notification.category === 'order') {
+        apiEndpoint = `/api/admin/transport-request-notifications/${id}`
+      } else {
+        // For other categories, just remove locally
+        setNotifications(prev => prev.filter(notif => notif.id !== id))
+        return
+      }
+
+      const response = await fetch(apiEndpoint, {
         method: "DELETE"
       })
       if (response.ok) {
@@ -305,12 +328,21 @@ export default function NotificationsPage() {
 
   const clearAll = async () => {
     try {
-      // Delete all transport request notifications
-      const promises = notifications.map(n => 
-        fetch(`/api/admin/transport-request-notifications/${n.id}`, { method: "DELETE" })
-      )
+      // Delete all notifications based on their category
+      const promises = notifications.map(n => {
+        let apiEndpoint
+        if (n.category === 'supplier_order') {
+          apiEndpoint = `/api/admin/supplier-vehicle-location-notifications/${n.id}`
+        } else if (n.category === 'order') {
+          apiEndpoint = `/api/admin/transport-request-notifications/${n.id}`
+        } else {
+          // Skip other categories
+          return null
+        }
+        return fetch(apiEndpoint, { method: "DELETE" })
+      })
       
-      await Promise.all(promises)
+      await Promise.all(promises.filter(p => p !== null))
       setNotifications([])
     } catch (error) {
       console.error("Failed to clear all notifications:", error)
@@ -411,7 +443,7 @@ export default function NotificationsPage() {
           <Badge variant="secondary" className="text-sm">
             {unreadCount} unread
           </Badge>
-          <Button onClick={fetchNotifications} variant="outline" size="sm" disabled={isLoading}>
+          <Button onClick={() => fetchNotifications()} variant="outline" size="sm" disabled={isLoading}>
             <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             {isLoading ? 'Refreshing...' : 'Refresh'}
           </Button>

@@ -197,6 +197,48 @@ export async function PUT(
 
     const updatedRequest = result.rows[0]
 
+    // Create notification for admin when buyer submits order (status changes to 'pending')
+    if (status === 'pending') {
+      try {
+        console.log("Creating notification for new buyer order submission...")
+        
+        // Get buyer details for the notification
+        const buyerResult = await dbQuery(
+          "SELECT b.company_name, u.name FROM buyers b LEFT JOIN users u ON b.user_id = u.user_id WHERE b.user_id = $1",
+          [updatedRequest.buyer_id]
+        )
+        
+        const buyerDetails = buyerResult.rows.length > 0 
+          ? buyerResult.rows[0]
+          : { company_name: "Unknown Company", name: "Unknown Buyer" }
+
+        const notificationResponse = await fetch(`${process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000'}/api/admin/transport-request-notifications`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            type: "info",
+            title: "New Buyer Order Submitted",
+            message: `New transport order ${updatedRequest.order_number} submitted by ${buyerDetails.company_name} (${buyerDetails.name}). Load: ${updatedRequest.load_type}, Route: ${updatedRequest.from_place} → ${updatedRequest.to_place}${updatedRequest.estimated_tons ? `, ${updatedRequest.estimated_tons} tons` : ''}${updatedRequest.number_of_goods ? `, ${updatedRequest.number_of_goods} goods` : ''}${updatedRequest.delivery_place ? `, Delivery: ${updatedRequest.delivery_place}` : ''}`,
+            category: "order",
+            priority: "high",
+            orderId: updatedRequest.id,
+            buyerId: updatedRequest.buyer_id,
+            status: status
+          })
+        })
+
+        if (notificationResponse.ok) {
+          console.log("✅ Notification created successfully for buyer order submission")
+        } else {
+          console.error("❌ Failed to create notification:", await notificationResponse.text())
+        }
+      } catch (notificationError) {
+        console.error("Error creating notification for buyer order submission:", notificationError)
+        // Don't fail the main operation if notification creation fails
+      }
+    }
 
     return NextResponse.json({
       success: true,

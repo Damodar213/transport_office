@@ -5,8 +5,11 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
-import { Eye, RefreshCw, Calendar, MapPin, Package, Clock, CheckCircle, XCircle, ExternalLink } from "lucide-react"
+import { Eye, RefreshCw, Calendar, MapPin, Package, Clock, CheckCircle, XCircle, ExternalLink, UserCheck } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -50,6 +53,30 @@ interface RecentOrder {
   buyer_mobile?: string
 }
 
+interface Driver {
+  id: number
+  supplier_id: number
+  driver_name: string
+  mobile: string
+  license_document_url?: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+interface Vehicle {
+  id: number
+  supplier_id: string
+  vehicle_number: string
+  body_type: string
+  capacity_tons?: number
+  number_of_wheels?: number
+  document_url?: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
 export function RecentOrders() {
   const { toast } = useToast()
   const [orders, setOrders] = useState<RecentOrder[]>([])
@@ -57,6 +84,16 @@ export function RecentOrders() {
   const [error, setError] = useState("")
   const [selectedOrder, setSelectedOrder] = useState<RecentOrder | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  
+  // Accept order states
+  const [drivers, setDrivers] = useState<Driver[]>([])
+  const [vehicles, setVehicles] = useState<Vehicle[]>([])
+  const [isAcceptDialogOpen, setIsAcceptDialogOpen] = useState(false)
+  const [acceptingOrder, setAcceptingOrder] = useState<RecentOrder | null>(null)
+  const [selectedDriver, setSelectedDriver] = useState<string>("")
+  const [selectedVehicle, setSelectedVehicle] = useState<string>("")
+  const [driverMobile, setDriverMobile] = useState<string>("")
+  const [isAccepting, setIsAccepting] = useState(false)
 
   // Fetch recent orders (limit to 5 most recent)
   const fetchRecentOrders = async () => {
@@ -73,7 +110,7 @@ export function RecentOrders() {
       if (result.success) {
         // Get only orders that are not yet confirmed (still pending)
         const pendingOrders = result.orders.filter((order: RecentOrder) => 
-          order.status === "new" || order.status === "viewed" || order.status === "submitted" || order.status === "pending"
+          order.status === "submitted" || order.status === "viewed" || order.status === "responded"
         )
         // Get only the 5 most recent pending orders
         const recentOrders = pendingOrders.slice(0, 5)
@@ -89,9 +126,125 @@ export function RecentOrders() {
     }
   }
 
+  // Fetch drivers and vehicles
+  const fetchDriversAndVehicles = async () => {
+    try {
+      // Get current supplier ID
+      const userResponse = await fetch("/api/auth/me", {
+        credentials: 'include'
+      })
+      if (!userResponse.ok) {
+        console.error("Failed to get current supplier")
+        return
+      }
+      
+      const userData = await userResponse.json()
+      const supplierId = userData.user.id
+      
+      // Fetch drivers
+      const driversResponse = await fetch(`/api/supplier-drivers?supplierId=${supplierId}`, {
+        credentials: 'include'
+      })
+      if (driversResponse.ok) {
+        const driversData = await driversResponse.json()
+        setDrivers(driversData.drivers || [])
+      }
+      
+      // Fetch vehicles
+      const vehiclesResponse = await fetch(`/api/supplier-trucks?supplierId=${supplierId}`, {
+        credentials: 'include'
+      })
+      if (vehiclesResponse.ok) {
+        const vehiclesData = await vehiclesResponse.json()
+        setVehicles(vehiclesData.trucks || [])
+      }
+    } catch (error) {
+      console.error("Error fetching drivers and vehicles:", error)
+    }
+  }
+
+  // Handle driver selection - auto-populate mobile number
+  const handleDriverChange = (driverId: string) => {
+    setSelectedDriver(driverId)
+    const driver = drivers.find(d => d.id.toString() === driverId)
+    if (driver) {
+      setDriverMobile(driver.mobile)
+    } else {
+      setDriverMobile("")
+    }
+  }
+
+  // Handle order acceptance
+  const handleAcceptOrder = async () => {
+    if (!acceptingOrder || !selectedDriver || !selectedVehicle) {
+      toast({
+        title: "Error",
+        description: "Please select both driver and vehicle",
+        variant: "destructive"
+      })
+      return
+    }
+
+    try {
+      setIsAccepting(true)
+      
+      const response = await fetch("/api/supplier/accept-order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          orderId: acceptingOrder.id,
+          driverId: selectedDriver,
+          vehicleId: selectedVehicle,
+          driverMobile: driverMobile
+        })
+      })
+
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "Order accepted successfully! Confirmation sent to admin.",
+        })
+        
+        // Close dialog and reset form
+        setIsAcceptDialogOpen(false)
+        setAcceptingOrder(null)
+        setSelectedDriver("")
+        setSelectedVehicle("")
+        setDriverMobile("")
+        
+        // Refresh orders
+        fetchRecentOrders()
+      } else {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Failed to accept order")
+      }
+    } catch (error) {
+      console.error("Error accepting order:", error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to accept order",
+        variant: "destructive"
+      })
+    } finally {
+      setIsAccepting(false)
+    }
+  }
+
+  // Open accept order dialog
+  const openAcceptDialog = (order: RecentOrder) => {
+    setAcceptingOrder(order)
+    setIsAcceptDialogOpen(true)
+    setSelectedDriver("")
+    setSelectedVehicle("")
+    setDriverMobile("")
+  }
+
   // Fetch orders on component mount
   useEffect(() => {
     fetchRecentOrders()
+    fetchDriversAndVehicles()
   }, [])
 
   const getStatusBadge = (status: string) => {
@@ -240,6 +393,15 @@ export function RecentOrders() {
                       <Eye className="h-4 w-4 mr-2" />
                       View Details
                     </Button>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => openAcceptDialog(order)}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <UserCheck className="h-4 w-4 mr-2" />
+                      Accept Order
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -381,6 +543,83 @@ export function RecentOrders() {
               </Card>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Accept Order Dialog */}
+      <Dialog open={isAcceptDialogOpen} onOpenChange={setIsAcceptDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Accept Order</DialogTitle>
+            <DialogDescription>
+              Select driver and vehicle for order {acceptingOrder?.order_number}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Driver Selection */}
+            <div className="space-y-2">
+              <Label htmlFor="driver">Select Driver</Label>
+              <Select value={selectedDriver} onValueChange={handleDriverChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a driver" />
+                </SelectTrigger>
+                <SelectContent>
+                  {drivers.filter(driver => driver.is_active).map((driver) => (
+                    <SelectItem key={driver.id} value={driver.id.toString()}>
+                      {driver.driver_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Driver Mobile (Auto-populated) */}
+            <div className="space-y-2">
+              <Label htmlFor="mobile">Driver Mobile</Label>
+              <Input
+                id="mobile"
+                value={driverMobile}
+                readOnly
+                placeholder="Mobile number will appear when driver is selected"
+              />
+            </div>
+
+            {/* Vehicle Selection */}
+            <div className="space-y-2">
+              <Label htmlFor="vehicle">Select Vehicle</Label>
+              <Select value={selectedVehicle} onValueChange={setSelectedVehicle}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a vehicle" />
+                </SelectTrigger>
+                <SelectContent>
+                  {vehicles.filter(vehicle => vehicle.is_active).map((vehicle) => (
+                    <SelectItem key={vehicle.id} value={vehicle.id.toString()}>
+                      {vehicle.vehicle_number} ({vehicle.body_type})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setIsAcceptDialogOpen(false)}
+                disabled={isAccepting}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleAcceptOrder}
+                disabled={isAccepting || !selectedDriver || !selectedVehicle}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                {isAccepting ? "Accepting..." : "Accept Order"}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

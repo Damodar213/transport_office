@@ -26,6 +26,8 @@ export async function POST() {
           whatsapp_sent BOOLEAN DEFAULT FALSE,
           notification_sent BOOLEAN DEFAULT FALSE,
           status VARCHAR(20) DEFAULT 'new' CHECK (status IN ('new', 'viewed', 'responded', 'confirmed', 'rejected')),
+          driver_id INTEGER REFERENCES drivers(id),
+          vehicle_id INTEGER REFERENCES trucks(id),
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           UNIQUE(order_id, supplier_id)
@@ -61,6 +63,24 @@ export async function POST() {
         )
       `)
 
+      const driverIdFieldExists = await dbQuery(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.columns 
+          WHERE table_schema = 'public' 
+          AND table_name = 'order_submissions' 
+          AND column_name = 'driver_id'
+        )
+      `)
+
+      const vehicleIdFieldExists = await dbQuery(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.columns 
+          WHERE table_schema = 'public' 
+          AND table_name = 'order_submissions' 
+          AND column_name = 'vehicle_id'
+        )
+      `)
+
       // Add whatsapp_sent field if it doesn't exist
       if (!whatsappFieldExists.rows[0].exists) {
         await dbQuery(`
@@ -93,10 +113,32 @@ export async function POST() {
       } else {
         console.log("status field already exists")
       }
+
+      // Add driver_id field if it doesn't exist
+      if (!driverIdFieldExists.rows[0].exists) {
+        await dbQuery(`
+          ALTER TABLE order_submissions 
+          ADD COLUMN driver_id INTEGER REFERENCES drivers(id)
+        `)
+        console.log("Added driver_id field to order_submissions table")
+      } else {
+        console.log("driver_id field already exists")
+      }
+
+      // Add vehicle_id field if it doesn't exist
+      if (!vehicleIdFieldExists.rows[0].exists) {
+        await dbQuery(`
+          ALTER TABLE order_submissions 
+          ADD COLUMN vehicle_id INTEGER REFERENCES trucks(id)
+        `)
+        console.log("Added vehicle_id field to order_submissions table")
+      } else {
+        console.log("vehicle_id field already exists")
+      }
     }
 
     return NextResponse.json({ 
-      message: "Migration completed successfully - order_submissions table updated with whatsapp_sent, notification_sent, and status fields",
+      message: "Migration completed successfully - order_submissions table updated with whatsapp_sent, notification_sent, status, driver_id, and vehicle_id fields",
       success: true
     })
 

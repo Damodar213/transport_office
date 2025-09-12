@@ -39,13 +39,13 @@ Your transport office application has been successfully integrated with Cloudfla
 
 ### 7. **Documentation**
 - **`CLOUDFLARE_SETUP.md`** - Comprehensive setup guide
-- **`env.example`** - Environment variable template
+- **`env.local.example`** - Environment variable template
 
 ## 🚀 Quick Start
 
 ### 1. Set Up Environment Variables
 ```bash
-cp env.example .env.local
+cp env.local.example .env.local
 ```
 
 Edit `.env.local` with your Cloudflare credentials:

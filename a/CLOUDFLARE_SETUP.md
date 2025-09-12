@@ -46,7 +46,7 @@ This guide will help you set up Cloudflare R2 for storing document images (Aadha
 
 1. **Create Environment File**
    ```bash
-   cp env.example .env.local
+   cp env.local.example .env.local
    ```
 
 2. **Update Environment Variables**

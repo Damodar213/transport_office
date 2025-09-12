@@ -46,6 +46,113 @@ export async function PUT(
 
     const updatedOrder = result.rows[0]
 
+    // Create notification for admin when buyer submits order (status changes to 'pending')
+    if (status === 'pending') {
+      try {
+        console.log("Creating notification for new buyer order submission...")
+        
+        // Get buyer details for the notification
+        const buyerResult = await dbQuery(
+          "SELECT b.company_name, u.name FROM buyers b LEFT JOIN users u ON b.user_id = u.user_id WHERE b.user_id = $1",
+          [updatedOrder.buyer_id]
+        )
+        
+        const buyerDetails = buyerResult.rows.length > 0 
+          ? buyerResult.rows[0]
+          : { company_name: "Unknown Company", name: "Unknown Buyer" }
+
+        const notificationResponse = await fetch(`${process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000'}/api/admin/transport-request-notifications`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            type: "info",
+            title: "New Buyer Order Submitted",
+            message: `New transport order ${updatedOrder.order_number} submitted by ${buyerDetails.company_name} (${buyerDetails.name}). Load: ${updatedOrder.load_type}, Route: ${updatedOrder.from_place} → ${updatedOrder.to_place}${updatedOrder.estimated_tons ? `, ${updatedOrder.estimated_tons} tons` : ''}${updatedOrder.number_of_goods ? `, ${updatedOrder.number_of_goods} goods` : ''}${updatedOrder.delivery_place ? `, Delivery: ${updatedOrder.delivery_place}` : ''}`,
+            category: "order",
+            priority: "high",
+            orderId: updatedOrder.id,
+            buyerId: updatedOrder.buyer_id,
+            status: status
+          })
+        })
+
+        if (notificationResponse.ok) {
+          console.log("✅ Notification created successfully for buyer order submission")
+        } else {
+          console.error("❌ Failed to create notification:", await notificationResponse.text())
+        }
+      } catch (notificationError) {
+        console.error("Error creating notification for buyer order submission:", notificationError)
+        // Don't fail the main operation if notification creation fails
+      }
+    }
+
+    // Create notification for buyer when order status changes (except when buyer submits)
+    if (status !== 'pending') {
+      try {
+        console.log("Creating notification for buyer about order status change...")
+        
+        const buyerNotificationResponse = await fetch(`${process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000'}/api/buyer/notifications`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            type: "info",
+            title: "Order Status Updated",
+            message: `Your transport order ${updatedOrder.order_number} status has been updated to: ${status.toUpperCase()}. Load: ${updatedOrder.load_type}, Route: ${updatedOrder.from_place} → ${updatedOrder.to_place}`,
+            category: "order",
+            priority: "medium",
+            buyerId: updatedOrder.buyer_id,
+            orderId: updatedOrder.id
+          })
+        })
+
+        if (buyerNotificationResponse.ok) {
+          console.log("✅ Buyer notification created successfully for order status change")
+        } else {
+          console.error("❌ Failed to create buyer notification:", await buyerNotificationResponse.text())
+        }
+      } catch (notificationError) {
+        console.error("Error creating buyer notification for order status change:", notificationError)
+        // Don't fail the main operation if notification creation fails
+      }
+    }
+
+    // Also create a notification when buyer submits order (status changes to 'pending')
+    if (status === 'pending') {
+      try {
+        console.log("Creating notification for buyer about order submission...")
+        
+        const buyerNotificationResponse = await fetch(`${process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000'}/api/buyer/notifications`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            type: "success",
+            title: "Order Submitted Successfully",
+            message: `Your transport order ${updatedOrder.order_number} has been submitted successfully and is now pending admin approval. Load: ${updatedOrder.load_type}, Route: ${updatedOrder.from_place} → ${updatedOrder.to_place}`,
+            category: "order",
+            priority: "high",
+            buyerId: updatedOrder.buyer_id,
+            orderId: updatedOrder.id
+          })
+        })
+
+        if (buyerNotificationResponse.ok) {
+          console.log("✅ Buyer notification created successfully for order submission")
+        } else {
+          console.error("❌ Failed to create buyer notification:", await buyerNotificationResponse.text())
+        }
+      } catch (notificationError) {
+        console.error("Error creating buyer notification for order submission:", notificationError)
+        // Don't fail the main operation if notification creation fails
+      }
+    }
+
     return NextResponse.json({
       success: true,
       message: "Order status updated successfully",

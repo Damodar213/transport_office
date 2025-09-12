@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Eye, Download, Filter, Trash, FileText, Table as TableIcon } from "lucide-react"
+import { Eye, Download, Filter, Trash, FileText, Table as TableIcon, MapPin, Calendar, Package } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import {
   Dialog,

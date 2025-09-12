@@ -12,6 +12,7 @@ import { OrderAssignment } from "@/components/admin/order-assignment"
 import { SystemOverview } from "@/components/admin/system-overview"
 import { SupplierOrderManagement } from "@/components/admin/supplier-order-management"
 import { BuyersOrders } from "@/components/admin/buyers-orders"
+import { SuppliersConfirmed } from "@/components/admin/suppliers-confirmed"
 import { NotificationBar, useNotificationBar } from "@/components/admin/notification-bar"
 import { Logo } from "@/components/ui/logo"
 
@@ -24,6 +25,40 @@ interface DashboardStats {
   totalOrders: { count: number; label: string }
   completedOrders: { count: number; label: string }
   totalRevenue: { count: string; label: string }
+  systemUptime: { value: number; change: string; trend: string; description: string }
+  averageResponseTime: { value: string; change: string; trend: string; description: string }
+  userSatisfaction: { value: string; change: string; trend: string; description: string }
+  orderSuccessRate: { value: string; change: string; trend: string; description: string }
+  systemHealth: {
+    databasePerformance: { value: number; label: string }
+    apiResponseTime: { value: number; label: string }
+    storageUsage: { value: number; label: string }
+    userActivity: { value: number; label: string }
+  }
+  recentActivities: Array<{
+    id: string
+    type: string
+    message: string
+    timestamp: string
+    status: string
+  }>
+  todaySummary: {
+    newRegistrations: number
+    ordersProcessed: number
+    documentsVerified: number
+    issuesResolved: number
+  }
+  pendingActions: {
+    documentReviews: number
+    orderAssignments: number
+    userVerifications: number
+    supportTickets: number
+  }
+  systemAlerts: Array<{
+    type: string
+    message: string
+    icon: string
+  }>
 }
 
 export default function AdminDashboard() {
@@ -92,6 +127,27 @@ export default function AdminDashboard() {
     }
   }, [notifications])
 
+  // Show popup for unread notifications on page load
+  useEffect(() => {
+    const checkInitialNotifications = async () => {
+      try {
+        const response = await fetch("/api/admin/notifications/count")
+        if (response.ok) {
+          const data = await response.json()
+          const unreadCount = data.count || 0
+          
+          if (unreadCount > 0) {
+            showNotification(`You have ${unreadCount} unread notifications. Click the bell icon to view them.`, "info")
+          }
+        }
+      } catch (error) {
+        console.error("Error checking initial notifications:", error)
+      }
+    }
+    
+    checkInitialNotifications()
+  }, [])
+
   // Add manual refresh function for notifications
   const refreshNotifications = () => {
     fetchNotificationCount()
@@ -121,6 +177,7 @@ export default function AdminDashboard() {
       console.error("Logout error:", error)
     }
   }
+
 
   // Helper function to render trend icon
   const renderTrendIcon = (trend: string) => {
@@ -154,13 +211,13 @@ export default function AdminDashboard() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Logo size="md" />
-                <div>
-                  <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
-                  <p className="text-sm text-muted-foreground">Mahalaxmi Transport Co. Management System</p>
-                </div>
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
+                <p className="text-sm text-muted-foreground">Mahalaxmi Transport Co. Management System</p>
               </div>
+            </div>
+            <div className="flex items-center justify-start ml-8">
+              <Logo size="lg" />
             </div>
             <div className="flex items-center gap-4">
               <Button 
@@ -314,7 +371,7 @@ export default function AdminDashboard() {
 
         {/* Main Dashboard Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
               Overview
@@ -338,6 +395,10 @@ export default function AdminDashboard() {
             <TabsTrigger value="supplier-orders" className="flex items-center gap-2">
               <ClipboardList className="h-4 w-4" />
               Supplier Orders
+            </TabsTrigger>
+            <TabsTrigger value="suppliers-confirmed" className="flex items-center gap-2">
+              <Truck className="h-4 w-4" />
+              Suppliers Confirmed
             </TabsTrigger>
           </TabsList>
 
@@ -363,6 +424,10 @@ export default function AdminDashboard() {
 
           <TabsContent value="supplier-orders" className="mt-6">
             <SupplierOrderManagement />
+          </TabsContent>
+
+          <TabsContent value="suppliers-confirmed" className="mt-6">
+            <SuppliersConfirmed />
           </TabsContent>
         </Tabs>
       </div>

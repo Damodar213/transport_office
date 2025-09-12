@@ -231,13 +231,13 @@ export default function SupplierDashboard() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Logo size="md" />
-                <div>
-                  <h1 className="text-2xl font-bold text-foreground">Supplier Dashboard</h1>
-                  <p className="text-sm text-muted-foreground">Welcome back to Mahalaxmi Transport Co.</p>
-                </div>
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">Supplier Dashboard</h1>
+                <p className="text-sm text-muted-foreground">Welcome back to Mahalaxmi Transport Co.</p>
               </div>
+            </div>
+            <div className="flex items-center justify-start ml-8">
+              <Logo size="lg" />
             </div>
             <div className="flex items-center gap-4">
               <Button 
