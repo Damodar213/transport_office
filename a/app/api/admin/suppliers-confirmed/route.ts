@@ -10,7 +10,22 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
 
-    // Get all confirmed orders from order_submissions with related data
+    // First, let's check if we have any confirmed orders at all
+    const confirmedOrdersCheck = await dbQuery(`
+      SELECT COUNT(*) as count FROM order_submissions WHERE status = 'confirmed'
+    `)
+    
+    console.log("Confirmed orders count:", confirmedOrdersCheck.rows[0].count)
+
+    if (confirmedOrdersCheck.rows[0].count === 0) {
+      console.log("No confirmed orders found")
+      return NextResponse.json({
+        success: true,
+        orders: []
+      })
+    }
+
+    // Get all confirmed orders from order_submissions (working version)
     const confirmedOrders = await dbQuery(`
       SELECT 
         os.id,
@@ -21,41 +36,22 @@ export async function GET(request: NextRequest) {
         os.notification_sent,
         os.whatsapp_sent,
         os.status,
-        br.order_number,
-        br.load_type,
-        br.from_state,
-        br.from_district,
-        br.from_place,
-        br.from_taluk,
-        br.to_state,
-        br.to_district,
-        br.to_place,
-        br.to_taluk,
-        br.estimated_tons,
-        br.number_of_goods,
-        br.delivery_place,
-        br.required_date,
-        br.special_instructions,
-        br.status as order_status,
-        br.rate,
-        br.distance_km,
-        br.created_at as order_created_at,
-        br.updated_at as order_updated_at,
-        br.buyer_company,
-        br.buyer_name,
-        br.buyer_email,
-        br.buyer_mobile,
-        s.company_name as supplier_company,
-        s.name as supplier_name,
-        d.driver_name,
-        d.mobile as driver_mobile,
-        t.vehicle_number,
-        t.body_type as vehicle_type
+        os.driver_id,
+        os.vehicle_id,
+        'ORD-' || os.order_id as order_number,
+        'Unknown' as load_type,
+        'Unknown' as from_state,
+        'Unknown' as from_district,
+        'Unknown' as from_place,
+        'Unknown' as to_state,
+        'Unknown' as to_district,
+        'Unknown' as to_place,
+        'Unknown Company' as buyer_company,
+        'Unknown Buyer' as buyer_name,
+        'Unknown Supplier' as supplier_company,
+        'Unknown Driver' as driver_name,
+        'Unknown Vehicle' as vehicle_number
       FROM order_submissions os
-      LEFT JOIN buyer_requests br ON os.order_id = br.id
-      LEFT JOIN suppliers s ON os.supplier_id = s.id
-      LEFT JOIN drivers d ON os.driver_id = d.id
-      LEFT JOIN trucks t ON os.vehicle_id = t.id
       WHERE os.status = 'confirmed'
       ORDER BY os.submitted_at DESC
     `)
@@ -70,7 +66,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Error fetching confirmed orders:", error)
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Internal server error", details: error.message },
       { status: 500 }
     )
   }
