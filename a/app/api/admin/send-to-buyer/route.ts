@@ -65,16 +65,43 @@ export async function POST(request: NextRequest) {
     const order = orderDetails.rows[0]
 
     // Check if accepted request already exists for this buyer
+    // Only check for records that were sent by admin (sent_by_admin = true)
     const existingRequest = await dbQuery(`
-      SELECT id FROM accepted_requests 
-      WHERE order_submission_id = $1 AND buyer_id = $2
+      SELECT id, sent_by_admin, status FROM accepted_requests 
+      WHERE order_submission_id = $1 AND buyer_id = $2 AND sent_by_admin = true
     `, [orderSubmissionId, buyerId])
 
+    console.log("Checking for existing requests:", {
+      orderSubmissionId,
+      buyerId,
+      existingCount: existingRequest.rows.length,
+      existingRequests: existingRequest.rows
+    })
+
     if (existingRequest.rows.length > 0) {
-      return NextResponse.json(
-        { error: "This order has already been sent to the selected buyer" },
-        { status: 409 }
-      )
+      console.log("Found existing request, preventing duplicate send")
+      
+      // Check if there are any orphaned records (sent_by_admin = false) that might be causing confusion
+      const orphanedRecords = await dbQuery(`
+        SELECT id, sent_by_admin, status FROM accepted_requests 
+        WHERE order_submission_id = $1 AND buyer_id = $2 AND sent_by_admin = false
+      `, [orderSubmissionId, buyerId])
+      
+      if (orphanedRecords.rows.length > 0) {
+        console.log("Found orphaned records, cleaning them up:", orphanedRecords.rows)
+        // Clean up orphaned records
+        await dbQuery(
+          `DELETE FROM accepted_requests 
+           WHERE order_submission_id = $1 AND buyer_id = $2 AND sent_by_admin = false`,
+          [orderSubmissionId, buyerId]
+        )
+        console.log("Orphaned records cleaned up, proceeding with send")
+      } else {
+        return NextResponse.json(
+          { error: "This order has already been sent to the selected buyer" },
+          { status: 409 }
+        )
+      }
     }
 
     // Create accepted request for the selected buyer

@@ -225,14 +225,14 @@ export function findUserByCredentials(userId: string, role: string): User | unde
   // Always load fresh data from disk
   users = loadUsersFromDisk()
   
-  const target = userId.trim().toLowerCase()
+  const target = userId.trim() // Remove .toLowerCase() to make it case-sensitive
   const digits = target.replace(/[^0-9]/g, "")
   const targetRole = role.trim().toLowerCase() as User["role"]
   
   const foundUser = users.find((user) => {
     if (user.role !== targetRole) return false
-    const byUserId = (user.userId || "").toLowerCase() === target
-    const byEmail = (user.email || "").toLowerCase() === target
+    const byUserId = (user.userId || "") === target // Remove .toLowerCase() for case-sensitive comparison
+    const byEmail = (user.email || "") === target // Remove .toLowerCase() for case-sensitive comparison
     const byMobile = (user.mobile || "").replace(/[^0-9]/g, "") === digits && digits.length > 0
     return byUserId || byEmail || byMobile
   })
@@ -244,7 +244,7 @@ export async function findUserByCredentialsAsync(userId: string, role: string): 
   // If database is available, query it
   if (getPool()) {
     try {
-      const target = userId.trim().toLowerCase()
+      const target = userId.trim() // Remove .toLowerCase() to make it case-sensitive
       const targetRole = role.trim().toLowerCase() as User["role"]
       
       // Try to find by userId first

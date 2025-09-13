@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Eye, RefreshCw, MapPin, Package, User, Truck, Calendar, CheckCircle, Clock, Truck as TruckIcon, Phone } from "lucide-react"
+import { Eye, RefreshCw, MapPin, Package, User, Truck, Calendar, CheckCircle, Clock, Truck as TruckIcon, Phone, Trash2 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import {
   Dialog,
@@ -51,6 +51,9 @@ export function AcceptedRequests() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [statusFilter, setStatusFilter] = useState("all")
   const [searchTerm, setSearchTerm] = useState("")
+  const [deleteRequestId, setDeleteRequestId] = useState<number | null>(null)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // Fetch accepted requests
   const fetchAcceptedRequests = async () => {
@@ -120,6 +123,44 @@ export function AcceptedRequests() {
   const handleViewRequest = (request: AcceptedRequest) => {
     setSelectedRequest(request)
     setIsDialogOpen(true)
+  }
+
+  const handleDeleteRequest = (requestId: number) => {
+    setDeleteRequestId(requestId)
+    setIsDeleteDialogOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteRequestId) return
+
+    try {
+      setIsDeleting(true)
+      setError("")
+
+      const response = await fetch(`/api/buyer/accepted-requests?id=${deleteRequestId}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        // Remove the deleted request from the local state
+        setRequests(prev => prev.filter(request => request.id !== deleteRequestId))
+        setFilteredRequests(prev => prev.filter(request => request.id !== deleteRequestId))
+        setIsDeleteDialogOpen(false)
+        setDeleteRequestId(null)
+      } else {
+        const errorData = await response.json()
+        setError(errorData.error || "Failed to delete accepted request")
+      }
+    } catch (err) {
+      setError("Failed to delete accepted request")
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  const cancelDelete = () => {
+    setIsDeleteDialogOpen(false)
+    setDeleteRequestId(null)
   }
 
   return (
@@ -234,6 +275,14 @@ export function AcceptedRequests() {
                       <Eye className="h-4 w-4 mr-2" />
                       View Details
                     </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDeleteRequest(request.id)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -277,6 +326,45 @@ export function AcceptedRequests() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Accepted Request</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this accepted request? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex justify-end gap-2 mt-4">
+            <Button
+              variant="outline"
+              onClick={cancelDelete}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </>
+              )}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

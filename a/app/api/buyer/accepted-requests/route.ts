@@ -71,3 +71,68 @@ export async function GET(request: NextRequest) {
     )
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    console.log("Delete accepted request API called")
+    
+    if (!getPool()) {
+      console.log("Database not available")
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+    }
+
+    // Verify the user is authenticated and is a buyer
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+
+    if (session.role !== 'buyer') {
+      return NextResponse.json({ error: "Access denied - buyer role required" }, { status: 403 })
+    }
+
+    const buyerId = session.userIdString
+    const { searchParams } = new URL(request.url)
+    const requestId = searchParams.get('id')
+
+    if (!requestId) {
+      return NextResponse.json({ error: "Request ID is required" }, { status: 400 })
+    }
+
+    console.log("Deleting accepted request:", requestId, "for buyer:", buyerId)
+
+    // Verify the accepted request belongs to this buyer
+    const requestCheck = await dbQuery(
+      "SELECT * FROM accepted_requests WHERE id = $1 AND buyer_id = $2",
+      [requestId, buyerId]
+    )
+
+    if (requestCheck.rows.length === 0) {
+      return NextResponse.json({ error: "Accepted request not found or access denied" }, { status: 404 })
+    }
+
+    // Delete the accepted request
+    const deleteResult = await dbQuery(
+      "DELETE FROM accepted_requests WHERE id = $1 AND buyer_id = $2",
+      [requestId, buyerId]
+    )
+
+    if (deleteResult.rowCount === 0) {
+      return NextResponse.json({ error: "Failed to delete accepted request" }, { status: 500 })
+    }
+
+    console.log("Successfully deleted accepted request:", requestId)
+
+    return NextResponse.json({
+      success: true,
+      message: "Accepted request deleted successfully"
+    })
+
+  } catch (error) {
+    console.error("Error deleting accepted request:", error)
+    return NextResponse.json(
+      { error: "Internal server error", details: error.message },
+      { status: 500 }
+    )
+  }
+}

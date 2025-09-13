@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Eye, Download, Filter, FileText, Table as TableIcon, MapPin, Calendar, Package, User, Truck, Phone, RefreshCw, Send, CheckCircle } from "lucide-react"
+import { Eye, Download, Filter, FileText, Table as TableIcon, MapPin, Calendar, Package, User, Truck, Phone, RefreshCw, Send, CheckCircle, Trash2 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import {
   Dialog,
@@ -89,6 +89,9 @@ export function SuppliersConfirmed() {
   const [selectedBuyer, setSelectedBuyer] = useState<string>("")
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false)
   const [isSending, setIsSending] = useState(false)
+  const [deleteOrderId, setDeleteOrderId] = useState<number | null>(null)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // Fetch confirmed orders from all suppliers
   const fetchConfirmedOrders = async (forceRefresh = false) => {
@@ -182,6 +185,44 @@ export function SuppliersConfirmed() {
     setSelectedOrder(order)
     setSelectedBuyer("")
     setIsSendDialogOpen(true)
+  }
+
+  const handleDeleteOrder = (orderId: number) => {
+    setDeleteOrderId(orderId)
+    setIsDeleteDialogOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteOrderId) return
+
+    try {
+      setIsDeleting(true)
+      setError("")
+
+      const response = await fetch(`/api/admin/suppliers-confirmed?id=${deleteOrderId}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        // Remove the deleted order from the local state
+        setOrders(prev => prev.filter(order => order.id !== deleteOrderId))
+        setFilteredOrders(prev => prev.filter(order => order.id !== deleteOrderId))
+        setIsDeleteDialogOpen(false)
+        setDeleteOrderId(null)
+      } else {
+        const errorData = await response.json()
+        setError(errorData.error || "Failed to delete order")
+      }
+    } catch (err) {
+      setError("Failed to delete order")
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  const cancelDelete = () => {
+    setIsDeleteDialogOpen(false)
+    setDeleteOrderId(null)
   }
 
   const handleConfirmSend = async () => {
@@ -470,6 +511,14 @@ export function SuppliersConfirmed() {
                         Send to Buyer
                       </Button>
                     )}
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDeleteOrder(order.id)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -587,6 +636,45 @@ export function SuppliersConfirmed() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Confirmed Order</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this confirmed order? This action cannot be undone and will also remove any related accepted requests.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex justify-end gap-2 mt-4">
+            <Button
+              variant="outline"
+              onClick={cancelDelete}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </>
+              )}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

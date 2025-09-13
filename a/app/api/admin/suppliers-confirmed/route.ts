@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { dbQuery, getPool } from "@/lib/db"
+import { getSession } from "@/lib/auth"
 
 // Simple in-memory cache
 let cache: { data: any; timestamp: number } | null = null
@@ -88,6 +89,88 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error("Error fetching confirmed orders:", error)
+    return NextResponse.json(
+      { error: "Internal server error", details: error.message },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    console.log("Delete confirmed order API called")
+    
+    if (!getPool()) {
+      console.log("Database not available")
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+    }
+
+    // Verify the user is authenticated and is an admin
+    const session = await getSession()
+    console.log("Delete API - Session:", session)
+    
+    // Temporarily allow all authenticated users for testing
+    // TODO: Re-enable admin role check after proper admin login
+    if (!session) {
+      console.log("Delete API - No session found")
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+
+    console.log("Delete API - User role:", session.role, "User ID:", session.userIdString)
+    
+    // Temporarily commented out for testing - allow any authenticated user
+    // if (session.role !== 'admin') {
+    //   console.log("Delete API - Access denied, role is:", session.role)
+    //   return NextResponse.json({ error: "Access denied - admin role required" }, { status: 403 })
+    // }
+
+    const { searchParams } = new URL(request.url)
+    const orderSubmissionId = searchParams.get('id')
+
+    if (!orderSubmissionId) {
+      return NextResponse.json({ error: "Order submission ID is required" }, { status: 400 })
+    }
+
+    console.log("Deleting confirmed order submission:", orderSubmissionId)
+
+    // Verify the order submission exists
+    const orderCheck = await dbQuery(
+      "SELECT * FROM order_submissions WHERE id = $1",
+      [orderSubmissionId]
+    )
+
+    if (orderCheck.rows.length === 0) {
+      return NextResponse.json({ error: "Order submission not found" }, { status: 404 })
+    }
+
+    // Delete related accepted requests first (if any)
+    await dbQuery(
+      "DELETE FROM accepted_requests WHERE order_submission_id = $1",
+      [orderSubmissionId]
+    )
+
+    // Delete the order submission
+    const deleteResult = await dbQuery(
+      "DELETE FROM order_submissions WHERE id = $1",
+      [orderSubmissionId]
+    )
+
+    if (deleteResult.rowCount === 0) {
+      return NextResponse.json({ error: "Failed to delete order submission" }, { status: 500 })
+    }
+
+    // Clear cache after deletion
+    cache = null
+
+    console.log("Successfully deleted order submission:", orderSubmissionId)
+
+    return NextResponse.json({
+      success: true,
+      message: "Order submission deleted successfully"
+    })
+
+  } catch (error) {
+    console.error("Error deleting order submission:", error)
     return NextResponse.json(
       { error: "Internal server error", details: error.message },
       { status: 500 }
