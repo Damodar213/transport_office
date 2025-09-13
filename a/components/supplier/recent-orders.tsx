@@ -501,46 +501,6 @@ export function RecentOrders() {
                 </Card>
               )}
 
-              {/* Submission Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Submission Details</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="font-medium">Sent Date:</span>
-                        <span className="text-sm">{new Date(selectedOrder.submitted_at).toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium">Sent By:</span>
-                        <span className="text-sm">{selectedOrder.submitted_by}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium">Notification Sent:</span>
-                        <span className="text-sm">{selectedOrder.notification_sent ? 'Yes' : 'No'}</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="font-medium">WhatsApp Sent:</span>
-                        <span className="text-sm">{selectedOrder.whatsapp_sent ? 'Yes' : 'No'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium">Your Status:</span>
-                        <span>{getStatusBadge(selectedOrder.status)}</span>
-                      </div>
-                      {selectedOrder.required_date && (
-                        <div className="flex justify-between">
-                          <span className="font-medium">Required Date:</span>
-                          <span className="text-sm">{selectedOrder.required_date}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           )}
         </DialogContent>

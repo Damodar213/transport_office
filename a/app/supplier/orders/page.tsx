@@ -165,7 +165,6 @@ export default function SupplierOrdersPage() {
         'From': order.from_place,
         'To': order.to_place,
         'Status': order.submission_status,
-        'Sent Date': new Date(order.submitted_at).toLocaleDateString(),
         'Contact': order.buyer_mobile || 'N/A'
       }))
 
@@ -200,7 +199,6 @@ export default function SupplierOrdersPage() {
                 <th>From</th>
                 <th>To</th>
                 <th>Status</th>
-                <th>Sent Date</th>
                 <th>Contact</th>
               </tr>
             </thead>
@@ -214,7 +212,6 @@ export default function SupplierOrdersPage() {
                   <td>${order['From']}</td>
                   <td>${order['To']}</td>
                   <td>${order['Status']}</td>
-                  <td>${order['Sent Date']}</td>
                   <td>${order['Contact']}</td>
                 </tr>
               `).join('')}
@@ -260,7 +257,6 @@ export default function SupplierOrdersPage() {
         'Rate': order.rate || 'N/A',
         'Distance (KM)': order.distance_km || 'N/A',
         'Status': order.submission_status,
-        'Sent Date': new Date(order.submitted_at).toLocaleDateString(),
         'Buyer Email': order.buyer_email || 'N/A',
         'Buyer Mobile': order.buyer_mobile || 'N/A',
         'Required Date': order.required_date || 'N/A',
@@ -497,7 +493,6 @@ export default function SupplierOrdersPage() {
                     <TableHead>Load Type</TableHead>
                     <TableHead>From → To</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Sent Date</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -527,11 +522,6 @@ export default function SupplierOrdersPage() {
                         </div>
                       </TableCell>
                       <TableCell>{getStatusBadge(order.status)}</TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          {new Date(order.submitted_at).toLocaleDateString()}
-                        </div>
-                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Button
@@ -644,46 +634,6 @@ export default function SupplierOrdersPage() {
                 </Card>
               )}
 
-              {/* Submission Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Submission Details</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="font-medium">Sent Date:</span>
-                        <span className="text-sm">{new Date(selectedOrder.submitted_at).toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium">Sent By:</span>
-                        <span className="text-sm">{selectedOrder.submitted_by}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium">Notification Sent:</span>
-                        <span className="text-sm">{selectedOrder.notification_sent ? 'Yes' : 'No'}</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="font-medium">WhatsApp Sent:</span>
-                        <span className="text-sm">{selectedOrder.whatsapp_sent ? 'Yes' : 'No'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium">Your Status:</span>
-                        <span>{getStatusBadge(selectedOrder.status)}</span>
-                      </div>
-                      {selectedOrder.required_date && (
-                        <div className="flex justify-between">
-                          <span className="font-medium">Required Date:</span>
-                          <span className="text-sm">{selectedOrder.required_date}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           )}
         </DialogContent>

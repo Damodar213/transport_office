@@ -53,10 +53,14 @@ export default function BuyerNotificationsPage() {
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetch(`/api/buyer/notifications?buyerId=${buyerId}`)
+      const response = await fetch(`/api/buyer/notifications`)
       if (response.ok) {
         const data = await response.json()
         setNotifications(data.notifications)
+      } else {
+        console.error("Failed to fetch notifications:", response.status)
+        // Fallback to mock data
+        setNotifications(generateMockNotifications())
       }
     } catch (error) {
       console.error("Failed to fetch notifications:", error)
@@ -70,17 +74,28 @@ export default function BuyerNotificationsPage() {
   const generateMockNotifications = (): BuyerNotification[] => [
     {
       id: "1",
+      type: "success",
+      title: "Order Sent to You",
+      message: "Your order ORD-12 has been sent to you by admin. Driver: arunkkkk (8618699559), Vehicle: KA63k2344. You can now track your order in the Accepted Requests section.",
+      timestamp: "2 minutes ago",
+      isRead: false,
+      category: "order",
+      priority: "high",
+      orderId: "12"
+    },
+    {
+      id: "2",
       type: "info",
       title: "Order Status Updated",
       message: "Your transport order ORD-6 status has been updated to: SUBMITTED. Load: Steel, Route: Mumbai → Delhi",
-      timestamp: "2 minutes ago",
+      timestamp: "5 minutes ago",
       isRead: false,
       category: "order",
       priority: "medium",
       orderId: "6"
     },
     {
-      id: "2",
+      id: "3",
       type: "success",
       title: "Order Confirmed",
       message: "Your transport order ORD-5 has been confirmed by supplier. Driver details will be shared soon.",

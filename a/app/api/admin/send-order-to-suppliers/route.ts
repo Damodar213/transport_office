@@ -74,8 +74,10 @@ function createWhatsAppMessage(orderDetails: any) {
 *Order:* ${orderDetails.orderNumber || "N/A"}
 *Load:* ${loadInfo}
 *Route:* ${route}
+*Status:* Submitted
 
-*Contact Admin for more details*
-
-*Transport Office Management System*`
+*Contact for more details:*
+*MAHALAXMI TRANSPORT*
+📞 8217563933
+📞 80736 27241`
 }

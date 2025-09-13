@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Eye, Download, Filter, FileText, Table as TableIcon, MapPin, Calendar, Package, User, Truck, Phone } from "lucide-react"
+import { Eye, Download, Filter, FileText, Table as TableIcon, MapPin, Calendar, Package, User, Truck, Phone, RefreshCw, Send, CheckCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import {
   Dialog,
@@ -64,24 +64,43 @@ interface ConfirmedOrder {
   driver_mobile?: string
   vehicle_number?: string
   vehicle_type?: string
+  is_sent_to_buyer?: boolean
+}
+
+interface Buyer {
+  user_id: string
+  name: string
+  email: string
+  phone: string
+  company_name: string
+  created_at: string
 }
 
 export function SuppliersConfirmed() {
   const [orders, setOrders] = useState<ConfirmedOrder[]>([])
   const [filteredOrders, setFilteredOrders] = useState<ConfirmedOrder[]>([])
-  const [isFetching, setIsFetching] = useState(false)
+  const [isFetching, setIsFetching] = useState(true) // Start with true to show loading initially
   const [error, setError] = useState("")
   const [selectedOrder, setSelectedOrder] = useState<ConfirmedOrder | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [statusFilter, setStatusFilter] = useState("all")
   const [searchTerm, setSearchTerm] = useState("")
+  const [buyers, setBuyers] = useState<Buyer[]>([])
+  const [selectedBuyer, setSelectedBuyer] = useState<string>("")
+  const [isSendDialogOpen, setIsSendDialogOpen] = useState(false)
+  const [isSending, setIsSending] = useState(false)
 
   // Fetch confirmed orders from all suppliers
-  const fetchConfirmedOrders = async () => {
+  const fetchConfirmedOrders = async (forceRefresh = false) => {
     try {
       setIsFetching(true)
       
-      const response = await fetch("/api/admin/suppliers-confirmed")
+      // Add cache-busting parameter if force refresh is requested
+      const url = forceRefresh 
+        ? `/api/admin/suppliers-confirmed?cache_bust=${Date.now()}`
+        : "/api/admin/suppliers-confirmed"
+      
+      const response = await fetch(url)
       if (response.ok) {
         const data = await response.json()
         setOrders(data.orders)
@@ -96,8 +115,24 @@ export function SuppliersConfirmed() {
     }
   }
 
+  // Fetch all buyers
+  const fetchBuyers = async () => {
+    try {
+      const response = await fetch("/api/admin/buyers")
+      if (response.ok) {
+        const data = await response.json()
+        setBuyers(data.buyers)
+      } else {
+        console.error("Failed to fetch buyers")
+      }
+    } catch (err) {
+      console.error("Failed to fetch buyers:", err)
+    }
+  }
+
   useEffect(() => {
     fetchConfirmedOrders()
+    fetchBuyers()
   }, [])
 
   const handleFilter = () => {
@@ -141,6 +176,57 @@ export function SuppliersConfirmed() {
   const handleViewOrder = (order: ConfirmedOrder) => {
     setSelectedOrder(order)
     setIsDialogOpen(true)
+  }
+
+  const handleSendToBuyer = (order: ConfirmedOrder) => {
+    setSelectedOrder(order)
+    setSelectedBuyer("")
+    setIsSendDialogOpen(true)
+  }
+
+  const handleConfirmSend = async () => {
+    if (!selectedOrder || !selectedBuyer) {
+      return
+    }
+
+    try {
+      setIsSending(true)
+      
+      const response = await fetch("/api/admin/send-to-buyer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          orderSubmissionId: selectedOrder.id,
+          buyerId: selectedBuyer
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        console.log("Order sent to buyer successfully:", data)
+        
+        // Close dialog and reset state
+        setIsSendDialogOpen(false)
+        setSelectedOrder(null)
+        setSelectedBuyer("")
+        
+        // Refresh the orders list to show updated status with force refresh
+        fetchConfirmedOrders(true)
+        
+        // Show success popup message
+        alert(`🎉 ORDER SENT TO BUYER SUCCESSFULLY!\n\n📋 Order Details:\n• Order Number: ${selectedOrder?.order_number}\n• Load Type: ${selectedOrder?.load_type}\n• Route: ${selectedOrder?.from_place} → ${selectedOrder?.to_place}\n\n👤 Driver Information:\n• Name: ${selectedOrder?.driver_name}\n• Mobile: ${selectedOrder?.driver_mobile}\n• Vehicle: ${selectedOrder?.vehicle_number}\n\n✅ Status: The buyer will receive a notification and can track this order in their "Accepted Requests" section.\n\n📊 This order is now marked as "Sent" in your dashboard.`)
+      } else {
+        const errorData = await response.json()
+        alert(`Failed to send order: ${errorData.error}`)
+      }
+    } catch (error) {
+      console.error("Error sending order to buyer:", error)
+      alert("Failed to send order to buyer")
+    } finally {
+      setIsSending(false)
+    }
   }
 
   const handleExportPDF = () => {
@@ -219,24 +305,35 @@ export function SuppliersConfirmed() {
           <h2 className="text-2xl font-bold text-foreground">Suppliers Confirmed Orders</h2>
           <p className="text-muted-foreground">Orders confirmed by suppliers with driver and vehicle assignments</p>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={handleExportPDF}>
-              <FileText className="h-4 w-4 mr-2" />
-              Export as PDF
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleExportExcel}>
-              <TableIcon className="h-4 w-4 mr-2" />
-              Export as Excel
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => fetchConfirmedOrders(true)}
+            disabled={isFetching}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={handleExportPDF}>
+                <FileText className="h-4 w-4 mr-2" />
+                Export as PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportExcel}>
+                <TableIcon className="h-4 w-4 mr-2" />
+                Export as Excel
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {error && (
@@ -276,7 +373,15 @@ export function SuppliersConfirmed() {
       </div>
 
       {/* Orders List */}
-      {filteredOrders.length === 0 ? (
+      {isFetching ? (
+        <Card>
+          <CardContent className="text-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <h4 className="text-lg font-medium mb-2">Loading Orders...</h4>
+            <p className="text-muted-foreground">Please wait while we fetch the confirmed orders.</p>
+          </CardContent>
+        </Card>
+      ) : filteredOrders.length === 0 ? (
         <Card>
           <CardContent className="text-center py-8">
             <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -350,6 +455,21 @@ export function SuppliersConfirmed() {
                       <Eye className="h-4 w-4 mr-2" />
                       View Details
                     </Button>
+                    {order.is_sent_to_buyer ? (
+                      <Badge variant="default" className="bg-green-500 hover:bg-green-600">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Sent
+                      </Badge>
+                    ) : (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={() => handleSendToBuyer(order)}
+                      >
+                        <Send className="h-4 w-4 mr-2" />
+                        Send to Buyer
+                      </Button>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -376,7 +496,6 @@ export function SuppliersConfirmed() {
                   <div className="space-y-1 text-sm">
                     <p><span className="font-medium">Order Number:</span> {selectedOrder.order_number}</p>
                     <p><span className="font-medium">Load Type:</span> {selectedOrder.load_type}</p>
-                    <p><span className="font-medium">Estimated Tons:</span> {selectedOrder.estimated_tons || 'N/A'}</p>
                     <p><span className="font-medium">Status:</span> {selectedOrder.status}</p>
                   </div>
                 </div>
@@ -386,32 +505,17 @@ export function SuppliersConfirmed() {
                   <div className="space-y-1 text-sm">
                     <p><span className="font-medium">From:</span> {selectedOrder.from_place}, {selectedOrder.from_district}</p>
                     <p><span className="font-medium">To:</span> {selectedOrder.to_place}, {selectedOrder.to_district}</p>
-                    <p><span className="font-medium">Distance:</span> {selectedOrder.distance_km || 'N/A'} km</p>
-                    <p><span className="font-medium">Required Date:</span> {selectedOrder.required_date ? new Date(selectedOrder.required_date).toLocaleDateString() : 'N/A'}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h4 className="font-medium mb-2">Buyer Information</h4>
-                  <div className="space-y-1 text-sm">
-                    <p><span className="font-medium">Company:</span> {selectedOrder.buyer_company || 'N/A'}</p>
-                    <p><span className="font-medium">Name:</span> {selectedOrder.buyer_name || 'N/A'}</p>
-                    <p><span className="font-medium">Email:</span> {selectedOrder.buyer_email || 'N/A'}</p>
-                    <p><span className="font-medium">Mobile:</span> {selectedOrder.buyer_mobile || 'N/A'}</p>
-                  </div>
-                </div>
-                
-                <div>
-                  <h4 className="font-medium mb-2">Supplier & Assignment</h4>
-                  <div className="space-y-1 text-sm">
-                    <p><span className="font-medium">Supplier:</span> {selectedOrder.supplier_company || 'N/A'}</p>
-                    <p><span className="font-medium">Driver:</span> {selectedOrder.driver_name || 'N/A'}</p>
-                    <p><span className="font-medium">Driver Mobile:</span> {selectedOrder.driver_mobile || 'N/A'}</p>
-                    <p><span className="font-medium">Vehicle:</span> {selectedOrder.vehicle_number || 'N/A'}</p>
-                    <p><span className="font-medium">Vehicle Type:</span> {selectedOrder.vehicle_type || 'N/A'}</p>
-                  </div>
+              <div>
+                <h4 className="font-medium mb-2">Supplier</h4>
+                <div className="space-y-1 text-sm">
+                  <p><span className="font-medium">Supplier:</span> {selectedOrder.supplier_company || 'N/A'}</p>
+                  <p><span className="font-medium">Driver:</span> {selectedOrder.driver_name || 'N/A'}</p>
+                  <p><span className="font-medium">Driver Mobile:</span> {selectedOrder.driver_mobile || 'N/A'}</p>
+                  <p><span className="font-medium">Vehicle:</span> {selectedOrder.vehicle_number || 'N/A'}</p>
                 </div>
               </div>
 
@@ -421,6 +525,66 @@ export function SuppliersConfirmed() {
                   <p className="text-sm text-muted-foreground">{selectedOrder.special_instructions}</p>
                 </div>
               )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Send to Buyer Dialog */}
+      <Dialog open={isSendDialogOpen} onOpenChange={setIsSendDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Send Order to Buyer</DialogTitle>
+            <DialogDescription>
+              Select a buyer to send the confirmed order to their accepted requests.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedOrder && (
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium mb-2">Order Details</h4>
+                <div className="text-sm text-muted-foreground space-y-1">
+                  <p><span className="font-medium">Order:</span> {selectedOrder.order_number}</p>
+                  <p><span className="font-medium">Load:</span> {selectedOrder.load_type}</p>
+                  <p><span className="font-medium">Route:</span> {selectedOrder.from_place} → {selectedOrder.to_place}</p>
+                  <p><span className="font-medium">Driver:</span> {selectedOrder.driver_name}</p>
+                  <p><span className="font-medium">Driver Mobile:</span> {selectedOrder.driver_mobile || 'N/A'}</p>
+                  <p><span className="font-medium">Vehicle:</span> {selectedOrder.vehicle_number}</p>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">Select Buyer</label>
+                <Select value={selectedBuyer} onValueChange={setSelectedBuyer}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a buyer..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {buyers.map((buyer) => (
+                      <SelectItem key={buyer.user_id} value={buyer.user_id}>
+                        <span className="font-medium">{buyer.name}</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsSendDialogOpen(false)}
+                  disabled={isSending}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleConfirmSend}
+                  disabled={!selectedBuyer || isSending}
+                >
+                  {isSending ? "Sending..." : "Send to Buyer"}
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>

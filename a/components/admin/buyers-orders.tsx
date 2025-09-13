@@ -349,9 +349,10 @@ export function BuyersOrders() {
 *Route:* ${order.from_place} → ${order.to_place}
 *Status:* Submitted
 
-*Contact Admin for more details*
-
-*Transport Office Management System*`
+*Contact for more details:*
+*MAHALAXMI TRANSPORT*
+📞 8217563933
+📞 80736 27241`
   }
 
   // Handle send to suppliers

@@ -5,20 +5,24 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Package, MapPin, LogOut, Bell } from "lucide-react"
 import { TransportRequests } from "@/components/buyer/transport-requests"
+import { AcceptedRequests } from "@/components/buyer/accepted-requests"
 import { Logo } from "@/components/ui/logo"
 import { NotificationBar, useNotificationBar } from "@/components/admin/notification-bar"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface DashboardStats {
   activeRequests: number
   confirmedOrders: number
   completedOrders: number
+  acceptedRequests: number
 }
 
 export default function BuyerDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     activeRequests: 0,
     confirmedOrders: 0,
-    completedOrders: 0
+    completedOrders: 0,
+    acceptedRequests: 0
   })
   const [isLoadingStats, setIsLoadingStats] = useState(true)
   const [notifications, setNotifications] = useState(0)
@@ -114,10 +118,21 @@ export default function BuyerDashboard() {
           }
         }
 
+        // Fetch accepted requests count
+        const acceptedResponse = await fetch("/api/buyer/accepted-requests")
+        let acceptedRequests = 0
+        if (acceptedResponse.ok) {
+          const acceptedData = await acceptedResponse.json()
+          if (acceptedData.success) {
+            acceptedRequests = acceptedData.requests.length
+          }
+        }
+
         setStats({
           activeRequests,
           confirmedOrders,
-          completedOrders
+          completedOrders,
+          acceptedRequests
         })
       } catch (error) {
         console.error("Failed to fetch dashboard stats:", error)
@@ -212,7 +227,7 @@ export default function BuyerDashboard() {
       {/* Dashboard Content */}
       <div className="container mx-auto px-4 py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Active Requests</CardTitle>
@@ -249,76 +264,112 @@ export default function BuyerDashboard() {
               <p className="text-xs text-muted-foreground">This month</p>
             </CardContent>
           </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Accepted Requests</CardTitle>
+              <MapPin className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {isLoadingStats ? "..." : stats.acceptedRequests}
+              </div>
+              <p className="text-xs text-muted-foreground">By suppliers</p>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Main Dashboard Content */}
         <div className="w-full mt-6">
-          <TransportRequests onDataChange={() => {
-            // Refresh stats when transport requests change
-            const refreshStats = async () => {
-              try {
-                setIsLoadingStats(true)
-                
-                // Get current user session
-                const userResponse = await fetch("/api/auth/me", {
-                  credentials: 'include'
-                })
-                if (!userResponse.ok) {
-                  console.error("Failed to get current user")
-                  return
-                }
-                
-                const userData = await userResponse.json()
-                const buyerId = userData.user?.id
-                
-                if (!buyerId) {
-                  console.error("No buyer ID found in session")
-                  return
-                }
-                
-                // Fetch transport requests (active requests)
-                const requestsResponse = await fetch("/api/buyer-requests")
-                let activeRequests = 0
-                if (requestsResponse.ok) {
-                  const requestsData = await requestsResponse.json()
-                  if (requestsData.success) {
-                    activeRequests = requestsData.data.filter((req: any) => 
-                      req.status === "submitted" || req.status === "draft"
-                    ).length
-                  }
-                }
-
-                // Fetch orders for confirmed and completed counts
-                const ordersResponse = await fetch("/api/orders")
-                let confirmedOrders = 0
-                let completedOrders = 0
-                
-                if (ordersResponse.ok) {
-                  const ordersData = await ordersResponse.json()
-                  if (ordersData.orders) {
-                    confirmedOrders = ordersData.orders.filter((order: any) => 
-                      order.status === "confirmed" || order.status === "picked_up" || order.status === "in_transit"
-                    ).length
+          <Tabs defaultValue="requests" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="requests">Transport Requests</TabsTrigger>
+              <TabsTrigger value="accepted">Accepted Requests</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="requests" className="mt-6">
+              <TransportRequests onDataChange={() => {
+                // Refresh stats when transport requests change
+                const refreshStats = async () => {
+                  try {
+                    setIsLoadingStats(true)
                     
-                    completedOrders = ordersData.orders.filter((order: any) => 
-                      order.status === "delivered"
-                    ).length
+                    // Get current user session
+                    const userResponse = await fetch("/api/auth/me", {
+                      credentials: 'include'
+                    })
+                    if (!userResponse.ok) {
+                      console.error("Failed to get current user")
+                      return
+                    }
+                    
+                    const userData = await userResponse.json()
+                    const buyerId = userData.user?.id
+                    
+                    if (!buyerId) {
+                      console.error("No buyer ID found in session")
+                      return
+                    }
+                    
+                    // Fetch transport requests (active requests)
+                    const requestsResponse = await fetch("/api/buyer-requests")
+                    let activeRequests = 0
+                    if (requestsResponse.ok) {
+                      const requestsData = await requestsResponse.json()
+                      if (requestsData.success) {
+                        activeRequests = requestsData.data.filter((req: any) => 
+                          req.status === "submitted" || req.status === "draft"
+                        ).length
+                      }
+                    }
+
+                    // Fetch orders for confirmed and completed counts
+                    const ordersResponse = await fetch("/api/orders")
+                    let confirmedOrders = 0
+                    let completedOrders = 0
+                    
+                    if (ordersResponse.ok) {
+                      const ordersData = await ordersResponse.json()
+                      if (ordersData.orders) {
+                        confirmedOrders = ordersData.orders.filter((order: any) => 
+                          order.status === "confirmed" || order.status === "picked_up" || order.status === "in_transit"
+                        ).length
+                        
+                        completedOrders = ordersData.orders.filter((order: any) => 
+                          order.status === "delivered"
+                        ).length
+                      }
+                    }
+
+                    // Fetch accepted requests count
+                    const acceptedResponse = await fetch("/api/buyer/accepted-requests")
+                    let acceptedRequests = 0
+                    if (acceptedResponse.ok) {
+                      const acceptedData = await acceptedResponse.json()
+                      if (acceptedData.success) {
+                        acceptedRequests = acceptedData.requests.length
+                      }
+                    }
+
+                    setStats({
+                      activeRequests,
+                      confirmedOrders,
+                      completedOrders,
+                      acceptedRequests
+                    })
+                  } catch (error) {
+                    console.error("Failed to refresh dashboard stats:", error)
+                  } finally {
+                    setIsLoadingStats(false)
                   }
                 }
-
-                setStats({
-                  activeRequests,
-                  confirmedOrders,
-                  completedOrders
-                })
-              } catch (error) {
-                console.error("Failed to refresh dashboard stats:", error)
-              } finally {
-                setIsLoadingStats(false)
-              }
-            }
-            refreshStats()
-          }} />
+                refreshStats()
+              }} />
+            </TabsContent>
+            
+            <TabsContent value="accepted" className="mt-6">
+              <AcceptedRequests />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>

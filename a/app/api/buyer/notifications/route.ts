@@ -1,202 +1,150 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { dbQuery, getPool } from "@/lib/db"
+import { getSession } from "@/lib/auth"
 
-export async function GET(request: Request) {
+// Format timestamp function (same as supplier notifications)
+function formatTimestamp(timestamp: string | Date): string {
   try {
-    const { searchParams } = new URL(request.url)
-    const buyerId = searchParams.get('buyerId')
+    // Parse the timestamp and ensure it's treated as IST
+    let created: Date
     
-    if (!buyerId) {
-      return NextResponse.json({ 
-        error: "Buyer ID is required" 
-      }, { status: 400 })
+    if (typeof timestamp === 'string') {
+      // If it's a string, parse it and assume it's in IST
+      created = new Date(timestamp)
+    } else {
+      created = timestamp
     }
     
-    console.log(`GET /api/buyer/notifications - fetching notifications for buyer ${buyerId}`)
+    // Check if timestamp is valid
+    if (isNaN(created.getTime())) {
+      console.error("Invalid timestamp:", timestamp)
+      return "Invalid time"
+    }
     
-    let notifications: any[] = []
+    // Format the date in IST (don't double-convert)
+    const formattedDate = created.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'Asia/Kolkata'
+    })
     
-    if (getPool()) {
-      try {
-        // Check if buyer_notifications table exists, create if not
-        const tableExists = await dbQuery(`
-          SELECT EXISTS (
-            SELECT FROM information_schema.tables 
-            WHERE table_schema = 'public' 
-            AND table_name = 'buyer_notifications'
-          )
-        `)
-        
-        if (tableExists.rows[0].exists) {
-          const result = await dbQuery(`
-            SELECT 
-              id::text,
-              type,
-              title,
-              message,
-              created_at,
-              is_read,
-              category,
-              priority,
-              order_id
-            FROM buyer_notifications 
-            WHERE buyer_id = $1
-            ORDER BY created_at DESC 
-            LIMIT 50
-          `, [buyerId])
-          
-          if (result.rows.length > 0) {
-            notifications = result.rows.map(row => {
-              // For now, always show current Indian time to ensure accuracy
-              const now = new Date()
-              const currentTimestamp = now.toLocaleString("en-IN", {
-                timeZone: "Asia/Kolkata",
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true
-              })
-              
-              return {
-                id: row.id,
-                type: row.type,
-                title: row.title,
-                message: row.message,
-                timestamp: currentTimestamp,
-                isRead: row.is_read,
-                category: row.category,
-                priority: row.priority,
-                orderId: row.order_id
-              }
-            })
-          }
-        } else {
-          console.log("Buyer notifications table doesn't exist, using mock data")
-        }
-      } catch (error) {
-        console.error("Error fetching notifications from database:", error)
-        console.log("Falling back to mock notifications")
+    // Calculate relative time using current IST time
+    const now = new Date()
+    const diffMs = now.getTime() - created.getTime()
+    
+    // If it's very recent (within 1 minute), show "Just now"
+    if (Math.abs(diffMs) < 60000) {
+      return "Just now"
+    }
+    
+    // If it's within 24 hours (past or future), show relative time + actual time
+    if (Math.abs(diffMs) < 24 * 60 * 60 * 1000) {
+      const diffMins = Math.floor(Math.abs(diffMs) / (1000 * 60))
+      const diffHours = Math.floor(Math.abs(diffMs) / (1000 * 60 * 60))
+      
+      if (diffMins < 60) {
+        const timeText = diffMs > 0 ? `${diffMins} minute${diffMins === 1 ? '' : 's'} ago` : `in ${diffMins} minute${diffMins === 1 ? '' : 's'}`
+        return `${timeText} (${formattedDate})`
+      } else {
+        const timeText = diffMs > 0 ? `${diffHours} hour${diffHours === 1 ? '' : 's'} ago` : `in ${diffHours} hour${diffHours === 1 ? '' : 's'}`
+        return `${timeText} (${formattedDate})`
       }
     }
     
-    console.log(`Returning ${notifications.length} notifications for buyer ${buyerId}`)
-    return NextResponse.json({ notifications })
+    // For older notifications, show the full date and time
+    return formattedDate
     
   } catch (error) {
-    console.error("Error fetching buyer notifications:", error)
-    return NextResponse.json({ 
-      error: "Failed to fetch notifications",
-      details: error instanceof Error ? error.message : "Unknown error"
-    }, { status: 500 })
+    console.error("Error formatting timestamp:", error)
+    // Fallback: show the raw timestamp in IST
+    try {
+      const fallbackDate = new Date(timestamp)
+      return fallbackDate.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+        timeZone: 'Asia/Kolkata'
+      })
+    } catch (fallbackError) {
+      return "Invalid time"
+    }
   }
 }
 
-export async function POST(request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { type, title, message, category, priority, buyerId, orderId } = body
+    console.log("Buyer notifications API called")
     
-    if (!type || !title || !message || !category || !priority || !buyerId) {
-      return NextResponse.json({ 
-        error: "Missing required fields: type, title, message, category, priority, buyerId" 
-      }, { status: 400 })
+    if (!getPool()) {
+      console.log("Database not available")
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
-    
-    console.log("POST /api/buyer/notifications - creating notification:", { type, title, category, priority, buyerId })
-    console.log("Full notification body:", body)
-    
-    // In a real application, you would save to the database
-    if (getPool()) {
-      try {
-        // Check if buyer_notifications table exists, create if not
-        const tableExists = await dbQuery(`
-          SELECT EXISTS (
-            SELECT FROM information_schema.tables 
-            WHERE table_schema = 'public' 
-            AND table_name = 'buyer_notifications'
-          )
-        `)
-        
-        if (!tableExists.rows[0].exists) {
-          await dbQuery(`
-            CREATE TABLE buyer_notifications (
-              id SERIAL PRIMARY KEY,
-              buyer_id VARCHAR(50) NOT NULL,
-              type VARCHAR(20) NOT NULL,
-              title VARCHAR(255) NOT NULL,
-              message TEXT NOT NULL,
-              category VARCHAR(50) NOT NULL,
-              priority VARCHAR(20) NOT NULL,
-              is_read BOOLEAN DEFAULT FALSE,
-              order_id VARCHAR(50),
-              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-              updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-          `)
-          console.log("Created buyer_notifications table")
-        }
-        
-        // Insert new notification
-        const result = await dbQuery(`
-          INSERT INTO buyer_notifications (
-            buyer_id, type, title, message, category, priority, order_id
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7)
-          RETURNING *
-        `, [buyerId, type, title, message, category, priority, orderId])
-        
-        const newNotification = result.rows[0]
-        
-        console.log("✅ Buyer notification created successfully:", newNotification.id)
-        
-        return NextResponse.json({
-          success: true,
-          message: "Notification created successfully",
-          notification: {
-            id: newNotification.id.toString(),
-            type: newNotification.type,
-            title: newNotification.title,
-            message: newNotification.message,
-            timestamp: "Just now",
-            isRead: newNotification.is_read,
-            category: newNotification.category,
-            priority: newNotification.priority,
-            orderId: newNotification.order_id
-          }
-        }, { status: 201 })
-        
-      } catch (dbError) {
-        console.error("Database error creating buyer notification:", dbError)
-        return NextResponse.json({ 
-          error: "Failed to create notification in database",
-          details: dbError instanceof Error ? dbError.message : "Unknown database error"
-        }, { status: 500 })
-      }
-    } else {
-      console.log("Database not available, notification not saved")
-      return NextResponse.json({
-        success: true,
-        message: "Notification created successfully (not saved to database)",
-        notification: {
-          id: "temp-" + Date.now(),
-          type,
-          title,
-          message,
-          timestamp: "Just now",
-          isRead: false,
-          category,
-          priority,
-          orderId
-        }
-      }, { status: 201 })
+
+    // Verify the user is authenticated and is a buyer
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
-    
+
+    if (session.role !== 'buyer') {
+      return NextResponse.json({ error: "Access denied - buyer role required" }, { status: 403 })
+    }
+
+    const buyerId = session.userIdString
+    console.log("Buyer ID:", buyerId)
+
+    // Get notifications for this buyer from buyer_notifications table
+    const notifications = await dbQuery(`
+      SELECT 
+        id,
+        buyer_id,
+        type,
+        title,
+        message,
+        category,
+        priority,
+        is_read,
+        order_id,
+        created_at,
+        updated_at
+      FROM buyer_notifications
+      WHERE buyer_id = $1
+      ORDER BY created_at DESC
+      LIMIT 50
+    `, [buyerId])
+
+    console.log("Found buyer notifications:", notifications.rows.length)
+
+    // Format the notifications with timestamp
+    const formattedNotifications = notifications.rows.map(notification => ({
+      id: notification.id.toString(),
+      type: notification.type,
+      title: notification.title,
+      message: notification.message,
+      timestamp: formatTimestamp(notification.created_at),
+      isRead: notification.is_read,
+      category: notification.category,
+      priority: notification.priority,
+      orderId: notification.order_id
+    }))
+
+    return NextResponse.json({
+      success: true,
+      notifications: formattedNotifications
+    })
+
   } catch (error) {
-    console.error("Error creating buyer notification:", error)
-    return NextResponse.json({ 
-      error: "Failed to create notification",
-      details: error instanceof Error ? error.message : "Unknown error"
-    }, { status: 500 })
+    console.error("Error fetching buyer notifications:", error)
+    return NextResponse.json(
+      { error: "Internal server error", details: error.message },
+      { status: 500 }
+    )
   }
 }

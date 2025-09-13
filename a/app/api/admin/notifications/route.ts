@@ -1,7 +1,27 @@
 import { NextResponse } from "next/server"
 import { dbQuery, getPool } from "@/lib/db"
 
-// Mock notifications data (in a real app, this would come from a notifications table)
+// Format timestamp function (same as supplier notifications)
+function formatTimestamp(timestamp: string): string {
+  const now = new Date()
+  const notificationTime = new Date(timestamp)
+  const diffInSeconds = Math.floor((now.getTime() - notificationTime.getTime()) / 1000)
+  
+  if (diffInSeconds < 60) {
+    return `${diffInSeconds} seconds ago`
+  } else if (diffInSeconds < 3600) {
+    const minutes = Math.floor(diffInSeconds / 60)
+    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`
+  } else if (diffInSeconds < 86400) {
+    const hours = Math.floor(diffInSeconds / 3600)
+    return `${hours} hour${hours > 1 ? 's' : ''} ago`
+  } else {
+    const days = Math.floor(diffInSeconds / 86400)
+    return `${days} day${days > 1 ? 's' : ''} ago`
+  }
+}
+
+// Mock notifications data (fallback if database is empty)
 const mockNotifications = [
   {
     id: "1",
@@ -16,21 +36,21 @@ const mockNotifications = [
   {
     id: "2",
     type: "success",
-    title: "Order Confirmed",
-    message: "Transport order #123 has been successfully confirmed by supplier",
+    title: "Order Sent to Buyer",
+    message: "Order ORD-6 has been successfully sent to buyer. Driver: arunkkkk (8618699559), Vehicle: KA63k251. The buyer will receive a notification and can track the order in their dashboard.",
     timestamp: "2 minutes ago",
     isRead: false,
     category: "order",
-    priority: "high"
+    priority: "medium"
   },
   {
     id: "3",
-    type: "warning",
-    title: "Document Review Required",
-    message: "5 supplier documents are pending review and approval",
-    timestamp: "15 minutes ago",
+    type: "success",
+    title: "Order Sent to Buyer",
+    message: "Order ORD-10 has been successfully sent to buyer. Driver: arunkkkk (8618699559), Vehicle: KA63k251. The buyer will receive a notification and can track the order in their dashboard.",
+    timestamp: "5 minutes ago",
     isRead: false,
-    category: "document",
+    category: "order",
     priority: "medium"
   },
   {
