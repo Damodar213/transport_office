@@ -2,22 +2,78 @@ import { NextResponse } from "next/server"
 import { dbQuery, getPool } from "@/lib/db"
 
 // Format timestamp function (same as supplier notifications)
-function formatTimestamp(timestamp: string): string {
-  const now = new Date()
-  const notificationTime = new Date(timestamp)
-  const diffInSeconds = Math.floor((now.getTime() - notificationTime.getTime()) / 1000)
-  
-  if (diffInSeconds < 60) {
-    return `${diffInSeconds} seconds ago`
-  } else if (diffInSeconds < 3600) {
-    const minutes = Math.floor(diffInSeconds / 60)
-    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`
-  } else if (diffInSeconds < 86400) {
-    const hours = Math.floor(diffInSeconds / 3600)
-    return `${hours} hour${hours > 1 ? 's' : ''} ago`
-  } else {
-    const days = Math.floor(diffInSeconds / 86400)
-    return `${days} day${days > 1 ? 's' : ''} ago`
+function formatTimestamp(timestamp: string | Date): string {
+  try {
+    // Parse the timestamp and ensure it's treated as IST
+    let created: Date
+    
+    if (typeof timestamp === 'string') {
+      // If it's a string, parse it and assume it's in IST
+      created = new Date(timestamp)
+    } else {
+      created = timestamp
+    }
+    
+    // Check if timestamp is valid
+    if (isNaN(created.getTime())) {
+      console.error("Invalid timestamp:", timestamp)
+      return "Invalid time"
+    }
+    
+    // Format the date in IST (don't double-convert)
+    const formattedDate = created.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'Asia/Kolkata'
+    })
+    
+    // Calculate relative time using current IST time
+    const now = new Date()
+    const diffMs = now.getTime() - created.getTime()
+    
+    // If it's very recent (within 1 minute), show "Just now"
+    if (Math.abs(diffMs) < 60000) {
+      return "Just now"
+    }
+    
+    // If it's within 24 hours (past or future), show relative time + actual time
+    if (Math.abs(diffMs) < 24 * 60 * 60 * 1000) {
+      const diffMins = Math.floor(Math.abs(diffMs) / (1000 * 60))
+      const diffHours = Math.floor(Math.abs(diffMs) / (1000 * 60 * 60))
+      
+      if (diffMins < 60) {
+        const timeText = diffMs > 0 ? `${diffMins} minute${diffMins === 1 ? '' : 's'} ago` : `in ${diffMins} minute${diffMins === 1 ? '' : 's'}`
+        return `${timeText} (${formattedDate})`
+      } else {
+        const timeText = diffMs > 0 ? `${diffHours} hour${diffHours === 1 ? '' : 's'} ago` : `in ${diffHours} hour${diffHours === 1 ? '' : 's'}`
+        return `${timeText} (${formattedDate})`
+      }
+    }
+    
+    // For older notifications, show the full date and time
+    return formattedDate
+    
+  } catch (error) {
+    console.error("Error formatting timestamp:", error)
+    // Fallback: show the raw timestamp in IST
+    try {
+      const fallbackDate = new Date(timestamp)
+      return fallbackDate.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+        timeZone: 'Asia/Kolkata'
+      })
+    } catch {
+      return "Time unavailable"
+    }
   }
 }
 
@@ -243,80 +299,6 @@ export async function POST(request: Request) {
   }
 }
 
-function formatTimestamp(timestamp: string | Date): string {
-  try {
-    // Parse the timestamp and ensure it's treated as IST
-    let created: Date
-    
-    if (typeof timestamp === 'string') {
-      // If it's a string, parse it and assume it's in IST
-      created = new Date(timestamp)
-    } else {
-      created = timestamp
-    }
-    
-    // Check if timestamp is valid
-    if (isNaN(created.getTime())) {
-      console.error("Invalid timestamp:", timestamp)
-      return "Invalid time"
-    }
-    
-    // Format the date in IST (don't double-convert)
-    const formattedDate = created.toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-      timeZone: 'Asia/Kolkata'
-    })
-    
-    // Calculate relative time using current IST time
-    const now = new Date()
-    const diffMs = now.getTime() - created.getTime()
-    
-    // If it's very recent (within 1 minute), show "Just now"
-    if (Math.abs(diffMs) < 60000) {
-      return "Just now"
-    }
-    
-    // If it's within 24 hours (past or future), show relative time + actual time
-    if (Math.abs(diffMs) < 24 * 60 * 60 * 1000) {
-      const diffMins = Math.floor(Math.abs(diffMs) / (1000 * 60))
-      const diffHours = Math.floor(Math.abs(diffMs) / (1000 * 60 * 60))
-      
-      if (diffMins < 60) {
-        const timeText = diffMs > 0 ? `${diffMins} minute${diffMins === 1 ? '' : 's'} ago` : `in ${diffMins} minute${diffMins === 1 ? '' : 's'}`
-        return `${timeText} (${formattedDate})`
-      } else {
-        const timeText = diffMs > 0 ? `${diffHours} hour${diffHours === 1 ? '' : 's'} ago` : `in ${diffHours} hour${diffHours === 1 ? '' : 's'}`
-        return `${timeText} (${formattedDate})`
-      }
-    }
-    
-    // For older notifications, show the full date and time
-    return formattedDate
-    
-  } catch (error) {
-    console.error("Error formatting timestamp:", error)
-    // Fallback: show the raw timestamp in IST
-    try {
-      const fallbackDate = new Date(timestamp)
-      return fallbackDate.toLocaleString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-        timeZone: 'Asia/Kolkata'
-      })
-    } catch {
-      return "Time unavailable"
-    }
-  }
-}
 
 
 
