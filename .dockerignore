@@ -11,3 +11,6 @@ README.md
 .vercel
 .DS_Store
 *.log
+a/node_modules
+a/.next
+a/.env.local

@@ -4,17 +4,14 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package files first (from root)
-COPY package.json package-lock.json* ./
+# Copy everything first
+COPY . .
 
 # Remove any pnpm files if they exist
 RUN rm -f pnpm-lock.yaml .pnpmfile.cjs
 
 # Install dependencies using npm only
 RUN npm install --production=false
-
-# Copy the 'a' directory (where the Next.js app is located)
-COPY a/ ./a/
 
 # Remove any remaining pnpm files
 RUN rm -f pnpm-lock.yaml .pnpmfile.cjs
