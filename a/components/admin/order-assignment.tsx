@@ -246,32 +246,40 @@ export function OrderAssignment() {
     setIsProcessing(true)
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const response = await fetch('/api/admin/manual-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          loadType: manualOrder.loadType,
+          estimatedTons: manualOrder.estimatedTons,
+          deliveryPlace: manualOrder.deliveryPlace,
+          supplierId: manualOrder.supplierId
+        })
+      })
 
-      const supplier = suppliers.find((s) => s.id === manualOrder.supplierId)
-
-      const newRequest: TransportRequest = {
-        id: Date.now(),
-        buyerId: "ADMIN",
-        buyerName: "Admin",
-        buyerCompany: "Manual Entry",
-        loadType: manualOrder.loadType,
-        fromLocation: "Admin Specified",
-        toLocation: manualOrder.deliveryPlace,
-        estimatedTons: Number.parseFloat(manualOrder.estimatedTons),
-        requiredDate: new Date().toISOString().split("T")[0],
-        status: "assigned",
-        submittedAt: new Date().toISOString().replace("T", " ").substring(0, 16),
-        assignedSupplierId: manualOrder.supplierId,
-        assignedSupplierName: supplier?.companyName,
-        adminNotes: "Manual order entry by admin",
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create manual order')
       }
 
-      setRequests((prev) => [...prev, newRequest])
+      const result = await response.json()
+      console.log('Manual order created:', result)
+
+      // Show success message with WhatsApp info
+      alert(`Manual order created successfully!\n\nOrder Number: ${result.order.orderNumber}\nSupplier: ${result.order.supplierName}\n\nWhatsApp Message:\n${result.whatsapp.message}`)
+
+      // Refresh the requests list
+      await fetchTransportRequests()
+
+      // Close the modal and reset form
       setShowManualEntry(false)
       setManualOrder({ loadType: "", estimatedTons: "", deliveryPlace: "", supplierId: "" })
+
     } catch (error) {
       console.error("Manual order error:", error)
+      alert(`Error creating manual order: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setIsProcessing(false)
     }
