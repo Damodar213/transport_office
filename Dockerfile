@@ -7,14 +7,16 @@ WORKDIR /app
 # Copy everything first
 COPY . .
 
-# Remove any pnpm files if they exist
-RUN rm -f pnpm-lock.yaml .pnpmfile.cjs
+# Explicitly remove any pnpm files and force npm usage
+RUN rm -f pnpm-lock.yaml .pnpmfile.cjs .pnpm-store
+RUN rm -rf node_modules/.pnpm
 
 # Install dependencies using npm only
 RUN npm install --production=false
 
 # Remove any remaining pnpm files
-RUN rm -f pnpm-lock.yaml .pnpmfile.cjs
+RUN rm -f pnpm-lock.yaml .pnpmfile.cjs .pnpm-store
+RUN rm -rf node_modules/.pnpm
 
 # Change to the 'a' directory for build and start
 WORKDIR /app/a
