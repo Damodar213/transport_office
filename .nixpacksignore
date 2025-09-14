@@ -1,8 +1,0 @@
-# Ignore pnpm files to force Dockerfile usage
-pnpm-lock.yaml
-.pnpmfile.cjs
-.pnpm-store
-node_modules/.pnpm
-
-# Force Railway to use Dockerfile instead of Nixpacks
-# This file tells Railway to ignore Nixpacks and use our Dockerfile
