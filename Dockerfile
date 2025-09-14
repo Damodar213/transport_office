@@ -10,6 +10,9 @@ WORKDIR /app
 # Copy everything first
 COPY . .
 
+# Restore pnpm lockfile if it exists
+RUN if [ -f pnpm-lock.yaml.backup ]; then mv pnpm-lock.yaml.backup pnpm-lock.yaml; fi
+
 # Install dependencies using pnpm
 RUN pnpm install --no-frozen-lockfile
 
