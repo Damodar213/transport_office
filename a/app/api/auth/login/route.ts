@@ -1,9 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import { findUserByCredentials, findUserByCredentialsAsync } from "@/lib/user-storage"
+import { logResourceUsage } from "@/lib/resource-monitor"
 
 export async function POST(request: NextRequest) {
   try {
+    logResourceUsage("Login request start")
+    
     const { userId, password, role } = await request.json()
 
     const normalizedUserId = String(userId || "").trim()
@@ -18,13 +21,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Use async version that can query database if available
+    console.log(`[AUTH] Calling findUserByCredentialsAsync for: ${normalizedUserId}, ${normalizedRole}`)
     const user = await findUserByCredentialsAsync(normalizedUserId, normalizedRole)
 
     if (!user) {
-      console.log(`[AUTH] User not found: ${normalizedUserId}`)
+      console.log(`[AUTH] User not found: ${normalizedUserId} with role: ${normalizedRole}`)
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
     }
 
+    console.log(`[AUTH] User found, verifying password for: ${user.userId}`)
+    
     // Verify password
     const isValidPassword = await bcrypt.compare(password, user.passwordHash)
 
@@ -34,6 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`[AUTH] Successful login for user: ${normalizedUserId}`)
+    logResourceUsage("Login successful")
 
     // Create session (simplified - use proper JWT or session management in production)
     const sessionData = {

@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Truck, User, Building, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 import { Logo } from "@/components/ui/logo"
+import { getApiEndpoint } from "@/lib/api-config"
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -27,19 +28,38 @@ export default function LoginPage() {
 
     try {
       // Use different endpoints for admin vs regular users
-      const endpoint = role === "admin" ? "/api/auth/admin-login" : "/api/auth/login"
+      const endpoint = role === "admin" ? getApiEndpoint('adminLogin') : getApiEndpoint('login')
+      
+      const requestData = {
+        userId: formData.get("userId"),
+        password: formData.get("password"),
+        ...(role !== "admin" && { role }), // Only include role for non-admin logins
+      }
+      
+      console.log("Login request:", { endpoint, requestData, role })
+      console.log("Request body:", JSON.stringify(requestData, null, 2))
       
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: formData.get("userId"),
-          password: formData.get("password"),
-          ...(role !== "admin" && { role }), // Only include role for non-admin logins
-        }),
+        body: JSON.stringify(requestData),
       })
 
-      const data = await response.json()
+      console.log("Login response status:", response.status)
+      console.log("Login response headers:", Object.fromEntries(response.headers.entries()))
+      
+      const responseText = await response.text()
+      console.log("Login response raw text:", responseText)
+      
+      let data
+      try {
+        data = JSON.parse(responseText)
+        console.log("Login response parsed data:", data)
+      } catch (e) {
+        console.error("Failed to parse response JSON:", e)
+        setError("Invalid response from server")
+        return
+      }
 
       if (response.ok) {
         // Clear any cached data and force a fresh page load
@@ -52,6 +72,7 @@ export default function LoginPage() {
         setError(data.error || "Login failed")
       }
     } catch (err) {
+      console.error("Login error:", err)
       setError("Network error. Please try again.")
     } finally {
       setIsLoading(false)

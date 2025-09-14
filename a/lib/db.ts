@@ -17,14 +17,14 @@ export function getPool(): Pool | null {
     pool = new Pool({ 
       connectionString: url, 
       ssl: getSslOption(url),
-      max: 5, // Reduced pool size for Railway free tier (max 20 connections total)
+      max: 3, // Reduced for free tier resource limits
       min: 1, // Minimum connections to maintain
-      idleTimeoutMillis: 10000, // Reduced idle timeout to free connections faster
-      connectionTimeoutMillis: 10000, // Reduced connection timeout
-      maxUses: 1000, // Reduced max uses per connection
+      idleTimeoutMillis: 10000, // Reduced for faster cleanup
+      connectionTimeoutMillis: 10000, // Reduced timeout
+      maxUses: 100, // Reduced to free connections faster
       statement_timeout: 10000, // Reduced statement timeout
       query_timeout: 10000, // Reduced query timeout
-      allowExitOnIdle: true, // Allow pool to close when idle
+      allowExitOnIdle: true, // Allow connections to close when idle
     })
     
     // Handle pool errors with better error handling
@@ -55,7 +55,7 @@ export function getPool(): Pool | null {
 
 export async function dbQuery<T = any>(sql: string, params: any[] = []): Promise<{ rows: T[] }> {
   let retryCount = 0
-  const maxRetries = 3
+  const maxRetries = 5 // Increased retries
   
   while (retryCount <= maxRetries) {
     const p = getPool()
@@ -75,12 +75,18 @@ export async function dbQuery<T = any>(sql: string, params: any[] = []): Promise
         error.message.includes('connection') || 
         error.message.includes('timeout') ||
         error.message.includes('ECONNRESET') ||
-        error.message.includes('server closed')
+        error.message.includes('server closed') ||
+        error.message.includes('connection terminated') ||
+        error.message.includes('too many connections')
       )) {
         if (retryCount < maxRetries) {
           retryCount++
-          console.log(`Retrying database query in ${retryCount * 1000}ms...`)
-          await new Promise(resolve => setTimeout(resolve, retryCount * 1000))
+          console.log(`Retrying database query in ${retryCount * 500}ms...`)
+          await new Promise(resolve => setTimeout(resolve, retryCount * 500))
+          // Reset pool on connection errors
+          if (retryCount > 2) {
+            pool = null
+          }
           continue
         } else {
           console.error("Max retries reached, resetting pool")

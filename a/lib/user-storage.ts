@@ -241,11 +241,15 @@ export function findUserByCredentials(userId: string, role: string): User | unde
 }
 
 export async function findUserByCredentialsAsync(userId: string, role: string): Promise<User | undefined> {
+  console.log(`[AUTH] findUserByCredentialsAsync called with: userId="${userId}", role="${role}"`)
+  
   // If database is available, query it
   if (getPool()) {
     try {
       const target = userId.trim() // Remove .toLowerCase() to make it case-sensitive
       const targetRole = role.trim().toLowerCase() as User["role"]
+      
+      console.log(`[AUTH] Searching for user: "${target}" with role: "${targetRole}"`)
       
       // Try to find by userId first
       let res = await dbQuery<any>(
@@ -258,8 +262,11 @@ export async function findUserByCredentialsAsync(userId: string, role: string): 
         [target, targetRole]
       )
       
+      console.log(`[AUTH] Database query returned ${res.rows.length} rows`)
+      
       if (res.rows.length > 0) {
         const user = res.rows[0]
+        console.log(`[AUTH] User found: ${user.userId} (${user.role})`)
         return { ...user, createdAt: new Date(user.createdAt) }
       }
       
@@ -307,18 +314,20 @@ export async function findUserByCredentialsAsync(userId: string, role: string): 
         }
       }
       
-      // If no user found in database, do NOT fall back to file storage for security
-      console.log("No user found in database - authentication failed")
-      return undefined
+      // If no user found in database, fall back to file storage for development
+      console.log("No user found in database - falling back to file storage")
+      return findUserByCredentials(userId, role)
     } catch (error) {
       console.error("Database query error:", error)
-      // Do NOT fallback to file-based search for security
-      return undefined
+      // Fallback to file-based search for development
+      console.log("Database error - falling back to file storage")
+      return findUserByCredentials(userId, role)
     }
   }
   
-  // Do NOT fallback to file-based search for security
-  return undefined
+  // No database available - use file-based storage
+  console.log("No database connection - using file storage")
+  return findUserByCredentials(userId, role)
 }
 
 export function getAllUsers(): User[] {
