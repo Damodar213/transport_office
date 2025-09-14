@@ -30,7 +30,7 @@ CLOUDFLARE_ACCESS_KEY_ID=c987b2796246f9103693cdf7a023b9a1
 CLOUDFLARE_SECRET_ACCESS_KEY=9e3b690a45343225f3211111fd381329a05c8797a63f21b528663c0e6270c7f3
 CLOUDFLARE_R2_BUCKET_NAME=transport-office
 CLOUDFLARE_R2_PUBLIC_URL=https://pub-d6f2388c5c814d8eb8321b27558ed5e3.r2.dev
-NEXT_PUBLIC_API_URL=https://your-railway-app-url.railway.app
+cNEXT_PUBLIC_API_URL=https://your-railway-app-url.railway.app
 NEXT_PUBLIC_WEBSITE_URL=https://your-vercel-app-url.vercel.app
 NODE_ENV=production
 ```
