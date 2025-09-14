@@ -7,11 +7,6 @@ WORKDIR /app
 # Copy everything first
 COPY . .
 
-# Restore the package.json and package-lock.json from backup
-RUN mv package.json.backup package.json
-RUN mv package-lock.json.backup package-lock.json
-RUN mv next.config.mjs.backup next.config.mjs
-
 # Explicitly remove any pnpm files and force npm usage
 RUN rm -f pnpm-lock.yaml .pnpmfile.cjs .pnpm-store
 RUN rm -rf node_modules/.pnpm
