@@ -81,7 +81,9 @@ export default function SupplierDashboard() {
       })
       const newOrdersData = newOrdersResponse.ok ? await newOrdersResponse.json() : { orders: [] }
       // Only count orders that are still pending (not confirmed yet)
-      const newOrders = newOrdersData.orders?.filter((order: any) => order.status === "submitted" || order.status === "pending").length || 0
+      const newOrders = newOrdersData.orders?.filter((order: any) => 
+        order.status === "submitted" || order.status === "pending" || order.status === "assigned"
+      ).length || 0
 
       setStats({
         totalDrivers,

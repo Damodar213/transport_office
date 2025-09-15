@@ -37,10 +37,9 @@ export async function PUT(request: Request) {
       UPDATE supplier_notifications 
       SET is_read = TRUE, updated_at = CURRENT_TIMESTAMP
       WHERE supplier_id = $1 AND is_read = FALSE
-      RETURNING COUNT(*) as updated_count
     `, [supplierId])
     
-    const updatedCount = result.rows[0].updated_count
+    const updatedCount = result.rowCount || 0
     
     console.log(`${updatedCount} supplier notifications marked as read successfully`)
     return NextResponse.json({ 

@@ -19,6 +19,7 @@ export interface SupplierVehicleLocation {
   submitted_at: string
   admin_notes?: string
   admin_action_date?: string
+  recommended_location?: string
 }
 
 // GET - Fetch supplier transport orders with filtering
@@ -50,7 +51,8 @@ export async function GET(request: NextRequest) {
           t.created_at,
           t.submitted_at,
           t.admin_notes,
-          t.admin_action_date
+          t.admin_action_date,
+          t.recommended_location
         FROM suppliers_vehicle_location t
         LEFT JOIN drivers d ON t.driver_id = d.id
         WHERE t.supplier_id = $1
@@ -75,7 +77,8 @@ export async function GET(request: NextRequest) {
           t.created_at,
           t.submitted_at,
           t.admin_notes,
-          t.admin_action_date
+          t.admin_action_date,
+          t.recommended_location
         FROM suppliers_vehicle_location t
         LEFT JOIN drivers d ON t.driver_id = d.id
         ORDER BY t.created_at DESC
@@ -165,8 +168,8 @@ export async function POST(request: NextRequest) {
     const sql = `
       INSERT INTO suppliers_vehicle_location (
         supplier_id, state, district, place, taluk, 
-        vehicle_number, body_type, driver_id, driver_name, status, created_at, submitted_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        vehicle_number, body_type, driver_id, driver_name, status, created_at, submitted_at, recommended_location
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
       RETURNING *
     `
 
@@ -182,7 +185,8 @@ export async function POST(request: NextRequest) {
       driverName,
       "pending",
       new Date().toISOString(),
-      new Date().toISOString()
+      new Date().toISOString(),
+      body.recommendedLocation || null
     ]
 
     const result = await dbQuery(sql, params)
@@ -221,7 +225,8 @@ export async function POST(request: NextRequest) {
           vehicle_number: body.vehicleNumber,
           body_type: body.bodyType,
           driver_name: driverName,
-          status: "pending"
+          status: "pending",
+          recommended_location: body.recommendedLocation || null
         })
       })
 

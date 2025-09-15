@@ -37,6 +37,7 @@ interface SupplierVehicleLocation {
   submitted_at: string
   admin_notes?: string
   admin_action_date?: string
+  recommended_location?: string
 }
 
 interface Driver {
@@ -144,6 +145,7 @@ export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) 
         vehicleNumber: formData.get("vehicleNumber") as string,
         bodyType: formData.get("bodyType") as string,
         driverId: formData.get("driverId") ? parseInt(formData.get("driverId") as string) : undefined,
+        recommendedLocation: formData.get("recommendedLocation") as string,
       }
 
       const response = await fetch("/api/supplier-orders", {
@@ -347,6 +349,20 @@ export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) 
                 </p>
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="recommendedLocation">Recommended Location (Optional)</Label>
+                <Input
+                  id="recommendedLocation"
+                  name="recommendedLocation"
+                  type="text"
+                  defaultValue={editingOrder?.recommended_location || ""}
+                  placeholder="Enter recommended location details or leave empty"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Specify any recommended location details or special notes for this vehicle location
+                </p>
+              </div>
+
               {error && (
                 <Alert variant="destructive">
                   <AlertDescription>{error}</AlertDescription>
@@ -397,6 +413,11 @@ export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) 
                         {order.place}, {order.district}
                       </div>
                       <div className="text-sm text-muted-foreground">{order.state}</div>
+                      {order.recommended_location && (
+                        <div className="text-xs text-blue-600 mt-1">
+                          <strong>Recommended:</strong> {order.recommended_location}
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell className="font-medium">{order.vehicle_number}</TableCell>
                     <TableCell>{order.body_type}</TableCell>

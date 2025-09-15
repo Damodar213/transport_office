@@ -111,24 +111,12 @@ export async function GET(request: Request) {
           
           if (result.rows.length > 0) {
             notifications = result.rows.map(row => {
-              // For now, always show current Indian time to ensure accuracy
-              const now = new Date()
-              const currentTimestamp = now.toLocaleString("en-IN", {
-                timeZone: "Asia/Kolkata",
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true
-              })
-              
               return {
                 id: row.id,
                 type: row.type,
                 title: row.title,
                 message: row.message,
-                timestamp: currentTimestamp,
+                timestamp: formatTimestamp(row.created_at),
                 isRead: row.is_read,
                 category: row.category,
                 priority: row.priority,

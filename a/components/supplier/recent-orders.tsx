@@ -110,7 +110,8 @@ export function RecentOrders() {
       if (result.success) {
         // Get only orders that are not yet confirmed (still pending)
         const pendingOrders = result.orders.filter((order: RecentOrder) => 
-          order.status === "submitted" || order.status === "viewed" || order.status === "responded"
+          order.status === "submitted" || order.status === "viewed" || order.status === "responded" || 
+          order.status === "assigned" || order.status === "pending"
         )
         // Get only the 5 most recent pending orders
         const recentOrders = pendingOrders.slice(0, 5)

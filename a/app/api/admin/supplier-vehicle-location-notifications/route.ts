@@ -118,7 +118,8 @@ export async function GET() {
         status,
         is_read,
         created_at,
-        updated_at
+        updated_at,
+        recommended_location
       FROM supplier_vehicle_location_notifications
       ORDER BY created_at DESC
     `)
@@ -144,7 +145,8 @@ export async function GET() {
           vehicleNumber: row.vehicle_number,
           bodyType: row.body_type,
           driverName: row.driver_name,
-          status: row.status
+          status: row.status,
+          recommendedLocation: row.recommended_location
         }
       } catch (mapError) {
         console.error("Error mapping notification row:", mapError, row)
@@ -184,7 +186,8 @@ export async function POST(request: Request) {
       vehicle_number,
       body_type,
       driver_name,
-      status = 'pending'
+      status = 'pending',
+      recommended_location = null
     } = body
 
     // Validate required fields
@@ -210,12 +213,12 @@ export async function POST(request: Request) {
     const result = await dbQuery(`
       INSERT INTO supplier_vehicle_location_notifications (
         vehicle_location_id, supplier_id, supplier_name, supplier_company, state, district, place, taluk,
-        vehicle_number, body_type, driver_name, status, is_read, created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW() AT TIME ZONE 'Asia/Kolkata', NOW() AT TIME ZONE 'Asia/Kolkata')
+        vehicle_number, body_type, driver_name, status, is_read, created_at, updated_at, recommended_location
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW() AT TIME ZONE 'Asia/Kolkata', NOW() AT TIME ZONE 'Asia/Kolkata', $14)
       RETURNING id, created_at
     `, [
       vehicle_location_id, supplier_id, supplier_name, supplier_company, state, district, place, taluk,
-      vehicle_number, body_type, driver_name, status, false  // is_read = false (unread)
+      vehicle_number, body_type, driver_name, status, false, recommended_location  // is_read = false (unread)
     ])
 
     const newNotification = {

@@ -33,16 +33,15 @@ interface SupplierOrder {
   submitted_at: string
   admin_notes?: string
   admin_action_date?: string
+  recommended_location?: string
 }
 
 export function SupplierOrderManagement() {
   const [orders, setOrders] = useState<SupplierOrder[]>([])
-  const [confirmedOrders, setConfirmedOrders] = useState<any[]>([])
   const [selectedOrder, setSelectedOrder] = useState<SupplierOrder | null>(null)
   const [adminNotes, setAdminNotes] = useState("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [isFetching, setIsFetching] = useState(true)
-  const [isFetchingConfirmed, setIsFetchingConfirmed] = useState(true)
   const [error, setError] = useState("")
   const [filters, setFilters] = useState({
     status: "all",
@@ -77,34 +76,9 @@ export function SupplierOrderManagement() {
     }
   }
 
-  // Fetch confirmed orders from API
-  const fetchConfirmedOrders = async () => {
-    try {
-      setIsFetchingConfirmed(true)
-      console.log("Fetching confirmed orders from /api/admin/confirmed-orders")
-      const response = await fetch("/api/admin/confirmed-orders")
-      console.log("Confirmed orders response status:", response.status)
-      
-      if (response.ok) {
-        const data = await response.json()
-        console.log("Confirmed orders data received:", data)
-        setConfirmedOrders(data.confirmedOrders)
-      } else {
-        const errorData = await response.json()
-        console.error("Failed to fetch confirmed orders:", errorData)
-        setError("Failed to fetch confirmed orders")
-      }
-    } catch (err) {
-      console.error("Error fetching confirmed orders:", err)
-      setError("Failed to fetch confirmed orders")
-    } finally {
-      setIsFetchingConfirmed(false)
-    }
-  }
 
   useEffect(() => {
     fetchOrders()
-    fetchConfirmedOrders()
   }, [])
 
   const handleConfirm = async (orderId: number, notes: string) => {
@@ -139,8 +113,6 @@ export function SupplierOrderManagement() {
           ),
         )
 
-        // Refresh confirmed orders to show the newly confirmed order
-        await fetchConfirmedOrders()
 
         setSelectedOrder(null)
         setAdminNotes("")
@@ -187,8 +159,6 @@ export function SupplierOrderManagement() {
           ),
         )
 
-        // Refresh confirmed orders in case this affects any confirmed orders
-        await fetchConfirmedOrders()
 
         setSelectedOrder(null)
         setAdminNotes("")
@@ -252,11 +222,10 @@ export function SupplierOrderManagement() {
       </div>
 
       {/* Loading States */}
-      {(isFetching || isFetchingConfirmed) && (
+      {isFetching && (
         <Alert className="mb-6">
           <AlertDescription>
-            {isFetching ? "Loading supplier orders..." : ""}
-            {isFetchingConfirmed ? "Loading confirmed orders..." : ""}
+            Loading supplier orders...
           </AlertDescription>
         </Alert>
       )}
@@ -468,6 +437,11 @@ export function SupplierOrderManagement() {
                                 <div>
                                   <strong>Submitted:</strong> {order.submitted_at}
                                 </div>
+                                {order.recommended_location && (
+                                  <div>
+                                    <strong>Recommended Location:</strong> {order.recommended_location}
+                                  </div>
+                                )}
                                 {order.admin_action_date && (
                                   <div>
                                     <strong>Admin Action:</strong> {order.admin_action_date}
@@ -534,60 +508,6 @@ export function SupplierOrderManagement() {
         </CardContent>
       </Card>
 
-      {/* Confirmed Orders Section */}
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>Confirmed Orders</CardTitle>
-          <CardDescription>Orders that have been confirmed and are ready for execution</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isFetchingConfirmed ? (
-            <div className="text-center py-8 text-muted-foreground">
-              Loading confirmed orders...
-            </div>
-          ) : confirmedOrders.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No confirmed orders found.
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Order ID</TableHead>
-                  <TableHead>Transport Order ID</TableHead>
-                  <TableHead>Supplier ID</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Notes</TableHead>
-                  <TableHead>Created At</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {confirmedOrders.map((order) => (
-                  <TableRow key={order.id}>
-                    <TableCell className="font-medium">{order.id}</TableCell>
-                    <TableCell>{order.transport_order_id}</TableCell>
-                    <TableCell>{order.supplier_id}</TableCell>
-                    <TableCell>
-                      <Badge className="bg-green-100 text-green-800">
-                        {order.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{order.notes || "No notes"}</TableCell>
-                    <TableCell>{new Date(order.created_at).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <Button variant="outline" size="sm">
-                        <Eye className="h-4 w-4 mr-2" />
-                        View Details
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
     </div>
   )
 }

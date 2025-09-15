@@ -16,110 +16,144 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     console.log("Request body:", body)
     
-    const { loadType, estimatedTons, deliveryPlace, supplierId } = body
-    console.log("Manual order data:", { loadType, estimatedTons, deliveryPlace, supplierId })
+    const { 
+      loadType, 
+      estimatedTons, 
+      numberOfGoods,
+      deliveryPlace,
+      fromState,
+      fromDistrict,
+      fromPlace,
+      fromTaluk,
+      toState,
+      toDistrict,
+      toPlace,
+      toTaluk,
+      requiredDate,
+      specialInstructions
+    } = body
+    
+    console.log("Manual order data:", { 
+      loadType, 
+      estimatedTons, 
+      numberOfGoods,
+      deliveryPlace,
+      fromState,
+      fromDistrict,
+      fromPlace,
+      fromTaluk,
+      toState,
+      toDistrict,
+      toPlace,
+      toTaluk,
+      requiredDate,
+      specialInstructions
+    })
 
-    if (!loadType || !estimatedTons || !deliveryPlace || !supplierId) {
+
+    if (!loadType || (!estimatedTons && !numberOfGoods) || !deliveryPlace) {
       console.log("Missing required fields")
       return NextResponse.json(
-        { error: "Missing required fields: loadType, estimatedTons, deliveryPlace, supplierId" },
+        { error: "Missing required fields: loadType, (estimatedTons or numberOfGoods), deliveryPlace" },
         { status: 400 }
       )
     }
 
-    // Verify supplier exists
-    console.log("Checking supplier:", supplierId)
-    const supplierResult = await dbQuery(
-      "SELECT user_id, company_name, gst_number, number_of_vehicles FROM suppliers WHERE user_id = $1",
-      [supplierId]
-    )
-    console.log("Supplier query result:", supplierResult.rows.length, "rows")
+    // Create a general manual order without specific supplier assignment
+    console.log("Creating manual order without supplier assignment")
 
-    if (supplierResult.rows.length === 0) {
-      console.log("Supplier not found:", supplierId)
-      return NextResponse.json({ error: "Supplier not found" }, { status: 404 })
-    }
-
-    const supplier = supplierResult.rows[0]
-    console.log("Found supplier:", supplier)
-
-    // Generate unique order number
-    console.log("Generating order number...")
+    // Generate unique order number for manual orders
+    console.log("Generating manual order number...")
     const orderNumberResult = await dbQuery(`
-      SELECT COALESCE(MAX(CAST(SUBSTRING(order_number FROM 5) AS INTEGER)), 0) + 1 as next_number
-      FROM buyer_requests
-      WHERE order_number ~ '^ORD-[0-9]+$'
+      SELECT COALESCE(MAX(CAST(SUBSTRING(order_number FROM 4) AS INTEGER)), 0) + 1 as next_number
+      FROM manual_orders
+      WHERE order_number ~ '^MO-[0-9]+$'
     `)
-    console.log("Order number query result:", orderNumberResult.rows[0])
+    console.log("Manual order number query result:", orderNumberResult.rows[0])
     
     const nextNumber = orderNumberResult.rows[0].next_number
-    const orderNumber = `ORD-${nextNumber}`
-    console.log("Generated order number:", orderNumber)
+    const orderNumber = `MO-${nextNumber}`
+    console.log("Generated manual order number:", orderNumber)
 
-    // Create manual order in buyer_requests table
-    console.log("Creating manual order in buyer_requests table...")
+    // Create manual order in manual_orders table
+    console.log("Creating manual order in manual_orders table...")
     const orderResult = await dbQuery(`
-      INSERT INTO buyer_requests (
-        buyer_id, order_number, load_type, from_state, from_district, from_place, from_taluk,
-        to_state, to_district, to_place, to_taluk, estimated_tons, number_of_goods,
-        delivery_place, required_date, special_instructions, status
+      INSERT INTO manual_orders (
+        order_number, load_type, estimated_tons, number_of_goods, delivery_place, 
+        from_location, from_state, from_district, from_place, from_taluk,
+        to_state, to_district, to_place, to_taluk,
+        status, created_by, special_instructions, required_date
       ) VALUES (
-        'ADMIN', $1, $2, 'Admin State', 'Admin District', 'Admin Place', 'Admin Taluk',
-        'Delivery State', 'Delivery District', $3, 'Delivery Taluk', $4, 1,
-        $3, NOW() + INTERVAL '1 day', 'Manual order created by admin', 'draft'
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
       ) RETURNING *
-    `, [orderNumber, loadType, deliveryPlace, parseFloat(estimatedTons)])
+    `, [
+      orderNumber, 
+      loadType, 
+      estimatedTons ? parseFloat(estimatedTons) : null,
+      numberOfGoods ? parseInt(numberOfGoods) : null,
+      deliveryPlace,
+      fromPlace || 'Admin Specified Location',
+      fromState !== undefined ? fromState : 'Admin Specified',
+      fromDistrict !== undefined ? fromDistrict : 'Location',
+      fromPlace || 'Admin Specified Location',
+      fromTaluk || null,
+      toState !== undefined ? toState : 'Not Specified',
+      toDistrict !== undefined ? toDistrict : 'Not Specified',
+      toPlace || deliveryPlace,
+      toTaluk || null,
+      'pending', 
+      'ADMIN', 
+      specialInstructions || 'Manual order created by admin',
+      requiredDate || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    ])
 
     const newOrder = orderResult.rows[0]
     console.log("Created manual order:", newOrder.id)
 
-    // Create order submission for the supplier
-    console.log("Creating order submission...")
-    const submissionResult = await dbQuery(`
-      INSERT INTO order_submissions (
-        order_id, supplier_id, submitted_by, submitted_at, whatsapp_sent, notification_sent, status, created_at, updated_at
-      ) VALUES ($1, $2, $3, NOW() AT TIME ZONE 'Asia/Kolkata', false, false, 'submitted', NOW() AT TIME ZONE 'Asia/Kolkata', NOW() AT TIME ZONE 'Asia/Kolkata')
-      RETURNING *
-    `, [newOrder.id, supplierId, 'ADMIN'])
-
-    const orderSubmission = submissionResult.rows[0]
-    console.log("Created order submission:", orderSubmission.id)
-
-    // Create notification for the supplier
-    console.log("Creating notification...")
-    const notificationResult = await dbQuery(`
-      INSERT INTO notifications (
-        type, title, message, category, priority, is_read
-      ) VALUES ($1, $2, $3, $4, $5, false)
-      RETURNING *
-    `, [
-      'new_order', 
-      'New Order Assignment', 
-      `You have been assigned a new manual order: ${orderNumber} - ${loadType} (${estimatedTons} tons) to ${deliveryPlace}`,
-      'order_assignment',
-      'high'
-    ])
-
-    console.log("Created notification:", notificationResult.rows[0].id)
+    // Create general notification for admin
+    console.log("Creating admin notification...")
+    let notificationResult = null
+    try {
+      notificationResult = await dbQuery(`
+        INSERT INTO notifications (
+          type, title, message, category, priority, is_read
+        ) VALUES ($1, $2, $3, $4, $5, false)
+        RETURNING *
+      `, [
+        'new_order', 
+        'Manual Order Created', 
+        `Manual order created: ${orderNumber} - ${loadType} (${estimatedTons} tons) to ${deliveryPlace}`,
+        'order_management',
+        'medium'
+      ])
+      console.log("Created notification:", notificationResult.rows[0].id)
+    } catch (notificationError) {
+      console.error("Failed to create notification:", notificationError)
+      // Don't fail the main operation if notification creation fails
+    }
 
     // Create WhatsApp message
     const whatsappMessage = createWhatsAppMessage({
       orderNumber,
       loadType,
       estimatedTons,
+      numberOfGoods,
       deliveryPlace,
-      fromLocation: "Admin Specified Location"
+      fromLocation: fromPlace || "Admin Specified Location",
+      fromState,
+      fromDistrict,
+      fromPlace,
+      fromTaluk,
+      toState,
+      toDistrict,
+      toPlace,
+      toTaluk,
+      requiredDate,
+      specialInstructions
     })
 
-    // Get supplier contact details (you may need to add these to your suppliers table)
-    console.log("Getting supplier contact details...")
-    const supplierContact = await dbQuery(`
-      SELECT mobile, whatsapp FROM suppliers WHERE user_id = $1
-    `, [supplierId])
-    console.log("Supplier contact query result:", supplierContact.rows.length, "rows")
-
-    const contactInfo = supplierContact.rows[0] || { mobile: "+91-9876543210", whatsapp: "+91-9876543210" }
-    console.log("Contact info:", contactInfo)
+    // Manual order created without specific supplier assignment
+    console.log("Manual order created successfully without supplier assignment")
 
     console.log("Manual order creation completed successfully!")
     
@@ -131,19 +165,29 @@ export async function POST(request: NextRequest) {
         orderNumber: newOrder.order_number,
         loadType: newOrder.load_type,
         estimatedTons: newOrder.estimated_tons,
+        numberOfGoods: newOrder.number_of_goods,
         deliveryPlace: newOrder.delivery_place,
+        fromLocation: newOrder.from_location,
+        fromState: newOrder.from_state,
+        fromDistrict: newOrder.from_district,
+        fromPlace: newOrder.from_place,
+        fromTaluk: newOrder.from_taluk,
+        toState: newOrder.to_state,
+        toDistrict: newOrder.to_district,
+        toPlace: newOrder.to_place,
+        toTaluk: newOrder.to_taluk,
+        requiredDate: newOrder.required_date,
+        specialInstructions: newOrder.special_instructions,
         status: newOrder.status,
-        supplierId: supplierId,
-        supplierName: supplier.company_name,
-        orderSubmissionId: orderSubmission.id
+        createdBy: newOrder.created_by,
+        createdAt: newOrder.created_at
       },
-      notification: {
+      notification: notificationResult ? {
         id: notificationResult.rows[0].id,
         message: notificationResult.rows[0].message
-      },
+      } : null,
       whatsapp: {
-        message: whatsappMessage,
-        contact: contactInfo.whatsapp || contactInfo.mobile
+        message: whatsappMessage
       }
     })
 
@@ -157,20 +201,66 @@ export async function POST(request: NextRequest) {
 }
 
 function createWhatsAppMessage(orderDetails: any) {
-  const { orderNumber, loadType, estimatedTons, deliveryPlace, fromLocation } = orderDetails
+  const { 
+    orderNumber, 
+    loadType, 
+    estimatedTons, 
+    numberOfGoods,
+    deliveryPlace, 
+    fromLocation,
+    fromState,
+    fromDistrict,
+    fromPlace,
+    fromTaluk,
+    toState,
+    toDistrict,
+    toPlace,
+    toTaluk,
+    requiredDate,
+    specialInstructions
+  } = orderDetails
   
-  return `🚛 *New Transport Order Assignment*
+  const weightInfo = estimatedTons ? `${estimatedTons} tons` : ''
+  const quantityInfo = numberOfGoods ? `${numberOfGoods} units` : ''
+  const loadInfo = [weightInfo, quantityInfo].filter(Boolean).join(' / ')
+  
+  // Build comprehensive from location string
+  let fromLocationStr = 'Admin Specified Location'
+  if (fromPlace && fromDistrict && fromState) {
+    const fromParts = [fromPlace]
+    if (fromTaluk && fromTaluk !== fromPlace) fromParts.push(fromTaluk)
+    fromParts.push(fromDistrict, fromState)
+    fromLocationStr = fromParts.join(', ')
+  } else if (fromLocation) {
+    fromLocationStr = fromLocation
+  }
+    
+  // Build comprehensive to location string
+  let toLocationStr = deliveryPlace
+  if (toPlace && toDistrict && toState) {
+    const toParts = [toPlace]
+    if (toTaluk && toTaluk !== toPlace) toParts.push(toTaluk)
+    toParts.push(toDistrict, toState)
+    toLocationStr = toParts.join(', ')
+  } else if (deliveryPlace) {
+    toLocationStr = deliveryPlace
+  }
+  
+  return `🚛 *NEW TRANSPORT ORDER AVAILABLE*
 
 📋 *Order Details:*
-• Order Number: ${orderNumber}
 • Load Type: ${loadType}
-• Weight: ${estimatedTons} tons
-• From: ${fromLocation}
-• To: ${deliveryPlace}
+• Weight: ${loadInfo}
+• From: ${fromLocationStr}
+• To: ${toLocationStr}
+${requiredDate ? `• Required Date: ${requiredDate}` : ''}
+${specialInstructions ? `• Special Instructions: ${specialInstructions}` : ''}
 
-📅 *Status:* Pending Confirmation
+📋 *Order Type:* Manual Order (Admin Created)
+📅 *Status:* Available for bidding
 
-Please log in to your supplier dashboard to view full details and confirm this order.
+Please review and respond if you can handle this transport order.
 
-Thank you for your service! 🚚`
+---
+*This is an automated message from Transport Office System*`
 }
