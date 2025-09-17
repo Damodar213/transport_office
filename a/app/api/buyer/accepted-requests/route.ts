@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     const buyerId = session.userIdString
     console.log("Buyer ID:", buyerId)
 
-    // Get accepted requests for this buyer
+    // Get accepted requests for this buyer (only admin-sent orders)
     const acceptedRequests = await dbQuery(`
       SELECT 
         ar.id,
@@ -49,10 +49,10 @@ export async function GET(request: NextRequest) {
         ar.status,
         ar.accepted_at,
         ar.created_at,
-        ar.updated_at
+        ar.updated_at,
+        ar.sent_by_admin
       FROM accepted_requests ar
-      WHERE ar.buyer_id = $1 
-      AND ar.sent_by_admin = true
+      WHERE ar.buyer_id = $1 AND ar.sent_by_admin = true
       ORDER BY ar.accepted_at DESC
     `, [buyerId])
 

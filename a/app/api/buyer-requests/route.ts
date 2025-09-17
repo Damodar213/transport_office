@@ -57,6 +57,13 @@ export async function GET(request: Request) {
       params.push(buyerId)
     }
 
+    // For admin users, exclude draft orders - only show submitted orders
+    if (session.role === 'admin') {
+      paramCount++
+      query += ` AND br.status != $${paramCount}`
+      params.push('draft')
+    }
+
     if (status && status !== 'all') {
       paramCount++
       query += ` AND br.status = $${paramCount}`

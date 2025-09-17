@@ -265,7 +265,7 @@ export function TransportRequests({ onDataChange }: TransportRequestsProps) {
   const handleSubmitRequest = async (requestId: number) => {
     try {
       // Update status in database
-      const response = await fetch(`/api/buyer-requests/${requestId}`, {
+      const response = await fetch(`/api/buyer-requests/${requestId}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

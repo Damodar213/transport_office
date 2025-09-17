@@ -1,10 +1,7 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { dbQuery, getPool } from "@/lib/db"
 
-// Cache clearing mechanism - we need to clear the cache in suppliers-confirmed API
-// Since we can't directly import the cache variable, we'll use a different approach
-
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
     console.log("Send to buyer API called")
     
@@ -23,91 +20,65 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get the order submission details with all related data
+    // Get the order submission details from accepted_requests table
     const orderDetails = await dbQuery(`
       SELECT 
-        os.id as order_submission_id,
-        os.order_id as buyer_request_id,
-        os.supplier_id,
-        os.status,
-        br.buyer_id as original_buyer_id,
-        br.order_number,
-        br.load_type,
-        br.from_state,
-        br.from_district,
-        br.from_place,
-        br.to_state,
-        br.to_district,
-        br.to_place,
-        br.estimated_tons,
-        br.rate,
-        br.distance_km,
-        d.driver_name,
-        d.mobile as driver_mobile,
-        t.vehicle_number,
-        t.body_type as vehicle_type,
-        s.company_name as supplier_company
-      FROM order_submissions os
-      LEFT JOIN buyer_requests br ON os.order_id = br.id
-      LEFT JOIN drivers d ON os.driver_id = d.id
-      LEFT JOIN trucks t ON os.vehicle_id = t.id
-      LEFT JOIN suppliers s ON os.supplier_id = s.user_id
-      WHERE os.id = $1 AND os.status = 'confirmed'
+        ar.id as order_submission_id,
+        ar.order_submission_id as original_order_submission_id,
+        ar.supplier_id,
+        ar.status,
+        ar.driver_id,
+        ar.vehicle_id,
+        ar.order_number,
+        ar.load_type,
+        ar.from_state,
+        ar.from_district,
+        ar.from_place,
+        ar.to_state,
+        ar.to_district,
+        ar.to_place,
+        ar.estimated_tons,
+        ar.driver_name,
+        ar.driver_mobile,
+        ar.vehicle_number,
+        ar.vehicle_type,
+        ar.supplier_company,
+        ar.buyer_id as original_buyer_id
+      FROM accepted_requests ar
+      WHERE ar.id = $1
     `, [orderSubmissionId])
 
     if (orderDetails.rows.length === 0) {
       return NextResponse.json(
-        { error: "Order submission not found or not confirmed" },
+        { error: "Order submission not found" },
         { status: 404 }
       )
     }
 
-    const order = orderDetails.rows[0]
+    const orderSubmission = orderDetails.rows[0]
+
+    // The order data is already complete from accepted_requests table
+    const order = {
+      ...orderSubmission,
+      buyer_request_id: orderSubmission.original_order_submission_id
+    }
 
     // Check if accepted request already exists for this buyer
-    // Only check for records that were sent by admin (sent_by_admin = true)
     const existingRequest = await dbQuery(`
       SELECT id, sent_by_admin, status FROM accepted_requests 
       WHERE order_submission_id = $1 AND buyer_id = $2 AND sent_by_admin = true
     `, [orderSubmissionId, buyerId])
 
-    console.log("Checking for existing requests:", {
-      orderSubmissionId,
-      buyerId,
-      existingCount: existingRequest.rows.length,
-      existingRequests: existingRequest.rows
-    })
-
     if (existingRequest.rows.length > 0) {
-      console.log("Found existing request, preventing duplicate send")
-      
-      // Check if there are any orphaned records (sent_by_admin = false) that might be causing confusion
-      const orphanedRecords = await dbQuery(`
-        SELECT id, sent_by_admin, status FROM accepted_requests 
-        WHERE order_submission_id = $1 AND buyer_id = $2 AND sent_by_admin = false
-      `, [orderSubmissionId, buyerId])
-      
-      if (orphanedRecords.rows.length > 0) {
-        console.log("Found orphaned records, cleaning them up:", orphanedRecords.rows)
-        // Clean up orphaned records
-        await dbQuery(
-          `DELETE FROM accepted_requests 
-           WHERE order_submission_id = $1 AND buyer_id = $2 AND sent_by_admin = false`,
-          [orderSubmissionId, buyerId]
-        )
-        console.log("Orphaned records cleaned up, proceeding with send")
-      } else {
-        return NextResponse.json(
-          { error: "This order has already been sent to the selected buyer" },
-          { status: 409 }
-        )
-      }
+      return NextResponse.json(
+        { error: "This order has already been sent to the selected buyer" },
+        { status: 409 }
+      )
     }
 
     // Create accepted request for the selected buyer
     const acceptedRequest = await dbQuery(`
       INSERT INTO accepted_requests (
-        buyer_request_id,
         order_submission_id,
         buyer_id,
         supplier_id,
@@ -122,8 +93,6 @@ export async function POST(request: NextRequest) {
         to_district,
         to_place,
         estimated_tons,
-        rate,
-        distance_km,
         driver_name,
         driver_mobile,
         vehicle_number,
@@ -131,13 +100,14 @@ export async function POST(request: NextRequest) {
         supplier_company,
         status,
         accepted_at,
-        sent_by_admin
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)
+        sent_by_admin,
+        created_at,
+        updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)
       RETURNING *
     `, [
-      order.buyer_request_id,
-      order.order_submission_id,
-      buyerId, // Use the selected buyer ID
+      order.original_order_submission_id,
+      buyerId,
       order.supplier_id,
       order.driver_id || null,
       order.vehicle_id || null,
@@ -150,33 +120,36 @@ export async function POST(request: NextRequest) {
       order.to_district,
       order.to_place,
       order.estimated_tons,
-      order.rate,
-      order.distance_km,
       order.driver_name,
       order.driver_mobile,
       order.vehicle_number,
       order.vehicle_type,
       order.supplier_company,
-      'accepted',
+      'sent_to_buyer',
       new Date().toISOString(),
-      true  // sent_by_admin = true
+      true,
+      new Date().toISOString(),
+      new Date().toISOString()
     ])
 
     console.log("Created accepted request for buyer:", acceptedRequest.rows[0].id)
 
-    // Clear the cache by making a request with cache-busting parameter
+    // Update notification and WhatsApp status in the original order submission
     try {
-      const cacheBustUrl = `${process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000'}/api/admin/suppliers-confirmed?cache_bust=${Date.now()}`
-      console.log("Clearing cache with URL:", cacheBustUrl)
-      // We don't need to wait for this response, just trigger the cache clear
-      fetch(cacheBustUrl).catch(err => console.log("Cache clear request failed:", err.message))
-    } catch (cacheError) {
-      console.log("Cache clearing failed:", cacheError.message)
+      await dbQuery(
+        `UPDATE order_submissions 
+         SET notification_sent = true, whatsapp_sent = true, updated_at = NOW() AT TIME ZONE 'Asia/Kolkata' 
+         WHERE id = $1`,
+        [orderSubmissionId]
+      )
+      console.log("Updated order submission notification status")
+    } catch (statusUpdateError) {
+      console.log("Failed to update notification status:", statusUpdateError instanceof Error ? statusUpdateError.message : "Unknown error")
     }
 
-    // Create notification for the buyer in buyer_notifications table
+    // Create notification for the buyer
     try {
-      const notificationResult = await dbQuery(
+      await dbQuery(
         `INSERT INTO buyer_notifications (
           buyer_id,
           type,
@@ -188,12 +161,12 @@ export async function POST(request: NextRequest) {
           order_id,
           created_at,
           updated_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, false, $7, NOW(), NOW())`,
+        ) VALUES ($1, $2, $3, $4, $5, $6, false, $7, NOW() AT TIME ZONE 'Asia/Kolkata', NOW() AT TIME ZONE 'Asia/Kolkata')`,
         [
           buyerId,
           "order_sent_to_buyer",
           "Order Sent to You",
-          `Your order ${order.order_number} has been sent to you by admin. Driver: ${order.driver_name} (${order.driver_mobile}), Vehicle: ${order.vehicle_number}. You can now track your order in the Accepted Requests section.`,
+          `Your order ${order.order_number} has been sent to you by admin. Driver: ${order.driver_name} (${order.driver_mobile}), Vehicle: ${order.vehicle_number}.`,
           "order_management",
           "high",
           order.order_id
@@ -201,37 +174,7 @@ export async function POST(request: NextRequest) {
       )
       console.log("Buyer notification created successfully")
     } catch (notificationError) {
-      console.log("Buyer notification creation failed:", notificationError.message)
-      // Don't fail the whole operation if notification fails
-    }
-
-    // Create notification for the admin
-    try {
-      const adminNotificationResult = await dbQuery(
-        `INSERT INTO notifications (
-          type,
-          title,
-          message,
-          category,
-          priority,
-          is_read,
-          user_id,
-          created_at,
-          updated_at
-        ) VALUES ($1, $2, $3, $4, $5, false, $6, NOW(), NOW())`,
-        [
-          "order_sent_by_admin",
-          "Order Sent Successfully",
-          `Order ${order.order_number} has been successfully sent to buyer. Driver: ${order.driver_name} (${order.driver_mobile}), Vehicle: ${order.vehicle_number}. The buyer will receive a notification and can track the order in their dashboard.`,
-          "order_management",
-          "medium",
-          "admin"  // Admin user ID
-        ]
-      )
-      console.log("Admin notification created")
-    } catch (adminNotificationError) {
-      console.log("Admin notification creation failed:", adminNotificationError.message)
-      // Don't fail the whole operation if notification fails
+      console.log("Buyer notification creation failed:", notificationError instanceof Error ? notificationError.message : "Unknown error")
     }
 
     return NextResponse.json({
@@ -243,7 +186,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error sending order to buyer:", error)
     return NextResponse.json(
-      { error: "Internal server error", details: error.message },
+      { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     )
   }

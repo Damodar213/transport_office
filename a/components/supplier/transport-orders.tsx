@@ -59,9 +59,12 @@ export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [isFetching, setIsFetching] = useState(true)
+  const [selectedState, setSelectedState] = useState<string>("")
 
   const bodyTypes = ["Half Body", "Full Body", "Container", "Open Body", "Closed Body"]
-  const states = ["Karnataka", "Tamil Nadu", "Andhra Pradesh", "Kerala", "Maharashtra"]
+  const [states, setStates] = useState<string[]>([])
+  const [districtsByState, setDistrictsByState] = useState<Record<string, string[]>>({})
+  const [isLoadingDistricts, setIsLoadingDistricts] = useState(false)
 
   // Fetch orders from API
   const fetchOrders = async () => {
@@ -115,10 +118,59 @@ export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) 
     }
   }
 
+  // Fetch districts from admin API
+  const fetchDistricts = async () => {
+    try {
+      setIsLoadingDistricts(true)
+      const response = await fetch("/api/admin/districts")
+      if (response.ok) {
+        const data = await response.json()
+        const districts = data.districts || []
+        
+        // Group districts by state
+        const groupedDistricts: Record<string, string[]> = {}
+        const uniqueStates: string[] = []
+        
+        districts.forEach((district: any) => {
+          if (!groupedDistricts[district.state]) {
+            groupedDistricts[district.state] = []
+            uniqueStates.push(district.state)
+          }
+          groupedDistricts[district.state].push(district.name)
+        })
+        
+        setDistrictsByState(groupedDistricts)
+        setStates(uniqueStates.sort())
+      } else {
+        console.error("Failed to fetch districts")
+        // Fallback to empty arrays
+        setDistrictsByState({})
+        setStates([])
+      }
+    } catch (err) {
+      console.error("Failed to fetch districts:", err)
+      // Fallback to empty arrays
+      setDistrictsByState({})
+      setStates([])
+    } finally {
+      setIsLoadingDistricts(false)
+    }
+  }
+
   useEffect(() => {
     fetchOrders()
     fetchDrivers()
+    fetchDistricts()
   }, [])
+
+  // Set selected state when editing an order
+  useEffect(() => {
+    if (editingOrder?.state) {
+      setSelectedState(editingOrder.state)
+    } else {
+      setSelectedState("")
+    }
+  }, [editingOrder])
 
   const handleSubmit = async (formData: FormData) => {
     setIsLoading(true)
@@ -188,12 +240,14 @@ export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) 
     const variants = {
       pending: "default",
       confirmed: "default",
+      accepted: "default",
       rejected: "destructive",
     } as const
 
     const colors = {
       pending: "bg-yellow-100 text-yellow-800",
       confirmed: "bg-green-100 text-green-800",
+      accepted: "bg-green-100 text-green-800",
       rejected: "bg-red-100 text-red-800",
     }
 
@@ -245,9 +299,15 @@ export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="state">State *</Label>
-                  <Select name="state" defaultValue={editingOrder?.state || ""} required>
+                  <Select 
+                    name="state" 
+                    value={selectedState || editingOrder?.state || ""} 
+                    onValueChange={setSelectedState}
+                    required
+                    disabled={isLoadingDistricts}
+                  >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select state" />
+                      <SelectValue placeholder={isLoadingDistricts ? "Loading states..." : "Select state"} />
                     </SelectTrigger>
                     <SelectContent>
                       {states.map((state) => (
@@ -260,14 +320,29 @@ export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) 
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="district">District *</Label>
-                  <Input
-                    id="district"
-                    name="district"
-                    type="text"
+                  <Select 
+                    name="district" 
+                    defaultValue={editingOrder?.district || ""} 
                     required
-                    defaultValue={editingOrder?.district || ""}
-                    placeholder="Enter district"
-                  />
+                    disabled={!selectedState && !editingOrder?.state || isLoadingDistricts}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={
+                        isLoadingDistricts 
+                          ? "Loading districts..." 
+                          : selectedState || editingOrder?.state 
+                            ? "Select district" 
+                            : "Select state first"
+                      } />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(selectedState || editingOrder?.state) && districtsByState[selectedState || editingOrder?.state]?.map((district) => (
+                        <SelectItem key={district} value={district}>
+                          {district}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 

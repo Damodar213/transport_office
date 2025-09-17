@@ -158,16 +158,9 @@ export async function POST(request: NextRequest) {
     
     console.log("Order number for notification:", orderNumber)
 
-    // Create notification for admin with detailed information
+    // Create notification for admin (simplified)
     console.log("Creating notification for admin...")
     try {
-      // Get supplier company name for better notification
-      const supplierInfo = await dbQuery(
-        `SELECT company_name FROM suppliers WHERE user_id = $1`,
-        [supplierId]
-      )
-      const supplierCompany = supplierInfo.rows.length > 0 ? supplierInfo.rows[0].company_name : 'Unknown Company'
-      
       const notificationResult = await dbQuery(
         `INSERT INTO notifications (
           type,
@@ -175,21 +168,19 @@ export async function POST(request: NextRequest) {
           message,
           category,
           priority,
-          is_read,
-          created_at,
-          updated_at
-        ) VALUES ($1, $2, $3, $4, $5, false, NOW() AT TIME ZONE 'Asia/Kolkata', NOW() AT TIME ZONE 'Asia/Kolkata')`,
+          is_read
+        ) VALUES ($1, $2, $3, $4, $5, false)`,
         [
           "order_confirmed",
-          "🚛 Order Confirmed by Supplier",
-          `Order ${orderNumber} has been confirmed by supplier ${supplierCompany}.\n\n📋 Order Details:\n• Load Type: ${orderType === 'manual_order' ? 'Manual Order' : 'Buyer Request'}\n• Driver: ${driver.driver_name} (${driverMobile})\n• Vehicle: ${vehicle.vehicle_number}\n• Supplier: ${supplierCompany}\n\n✅ Order is now ready for admin review and can be sent to buyer.`,
+          "Order Confirmed by Supplier",
+          `Order ${orderNumber} has been confirmed by supplier. Driver: ${driver.driver_name} (${driverMobile}), Vehicle: ${vehicle.vehicle_number}`,
           "order_management",
           "high"
         ]
       )
-      console.log("Admin notification created successfully with ID:", notificationResult.rows[0]?.id)
+      console.log("Notification created successfully")
     } catch (notificationError) {
-      console.log("Admin notification creation failed:", notificationError instanceof Error ? notificationError.message : "Unknown error")
+      console.log("Notification creation failed:", notificationError instanceof Error ? notificationError.message : "Unknown error")
       // Don't fail the whole operation if notification fails
     }
 
@@ -269,7 +260,7 @@ export async function POST(request: NextRequest) {
             mos.order_id,
             mos.id,
             NULL as buyer_id,
-            $4 as supplier_id,
+            'admin' as supplier_id,
             $2 as driver_id,
             $3 as vehicle_id,
             COALESCE(mo.order_number, 'MO-' || mos.order_id),
@@ -300,7 +291,7 @@ export async function POST(request: NextRequest) {
           LEFT JOIN suppliers s ON mos.supplier_id = s.user_id
           WHERE mos.id = $1
           RETURNING *`,
-          [parsedOrderId, parsedDriverId, parsedVehicleId, supplierId]
+          [parsedOrderId, parsedDriverId, parsedVehicleId]
         )
         console.log("Manual order accepted request created successfully")
         }
@@ -374,7 +365,7 @@ export async function POST(request: NextRequest) {
           os.order_id,
           os.id,
           NULL as buyer_id,
-            $4 as supplier_id,
+            'admin' as supplier_id,
           $2 as driver_id,
           $3 as vehicle_id,
           COALESCE(br.order_number, 'ORD-' || os.order_id),
@@ -405,7 +396,7 @@ export async function POST(request: NextRequest) {
         LEFT JOIN suppliers s ON os.supplier_id = s.user_id
         WHERE os.id = $1
         RETURNING *`,
-          [parsedOrderId, parsedDriverId, parsedVehicleId, supplierId]
+          [parsedOrderId, parsedDriverId, parsedVehicleId]
         )
         console.log("Buyer request accepted request created successfully")
         }

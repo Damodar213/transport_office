@@ -60,11 +60,13 @@ export async function GET(request: Request) {
         NULL as vehicle_number,
         NULL as body_type,
         NULL as driver_name,
-        NULL as admin_notes
+        NULL as admin_notes,
+        CASE WHEN ar.id IS NOT NULL THEN 'accepted' ELSE os.status END as effective_status
       FROM order_submissions os
       LEFT JOIN buyer_requests br ON os.order_id = br.id
       LEFT JOIN buyers b ON br.buyer_id = b.user_id
       LEFT JOIN users u ON br.buyer_id = u.user_id
+      LEFT JOIN accepted_requests ar ON os.id = ar.order_submission_id AND ar.supplier_id = os.supplier_id
       WHERE os.supplier_id = $1 AND br.id IS NOT NULL
       
       UNION ALL
@@ -101,14 +103,16 @@ export async function GET(request: Request) {
         'Manual Order' as buyer_company,
         'Admin' as buyer_name,
         'admin@transport.com' as buyer_email,
-        '0000000000' as buyer_mobile,
+        NULL as buyer_mobile,
         'manual_order' as order_type,
         NULL as vehicle_number,
         NULL as body_type,
         NULL as driver_name,
-        NULL as admin_notes
+        NULL as admin_notes,
+        CASE WHEN ar.id IS NOT NULL THEN 'accepted' ELSE mos.status END as effective_status
       FROM manual_order_submissions mos
       LEFT JOIN manual_orders mo ON mos.order_id = mo.id
+      LEFT JOIN accepted_requests ar ON mos.id = ar.order_submission_id AND ar.supplier_id = mos.supplier_id
       WHERE mos.supplier_id = $1 AND mo.id IS NOT NULL
       
       UNION ALL
@@ -145,12 +149,13 @@ export async function GET(request: Request) {
         'Admin Assigned' as buyer_company,
         'Admin' as buyer_name,
         'admin@transport.com' as buyer_email,
-        '0000000000' as buyer_mobile,
+        NULL as buyer_mobile,
         'transport_order' as order_type,
         svl.vehicle_number,
         svl.body_type,
         d.driver_name,
-        svl.admin_notes
+        svl.admin_notes,
+        svl.status as effective_status
       FROM suppliers_vehicle_location svl
       LEFT JOIN drivers d ON svl.driver_id = d.id
       WHERE svl.supplier_id = $1 AND svl.status = 'confirmed'
@@ -161,7 +166,9 @@ export async function GET(request: Request) {
     // Transform the result to match the expected interface
     const transformedOrders = result.rows.map((row: any) => ({
       ...row,
-      status: row.order_status // Map order_status to status for frontend compatibility
+      id: row.submission_id, // Map submission_id to id for frontend compatibility
+      status: row.submission_status, // Use submission_status for filtering pending orders
+      order_status: row.order_status // Keep original order_status for reference
     }))
 
     return NextResponse.json({

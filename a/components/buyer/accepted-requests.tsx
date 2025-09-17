@@ -37,6 +37,7 @@ interface AcceptedRequest {
   vehicle_type: string
   supplier_company: string
   status: string
+  sent_by_admin?: boolean
   accepted_at: string
   created_at: string
   updated_at: string

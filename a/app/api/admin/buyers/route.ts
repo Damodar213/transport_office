@@ -17,8 +17,10 @@ export async function GET(request: NextRequest) {
         u.name,
         u.email,
         u.mobile,
-        u.created_at
+        u.created_at,
+        b.company_name
       FROM users u
+      LEFT JOIN buyers b ON u.user_id = b.user_id
       WHERE u.role = 'buyer'
       ORDER BY u.user_id ASC
     `)
@@ -29,7 +31,7 @@ export async function GET(request: NextRequest) {
       name: buyer.name || buyer.user_id,
       email: buyer.email || 'No email',
       phone: buyer.mobile || 'No phone',
-      company_name: buyer.name || buyer.user_id,
+      company_name: buyer.company_name || buyer.name || buyer.user_id,
       created_at: buyer.created_at
     }))
 

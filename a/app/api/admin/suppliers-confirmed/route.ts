@@ -30,45 +30,52 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
 
-    // Optimized query - get confirmed orders first, then join only if needed
+    // Get accepted orders from accepted_requests table where sent_by_admin = false (all supplier confirmed orders)
     const confirmedOrders = await dbQuery(`
-      SELECT DISTINCT
-        os.id,
-        os.order_id,
-        os.supplier_id,
-        os.submitted_by,
-        os.submitted_at,
-        os.notification_sent,
-        os.whatsapp_sent,
-        os.status,
-        os.driver_id,
-        os.vehicle_id,
-        COALESCE(br.order_number, 'ORD-' || os.order_id) as order_number,
-        COALESCE(br.load_type, 'Unknown') as load_type,
-        COALESCE(br.from_state, 'Unknown') as from_state,
-        COALESCE(br.from_district, 'Unknown') as from_district,
-        COALESCE(br.from_place, 'Unknown') as from_place,
-        COALESCE(br.to_state, 'Unknown') as to_state,
-        COALESCE(br.to_district, 'Unknown') as to_district,
-        COALESCE(br.to_place, 'Unknown') as to_place,
-        COALESCE(u.name, 'Unknown Buyer') as buyer_name,
-        COALESCE(s.company_name, 'Unknown Supplier') as supplier_company,
-        COALESCE(d.driver_name, 'Unknown Driver') as driver_name,
-        COALESCE(d.mobile, 'N/A') as driver_mobile,
-        COALESCE(t.vehicle_number, 'Unknown Vehicle') as vehicle_number,
-        CASE WHEN EXISTS (
-          SELECT 1 FROM accepted_requests ar 
-          WHERE ar.order_submission_id = os.id 
-          AND ar.sent_by_admin = true
-        ) THEN true ELSE false END as is_sent_to_buyer
-      FROM order_submissions os
+      SELECT 
+        ar.id,
+        ar.order_submission_id as order_id,
+        ar.supplier_id,
+        'SUPPLIER' as submitted_by,
+        ar.accepted_at as submitted_at,
+        false as notification_sent,
+        false as whatsapp_sent,
+        ar.status,
+        ar.driver_id,
+        ar.vehicle_id,
+        ar.order_number,
+        ar.load_type,
+        ar.from_state,
+        ar.from_district,
+        ar.from_place,
+        ar.to_state,
+        ar.to_district,
+        ar.to_place,
+        CASE 
+          WHEN mos.id IS NOT NULL THEN 'Manual Order'
+          WHEN os.id IS NOT NULL THEN COALESCE(b.company_name, u.name, br.buyer_id, 'Unknown Buyer')
+          ELSE 'Unknown'
+        END as buyer_name,
+        ar.supplier_company,
+        ar.driver_name,
+        ar.driver_mobile,
+        ar.vehicle_number,
+        CASE WHEN sent_orders.id IS NOT NULL THEN true ELSE false END as is_sent_to_buyer,
+        CASE 
+          WHEN mos.id IS NOT NULL THEN 'manual_order'
+          WHEN os.id IS NOT NULL THEN 'buyer_request'
+          ELSE 'unknown'
+        END as order_type
+      FROM accepted_requests ar
+      LEFT JOIN manual_order_submissions mos ON ar.order_submission_id = mos.id
+      LEFT JOIN order_submissions os ON ar.order_submission_id = os.id
       LEFT JOIN buyer_requests br ON os.order_id = br.id
       LEFT JOIN users u ON br.buyer_id = u.user_id
-      LEFT JOIN suppliers s ON os.supplier_id = s.user_id
-      LEFT JOIN drivers d ON os.driver_id = d.id
-      LEFT JOIN trucks t ON os.vehicle_id = t.id
-      WHERE os.status = 'confirmed'
-      ORDER BY os.submitted_at DESC
+      LEFT JOIN buyers b ON br.buyer_id = b.user_id
+      LEFT JOIN accepted_requests sent_orders ON ar.order_submission_id = sent_orders.order_submission_id 
+        AND sent_orders.sent_by_admin = true
+      WHERE ar.sent_by_admin = false
+      ORDER BY ar.accepted_at DESC
       LIMIT 100
     `)
 
@@ -125,52 +132,46 @@ export async function DELETE(request: NextRequest) {
     // }
 
     const { searchParams } = new URL(request.url)
-    const orderSubmissionId = searchParams.get('id')
+    const acceptedRequestId = searchParams.get('id')
 
-    if (!orderSubmissionId) {
-      return NextResponse.json({ error: "Order submission ID is required" }, { status: 400 })
+    if (!acceptedRequestId) {
+      return NextResponse.json({ error: "Accepted request ID is required" }, { status: 400 })
     }
 
-    console.log("Deleting confirmed order submission:", orderSubmissionId)
+    console.log("Deleting accepted request:", acceptedRequestId)
 
-    // Verify the order submission exists
+    // Verify the accepted request exists
     const orderCheck = await dbQuery(
-      "SELECT * FROM order_submissions WHERE id = $1",
-      [orderSubmissionId]
+      "SELECT * FROM accepted_requests WHERE id = $1",
+      [acceptedRequestId]
     )
 
     if (orderCheck.rows.length === 0) {
-      return NextResponse.json({ error: "Order submission not found" }, { status: 404 })
+      return NextResponse.json({ error: "Accepted request not found" }, { status: 404 })
     }
 
-    // Delete related accepted requests first (if any)
-    await dbQuery(
-      "DELETE FROM accepted_requests WHERE order_submission_id = $1",
-      [orderSubmissionId]
-    )
-
-    // Delete the order submission
+    // Delete the accepted request
     const deleteResult = await dbQuery(
-      "DELETE FROM order_submissions WHERE id = $1",
-      [orderSubmissionId]
+      "DELETE FROM accepted_requests WHERE id = $1",
+      [acceptedRequestId]
     )
 
     if (deleteResult.rowCount === 0) {
-      return NextResponse.json({ error: "Failed to delete order submission" }, { status: 500 })
+      return NextResponse.json({ error: "Failed to delete accepted request" }, { status: 500 })
     }
 
     // Clear cache after deletion
     cache = null
 
-    console.log("Successfully deleted order submission:", orderSubmissionId)
+    console.log("Successfully deleted accepted request:", acceptedRequestId)
 
     return NextResponse.json({
       success: true,
-      message: "Order submission deleted successfully"
+      message: "Accepted request deleted successfully"
     })
 
   } catch (error) {
-    console.error("Error deleting order submission:", error)
+    console.error("Error deleting accepted request:", error)
     return NextResponse.json(
       { error: "Internal server error", details: error.message },
       { status: 500 }

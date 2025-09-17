@@ -2,14 +2,13 @@ import { NextRequest, NextResponse } from "next/server"
 import { dbQuery, getPool } from "@/lib/db"
 import { getSession } from "@/lib/auth"
 
-// Format timestamp function (same as supplier notifications)
+// Format timestamp function with proper IST handling
 function formatTimestamp(timestamp: string | Date): string {
   try {
-    // Parse the timestamp and ensure it's treated as IST
+    // Parse the timestamp
     let created: Date
     
     if (typeof timestamp === 'string') {
-      // If it's a string, parse it and assume it's in IST
       created = new Date(timestamp)
     } else {
       created = timestamp
@@ -21,7 +20,10 @@ function formatTimestamp(timestamp: string | Date): string {
       return "Invalid time"
     }
     
-    // Format the date in IST (don't double-convert)
+    // Get current time
+    const now = new Date()
+    
+    // Format the date in IST
     const formattedDate = created.toLocaleString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -32,8 +34,7 @@ function formatTimestamp(timestamp: string | Date): string {
       timeZone: 'Asia/Kolkata'
     })
     
-    // Calculate relative time using current IST time
-    const now = new Date()
+    // Calculate relative time using UTC timestamps (more reliable)
     const diffMs = now.getTime() - created.getTime()
     
     // If it's very recent (within 1 minute), show "Just now"

@@ -92,13 +92,13 @@ export async function POST(request: Request) {
         const notificationResult = await dbQuery(`
           INSERT INTO supplier_notifications (
             supplier_id, type, title, message, category, priority, order_id, is_read, created_at, updated_at
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, false, NOW() AT TIME ZONE 'Asia/Kolkata', NOW() AT TIME ZONE 'Asia/Kolkata')
           RETURNING id
         `, [
           supplierId,
           "info",
           "New Transport Order Available",
-          `New transport order ${orderId} is available for your consideration. Load: ${orderDetails.loadType}, Route: ${orderDetails.fromLocation} → ${orderDetails.toLocation}`,
+          `New transport order ${orderDetails.orderNumber} is available for your consideration. Load: ${orderDetails.loadType}, Route: ${orderDetails.fromLocation} → ${orderDetails.toLocation}`,
           "order",
           "high",
           orderId.toString()
@@ -200,12 +200,10 @@ function createManualOrderWhatsAppMessage(orderDetails: any) {
 📝 *Special Instructions:*
 ${specialInstructions}
 
-💼 *Order Type:* Manual Order (Admin Created)
-
-✅ *Status:* Available for bidding
-
 Please review and respond if you can handle this transport order.
 
----
-*This is an automated message from Transport Office System*`
+*Contact for more details:*
+*MAHALAXMI TRANSPORT*
+📞 8217563933
+📞 80736 27241`
 }

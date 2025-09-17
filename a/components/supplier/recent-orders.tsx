@@ -27,6 +27,7 @@ interface RecentOrder {
   notification_sent: boolean
   whatsapp_sent: boolean
   status: string
+  effective_status?: string
   order_number: string
   load_type: string
   from_state: string
@@ -109,10 +110,14 @@ export function RecentOrders() {
       const result = await response.json()
       if (result.success) {
         // Get only orders that are not yet confirmed (still pending)
-        const pendingOrders = result.orders.filter((order: RecentOrder) => 
-          order.status === "submitted" || order.status === "viewed" || order.status === "responded" || 
-          order.status === "assigned" || order.status === "pending"
-        )
+        // Use effective_status if available, otherwise fall back to status
+        const pendingOrders = result.orders.filter((order: RecentOrder) => {
+          const effectiveStatus = order.effective_status || order.status
+          return effectiveStatus !== "accepted" && (
+            effectiveStatus === "submitted" || effectiveStatus === "viewed" || effectiveStatus === "responded" || 
+            effectiveStatus === "assigned" || effectiveStatus === "pending"
+          )
+        })
         // Get only the 5 most recent pending orders
         const recentOrders = pendingOrders.slice(0, 5)
         setOrders(recentOrders)

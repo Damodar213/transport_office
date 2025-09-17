@@ -186,8 +186,8 @@ export async function POST(request: Request) {
               order_id VARCHAR(50),
               driver_id VARCHAR(50),
               vehicle_id VARCHAR(50),
-              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-              updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+              created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() AT TIME ZONE 'Asia/Kolkata',
+              updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() AT TIME ZONE 'Asia/Kolkata'
             )
           `)
           console.log("Created supplier_notifications table")
@@ -195,14 +195,14 @@ export async function POST(request: Request) {
         
         // Insert new notification
         const result = await dbQuery(`
-          INSERT INTO supplier_notifications (supplier_id, type, title, message, category, priority, order_id, driver_id, vehicle_id)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+          INSERT INTO supplier_notifications (supplier_id, type, title, message, category, priority, order_id, driver_id, vehicle_id, created_at, updated_at)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW() AT TIME ZONE 'Asia/Kolkata', NOW() AT TIME ZONE 'Asia/Kolkata')
           RETURNING id, created_at
         `, [supplierId, type, title, message, category, priority, orderId, driverId, vehicleId])
         
         // For new notifications, always show current Indian time
         const now = new Date()
-        const currentIndianTime = now.toLocaleString("en-IN", {
+        const currentIndianTime = now.toLocaleString("en-US", {
           timeZone: "Asia/Kolkata",
           year: 'numeric',
           month: 'short',
@@ -243,7 +243,13 @@ export async function POST(request: Request) {
     
     // Fallback response if database is not available
     const currentIndianTime = new Date().toLocaleString("en-US", {
-      timeZone: "Asia/Kolkata"
+      timeZone: "Asia/Kolkata",
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
     })
     
     return NextResponse.json({ 

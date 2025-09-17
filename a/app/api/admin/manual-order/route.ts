@@ -254,13 +254,14 @@ function createWhatsAppMessage(orderDetails: any) {
 • From: ${fromLocationStr}
 • To: ${toLocationStr}
 ${requiredDate ? `• Required Date: ${requiredDate}` : ''}
-${specialInstructions ? `• Special Instructions: ${specialInstructions}` : ''}
 
-📋 *Order Type:* Manual Order (Admin Created)
-📅 *Status:* Available for bidding
+📝 *Special Instructions:*
+${specialInstructions || 'Manual order created by admin'}
 
 Please review and respond if you can handle this transport order.
 
----
-*This is an automated message from Transport Office System*`
+*Contact for more details:*
+*MAHALAXMI TRANSPORT*
+📞 8217563933
+📞 80736 27241`
 }

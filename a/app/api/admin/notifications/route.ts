@@ -235,8 +235,8 @@ export async function POST(request: Request) {
               category VARCHAR(50) NOT NULL,
               priority VARCHAR(20) NOT NULL,
               is_read BOOLEAN DEFAULT FALSE,
-              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-              updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+              created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() AT TIME ZONE 'Asia/Kolkata',
+              updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() AT TIME ZONE 'Asia/Kolkata'
             )
           `)
           console.log("Created notifications table")
@@ -244,8 +244,8 @@ export async function POST(request: Request) {
         
         // Insert new notification
         const result = await dbQuery(`
-          INSERT INTO notifications (type, title, message, category, priority)
-          VALUES ($1, $2, $3, $4, $5)
+          INSERT INTO notifications (type, title, message, category, priority, created_at, updated_at)
+          VALUES ($1, $2, $3, $4, $5, NOW() AT TIME ZONE 'Asia/Kolkata', NOW() AT TIME ZONE 'Asia/Kolkata')
           RETURNING id, created_at
         `, [type, title, message, category, priority])
         
