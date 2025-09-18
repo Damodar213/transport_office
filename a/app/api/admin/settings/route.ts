@@ -2,44 +2,7 @@ import { NextResponse } from "next/server"
 import { dbQuery, getPool } from "@/lib/db"
 
 // Default settings
-const defaultSettings = {
-  systemSettings: {
-    siteName: "Transport Office Management System",
-    siteDescription: "Comprehensive transport and logistics management platform",
-    adminEmail: "admin@transportoffice.com",
-    supportEmail: "support@transportoffice.com",
-    timezone: "Asia/Kolkata",
-    dateFormat: "DD/MM/YYYY",
-    currency: "INR",
-    language: "en"
-  },
-  securitySettings: {
-    sessionTimeout: 30,
-    maxLoginAttempts: 5,
-    requireTwoFactor: false,
-    passwordMinLength: 8,
-    passwordRequireSpecial: true,
-    passwordRequireNumbers: true,
-    passwordRequireUppercase: true
-  },
-  notificationSettings: {
-    emailNotifications: true,
-    smsNotifications: false,
-    pushNotifications: true,
-    orderUpdates: true,
-    userRegistrations: true,
-    systemAlerts: true,
-    documentReviews: true,
-    paymentConfirmations: true
-  },
-  databaseSettings: {
-    backupFrequency: "daily",
-    backupRetention: 30,
-    autoOptimization: true,
-    queryLogging: false,
-    connectionPoolSize: 10
-  }
-}
+const defaultSettings = {}
 
 export async function GET() {
   try {
@@ -104,7 +67,6 @@ export async function GET() {
 export async function PUT(request: Request) {
   try {
     const body = await request.json()
-    const { systemSettings, securitySettings, notificationSettings, databaseSettings } = body
     
     console.log("PUT /api/admin/settings - updating settings...")
     
@@ -137,43 +99,7 @@ export async function PUT(request: Request) {
       }
       
       // Prepare settings for storage
-      const settingsToStore = [
-        // System settings
-        { key: "system.siteName", value: systemSettings.siteName, type: "string" },
-        { key: "system.siteDescription", value: systemSettings.siteDescription, type: "string" },
-        { key: "system.adminEmail", value: systemSettings.adminEmail, type: "string" },
-        { key: "system.supportEmail", value: systemSettings.supportEmail, type: "string" },
-        { key: "system.timezone", value: systemSettings.timezone, type: "string" },
-        { key: "system.dateFormat", value: systemSettings.dateFormat, type: "string" },
-        { key: "system.currency", value: systemSettings.currency, type: "string" },
-        { key: "system.language", value: systemSettings.language, type: "string" },
-        
-        // Security settings
-        { key: "security.sessionTimeout", value: securitySettings.sessionTimeout, type: "number" },
-        { key: "security.maxLoginAttempts", value: securitySettings.maxLoginAttempts, type: "number" },
-        { key: "security.requireTwoFactor", value: securitySettings.requireTwoFactor, type: "boolean" },
-        { key: "security.passwordMinLength", value: securitySettings.passwordMinLength, type: "number" },
-        { key: "security.passwordRequireSpecial", value: securitySettings.passwordRequireSpecial, type: "boolean" },
-        { key: "security.passwordRequireNumbers", value: securitySettings.passwordRequireNumbers, type: "boolean" },
-        { key: "security.passwordRequireUppercase", value: securitySettings.passwordRequireUppercase, type: "boolean" },
-        
-        // Notification settings
-        { key: "notifications.emailNotifications", value: notificationSettings.emailNotifications, type: "boolean" },
-        { key: "notifications.smsNotifications", value: notificationSettings.smsNotifications, type: "boolean" },
-        { key: "notifications.pushNotifications", value: notificationSettings.pushNotifications, type: "boolean" },
-        { key: "notifications.orderUpdates", value: notificationSettings.orderUpdates, type: "boolean" },
-        { key: "notifications.userRegistrations", value: notificationSettings.userRegistrations, type: "boolean" },
-        { key: "notifications.systemAlerts", value: notificationSettings.systemAlerts, type: "boolean" },
-        { key: "notifications.documentReviews", value: notificationSettings.documentReviews, type: "boolean" },
-        { key: "notifications.paymentConfirmations", value: notificationSettings.paymentConfirmations, type: "boolean" },
-        
-        // Database settings
-        { key: "database.backupFrequency", value: databaseSettings.backupFrequency, type: "string" },
-        { key: "database.backupRetention", value: databaseSettings.backupRetention, type: "number" },
-        { key: "database.autoOptimization", value: databaseSettings.autoOptimization, type: "boolean" },
-        { key: "database.queryLogging", value: databaseSettings.queryLogging, type: "boolean" },
-        { key: "database.connectionPoolSize", value: databaseSettings.connectionPoolSize, type: "number" }
-      ]
+      const settingsToStore = []
       
       // Store each setting
       for (const setting of settingsToStore) {
@@ -191,12 +117,7 @@ export async function PUT(request: Request) {
       console.log("Settings updated successfully")
       return NextResponse.json({ 
         message: "Settings updated successfully",
-        settings: {
-          systemSettings,
-          securitySettings,
-          notificationSettings,
-          databaseSettings
-        }
+        settings: {}
       })
       
     } catch (error) {

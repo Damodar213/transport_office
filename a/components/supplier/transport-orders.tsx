@@ -230,9 +230,22 @@ export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) 
   }
 
   const handleDelete = async (orderId: number) => {
-    if (confirm("Are you sure you want to delete this vehicle location?")) {
-      setOrders((prev) => prev.filter((order) => order.id !== orderId))
-      onDataChange?.() // Refresh dashboard stats
+    if (confirm("Are you sure you want to delete this vehicle location? This action cannot be undone.")) {
+      try {
+        const response = await fetch(`/api/supplier-orders?id=${orderId}`, {
+          method: "DELETE",
+        })
+
+        if (response.ok) {
+          setOrders((prev) => prev.filter((order) => order.id !== orderId))
+          onDataChange?.() // Refresh dashboard stats
+        } else {
+          const errorData = await response.json()
+          setError(errorData.error || "Failed to delete vehicle location")
+        }
+      } catch (err) {
+        setError("Failed to delete vehicle location")
+      }
     }
   }
 
@@ -532,6 +545,14 @@ export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) 
                             Rejected
                           </Button>
                         )}
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleDelete(order.id)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>

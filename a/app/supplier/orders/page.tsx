@@ -383,7 +383,7 @@ export default function SupplierOrdersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {filteredOrders.filter(order => order.status === "submitted" || order.status === "assigned" || order.status === "pending").length}
+              {filteredOrders.filter(order => order.status === "new" || order.status === "submitted" || order.status === "assigned" || order.status === "pending").length}
             </div>
             <p className="text-xs text-muted-foreground">Awaiting response</p>
           </CardContent>

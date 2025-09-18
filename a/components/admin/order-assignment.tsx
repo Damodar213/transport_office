@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Eye, Check, X, Filter, Calendar, Package, Truck, Trash2 } from "lucide-react"
+import { Eye, Check, X, Filter, Calendar, Package, Truck, Trash2, FileText, Download } from "lucide-react"
 
 interface TransportRequest {
   id: number
@@ -601,6 +601,168 @@ export function OrderAssignment() {
     return true
   })
 
+  // Export to PDF function
+  const exportToPDF = () => {
+    try {
+      // Create a new window for PDF generation
+      const printWindow = window.open('', '_blank')
+      if (!printWindow) {
+        toast({
+          title: "Error",
+          description: "Please allow popups to export PDF",
+          variant: "destructive"
+        })
+        return
+      }
+
+      const currentDate = new Date().toLocaleDateString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Order Assignment Report - ${currentDate}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .header { text-align: center; margin-bottom: 30px; }
+            .header h1 { color: #2563eb; margin: 0; }
+            .header p { color: #666; margin: 5px 0; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f5f5f5; font-weight: bold; }
+            .status-pending { background-color: #fef3c7; color: #92400e; padding: 4px 8px; border-radius: 4px; }
+            .status-assigned { background-color: #dbeafe; color: #1e40af; padding: 4px 8px; border-radius: 4px; }
+            .status-confirmed { background-color: #d1fae5; color: #065f46; padding: 4px 8px; border-radius: 4px; }
+            .status-rejected { background-color: #fee2e2; color: #991b1b; padding: 4px 8px; border-radius: 4px; }
+            .footer { margin-top: 30px; text-align: center; color: #666; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Order Assignment Report</h1>
+            <p>Generated on: ${currentDate}</p>
+            <p>Total Orders: ${filteredRequests.length}</p>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Buyer</th>
+                <th>Company</th>
+                <th>Load Type</th>
+                <th>Route</th>
+                <th>Required Date</th>
+                <th>Status</th>
+                <th>Assigned To</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filteredRequests.map(request => `
+                <tr>
+                  <td>${request.id}</td>
+                  <td>${request.buyerName}</td>
+                  <td>${request.buyerCompany}</td>
+                  <td>${request.loadType}</td>
+                  <td>${request.fromLocation} → ${request.toLocation}</td>
+                  <td>${new Date(request.requiredDate).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}</td>
+                  <td><span class="status-${request.status}">${request.status.charAt(0).toUpperCase() + request.status.slice(1)}</span></td>
+                  <td>${request.assignedSupplierName || 'Not Assigned'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <div class="footer">
+            <p>This report was generated from the Transport Management System</p>
+          </div>
+        </body>
+        </html>
+      `
+
+      printWindow.document.write(htmlContent)
+      printWindow.document.close()
+      printWindow.print()
+
+      toast({
+        title: "Success",
+        description: "PDF export initiated. Please use your browser's print dialog to save as PDF.",
+      })
+    } catch (error) {
+      console.error("Error exporting to PDF:", error)
+      toast({
+        title: "Error",
+        description: "Failed to export PDF",
+        variant: "destructive"
+      })
+    }
+  }
+
+  // Export to Excel function
+  const exportToExcel = () => {
+    try {
+      // Create CSV content
+      const headers = [
+        'Order ID',
+        'Buyer Name',
+        'Company',
+        'Load Type',
+        'From Location',
+        'To Location',
+        'Required Date',
+        'Status',
+        'Assigned To',
+        'Estimated Tons',
+        'Number of Goods',
+        'Special Instructions'
+      ]
+
+      const csvContent = [
+        headers.join(','),
+        ...filteredRequests.map(request => [
+          request.id,
+          `"${request.buyerName}"`,
+          `"${request.buyerCompany}"`,
+          `"${request.loadType}"`,
+          `"${request.fromLocation}"`,
+          `"${request.toLocation}"`,
+          new Date(request.requiredDate).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' }),
+          request.status.charAt(0).toUpperCase() + request.status.slice(1),
+          `"${request.assignedSupplierName || 'Not Assigned'}"`,
+          request.estimatedTons || '',
+          request.numberOfGoods || '',
+          `"${request.specialInstructions || ''}"`
+        ].join(','))
+      ].join('\n')
+
+      // Create and download file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      const link = document.createElement('a')
+      const url = URL.createObjectURL(blob)
+      link.setAttribute('href', url)
+      link.setAttribute('download', `order-assignment-${new Date().toISOString().split('T')[0]}.csv`)
+      link.style.visibility = 'hidden'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+
+      toast({
+        title: "Success",
+        description: "Excel file downloaded successfully",
+      })
+    } catch (error) {
+      console.error("Error exporting to Excel:", error)
+      toast({
+        title: "Error",
+        description: "Failed to export Excel file",
+        variant: "destructive"
+      })
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -615,6 +777,22 @@ export function OrderAssignment() {
             disabled={isLoading}
           >
             {isLoading ? "Refreshing..." : "Refresh"}
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={exportToPDF}
+            disabled={filteredRequests.length === 0}
+          >
+            <FileText className="h-4 w-4 mr-2" />
+            Export PDF
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={exportToExcel}
+            disabled={filteredRequests.length === 0}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Export Excel
           </Button>
           <Dialog open={showManualEntry} onOpenChange={setShowManualEntry}>
             <DialogTrigger asChild>

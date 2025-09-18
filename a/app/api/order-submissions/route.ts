@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     // Insert the order submission record
     const result = await dbQuery(
       `INSERT INTO order_submissions (order_id, supplier_id, submitted_by, submitted_at, whatsapp_sent, notification_sent, status, created_at, updated_at)
-       VALUES ($1, $2, $3, NOW() AT TIME ZONE 'Asia/Kolkata', $4, $5, 'submitted', NOW() AT TIME ZONE 'Asia/Kolkata', NOW() AT TIME ZONE 'Asia/Kolkata')
+       VALUES ($1, $2, $3, NOW() AT TIME ZONE 'Asia/Kolkata', $4, $5, 'new', NOW() AT TIME ZONE 'Asia/Kolkata', NOW() AT TIME ZONE 'Asia/Kolkata')
        RETURNING *`,
       [orderId, supplierId, submittedBy, body.whatsappSent || false, body.notificationSent || false]
     )

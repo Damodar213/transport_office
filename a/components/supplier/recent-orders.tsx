@@ -114,7 +114,7 @@ export function RecentOrders() {
         const pendingOrders = result.orders.filter((order: RecentOrder) => {
           const effectiveStatus = order.effective_status || order.status
           return effectiveStatus !== "accepted" && (
-            effectiveStatus === "submitted" || effectiveStatus === "viewed" || effectiveStatus === "responded" || 
+            effectiveStatus === "new" || effectiveStatus === "submitted" || effectiveStatus === "viewed" || effectiveStatus === "responded" || 
             effectiveStatus === "assigned" || effectiveStatus === "pending"
           )
         })
@@ -261,6 +261,8 @@ export function RecentOrders() {
       confirmed: { color: "bg-green-100 text-green-800", label: "Confirmed", icon: CheckCircle },
       rejected: { color: "bg-red-100 text-red-800", label: "Rejected", icon: XCircle },
       submitted: { color: "bg-blue-100 text-blue-800", label: "Submitted", icon: Clock },
+      assigned: { color: "bg-purple-100 text-purple-800", label: "Assigned", icon: UserCheck },
+      pending: { color: "bg-orange-100 text-orange-800", label: "Pending", icon: Clock },
       ignored: { color: "bg-red-100 text-red-800", label: "Ignored", icon: XCircle },
     }
 

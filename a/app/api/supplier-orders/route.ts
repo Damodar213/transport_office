@@ -348,3 +348,52 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: "Failed to update supplier order" }, { status: 500 })
   }
 }
+
+// DELETE - Delete supplier transport order
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const orderId = searchParams.get("id")
+
+    if (!orderId) {
+      return NextResponse.json({ error: "Order ID is required" }, { status: 400 })
+    }
+
+    console.log("DELETE /api/supplier-orders - orderId:", orderId)
+
+    // First, check if the order exists and get supplier details for verification
+    const checkSql = `
+      SELECT s.user_id, s.company_name 
+      FROM suppliers_vehicle_location svl
+      JOIN suppliers s ON svl.supplier_id = s.user_id
+      WHERE svl.id = $1
+    `
+    
+    const checkResult = await dbQuery(checkSql, [orderId])
+    
+    if (checkResult.rows.length === 0) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 })
+    }
+
+    const order = checkResult.rows[0]
+
+    // Delete the order
+    const deleteSql = `DELETE FROM suppliers_vehicle_location WHERE id = $1`
+    const deleteResult = await dbQuery(deleteSql, [orderId])
+
+    if (deleteResult.rowCount === 0) {
+      return NextResponse.json({ error: "Failed to delete order" }, { status: 500 })
+    }
+
+    console.log("Successfully deleted order:", orderId)
+
+    return NextResponse.json({ 
+      message: "Order deleted successfully",
+      deletedOrderId: orderId
+    })
+
+  } catch (error) {
+    console.error("Delete supplier order error:", error)
+    return NextResponse.json({ error: "Failed to delete supplier order" }, { status: 500 })
+  }
+}
