@@ -417,8 +417,8 @@ export function BuyersOrders() {
       return false
     }
     
-    // Cannot send if order status is submitted (regardless of submissions)
-    if (order.status === "submitted") {
+    // Can only send if order status is pending
+    if (order.status !== "pending") {
       return false
     }
     
@@ -845,9 +845,9 @@ export function BuyersOrders() {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {getStatusBadge(order.status)}
-                          {order.status === "submitted" && (
+                          {order.status === "pending" && (
                             <Badge variant="outline" className="text-xs">
-                              Cannot Send
+                              Ready to Send
                             </Badge>
                           )}
                         </div>
@@ -874,8 +874,8 @@ export function BuyersOrders() {
                             title={
                               order.supplier_id 
                                 ? "Order Already Assigned" 
-                                : order.status === "submitted" 
-                                  ? "Order Already Submitted - Cannot send to additional suppliers"
+                                : order.status === "pending" 
+                                  ? "Send to Suppliers"
                                   : "Send to Suppliers"
                             }
                             disabled={!canSendToSuppliers(order)}

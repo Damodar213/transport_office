@@ -182,7 +182,7 @@ export async function POST(request: NextRequest) {
         [
           "order_confirmed",
           "🚛 Order Confirmed by Supplier",
-          `Order ${orderNumber} has been confirmed by supplier ${supplierCompany}.\n\n📋 Order Details:\n• Load Type: ${orderType === 'manual_order' ? 'Manual Order' : 'Buyer Request'}\n• Driver: ${driver.driver_name} (${driverMobile})\n• Vehicle: ${vehicle.vehicle_number}\n• Supplier: ${supplierCompany}\n\n✅ Order is now ready for admin review and can be sent to buyer.`,
+          `Order ${orderNumber} has been confirmed by supplier ${supplierCompany}.\n\n📋 Order Details:\n• Load Type: ${orderType === 'manual_order' ? 'Manual Order' : 'Buyer Request'}\n• Driver: ${driver.driver_name} (${driverMobile})\n• Vehicle: ${vehicle.vehicle_number}\n• Supplier: ${supplierCompany}\n\n✅ Order is now ready for admin review${orderType === 'manual_order' ? ' and will be handled by admin.' : ' and can be sent to buyer.'}`,
           "order_management",
           "high"
         ]
@@ -373,7 +373,7 @@ export async function POST(request: NextRequest) {
         SELECT 
           os.order_id,
           os.id,
-          NULL as buyer_id,
+          br.buyer_id,
             $4 as supplier_id,
           $2 as driver_id,
           $3 as vehicle_id,

@@ -214,6 +214,49 @@ export function SuppliersConfirmed() {
     }
   }
 
+  // Handle mark as complete for manual orders
+  const handleMarkAsComplete = async (order: ConfirmedOrder) => {
+    try {
+      setIsSending(true)
+      
+      // Update the manual order status to completed
+      const response = await fetch("/api/admin/update-manual-order-status", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          orderId: order.order_id,
+          status: "completed"
+        }),
+      })
+
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: `Manual order ${order.order_number} marked as complete`,
+        })
+        // Refresh the orders list
+        fetchConfirmedOrders(true)
+      } else {
+        const errorData = await response.json()
+        toast({
+          title: "Error",
+          description: errorData.error || "Failed to mark order as complete",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error("Error marking order as complete:", error)
+      toast({
+        title: "Error",
+        description: "Failed to mark order as complete",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSending(false)
+    }
+  }
 
   useEffect(() => {
     fetchConfirmedOrders()
@@ -537,6 +580,16 @@ export function SuppliersConfirmed() {
                       >
                         <Send className="h-4 w-4 mr-2" />
                         Send to Buyer
+                      </Button>
+                    )}
+                    {order.order_type === 'manual_order' && (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={() => handleMarkAsComplete(order)}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Mark as Complete
                       </Button>
                     )}
                     <Button
