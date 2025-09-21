@@ -22,6 +22,8 @@ export async function DELETE() {
       const response = NextResponse.json({ 
         error: "Notifications table not found",
         message: "All notifications cleared (mock mode)"
+      })
+      return addCorsHeaders(response)
     }
     
     // Get count before deletion

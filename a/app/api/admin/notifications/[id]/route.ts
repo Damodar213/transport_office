@@ -26,6 +26,8 @@ export async function DELETE(
       const response = NextResponse.json({ 
         error: "Notifications table not found",
         message: "Notification deleted (mock mode)"
+      })
+      return addCorsHeaders(response)
     }
     
     // Delete notification

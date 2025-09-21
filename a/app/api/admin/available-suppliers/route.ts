@@ -51,11 +51,16 @@ export async function GET() {
       suppliers,
       total: suppliers.length,
       message: "Available suppliers fetched successfully"
+    })
+    return addCorsHeaders(response)
+    
   } catch (error) {
     console.error("Error fetching available suppliers:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch available suppliers",
       suppliers: [],
-      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
