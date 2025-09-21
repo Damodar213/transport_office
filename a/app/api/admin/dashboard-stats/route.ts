@@ -17,7 +17,7 @@ export async function GET() {
     // Get users count from this week
     const weekAgo = new Date()
     weekAgo.setDate(weekAgo.getDate() - 7)
-    const weeklyUsersResult = await dbQuery()
+    const weeklyUsersResult = await dbQuery(
       "SELECT COUNT(*) as count FROM users WHERE created_at >= $1",
       [weekAgo.toISOString()]
     )

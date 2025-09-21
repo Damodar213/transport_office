@@ -9,14 +9,14 @@ export async function GET(request: NextRequest) {
     return withDatabase(async () => {
       try {
         // Get all document URLs from all document tables
-        const [supplierDocs, vehicleDocs, driverDocs] = await Promise.all([)
+        const [supplierDocs, vehicleDocs, driverDocs] = await Promise.all([
           dbQuery(`SELECT document_url FROM supplier_documents WHERE document_url IS NOT NULL`),
           dbQuery(`SELECT document_url FROM vehicle_documents WHERE document_url IS NOT NULL`),
           dbQuery(`SELECT document_url FROM driver_documents WHERE document_url IS NOT NULL`)
         ])
 
         // Combine all URLs from database
-        const allDbUrls = new Set([)
+        const allDbUrls = new Set([
           ...supplierDocs.rows.map(row => row.document_url),
           ...vehicleDocs.rows.map(row => row.document_url),
           ...driverDocs.rows.map(row => row.document_url)
