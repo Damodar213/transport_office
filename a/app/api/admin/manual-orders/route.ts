@@ -171,7 +171,9 @@ export async function POST(request: Request) {
     console.error("Error updating manual order:", error)
     const response = NextResponse.json({ 
       error: "Failed to update manual order",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
