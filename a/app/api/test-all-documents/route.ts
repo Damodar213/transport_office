@@ -5,9 +5,9 @@ import { dbQuery, getPool } from "@/lib/db"
 export async function GET() {
   try {
     const pool = getPool()
-    if (!pool) {
-    }
-
+    if (!pool) {})
+    return addCorsHeaders(response)
+  }
     // Get counts for all document types
     const [supplierCount, vehicleCount, driverCount] = await Promise.all([
       dbQuery("SELECT COUNT(*) as count FROM supplier_documents"),
@@ -40,8 +40,7 @@ export async function GET() {
     console.error("All documents test error:", error)
     const response = NextResponse.json({ 
       error: "Test failed",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-

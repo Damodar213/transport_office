@@ -9,8 +9,9 @@ export async function GET() {
   try {
     console.log("GET /api/admin/settings - fetching settings...")
     
-    let settings = { ...defaultSettings }
-    
+    let settings = { ...defaultSettings})
+    return addCorsHeaders(response)
+  }
     // If database is available, try to fetch settings
     if (getPool()) {
       try {
@@ -57,19 +58,19 @@ export async function GET() {
     console.error("Error in settings GET API:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch settings",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
 export async function PUT(request: Request) {
   try {
     const body = await request.json()
     
     console.log("PUT /api/admin/settings - updating settings...")
     
-    if (!getPool()) {
-    }
-    
+    if (!getPool()) {})
+    return addCorsHeaders(response)
+  }
     try {
       // Check if settings table exists, create if not
       const tableExists = await dbQuery(`
@@ -113,23 +114,22 @@ export async function PUT(request: Request) {
       console.log("Settings updated successfully")
       const response = NextResponse.json({ 
         message: "Settings updated successfully",
-        settings: {}
-    } catch (error) {
+        settings: {})
+    return addCorsHeaders(response)
+
+  } catch (error) {
       console.error("Error updating settings in database:", error)
       const response = NextResponse.json({ 
         error: "Failed to update settings in database",
-        details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }
-    
+        details: error instanceof Error ? error.message : "Unknown error"
+    })
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error in settings PUT API:", error)
     const response = NextResponse.json({ 
       error: "Failed to update settings",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-
-
-
-

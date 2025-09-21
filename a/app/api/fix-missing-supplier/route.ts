@@ -3,9 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -14,9 +14,9 @@ export async function POST() {
 
   try {
     const pool = getPool()
-    if (!pool) {
-    }
-
+    if (!pool) {})
+    return addCorsHeaders(response)
+  }
     console.log("Fixing missing supplier record for user 111111...")
 
     // First, get user details from users table
@@ -77,13 +77,14 @@ export async function POST() {
       success: true,
       message: "Supplier record created successfully for user 111111",
       supplier: supplierResult.rows[0],
-      user: user
+      user: user})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error creating supplier record:", error)
     const response = NextResponse.json({ 
       error: "Failed to create supplier record",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-

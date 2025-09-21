@@ -136,9 +136,9 @@ export async function GET(request: NextRequest) {
 
 // POST - Create new supplier transport order
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST(request: NextRequest) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -154,9 +154,9 @@ export async function POST(request: NextRequest) {
       [body.supplierId]
     )
 
-    if (supplierResult.rows.length === 0) {
-    }
-
+    if (supplierResult.rows.length === 0) {})
+    return addCorsHeaders(response)
+  }
     const supplierId = supplierResult.rows[0].user_id
 
     // Get driver name if driverId is provided
@@ -248,7 +248,9 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json({ 
       message: "Supplier order created successfully", 
-      order: orderWithSupplier 
+      order: orderWithSupplier})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Create supplier order error:", error)
   }
@@ -321,8 +323,10 @@ export async function PUT(request: NextRequest) {
           updatedOrder.order_id || updatedOrder.id,
           updatedOrder.supplier_id
         ])
-        console.log("Updated order_submissions status to confirmed for order:", updatedOrder.id)
-      } catch (error) {
+        console.log("Updated order_submissions status to confirmed for order:", updatedOrder.id)})
+    return addCorsHeaders(response)
+
+  } catch (error) {
         console.error("Error creating confirmed order record:", error)
         // Don't fail the main update if confirmed order creation fails
       }
@@ -342,7 +346,9 @@ export async function PUT(request: NextRequest) {
 
     const response = NextResponse.json({ 
       message: "Order updated successfully", 
-      order: orderWithSupplier 
+      order: orderWithSupplier})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Update supplier order error:", error)
   }
@@ -385,7 +391,9 @@ export async function DELETE(request: NextRequest) {
 
     const response = NextResponse.json({ 
       message: "Order deleted successfully",
-      deletedOrderId: orderId
+      deletedOrderId: orderId})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Delete supplier order error:", error)
   }

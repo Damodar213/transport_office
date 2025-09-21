@@ -6,9 +6,9 @@ export async function DELETE() {
   try {
     console.log("DELETE /api/admin/notifications/clear-all - clearing all notifications")
     
-    if (!getPool()) {
-    }
-    
+    if (!getPool()) {})
+    return addCorsHeaders(response)
+  }
     // Check if notifications table exists
     const tableExists = await dbQuery(`
       SELECT EXISTS (

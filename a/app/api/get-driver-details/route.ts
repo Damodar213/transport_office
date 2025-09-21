@@ -36,8 +36,10 @@ export async function GET(request: NextRequest) {
         WHERE co.driver_id = $1`,
         [driverId]
       )
-      references.confirmedOrders = confirmedOrders.rows
-    } catch (error) {
+      references.confirmedOrders = confirmedOrders.rows})
+    return addCorsHeaders(response)
+
+  } catch (error) {
       references.confirmedOrders = []
       console.log("confirmed_orders check failed:", error)
     }
@@ -48,8 +50,10 @@ export async function GET(request: NextRequest) {
         "SELECT id, state, district, place, status, created_at, vehicle_number FROM transport_orders WHERE driver_id = $1",
         [driverId]
       )
-      references.transportOrders = transportOrders.rows
-    } catch (error) {
+      references.transportOrders = transportOrders.rows})
+    return addCorsHeaders(response)
+
+  } catch (error) {
       references.transportOrders = []
       console.log("transport_orders check failed:", error)
     }
@@ -60,8 +64,10 @@ export async function GET(request: NextRequest) {
         "SELECT id, pickup_location, delivery_location, status, created_at FROM buyer_requests WHERE driver_id = $1",
         [driverId]
       )
-      references.buyerRequests = buyerRequests.rows
-    } catch (error) {
+      references.buyerRequests = buyerRequests.rows})
+    return addCorsHeaders(response)
+
+  } catch (error) {
       references.buyerRequests = []
       console.log("buyer_requests check failed:", error)
     }
@@ -72,8 +78,10 @@ export async function GET(request: NextRequest) {
         "SELECT id, place, district, state, status, created_at FROM suppliers_vehicle_location WHERE driver_id = $1",
         [driverId]
       )
-      references.vehicleLocation = vehicleLocation.rows
-    } catch (error) {
+      references.vehicleLocation = vehicleLocation.rows})
+    return addCorsHeaders(response)
+
+  } catch (error) {
       references.vehicleLocation = []
       console.log("suppliers_vehicle_location check failed:", error)
     }
@@ -103,7 +111,7 @@ export async function GET(request: NextRequest) {
     console.error("Get driver details failed:", error)
     const response = NextResponse.json({ 
       error: "Failed to get driver details", 
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
+      details: error instanceof Error ? error.message : "Unknown error" 
     }, { status: 500 })
   }
 }

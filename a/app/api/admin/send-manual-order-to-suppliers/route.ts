@@ -3,9 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)

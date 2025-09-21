@@ -79,12 +79,15 @@ export async function GET(request: Request) {
       success: true,
       suppliers: suppliers,
       total: suppliers.length,
-      message: "Real suppliers fetched successfully"
+      message: "Real suppliers fetched successfully"})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error fetching suppliers:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch suppliers",
       suppliers: [],
-      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}

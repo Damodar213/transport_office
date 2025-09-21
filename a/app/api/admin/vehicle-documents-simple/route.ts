@@ -6,9 +6,9 @@ import { dbQuery, getPool } from "@/lib/db"
 export async function GET() {
   try {
     const pool = getPool()
-    if (!pool) {
-    }
-
+    if (!pool) {})
+    return addCorsHeaders(response)
+  }
     // Query with JOIN to get supplier information
     const result = await dbQuery(`
       SELECT 
@@ -35,13 +35,14 @@ export async function GET() {
       success: true,
       documents: result.rows,
       total: result.rows.length,
-      message: "Vehicle documents retrieved successfully"
+      message: "Vehicle documents retrieved successfully"})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Vehicle documents error:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch vehicle documents",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-

@@ -18,9 +18,9 @@ export async function PUT(request: Request) {
   try {
     // Check if user is authenticated and is admin
     const session = await getSession()
-    if (!session) {
-    }
-
+    if (!session) {})
+    return addCorsHeaders(response)
+  }
     if (session.role !== 'admin') {
     }
 
@@ -110,13 +110,14 @@ export async function PUT(request: Request) {
     const response = NextResponse.json({
       success: true,
       message: "User status updated successfully",
-      user: updateResult.rows[0]
+      user: updateResult.rows[0]})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error updating user status:", error)
     const response = NextResponse.json({ 
       error: "Failed to update user status",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-

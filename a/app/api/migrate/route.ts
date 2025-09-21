@@ -3,9 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -305,7 +305,9 @@ export async function POST() {
     const response = NextResponse.json({ 
       message: "Database migration completed successfully",
       tables: ["users", "suppliers", "buyers", "drivers", "trucks", "transport_orders", "confirmed_orders", "notifications", "supplier_notifications", "buyers_orders", "buyer_requests", "admins"],
-      supplierId: supplierId
+      supplierId: supplierId})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Migration error:", error)
   }

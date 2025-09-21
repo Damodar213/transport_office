@@ -3,9 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -149,11 +149,14 @@ export async function POST() {
 
     const response = NextResponse.json({ 
       message: "Migration completed successfully - order_submissions table updated with whatsapp_sent, notification_sent, status, driver_id, and vehicle_id fields",
-      success: true
+      success: true})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Migration error:", error)
     const response = NextResponse.json({ 
       error: "Migration failed", 
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
+      details: error instanceof Error ? error.message : "Unknown error" 
+  })
+    return addCorsHeaders(response)
   }
-}

@@ -3,9 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -30,12 +30,14 @@ export async function POST() {
     if (!existingColumns.includes('driver_id')) {
       try {
         await dbQuery(`ALTER TABLE transport_orders ADD COLUMN driver_id INTEGER REFERENCES drivers(id)`)
-        console.log("Added column: driver_id")
-      } catch (error) {
+        console.log("Added column: driver_id")})
+    return addCorsHeaders(response)
+
+  } catch (error) {
         console.error("Error adding column driver_id:", error)
         const response = NextResponse.json({ 
           error: "Failed to add driver_id column", 
-          details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
+          details: error instanceof Error ? error.message : "Unknown error" 
       }
     } else {
       console.log("Column driver_id already exists, skipping...")
@@ -58,11 +60,14 @@ export async function POST() {
       message: "Transport orders table migration completed successfully",
       addedColumns: !existingColumns.includes('driver_id')    
      ? ['driver_id'] : [],
-      finalStructure: finalStructure.rows
+      finalStructure: finalStructure.rows})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Transport orders migration error:", error)
     const response = NextResponse.json({ 
       error: "Transport orders migration failed", 
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
+      details: error instanceof Error ? error.message : "Unknown error" 
+  })
+    return addCorsHeaders(response)
   }
-}

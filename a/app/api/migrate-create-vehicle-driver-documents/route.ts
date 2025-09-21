@@ -4,9 +4,9 @@ import { dbQuery, getPool } from "@/lib/db"
 import { createApiResponse, createApiError } from "@/lib/api-utils"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -16,9 +16,9 @@ export async function POST() {
   try {
     const pool = getPool()
     if (!pool) {
-      return createApiError("Database not available", null, 503)
-    }
-
+      return createApiError("Database not available", null, 503)})
+    return addCorsHeaders(response)
+  }
     console.log("Creating vehicle_documents and driver_documents tables...")
 
     // Create vehicle_documents table
@@ -108,8 +108,10 @@ export async function POST() {
               truck.document_url,
               truck.created_at || new Date().toISOString()
             ]
-          )
-        } catch (error) {
+          )})
+    return addCorsHeaders(response)
+
+  } catch (error) {
           console.error(`Error migrating vehicle document ${truck.id}:`, error)
         }
       }
@@ -142,8 +144,10 @@ export async function POST() {
               driver.document_url,
               driver.created_at || new Date().toISOString()
             ]
-          )
-        } catch (error) {
+          )})
+    return addCorsHeaders(response)
+
+  } catch (error) {
           console.error(`Error migrating driver document ${driver.id}:`, error)
         }
       }
@@ -161,7 +165,7 @@ export async function POST() {
     console.error("Migration error:", error)
     return createApiError(
       "Failed to create vehicle and driver document tables",
-      error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
+      error instanceof Error ? error.message : "Unknown error",
       500
     )
   }

@@ -24,8 +24,10 @@ export async function GET(request: NextRequest) {
         "SELECT COUNT(*) as count FROM confirmed_orders WHERE driver_id = $1",
         [driverId]
       )
-      references.confirmedOrders = parseInt(confirmedOrdersResult.rows[0].count)
-    } catch (error) {
+      references.confirmedOrders = parseInt(confirmedOrdersResult.rows[0].count)})
+    return addCorsHeaders(response)
+
+  } catch (error) {
       console.log("confirmed_orders check failed:", error)
     }
 
@@ -35,8 +37,10 @@ export async function GET(request: NextRequest) {
         "SELECT COUNT(*) as count FROM suppliers_vehicle_location WHERE driver_id = $1",
         [driverId]
       )
-      references.vehicleLocation = parseInt(vehicleLocationResult.rows[0].count)
-    } catch (error) {
+      references.vehicleLocation = parseInt(vehicleLocationResult.rows[0].count)})
+    return addCorsHeaders(response)
+
+  } catch (error) {
       console.log("suppliers_vehicle_location check failed:", error)
     }
 
@@ -55,7 +59,7 @@ export async function GET(request: NextRequest) {
     console.error("Check driver references error:", error)
     const response = NextResponse.json({ 
       error: "Failed to check driver references",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
     }, { status: 500 })
   }
 }

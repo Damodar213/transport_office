@@ -5,9 +5,9 @@ import { dbQuery, getPool } from "@/lib/db"
 export async function GET() {
   try {
     const pool = getPool()
-    if (!pool) {
-    }
-
+    if (!pool) {})
+    return addCorsHeaders(response)
+  }
     // Simple test - just check if table exists
     const result = await dbQuery(`
       SELECT table_name 
@@ -20,13 +20,14 @@ export async function GET() {
       success: true,
       tables: result.rows.map(row => row.table_name)    
     ,
-      message: "Tables check completed"
+      message: "Tables check completed"})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Simple test error:", error)
     const response = NextResponse.json({ 
       error: "Test failed",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-

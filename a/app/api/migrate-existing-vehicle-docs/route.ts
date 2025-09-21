@@ -4,9 +4,9 @@ import { dbQuery, getPool } from "@/lib/db"
 import { createApiResponse, createApiError } from "@/lib/api-utils"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -16,9 +16,9 @@ export async function POST() {
   try {
     const pool = getPool()
     if (!pool) {
-      return createApiError("Database not available", null, 503)
-    }
-
+      return createApiError("Database not available", null, 503)})
+    return addCorsHeaders(response)
+  }
     console.log("Migrating existing vehicle documents...")
 
     // Get all trucks with documents
@@ -74,7 +74,7 @@ export async function POST() {
     console.error("Migration error:", error)
     return createApiError(
       "Failed to migrate vehicle documents",
-      error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
+      error instanceof Error ? error.message : "Unknown error",
       500
     )
   }

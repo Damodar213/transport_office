@@ -3,9 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -30,12 +30,14 @@ export async function POST() {
     if (existingColumns.includes('experience_years')) {
       try {
         await dbQuery(`ALTER TABLE drivers DROP COLUMN experience_years`)
-        console.log("Dropped column: experience_years")
-      } catch (error) {
+        console.log("Dropped column: experience_years")})
+    return addCorsHeaders(response)
+
+  } catch (error) {
         console.error("Error dropping column experience_years:", error)
         const response = NextResponse.json({ 
           error: "Failed to drop experience_years column", 
-          details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
+          details: error instanceof Error ? error.message : "Unknown error" 
       }
     } else {
       console.log("Column experience_years does not exist, skipping...")
@@ -58,11 +60,14 @@ export async function POST() {
       message: "Drivers table migration completed successfully",
       droppedColumns: existingColumns.includes('experience_years')    
      ? ['experience_years'] : [],
-      finalStructure: finalStructure.rows
+      finalStructure: finalStructure.rows})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Drivers migration error:", error)
     const response = NextResponse.json({ 
       error: "Drivers migration failed", 
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
+      details: error instanceof Error ? error.message : "Unknown error" 
+  })
+    return addCorsHeaders(response)
   }
-}

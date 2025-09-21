@@ -3,9 +3,9 @@ import { dbQuery, getPool } from "@/lib/db"
 import { getSession } from "@/lib/auth"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST(request: NextRequest) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -445,14 +445,14 @@ export async function POST(request: NextRequest) {
     console.error("Error accepting order:", error)
     console.error("Error stack:", error instanceof Error ? error.stack : "No stack trace")
     console.error("Error details:", {
-      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
+      message: error instanceof Error ? error.message : "Unknown error",
       name: error instanceof Error ? error.name : "Unknown",
       cause: error instanceof Error ? error.cause : undefined
     })
     const response = NextResponse.json(
       { 
         error: "Internal server error", 
-        details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
+        details: error instanceof Error ? error.message : "Unknown error",
         stack: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : undefined)
      : undefined
       },

@@ -5,9 +5,9 @@ import bcrypt from "bcryptjs"
 import { createUserAsync } from "@/lib/user-storage"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -18,9 +18,9 @@ export async function POST() {
     console.log("=== TESTING SIGNUP ERROR ===")
     
     const pool = getPool()
-    if (!pool) {
-    }
-
+    if (!pool) {})
+    return addCorsHeaders(response)
+  }
     // Test data similar to what signup would send
     const testUserId = "test_signup_" + Date.now()
     const testPassword = "test123"
@@ -66,15 +66,16 @@ export async function POST() {
         id: result.id,
         userId: result.userId,
         role: result.role
-      }
+      })
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Signup test error:", error)
     const response = NextResponse.json({ 
       success: false,
       error: "Signup test failed",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
+      details: error instanceof Error ? error.message : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
+  })
+    return addCorsHeaders(response)
   }
-}
-
-

@@ -5,9 +5,9 @@ import { dbQuery, getPool } from "@/lib/db"
 export async function GET() {
   try {
     const pool = getPool()
-    if (!pool) {
-    }
-
+    if (!pool) {})
+    return addCorsHeaders(response)
+  }
     // Test the JOIN step by step
     const driverDocs = await dbQuery(`
       SELECT dd.supplier_id, dd.driver_name
@@ -39,13 +39,14 @@ export async function GET() {
       driverDocs: driverDocs.rows,
       users: users.rows,
       joinTest: joinTest.rows,
-      message: "Join test completed"
+      message: "Join test completed"})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Join test error:", error)
     const response = NextResponse.json({ 
       error: "Join test failed",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-

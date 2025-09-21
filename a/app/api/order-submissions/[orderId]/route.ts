@@ -31,11 +31,14 @@ export async function GET(
 
     const response = NextResponse.json({
       success: true,
-      submissions: result.rows
+      submissions: result.rows})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error fetching order submissions:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch order submissions",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}

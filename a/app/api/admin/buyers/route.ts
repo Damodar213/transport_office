@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Error fetching buyers:", error)
     const response = NextResponse.json(
-      { error: "Internal server error", details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" },
+      { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     )
   }

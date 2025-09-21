@@ -13,9 +13,9 @@ export async function GET() {
       database: dbHealth,
       uptime: process.uptime(),
       memory: process.memoryUsage(),
-      version: process.version
-    }
-    
+      version: process.version})
+    return addCorsHeaders(response)
+  }
     if (!dbHealth.healthy) {
     }
     
@@ -24,6 +24,7 @@ export async function GET() {
       status: "unhealthy",
       timestamp: new Date()    
     .toISOString(),
-      error: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      error: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}

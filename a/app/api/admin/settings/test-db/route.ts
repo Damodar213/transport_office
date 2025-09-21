@@ -9,9 +9,9 @@ export async function GET() {
     if (!getPool()) {
       const response = NextResponse.json({ 
         error: "Database not available",
-        status: "disconnected"
-    }
-    
+        status: "disconnected"})
+    return addCorsHeaders(response)
+  }
     try {
       // Test basic connection
       const connectionTest = await dbQuery("SELECT 1 as test")
@@ -51,18 +51,15 @@ export async function GET() {
       const response = NextResponse.json({
         status: "error",
         error: "Database connection test failed",
-        details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }
-    
+        details: error instanceof Error ? error.message : "Unknown error"
+    })
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error in database test API:", error)
     const response = NextResponse.json({ 
       error: "Failed to test database connection",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-
-
-
-

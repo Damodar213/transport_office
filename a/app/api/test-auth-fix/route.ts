@@ -18,8 +18,7 @@ export async function GET() {
     console.error("Auth fix test error:", error)
     const response = NextResponse.json({ 
       error: "Auth fix test failed",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-

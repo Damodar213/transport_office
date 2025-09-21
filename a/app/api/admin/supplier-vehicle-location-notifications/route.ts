@@ -81,9 +81,9 @@ function formatTimestamp(timestamp: string | Date): string {
 // GET - Fetch all supplier vehicle location notifications
 export async function GET() {
   try {
-    if (!getPool()) {
-    }
-
+    if (!getPool()) {})
+    return addCorsHeaders(response)
+  }
     console.log("Fetching supplier vehicle location notifications...")
 
     // Check if table exists
@@ -158,15 +158,15 @@ export async function GET() {
     console.error("Error fetching supplier vehicle location notifications:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch notifications",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
 // POST - Create a new supplier vehicle location notification
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -174,9 +174,9 @@ export async function POST(request: Request) {
 
 
   try {
-    if (!getPool()) {
-    }
-
+    if (!getPool()) {})
+    return addCorsHeaders(response)
+  }
     const body = await request.json()
     const {
       vehicle_location_id,
@@ -248,12 +248,14 @@ export async function POST(request: Request) {
     const response = NextResponse.json({
       success: true,
       message: "Notification created successfully",
-      notification: newNotification
+      notification: newNotification})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error creating supplier vehicle location notification:", error)
     const response = NextResponse.json({ 
       error: "Failed to create notification",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-

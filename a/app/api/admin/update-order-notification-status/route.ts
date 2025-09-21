@@ -3,9 +3,9 @@ import { dbQuery, getPool } from "@/lib/db"
 import { getSession } from "@/lib/auth"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST(request: NextRequest) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json(
       { 
         error: "Internal server error", 
-        details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+        details: error instanceof Error ? error.message : "Unknown error"
       },
       { status: 500 }
     )

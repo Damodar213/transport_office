@@ -6,9 +6,9 @@ export async function GET() {
   try {
     console.log("Fetching admin dashboard stats...")
     
-    if (!getPool()) {
-    }
-
+    if (!getPool()) {})
+    return addCorsHeaders(response)
+  }
     // Get total users count
     const totalUsersResult = await dbQuery("SELECT COUNT(*) as count FROM users")
     const totalUsers = totalUsersResult.rows[0].count

@@ -91,8 +91,10 @@ export async function DELETE(
           userId: user.user_id,
           name: user.name,
           role: user.role
-        }
-    } catch (error) {
+        })
+    return addCorsHeaders(response)
+
+  } catch (error) {
       await client.query('ROLLBACK')
       throw error
     } finally {
@@ -103,7 +105,7 @@ export async function DELETE(
     console.error("Error deleting user:", error)
     const response = NextResponse.json({ 
       error: "Failed to delete user",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-

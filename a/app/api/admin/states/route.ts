@@ -13,9 +13,9 @@ export async function GET() {
       const response = NextResponse.json({ 
         error: "Database not available",
         states: [],
-        message: "Database connection failed"
-    }
-
+        message: "Database connection failed"})
+    return addCorsHeaders(response)
+  }
     // Fetch unique states from districts
     const result = await dbQuery(`
       SELECT DISTINCT state
@@ -29,15 +29,15 @@ export async function GET() {
     const response = NextResponse.json({
       states: states,
       total: states.length,
-      message: "States fetched successfully"
+      message: "States fetched successfully"})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error fetching states:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch states",
       states: [],
-      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-
-

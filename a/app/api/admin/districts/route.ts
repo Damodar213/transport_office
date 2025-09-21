@@ -51,16 +51,16 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to fetch districts",
       districts: [],
-      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error"
     }, { status: 500 })
   }
 }
 
 // POST - Create new district
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -108,7 +108,7 @@ export async function POST(request: Request) {
     
     const response = NextResponse.json({ 
       error: "Failed to create district",
-      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error"
     }, { status: 500 })
   }
 }
@@ -160,7 +160,7 @@ export async function PUT(request: Request) {
     
     const response = NextResponse.json({ 
       error: "Failed to update district",
-      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error"
     }, { status: 500 })
   }
 }
@@ -201,7 +201,7 @@ export async function DELETE(request: NextRequest) {
     console.error("Error deleting district:", error)
     const response = NextResponse.json({ 
       error: "Failed to delete district",
-      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error"
     }, { status: 500 })
   }
 }

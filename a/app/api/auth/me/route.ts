@@ -10,9 +10,9 @@ export async function GET() {
     
     if (!session) {
       const response = NextResponse.json({ 
-        error: "Not authenticated" 
-    }
-
+        error: "Not authenticated"})
+    return addCorsHeaders(response)
+  }
     // Get additional user details from database
     let userDetails = {
       id: session.userIdString,
@@ -69,11 +69,14 @@ export async function GET() {
 
     const response = NextResponse.json({
       success: true,
-      user: userDetails
+      user: userDetails})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error getting current user:", error)
     const response = NextResponse.json({ 
       error: "Failed to get current user",
-      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}

@@ -3,9 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -36,26 +36,30 @@ export async function POST() {
       // Rename number_of_vehicles to number_of_wheels
       try {
         await dbQuery(`ALTER TABLE trucks RENAME COLUMN number_of_vehicles TO number_of_wheels`)
-        console.log("Renamed number_of_vehicles to number_of_wheels")
-      } catch (error) {
+        console.log("Renamed number_of_vehicles to number_of_wheels")})
+    return addCorsHeaders(response)
+
+  } catch (error) {
         console.error("Error renaming column:", error)
         const response = NextResponse.json({ 
           error: "Failed to rename column",
-          details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+          details: error instanceof Error ? error.message : "Unknown error"
       }
     } else if (!hasNumberOfVehicles && !hasNumberOfWheels) {
       // Add number_of_wheels column if neither exists
       try {
         await dbQuery(`ALTER TABLE trucks ADD COLUMN number_of_wheels INTEGER`)
-        console.log("Added number_of_wheels column")
-      } catch (error) {
+        console.log("Added number_of_wheels column")})
+    return addCorsHeaders(response)
+
+  } catch (error) {
         console.error("Error adding column:", error)
         const response = NextResponse.json({ 
           error: "Failed to add column",
-          details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-      }
-    }
-
+          details: error instanceof Error ? error.message : "Unknown error"
+      })
+    return addCorsHeaders(response)
+  }
     // Verify the final table structure
     const finalStructure = await dbQuery(`
       SELECT column_name, data_type, is_nullable
@@ -71,12 +75,14 @@ export async function POST() {
 
     const response = NextResponse.json({ 
       message: "Trucks table migration completed successfully",
-      finalStructure: finalStructure.rows
+      finalStructure: finalStructure.rows})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Trucks migration error:", error)
     const response = NextResponse.json({ 
       error: "Failed to migrate trucks table",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-

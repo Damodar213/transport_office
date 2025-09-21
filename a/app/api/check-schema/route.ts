@@ -6,9 +6,9 @@ export async function GET() {
   try {
     console.log("Checking database schema...")
     
-    if (!getPool()) {
-    }
-    
+    if (!getPool()) {})
+    return addCorsHeaders(response)
+  }
     // Check what tables exist
     const tablesResult = await dbQuery(`
       SELECT table_name 
@@ -53,8 +53,10 @@ export async function GET() {
           ORDER BY ordinal_position
         `, [table])
         
-        tableStructures[table] = columnsResult.rows
-      } catch (error) {
+        tableStructures[table] = columnsResult.rows})
+    return addCorsHeaders(response)
+
+  } catch (error) {
         console.error(`Error getting structure for table ${table}:`, error)
         tableStructures[table] = []
       }
@@ -64,7 +66,9 @@ export async function GET() {
       tables,
       confirmedOrdersExists: confirmedOrdersExists || true, // Will be true if we just created it
       tableStructures,
-      message: "Schema check completed"
+      message: "Schema check completed"})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Check schema error:", error)
   }

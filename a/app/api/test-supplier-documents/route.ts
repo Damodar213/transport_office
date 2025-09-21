@@ -7,9 +7,9 @@ export async function GET() {
   try {
     const pool = getPool()
     if (!pool) {
-      return createApiError("Database not available", null, 503)
-    }
-
+      return createApiError("Database not available", null, 503)})
+    return addCorsHeaders(response)
+  }
     // Check if supplier_documents table exists
     const tableCheck = await dbQuery(`
       SELECT EXISTS (
@@ -48,7 +48,7 @@ export async function GET() {
     console.error("Test supplier documents error:", error)
     return createApiError(
       "Failed to test supplier documents",
-      error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
+      error instanceof Error ? error.message : "Unknown error",
       500
     )
   }

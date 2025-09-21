@@ -3,9 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -14,9 +14,9 @@ export async function POST() {
 
   try {
     const pool = getPool()
-    if (!pool) {
-    }
-
+    if (!pool) {})
+    return addCorsHeaders(response)
+  }
     console.log("Creating manual_orders table...")
 
     // Create the manual_orders table
@@ -69,12 +69,14 @@ export async function POST() {
 
     const response = NextResponse.json({
       success: true,
-      message: "Manual orders table created successfully with all indexes"
+      message: "Manual orders table created successfully with all indexes"})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Manual orders migration error:", error)
     const response = NextResponse.json({ 
       error: "Failed to create manual orders table",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-

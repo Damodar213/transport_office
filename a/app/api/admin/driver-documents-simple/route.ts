@@ -6,9 +6,9 @@ import { dbQuery, getPool } from "@/lib/db"
 export async function GET() {
   try {
     const pool = getPool()
-    if (!pool) {
-    }
-
+    if (!pool) {})
+    return addCorsHeaders(response)
+  }
     // Query with JOIN to get supplier information
     const result = await dbQuery(`
       SELECT 

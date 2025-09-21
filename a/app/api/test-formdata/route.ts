@@ -2,9 +2,9 @@ import { type NextRequest, NextResponse } from "next/server"
 import { handleCors, addCorsHeaders } from "@/lib/cors"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST(request: NextRequest) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -31,14 +31,15 @@ export async function POST(request: NextRequest) {
         role,
         userId,
         hasPassword: !!password
-      }
+      })
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("=== FORMDATA TEST ERROR ===", error)
     const response = NextResponse.json({ 
       error: "Form data test failed",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
+      details: error instanceof Error ? error.message : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
+  })
+    return addCorsHeaders(response)
   }
-}
-
-

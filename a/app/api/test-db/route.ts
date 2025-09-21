@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json(
       { 
         error: "Database test failed", 
-        details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
+        details: error instanceof Error ? error.message : "Unknown error" 
       },
       { status: 500 }
     )

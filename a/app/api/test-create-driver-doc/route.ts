@@ -3,9 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -14,9 +14,9 @@ export async function POST() {
 
   try {
     const pool = getPool()
-    if (!pool) {
-    }
-
+    if (!pool) {})
+    return addCorsHeaders(response)
+  }
     // Get the first driver from the database
     const driverResult = await dbQuery(`
       SELECT d.id, d.supplier_id, d.driver_name, d.license_document_url
@@ -46,13 +46,14 @@ export async function POST() {
     const response = NextResponse.json({
       success: true,
       message: "Driver document submission created successfully",
-      document: result.rows[0]
+      document: result.rows[0]})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Create driver document test error:", error)
     const response = NextResponse.json({ 
       error: "Test failed",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-

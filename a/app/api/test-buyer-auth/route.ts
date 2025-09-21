@@ -14,9 +14,9 @@ export async function GET() {
         success: false,
         test: "authentication",
         message: "No active session - user needs to log in",
-        recommendation: "Log in with valid buyer credentials first"
-    }
-
+        recommendation: "Log in with valid buyer credentials first"})
+    return addCorsHeaders(response)
+  }
     console.log("User session:", {
       userId: session.userId,
       userIdString: session.userIdString,
@@ -84,7 +84,7 @@ export async function GET() {
       success: false,
       test: "error",
       message: "Test failed with error",
-      error: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      error: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-

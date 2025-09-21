@@ -4,9 +4,9 @@ import bcrypt from "bcryptjs"
 import { findUserByCredentialsAsync } from "@/lib/user-storage"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -45,14 +45,14 @@ export async function POST() {
         success: true,
         userFound: false,
         message: "User not found"
-    }
+    })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Password verification test error:", error)
     const response = NextResponse.json({ 
       error: "Password verification test failed",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-

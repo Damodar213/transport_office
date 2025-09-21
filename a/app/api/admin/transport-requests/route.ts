@@ -10,9 +10,9 @@ export async function GET() {
       const response = NextResponse.json({ 
         error: "Database not available",
         requests: [],
-        message: "Using fallback data"
-    }
-
+        message: "Using fallback data"})
+    return addCorsHeaders(response)
+  }
     // Fetch buyer transport requests and manual orders
     const result = await dbQuery(`
       -- Buyer requests (only valid ones with proper buyer data)
@@ -151,20 +151,22 @@ export async function GET() {
     const response = NextResponse.json({
       requests,
       total: requests.length,
-      message: "Transport requests fetched successfully"
+      message: "Transport requests fetched successfully"})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error fetching transport requests:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch transport requests",
       requests: [],
-      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -209,9 +211,9 @@ export async function POST(request: Request) {
         const response = NextResponse.json({ 
           message: "Buyer request assigned successfully",
           status: "assigned"
-      }
-    }
-
+      })
+    return addCorsHeaders(response)
+  }
     if (action === 'reject') {
       if (orderType === 'manual_order') {
         // Update manual order status to rejected
@@ -235,17 +237,17 @@ export async function POST(request: Request) {
         const response = NextResponse.json({ 
           message: "Buyer request rejected successfully",
           status: "rejected"
-      }
-    }
-
+      })
+    return addCorsHeaders(response)
+  }
   } catch (error) {
     console.error("Error updating transport request:", error)
     const response = NextResponse.json({ 
       error: "Failed to update transport request",
-      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
 export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
@@ -283,12 +285,14 @@ export async function DELETE(request: Request) {
       const response = NextResponse.json({ 
         success: true,
         message: "Buyer request deleted successfully"
-    }
+    })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error deleting transport request:", error)
     const response = NextResponse.json({ 
       error: "Failed to delete transport request",
-      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}

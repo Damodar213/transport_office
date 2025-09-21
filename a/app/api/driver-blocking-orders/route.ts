@@ -34,8 +34,10 @@ export async function GET(request: NextRequest) {
         WHERE co.driver_id = $1
       `, [driverId])
       
-      blockingOrders.confirmedOrders = confirmedOrdersResult.rows
-    } catch (error) {
+      blockingOrders.confirmedOrders = confirmedOrdersResult.rows})
+    return addCorsHeaders(response)
+
+  } catch (error) {
       console.log("confirmed_orders query failed:", error)
     }
 
@@ -56,8 +58,10 @@ export async function GET(request: NextRequest) {
         WHERE driver_id = $1
       `, [driverId])
       
-      blockingOrders.vehicleLocationOrders = vehicleLocationResult.rows
-    } catch (error) {
+      blockingOrders.vehicleLocationOrders = vehicleLocationResult.rows})
+    return addCorsHeaders(response)
+
+  } catch (error) {
       console.log("suppliers_vehicle_location query failed:", error)
     }
 
@@ -77,7 +81,7 @@ export async function GET(request: NextRequest) {
     console.error("Get driver blocking orders error:", error)
     const response = NextResponse.json({ 
       error: "Failed to get driver blocking orders",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
     }, { status: 500 })
   }
 }

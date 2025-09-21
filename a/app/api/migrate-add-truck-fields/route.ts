@@ -3,9 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -62,12 +62,14 @@ export async function POST() {
       message: "Trucks table migration completed successfully",
       addedColumns: columnsToAdd.filter(col => !existingColumns.includes(col.name)    
     ),
-      finalStructure: finalStructure.rows
+      finalStructure: finalStructure.rows})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Trucks migration error:", error)
     const response = NextResponse.json({ 
       error: "Trucks migration failed", 
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
+      details: error instanceof Error ? error.message : "Unknown error" 
+  })
+    return addCorsHeaders(response)
   }
-}
-

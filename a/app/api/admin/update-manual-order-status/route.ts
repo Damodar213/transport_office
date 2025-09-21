@@ -3,9 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     console.error("Error updating manual order status:", error)
     const response = NextResponse.json({ 
       error: "Failed to update manual order status",
-      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-

@@ -4,9 +4,9 @@ import { dbQuery, getPool } from "@/lib/db"
 import bcrypt from "bcryptjs"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -17,9 +17,9 @@ export async function POST() {
     console.log("Resetting admin password...")
     
     // Check if database is available
-    if (!getPool()) {
-    }
-    
+    if (!getPool()) {})
+    return addCorsHeaders(response)
+  }
     // Generate new password hash for "admin123"
     const newPassword = "admin123"
     const newPasswordHash = await bcrypt.hash(newPassword, 10)
@@ -41,7 +41,9 @@ export async function POST() {
       message: "Admin password reset successfully",
       newPassword: newPassword,
       userId: "admin",
-      role: "admin"
+      role: "admin"})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Reset admin password error:", error)
   }

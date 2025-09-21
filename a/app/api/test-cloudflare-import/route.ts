@@ -22,14 +22,14 @@ export async function GET() {
         error: "Cloudflare import failed",
         details: importError instanceof Error ? importError.message : "Unknown error",
         stack: importError instanceof Error ? importError.stack : undefined
-    }
+    })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Cloudflare import test error:", error)
     const response = NextResponse.json({ 
       error: "Cloudflare import test failed",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-

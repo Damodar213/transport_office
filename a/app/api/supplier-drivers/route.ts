@@ -56,9 +56,9 @@ export async function GET(request: Request) {
 
 // POST - Create new driver
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -75,9 +75,9 @@ export async function POST(request: Request) {
       [body.supplierId]
     )
 
-    if (supplierResult.rows.length === 0) {
-    }
-
+    if (supplierResult.rows.length === 0) {})
+    return addCorsHeaders(response)
+  }
     const supplierId = supplierResult.rows[0].user_id
     console.log("Found supplier ID:", supplierId)
 
@@ -119,7 +119,9 @@ export async function POST(request: Request) {
     
     const response = NextResponse.json({ 
       message: "Driver created successfully", 
-      driver: result.rows[0] 
+      driver: result.rows[0]})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Create driver error:", error)
   }
@@ -179,7 +181,9 @@ export async function PUT(request: Request) {
     
     const response = NextResponse.json({ 
       message: "Driver updated successfully", 
-      driver: result.rows[0] 
+      driver: result.rows[0]})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Update driver error:", error)
   }
@@ -222,8 +226,10 @@ export async function DELETE(request: Request) {
           const response = NextResponse.json({ 
             error: "Cannot delete driver. Driver is assigned to confirmed orders. Please reassign or complete the orders first.",
             details: "Driver has active orders"
-        }
-      } catch (error) {
+        })
+    return addCorsHeaders(response)
+
+  } catch (error) {
         console.log("confirmed_orders check skipped:", error)
       }
 
@@ -241,8 +247,10 @@ export async function DELETE(request: Request) {
           const response = NextResponse.json({ 
             error: "Cannot delete driver. Driver is assigned to vehicle location requests. Please reassign or complete the requests first.",
             details: "Driver has active vehicle location requests"
-        }
-      } catch (error) {
+        })
+    return addCorsHeaders(response)
+
+  } catch (error) {
         console.log("suppliers_vehicle_location check skipped:", error)
       }
 
@@ -283,7 +291,9 @@ export async function DELETE(request: Request) {
     
     const response = NextResponse.json({ 
       message: "Driver deleted successfully",
-      deletedDriver: checkResult.rows[0]
+      deletedDriver: checkResult.rows[0]})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Delete driver error:", error)
     
@@ -309,7 +319,7 @@ export async function DELETE(request: Request) {
     
     const response = NextResponse.json({ 
       error: "Failed to delete driver", 
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
+      details: error instanceof Error ? error.message : "Unknown error" 
+  })
+    return addCorsHeaders(response)
   }
-}
-

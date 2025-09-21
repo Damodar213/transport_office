@@ -5,9 +5,9 @@ import { dbQuery, getPool } from "@/lib/db"
 // PUT - Mark all transport request notifications as read
 export async function PUT() {
   try {
-    if (!getPool()) {
-    }
-
+    if (!getPool()) {})
+    return addCorsHeaders(response)
+  }
     console.log("PUT /api/admin/transport-request-notifications/mark-all-read - marking all as read")
 
     // Update all unread notifications to mark as read
@@ -24,12 +24,14 @@ export async function PUT() {
     const response = NextResponse.json({
       success: true,
       message: "All transport request notifications marked as read successfully",
-      updatedCount
+      updatedCount})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error marking all transport request notifications as read:", error)
     const response = NextResponse.json({ 
       error: "Failed to mark all notifications as read",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-

@@ -6,9 +6,9 @@ export async function PUT() {
   try {
     console.log("PUT /api/admin/notifications/mark-all-read - marking all as read")
     
-    if (!getPool()) {
-    }
-    
+    if (!getPool()) {})
+    return addCorsHeaders(response)
+  }
     // Check if notifications table exists
     const tableExists = await dbQuery(`
       SELECT EXISTS (

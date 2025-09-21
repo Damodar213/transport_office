@@ -5,9 +5,9 @@ import { dbQuery, getPool } from "@/lib/db"
 export async function GET() {
   try {
     const pool = getPool()
-    if (!pool) {
-    }
-
+    if (!pool) {})
+    return addCorsHeaders(response)
+  }
     // Test the JOIN with explicit casting
     const joinTest = await dbQuery(`
       SELECT 
@@ -30,13 +30,14 @@ export async function GET() {
     const response = NextResponse.json({
       success: true,
       documents: joinTest.rows,
-      message: "Join test with casting completed"
+      message: "Join test with casting completed"})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Join test error:", error)
     const response = NextResponse.json({ 
       error: "Join test failed",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-

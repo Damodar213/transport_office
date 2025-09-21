@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST(request: NextRequest) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -204,7 +204,7 @@ export async function POST(request: NextRequest) {
     console.error("Manual order creation error:", error)
     const response = NextResponse.json({ 
       error: "Failed to create manual order",
-      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error"
     }, { status: 500 })
   }
 }

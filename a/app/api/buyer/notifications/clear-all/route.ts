@@ -45,41 +45,14 @@ export async function DELETE(request: Request) {
     const response = NextResponse.json({
       success: true,
       message: "All buyer notifications cleared successfully",
-      deletedCount: deletedCount
+      deletedCount: deletedCount})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error clearing all buyer notifications:", error)
     const response = NextResponse.json({
       error: "Failed to clear all buyer notifications",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

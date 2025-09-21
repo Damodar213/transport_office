@@ -41,7 +41,9 @@ export async function PUT(request: NextRequest) {
 
     const response = NextResponse.json({
       message: "Order status updated successfully",
-      update: statusUpdate,
+      update: statusUpdate,})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Status update error:", error)
   }

@@ -53,23 +53,22 @@ export async function GET(request: Request) {
       
       const response = NextResponse.json({
         unreadCount,
-        totalCount
-    } catch (error) {
+        totalCount})
+    return addCorsHeaders(response)
+
+  } catch (error) {
       console.error("Error fetching notification count:", error)
       const response = NextResponse.json({ 
         unreadCount: 0,
         totalCount: 0
-    }
-    
+    })
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error in notification count API:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch notification count",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-
-
-
-

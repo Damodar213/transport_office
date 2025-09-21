@@ -5,9 +5,9 @@ import { dbQuery, getPool } from "@/lib/db"
 export async function GET() {
   try {
     const pool = getPool()
-    if (!pool) {
-    }
-
+    if (!pool) {})
+    return addCorsHeaders(response)
+  }
     // Check vehicle_documents table
     const docsResult = await dbQuery("SELECT COUNT(*) as count FROM vehicle_documents")
     const docCount = docsResult.rows[0].count
@@ -40,8 +40,7 @@ export async function GET() {
     console.error("Vehicle documents test error:", error)
     const response = NextResponse.json({ 
       error: "Test failed",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-

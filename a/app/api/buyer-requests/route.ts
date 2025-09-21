@@ -8,9 +8,9 @@ export async function GET(request: Request) {
   try {
     // First, verify the user is authenticated
     const session = await getSession()
-    if (!session) {
-    }
-
+    if (!session) {})
+    return addCorsHeaders(response)
+  }
     // Allow buyers and admins to access this endpoint
     if (session.role !== 'buyer' && session.role !== 'admin') {
     }
@@ -78,20 +78,22 @@ export async function GET(request: Request) {
       data: result.rows,
       total: result.rows.length,
       limit,
-      offset
+      offset})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error fetching buyer requests:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch buyer requests",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
 // POST - Create a new buyer request
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -101,9 +103,9 @@ export async function POST(request: Request) {
   try {
     // First, verify the user is authenticated
     const session = await getSession()
-    if (!session) {
-    }
-
+    if (!session) {})
+    return addCorsHeaders(response)
+  }
     // Allow buyers and admins to access this endpoint
     if (session.role !== 'buyer' && session.role !== 'admin') {
     }
@@ -196,11 +198,14 @@ export async function POST(request: Request) {
     const response = NextResponse.json({
       success: true,
       message: "Buyer request created successfully",
-      data: newRequest
+      data: newRequest})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error creating buyer request:", error)
     const response = NextResponse.json({ 
       error: "Failed to create buyer request",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}

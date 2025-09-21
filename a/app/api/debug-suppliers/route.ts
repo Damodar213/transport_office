@@ -5,9 +5,9 @@ import { dbQuery, getPool } from "@/lib/db"
 export async function GET() {
   try {
     const pool = getPool()
-    if (!pool) {
-    }
-
+    if (!pool) {})
+    return addCorsHeaders(response)
+  }
     console.log("Checking suppliers in database...")
 
     // Get all suppliers
@@ -34,13 +34,14 @@ export async function GET() {
       suppliers: suppliersResult.rows,
       supplierUsers: usersResult.rows,
       totalSuppliers: suppliersResult.rows.length,
-      totalSupplierUsers: usersResult.rows.length
+      totalSupplierUsers: usersResult.rows.length})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error checking suppliers:", error)
     const response = NextResponse.json({ 
       error: "Failed to check suppliers",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-

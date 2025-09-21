@@ -4,9 +4,9 @@ import { dbQuery, getPool } from "@/lib/db"
 import { createApiResponse, createApiError } from "@/lib/api-utils"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -16,9 +16,9 @@ export async function POST() {
   try {
     const pool = getPool()
     if (!pool) {
-      return createApiError("Database not available", null, 503)
-    }
-
+      return createApiError("Database not available", null, 503)})
+    return addCorsHeaders(response)
+  }
     console.log("Creating supplier_documents table...")
 
     // Create supplier_documents table
@@ -82,8 +82,10 @@ export async function POST() {
                   submission.reviewedBy || null,
                   submission.reviewedAt ? new Date(submission.reviewedAt).toISOString() : null
                 ]
-              )
-            } catch (error) {
+              )})
+    return addCorsHeaders(response)
+
+  } catch (error) {
               console.error(`Error migrating document ${submission.id}:`, error)
             }
           }
@@ -122,8 +124,10 @@ export async function POST() {
                   docUrl,
                   new Date().toISOString()
                 ]
-              )
-            } catch (error) {
+              )})
+    return addCorsHeaders(response)
+
+  } catch (error) {
               console.error(`Error migrating user document ${user.user_id}-${docType}:`, error)
             }
           }
@@ -143,7 +147,7 @@ export async function POST() {
     console.error("Migration error:", error)
     return createApiError(
       "Failed to create supplier_documents table",
-      error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
+      error instanceof Error ? error.message : "Unknown error",
       500
     )
   }

@@ -35,13 +35,14 @@ export async function PUT(
       notification: {
         id: result.rows[0].id,
         isRead: result.rows[0].is_read
-      }
+      })
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error marking notification as read:", error)
     const response = NextResponse.json({ 
       error: "Failed to mark notification as read",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-

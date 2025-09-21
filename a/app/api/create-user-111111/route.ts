@@ -4,9 +4,9 @@ import { dbQuery } from "@/lib/db"
 import bcrypt from "bcryptjs"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -106,13 +106,14 @@ export async function POST() {
       success: true,
       message: "User 111111 and supplier record created successfully",
       user: userResult.rows[0],
-      supplier: supplierResult.rows[0]
+      supplier: supplierResult.rows[0]})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error creating user and supplier:", error)
     const response = NextResponse.json({ 
       error: "Failed to create user and supplier",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-

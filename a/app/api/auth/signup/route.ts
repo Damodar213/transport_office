@@ -11,9 +11,9 @@ import { join } from "path"
 import { existsSync } from "fs"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST(request: NextRequest) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -282,6 +282,7 @@ export async function POST(request: NextRequest) {
     console.error("Signup error:", error)
     const response = NextResponse.json({ 
       error: "Internal server error",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}

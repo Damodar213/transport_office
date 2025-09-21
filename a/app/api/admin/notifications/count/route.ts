@@ -9,9 +9,9 @@ export async function GET() {
     // Check database connection
     let pool = getPool()
     if (!pool) {
-      console.log("Database not available")
-    }
-
+      console.log("Database not available")})
+    return addCorsHeaders(response)
+  }
     // Test database connection first
     try {
       await pool.query('SELECT 1')

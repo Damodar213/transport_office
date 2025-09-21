@@ -4,9 +4,9 @@ import { dbQuery, getPool } from "@/lib/db"
 
 // POST - Create a new order submission record
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -14,9 +14,9 @@ export async function POST(request: Request) {
 
 
   try {
-    if (!getPool()) {
-    }
-
+    if (!getPool()) {})
+    return addCorsHeaders(response)
+  }
     const body = await request.json()
     const { orderId, supplierId, submittedBy } = body
 
@@ -36,7 +36,9 @@ export async function POST(request: Request) {
     const response = NextResponse.json({
       success: true,
       message: "Order submission recorded successfully",
-      submission: result.rows[0]
+      submission: result.rows[0]})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error creating order submission:", error)
     
@@ -48,16 +50,16 @@ export async function POST(request: Request) {
     
     const response = NextResponse.json({ 
       error: "Failed to record order submission",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
 // GET - Get all order submissions (for admin view)
 export async function GET() {
   try {
-    if (!getPool()) {
-    }
-
+    if (!getPool()) {})
+    return addCorsHeaders(response)
+  }
     const result = await dbQuery(`
       SELECT 
         os.*,
@@ -72,11 +74,14 @@ export async function GET() {
 
     const response = NextResponse.json({
       success: true,
-      submissions: result.rows
+      submissions: result.rows})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error fetching order submissions:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch order submissions",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}

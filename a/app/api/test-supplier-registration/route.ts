@@ -4,9 +4,9 @@ import { getPool, dbQuery } from "@/lib/db"
 import bcrypt from "bcryptjs"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -15,9 +15,9 @@ export async function POST() {
 
   try {
     const pool = getPool()
-    if (!pool) {
-    }
-
+    if (!pool) {})
+    return addCorsHeaders(response)
+  }
     console.log("Testing supplier registration...")
 
     // Test data
@@ -74,14 +74,15 @@ export async function POST() {
       success: true,
       message: "Supplier registration test completed successfully",
       testUserId,
-      insertedData: verifyResult.rows[0]
+      insertedData: verifyResult.rows[0]})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Supplier registration test error:", error)
     const response = NextResponse.json({ 
       success: false,
       error: "Supplier registration test failed",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-

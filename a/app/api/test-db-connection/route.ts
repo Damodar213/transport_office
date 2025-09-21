@@ -14,9 +14,9 @@ export async function GET() {
         "Database not configured",
         "DATABASE_URL environment variable is not set",
         503
-      )
-    }
-    
+      )})
+    return addCorsHeaders(response)
+  }
     const pool = getPool()
     if (!pool) {
       return createApiError(
@@ -63,7 +63,7 @@ export async function GET() {
     console.error("Database connection test failed:", error)
     return createApiError(
       "Database connection failed",
-      error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
+      error instanceof Error ? error.message : "Unknown error",
       503
     )
   }

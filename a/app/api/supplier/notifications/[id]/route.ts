@@ -24,7 +24,7 @@ export async function DELETE(
     
     if (!tableExists.rows[0].exists) {
         error: "Supplier notifications table not found",
-        message: "Notification deleted (mock mode)
+        message: "Notification deleted (mock mode)"
       })
     }
     
@@ -41,16 +41,14 @@ export async function DELETE(
     console.log(`Supplier notification ${id} deleted successfully`)
     const response = NextResponse.json({ 
       message: "Notification deleted successfully",
-      notificationId: id
+      notificationId: id})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error deleting supplier notification:", error)
     const response = NextResponse.json({ 
       error: "Failed to delete notification",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-
-
-
-

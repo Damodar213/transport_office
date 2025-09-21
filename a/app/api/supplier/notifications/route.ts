@@ -140,14 +140,14 @@ export async function GET(request: Request) {
     console.error("Error in supplier notifications API:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch notifications",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -234,15 +234,17 @@ export async function POST(request: Request) {
         console.log("Supplier notification created successfully:", newNotification.id)
         const response = NextResponse.json({ 
           message: "Notification created successfully",
-          notification: newNotification
-      } catch (error) {
+          notification: newNotification})
+    return addCorsHeaders(response)
+
+  } catch (error) {
         console.error("Error creating notification in database:", error)
         const response = NextResponse.json({ 
           error: "Failed to create notification in database",
-          details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-      }
-    }
-    
+          details: error instanceof Error ? error.message : "Unknown error"
+      })
+    return addCorsHeaders(response)
+  }
     // Fallback response if database is not available
     const currentIndianTime = new Date().toLocaleString("en-US", {
       timeZone: "Asia/Kolkata",
@@ -254,7 +256,7 @@ export async function POST(request: Request) {
       hour12: true
     })
     
-      message: "Notification created successfully (mock mode)
+      message: "Notification created successfully (mock mode)"
       notification: {
         id: Date.now().toString(),
         type,
@@ -274,10 +276,10 @@ export async function POST(request: Request) {
     console.error("Error creating supplier notification:", error)
     const response = NextResponse.json({ 
       error: "Failed to create notification",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
 function formatTimestamp(timestamp: string | Date): string {
   try {
     // Parse the timestamp and ensure it's treated as IST

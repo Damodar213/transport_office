@@ -3,9 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -16,9 +16,9 @@ export async function POST(request: Request) {
     console.log("Send to buyer API called")
     
     if (!getPool()) {
-      console.log("Database not available")
-    }
-
+      console.log("Database not available")})
+    return addCorsHeaders(response)
+  }
     const { orderSubmissionId, buyerId } = await request.json()
     console.log("Order submission ID:", orderSubmissionId, "Buyer ID:", buyerId)
 
@@ -188,7 +188,9 @@ export async function POST(request: Request) {
     const response = NextResponse.json({
       success: true,
       message: "Order sent to buyer successfully",
-      request: acceptedRequest.rows[0]
+      request: acceptedRequest.rows[0]})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error sending order to buyer:", error)
     const response = NextResponse.json(

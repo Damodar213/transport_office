@@ -4,9 +4,9 @@ import bcrypt from "bcryptjs"
 import { findUserByCredentialsAsync } from "@/lib/user-storage"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -75,15 +75,16 @@ export async function POST() {
       message: "Login flow completed successfully",
       userFound: true,
       passwordValid: true,
-      sessionData
+      sessionData})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Login flow test error:", error)
     const response = NextResponse.json({ 
       success: false,
       step: "error",
       error: "Login flow test failed",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-

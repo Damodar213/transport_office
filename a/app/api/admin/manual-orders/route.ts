@@ -6,9 +6,9 @@ import { dbQuery, getPool } from "@/lib/db"
 export async function GET(request: Request) {
   try {
     const pool = getPool()
-    if (!pool) {
-    }
-
+    if (!pool) {})
+    return addCorsHeaders(response)
+  }
     console.log("Fetching manual orders...")
 
     // Get all manual orders with optional filtering
@@ -89,9 +89,9 @@ export async function GET(request: Request) {
 
 // POST - Update manual order status or assign to supplier
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -100,9 +100,9 @@ export async function POST(request: Request) {
 
   try {
     const pool = getPool()
-    if (!pool) {
-    }
-
+    if (!pool) {})
+    return addCorsHeaders(response)
+  }
     const body = await request.json()
     const { orderId, action, supplierId, supplierName, adminNotes, status } = body
 
@@ -173,7 +173,8 @@ export async function POST(request: Request) {
         success: true,
         message: "Manual order status updated successfully",
         order: result.rows[0]
-    }
+    })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error updating manual order:", error)

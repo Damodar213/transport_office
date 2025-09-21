@@ -4,9 +4,9 @@ import { dbQuery, getPool } from "@/lib/db"
 import bcrypt from "bcryptjs"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST(request: NextRequest) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -57,7 +57,9 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json({
       message: "Password updated successfully",
-      userId: userId
+      userId: userId})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Change password error:", error)
   }

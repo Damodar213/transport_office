@@ -153,12 +153,14 @@ export async function PUT(
     const response = NextResponse.json({
       success: true,
       message: "Order status updated successfully",
-      data: updatedOrder
+      data: updatedOrder})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error updating order status:", error)
     const response = NextResponse.json({ 
       error: "Failed to update order status",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-

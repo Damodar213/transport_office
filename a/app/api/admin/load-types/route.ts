@@ -83,16 +83,16 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to fetch load types",
       loadTypes: [],
-      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error"
     }, { status: 500 })
   }
 }
 
 // POST - Create new load type
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -127,8 +127,10 @@ export async function POST(request: Request) {
           created_at TIMESTAMP DEFAULT NOW(),
           updated_at TIMESTAMP DEFAULT NOW()
         )
-      `)
-    } catch (error) {
+      `)})
+    return addCorsHeaders(response)
+
+  } catch (error) {
       console.error("Error ensuring table exists:", error)
     }
 
@@ -154,7 +156,7 @@ export async function POST(request: Request) {
     
     const response = NextResponse.json({ 
       error: "Failed to create load type",
-      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error"
     }, { status: 500 })
   }
 }
@@ -206,7 +208,7 @@ export async function PUT(request: Request) {
     
     const response = NextResponse.json({ 
       error: "Failed to update load type",
-      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error"
     }, { status: 500 })
   }
 }
@@ -247,7 +249,7 @@ export async function DELETE(request: NextRequest) {
     console.error("Error deleting load type:", error)
     const response = NextResponse.json({ 
       error: "Failed to delete load type",
-      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error"
     }, { status: 500 })
   }
 }

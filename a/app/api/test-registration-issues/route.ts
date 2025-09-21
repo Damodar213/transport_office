@@ -5,9 +5,9 @@ import { getPool, dbQuery } from "@/lib/db"
 export async function GET() {
   try {
     const pool = getPool()
-    if (!pool) {
-    }
-
+    if (!pool) {})
+    return addCorsHeaders(response)
+  }
     // Check Cloudflare environment variables
     const cloudflareConfig = {
       CLOUDFLARE_ACCOUNT_ID: process.env.CLOUDFLARE_ACCOUNT_ID ? "Set" : "Missing",
@@ -47,13 +47,14 @@ export async function GET() {
       usersTableStructure: usersTableCheck.rows,
       suppliersTableStructure: suppliersTableCheck.rows,
       recentUsers: recentUsers.rows,
-      message: "Registration issues diagnostic completed"
+      message: "Registration issues diagnostic completed"})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Registration issues test error:", error)
     const response = NextResponse.json({ 
       error: "Registration issues test failed",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
-

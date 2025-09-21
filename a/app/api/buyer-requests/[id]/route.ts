@@ -40,15 +40,17 @@ export async function GET(
 
     const response = NextResponse.json({
       success: true,
-      data: result.rows[0]
+      data: result.rows[0]})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error fetching buyer request:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch buyer request",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
 // PUT - Update a buyer request (for admin operations)
 export async function PUT(
   request: Request,
@@ -236,15 +238,17 @@ export async function PUT(
     const response = NextResponse.json({
       success: true,
       message: "Buyer request updated successfully",
-      data: updatedRequest
+      data: updatedRequest})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error updating buyer request:", error)
     const response = NextResponse.json({ 
       error: "Failed to update buyer request",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
 // DELETE - Delete a buyer request (admin only)
 export async function DELETE(
   request: Request,
@@ -269,12 +273,14 @@ export async function DELETE(
 
     const response = NextResponse.json({
       success: true,
-      message: "Buyer request deleted successfully"
+      message: "Buyer request deleted successfully"})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error deleting buyer request:", error)
     const response = NextResponse.json({ 
       error: "Failed to delete buyer request",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-

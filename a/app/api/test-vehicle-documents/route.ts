@@ -7,9 +7,9 @@ export async function GET() {
   try {
     const pool = getPool()
     if (!pool) {
-      return createApiError("Database not available", null, 503)
-    }
-
+      return createApiError("Database not available", null, 503)})
+    return addCorsHeaders(response)
+  }
     // Get vehicle document count
     const countResult = await dbQuery("SELECT COUNT(*) as count FROM vehicle_documents")
     const documentCount = countResult.rows[0].count
@@ -36,7 +36,7 @@ export async function GET() {
     console.error("Test vehicle documents error:", error)
     return createApiError(
       "Failed to test vehicle documents",
-      error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
+      error instanceof Error ? error.message : "Unknown error",
       500
     )
   }

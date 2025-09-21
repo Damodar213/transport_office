@@ -22,9 +22,9 @@ async function uploadToLocal(file: Buffer, key: string, contentType: string): Pr
 }
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST(request: NextRequest) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -145,15 +145,17 @@ export async function POST(request: NextRequest) {
       key: uploadResult.key,
       filename: file.name,
       size: file.size,
-      type: file.type,
+      type: file.type,})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Upload error:", error)
     const response = NextResponse.json({ 
       error: "Upload failed", 
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
 // Handle file deletion
 export async function DELETE(request: NextRequest) {
   try {
@@ -173,15 +175,17 @@ export async function DELETE(request: NextRequest) {
 
     const response = NextResponse.json({
       message: "File deleted successfully",
-      key: fileKey,
+      key: fileKey,})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Delete error:", error)
     const response = NextResponse.json({ 
       error: "Delete failed", 
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
 // Handle signed URL generation for viewing files
 export async function GET(request: NextRequest) {
   try {
@@ -203,11 +207,14 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({
       signedUrl,
       key: fileKey,
-      expiresIn: 3600
+      expiresIn: 3600})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Signed URL generation error:", error)
     const response = NextResponse.json({ 
       error: "Failed to generate signed URL", 
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}

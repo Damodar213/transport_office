@@ -106,15 +106,15 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({ 
       confirmedOrders: [],
       error: "Failed to fetch confirmed orders, using fallback",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+  })
+    return addCorsHeaders(response)
   }
-}
-
 // POST - Create a new confirmed order (when admin confirms a transport order)
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)
-}
-
+  return handleCors(request)})
+    return addCorsHeaders(response)
+  }
 export async function POST(request: NextRequest) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -200,7 +200,9 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json({ 
       message: "Confirmed order created successfully", 
-      confirmedOrder: newConfirmedOrder 
+      confirmedOrder: newConfirmedOrder})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Create confirmed order error:", error)
   }
@@ -241,7 +243,9 @@ export async function PUT(request: NextRequest) {
 
     const response = NextResponse.json({ 
       message: "Confirmed order updated successfully", 
-      confirmedOrder: updatedOrder 
+      confirmedOrder: updatedOrder})
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Update confirmed order error:", error)
   }
