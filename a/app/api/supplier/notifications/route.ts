@@ -270,7 +270,6 @@ export async function POST(request: Request) {
     
     const response = NextResponse.json({ 
       message: "Notification created successfully (mock mode)
-    return addCorsHeaders(response)",
       notification: {
         id: Date.now().toString(),
         type,

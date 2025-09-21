@@ -28,7 +28,6 @@ export async function PUT(
       const response = NextResponse.json({ 
         error: "Supplier notifications table not found",
         message: "Notification marked as read (mock mode)
-    return addCorsHeaders(response)"
       })
     }
     

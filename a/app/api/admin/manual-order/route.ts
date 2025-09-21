@@ -64,10 +64,10 @@ export async function POST(request: NextRequest) {
     if (!loadType || (!estimatedTons && !numberOfGoods) || !deliveryPlace) {
       console.log("Missing required fields")
       const response = NextResponse.json(
-        { error: "Missing required fields: loadType, (estimatedTons or numberOfGoods)
-    return addCorsHeaders(response), deliveryPlace" },
+        { error: "Missing required fields: loadType, (estimatedTons or numberOfGoods), deliveryPlace" },
         { status: 400 }
       )
+      return addCorsHeaders(response)
     }
 
     // Create a general manual order without specific supplier assignment

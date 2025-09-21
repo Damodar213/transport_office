@@ -21,18 +21,17 @@ export async function GET(request: Request) {
     if (format === 'json') {
       const response = NextResponse.json({ 
         users: exportData,
-        exportedAt: new Date()
-    return addCorsHeaders(response).toISOString(),
+        exportedAt: new Date().toISOString(),
         totalUsers: exportData.length
       })
+      return addCorsHeaders(response)
     }
 
     // For other formats, return the data that can be processed on the client side
     const response = NextResponse.json({ 
       users: exportData,
       format,
-      exportedAt: new Date()
-    return addCorsHeaders(response).toISOString(),
+      exportedAt: new Date().toISOString(),
       totalUsers: exportData.length
     })
 

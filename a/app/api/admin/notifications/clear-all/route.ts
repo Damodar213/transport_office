@@ -23,9 +23,9 @@ export async function DELETE() {
     if (!tableExists.rows[0].exists) {
       const response = NextResponse.json({ 
         error: "Notifications table not found",
-        message: "All notifications cleared (mock mode)
-    return addCorsHeaders(response)"
+        message: "All notifications cleared (mock mode)"
       })
+      return addCorsHeaders(response)
     }
     
     // Get count before deletion

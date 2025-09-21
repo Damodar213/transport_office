@@ -293,7 +293,6 @@ export async function POST(request: Request) {
     // Fallback response if database is not available
     const response = NextResponse.json({ 
       message: "Notification created successfully (mock mode)
-    return addCorsHeaders(response)",
       notification: {
         id: Date.now().toString(),
         type,

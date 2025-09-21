@@ -27,9 +27,9 @@ export async function PUT(
     if (!tableExists.rows[0].exists) {
       const response = NextResponse.json({ 
         error: "Notifications table not found",
-        message: "Notification marked as read (mock mode)
-    return addCorsHeaders(response)"
+        message: "Notification marked as read (mock mode)"
       })
+      return addCorsHeaders(response)
     }
     
     // Update notification to mark as read

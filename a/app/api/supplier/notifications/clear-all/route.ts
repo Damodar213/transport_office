@@ -32,7 +32,6 @@ export async function DELETE(request: Request) {
       const response = NextResponse.json({ 
         error: "Supplier notifications table not found",
         message: "All notifications cleared (mock mode)
-    return addCorsHeaders(response)"
       })
     }
     
