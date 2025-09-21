@@ -194,7 +194,9 @@ export async function GET() {
     console.error("Error in notifications API:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch notifications",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

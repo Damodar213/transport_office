@@ -111,6 +111,8 @@ export async function POST(request: Request) {
     if (!orderId || !action) {
       const response = NextResponse.json({ 
         error: "Order ID and action are required" 
+      }, { status: 400 })
+      return addCorsHeaders(response)
     }
 
     if (action === "assign") {
@@ -118,6 +120,8 @@ export async function POST(request: Request) {
       if (!supplierId || !supplierName) {
         const response = NextResponse.json({ 
           error: "Supplier ID and name are required for assignment" 
+        }, { status: 400 })
+        return addCorsHeaders(response)
       }
 
       const result = await dbQuery(`

@@ -45,11 +45,16 @@ export async function PUT(
     const response = NextResponse.json({ 
       message: "Notification marked as read successfully",
       notificationId: id
+    })
+    return addCorsHeaders(response)
+    
   } catch (error) {
     console.error("Error marking notification as read:", error)
     const response = NextResponse.json({ 
       error: "Failed to mark notification as read",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
