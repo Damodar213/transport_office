@@ -51,7 +51,6 @@ export async function GET() {
       suppliers,
       total: suppliers.length,
       message: "Available suppliers fetched successfully"
-  }
     })
     return addCorsHeaders(response)
     

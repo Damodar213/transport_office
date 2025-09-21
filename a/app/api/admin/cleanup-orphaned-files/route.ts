@@ -112,12 +112,11 @@ export async function POST(request: NextRequest) {
         return createApiResponse({
           ...results,
           summary: {
-  }
             total: urlsToDelete.length,
             successful: results.successful.length,
             failed: results.failed.length,
             skipped: results.skipped.length
-  }
+          }
         }, "Cleanup completed")
       } catch (error) {
         console.error("Error during cleanup:", error)

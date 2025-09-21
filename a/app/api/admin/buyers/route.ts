@@ -47,6 +47,7 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json(
       { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
-
     )
+    return addCorsHeaders(response)
   }
+}

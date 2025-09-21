@@ -214,13 +214,11 @@ export async function GET() {
     const userSatisfaction = {
       value: currentTotal > 0 ? (currentCompleted / currentTotal * 5).toFixed(1) : "4.8",
       change: previousSuccessRate > 0 ? 
-  }
         ((currentSuccessRate - previousSuccessRate) / previousSuccessRate * 100).toFixed(1) : "0.0",
       trend: currentSuccessRate > previousSuccessRate ? "up" : 
-  }
              currentSuccessRate < previousSuccessRate ? "down" : "stable",
       description: "Based on order success rate"
-  }
+    }
     // --- Dynamic System Health ---
     // Calculate database performance based on query success rate
     const databasePerformance = {

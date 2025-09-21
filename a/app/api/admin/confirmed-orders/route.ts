@@ -57,7 +57,6 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to fetch confirmed orders",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
     }, { status: 500 })
     return addCorsHeaders(response)
   }
