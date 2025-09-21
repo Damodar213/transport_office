@@ -11,7 +11,7 @@ export async function GET(
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
 
-    const id = params.id
+    const id = (await params).id
 
     const result = await dbQuery(`
       SELECT 
@@ -63,7 +63,7 @@ export async function PUT(
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
 
-    const id = params.id
+    const id = (await params).id
     const body = await request.json()
     const {
       status,
@@ -265,7 +265,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
 
-    const id = params.id
+    const id = (await params).id
 
     const result = await dbQuery(`
       DELETE FROM buyer_requests 

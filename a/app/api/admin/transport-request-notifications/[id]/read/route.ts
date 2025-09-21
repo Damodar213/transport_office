@@ -11,7 +11,7 @@ export async function PUT(
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
 
-    const id = params.id
+    const { id } = await params
     console.log(`PUT /api/admin/transport-request-notifications/${id}/read - marking as read`)
 
     // Update the notification to mark it as read

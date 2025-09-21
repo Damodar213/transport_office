@@ -11,7 +11,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
 
-    const id = params.id
+    const { id } = await params
 
     // Delete the notification
     const result = await dbQuery(`
