@@ -206,6 +206,7 @@ export async function POST(request: NextRequest) {
       const buyerData = {
         userId,
         passwordHash,
+        role: "buyer" as const,
         companyName: formData.get("companyName") as string,
         gstNumber: formData.get("gstNumber") as string,
       }
