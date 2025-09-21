@@ -59,7 +59,7 @@ export async function GET() {
             ...userDetails,
             companyName: buyer.company_name || userDetails.companyName,
             gstNumber: buyer.gst_number
-          }
+          } as any
         }
       } catch (error) {
         console.error("Error fetching buyer details:", error)
