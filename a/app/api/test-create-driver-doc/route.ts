@@ -16,7 +16,6 @@ export async function POST() {
     const pool = getPool()
     if (!pool) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
-    return addCorsHeaders(response)
     }
 
     // Get the first driver from the database
@@ -32,7 +31,6 @@ export async function POST() {
         error: "No drivers with documents found",
         message: "Please create a driver with a document first"
       }, { status: 404 })
-    return addCorsHeaders(response)
     }
 
     const driver = driverResult.rows[0]
@@ -52,7 +50,6 @@ export async function POST() {
       message: "Driver document submission created successfully",
       document: result.rows[0]
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Create driver document test error:", error)
@@ -60,7 +57,6 @@ export async function POST() {
       error: "Test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

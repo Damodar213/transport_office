@@ -22,24 +22,20 @@ export async function POST(request: NextRequest) {
         { error: "Missing required fields: orderSubmissionId, orderType" },
         { status: 400 }
       )
-    return addCorsHeaders(response)
     }
 
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     // Verify the user is authenticated and is an admin
     const session = await getSession()
     if (!session) {
       const response = NextResponse.json({ error: "Authentication required" }, { status: 401 })
-    return addCorsHeaders(response)
     }
 
     if (session.role !== 'admin') {
       const response = NextResponse.json({ error: "Access denied - admin role required" }, { status: 403 })
-    return addCorsHeaders(response)
     }
 
     const parsedOrderSubmissionId = parseInt(orderSubmissionId)
@@ -69,7 +65,6 @@ export async function POST(request: NextRequest) {
       message: "Order notification status updated successfully",
       updatedRows: updateResult.rows.length
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error updating order notification status:", error)
@@ -80,7 +75,6 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     )
-    return addCorsHeaders(response)
   }
 }
 

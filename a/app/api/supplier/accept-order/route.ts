@@ -23,13 +23,11 @@ export async function POST(request: NextRequest) {
         { error: "Missing required fields: orderId, driverId, vehicleId, driverMobile" },
         { status: 400 }
       )
-    return addCorsHeaders(response)
     }
 
     if (!getPool()) {
       console.log("Database not available")
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     // Verify the user is authenticated and is a supplier
@@ -37,13 +35,11 @@ export async function POST(request: NextRequest) {
     if (!session) {
       console.log("No session found - user not authenticated")
       const response = NextResponse.json({ error: "Authentication required. Please log in as a supplier." }, { status: 401 })
-    return addCorsHeaders(response)
     }
 
     if (session.role !== 'supplier') {
       console.log("User role is not supplier:", session.role)
       const response = NextResponse.json({ error: "Access denied - supplier role required. Current role: " + session.role }, { status: 403 })
-    return addCorsHeaders(response)
     }
 
     const supplierId = session.userIdString
@@ -76,7 +72,6 @@ export async function POST(request: NextRequest) {
     if (orderCheck.rows.length === 0) {
       console.log("Order not found or not authorized")
       const response = NextResponse.json({ error: "Order not found or not authorized" }, { status: 404 })
-    return addCorsHeaders(response)
     }
 
     console.log("Order type:", orderType)
@@ -107,7 +102,6 @@ export async function POST(request: NextRequest) {
       const response = NextResponse.json({ 
         error: `Driver not found. Please ensure you have drivers registered in your account. Supplier: ${supplierId}, Driver ID: ${parsedDriverId}` 
       }, { status: 404 })
-    return addCorsHeaders(response)
     }
 
     if (vehicleResult.rows.length === 0) {
@@ -115,7 +109,6 @@ export async function POST(request: NextRequest) {
       const response = NextResponse.json({ 
         error: `Vehicle not found. Please ensure you have vehicles registered in your account. Supplier: ${supplierId}, Vehicle ID: ${parsedVehicleId}` 
       }, { status: 404 })
-    return addCorsHeaders(response)
     }
 
     const driver = driverResult.rows[0]
@@ -447,7 +440,6 @@ export async function POST(request: NextRequest) {
         vehicleType: vehicle.body_type
       }
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error accepting order:", error)
@@ -462,7 +454,7 @@ export async function POST(request: NextRequest) {
         error: "Internal server error", 
         details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
         stack: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : undefined)
-    return addCorsHeaders(response) : undefined
+     : undefined
       },
       { status: 500 }
     )

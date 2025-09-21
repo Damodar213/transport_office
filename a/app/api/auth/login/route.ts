@@ -72,7 +72,6 @@ export async function POST(request: NextRequest) {
     })
 
     // Add CORS headers
-    return addCorsHeaders(response)
   } catch (error) {
     console.error("Login error:", error)
     const errorResponse = NextResponse.json({ error: "Internal server error" }, { status: 500 })

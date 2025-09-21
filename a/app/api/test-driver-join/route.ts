@@ -7,7 +7,6 @@ export async function GET() {
     const pool = getPool()
     if (!pool) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
-    return addCorsHeaders(response)
     }
 
     // Test the JOIN step by step
@@ -43,7 +42,6 @@ export async function GET() {
       joinTest: joinTest.rows,
       message: "Join test completed"
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Join test error:", error)
@@ -51,7 +49,6 @@ export async function GET() {
       error: "Join test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

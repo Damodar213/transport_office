@@ -19,7 +19,6 @@ export async function POST(request: NextRequest) {
 
     if (!currentPassword || !newPassword) {
       const response = NextResponse.json({ error: "Current password and new password are required" }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     console.log("Changing password for user:", userId)
@@ -27,7 +26,6 @@ export async function POST(request: NextRequest) {
     // Check if database is available
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     // Verify current password
@@ -38,7 +36,6 @@ export async function POST(request: NextRequest) {
 
     if (userResult.rows.length === 0) {
       const response = NextResponse.json({ error: "Admin user not found" }, { status: 404 })
-    return addCorsHeaders(response)
     }
 
     const currentPasswordHash = userResult.rows[0].password_hash
@@ -46,7 +43,6 @@ export async function POST(request: NextRequest) {
 
     if (!isCurrentPasswordValid) {
       const response = NextResponse.json({ error: "Current password is incorrect" }, { status: 401 })
-    return addCorsHeaders(response)
     }
 
     // Hash new password
@@ -60,7 +56,6 @@ export async function POST(request: NextRequest) {
 
     if (updateResult.rows.length === 0) {
       const response = NextResponse.json({ error: "Failed to update password" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     console.log("Password updated successfully for user:", userId)
@@ -69,11 +64,9 @@ export async function POST(request: NextRequest) {
       message: "Password updated successfully",
       userId: userId
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Change password error:", error)
     const response = NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }

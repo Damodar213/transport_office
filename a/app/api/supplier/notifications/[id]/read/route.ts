@@ -12,7 +12,6 @@ export async function PUT(
     
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
     
     // Check if supplier_notifications table exists
@@ -41,7 +40,6 @@ export async function PUT(
     
     if (result.rows.length === 0) {
       const response = NextResponse.json({ error: "Notification not found" }, { status: 404 })
-    return addCorsHeaders(response)
     }
     
     console.log(`Supplier notification ${id} marked as read successfully`)
@@ -49,7 +47,6 @@ export async function PUT(
       message: "Notification marked as read successfully",
       notificationId: id
     })
-    return addCorsHeaders(response)
     
   } catch (error) {
     console.error("Error marking supplier notification as read:", error)
@@ -57,7 +54,6 @@ export async function PUT(
       error: "Failed to mark notification as read",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

@@ -11,7 +11,6 @@ export async function GET() {
         error: "Database not available",
         status: "disconnected"
       }, { status: 500 })
-    return addCorsHeaders(response)
     }
     
     try {
@@ -46,8 +45,7 @@ export async function GET() {
           connection: "OK",
           tables: tableTest.rows.length,
           queryTime: `${queryTime}ms`,
-          version: version.split(' ')
-    return addCorsHeaders(response)[0] + ' ' + version.split(' ')[1] // PostgreSQL 15.4
+          version: version.split(' ')[0] + ' ' + version.split(' ')[1] // PostgreSQL 15.4
         }
       })
       
@@ -58,7 +56,6 @@ export async function GET() {
         error: "Database connection test failed",
         details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
       }, { status: 500 })
-    return addCorsHeaders(response)
     }
     
   } catch (error) {
@@ -67,7 +64,6 @@ export async function GET() {
       error: "Failed to test database connection",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

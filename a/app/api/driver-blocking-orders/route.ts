@@ -8,7 +8,6 @@ export async function GET(request: NextRequest) {
 
     if (!driverId) {
       const response = NextResponse.json({ error: "Driver ID is required" }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     console.log("Getting blocking orders for driver ID:", driverId)
@@ -73,7 +72,6 @@ export async function GET(request: NextRequest) {
         ? "Driver can be deleted safely" 
         : `Driver has ${totalBlockingOrders} active orders that prevent deletion`
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Get driver blocking orders error:", error)
@@ -81,7 +79,6 @@ export async function GET(request: NextRequest) {
       error: "Failed to get driver blocking orders",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

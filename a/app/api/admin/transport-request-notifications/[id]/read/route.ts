@@ -10,7 +10,6 @@ export async function PUT(
   try {
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     const { id } = await params
@@ -30,7 +29,6 @@ export async function PUT(
       const response = NextResponse.json({ 
         error: "Notification not found" 
       }, { status: 404 })
-    return addCorsHeaders(response)
     }
 
     const response = NextResponse.json({
@@ -41,7 +39,6 @@ export async function PUT(
         isRead: result.rows[0].is_read
       }
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error marking notification as read:", error)
@@ -49,7 +46,6 @@ export async function PUT(
       error: "Failed to mark notification as read",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

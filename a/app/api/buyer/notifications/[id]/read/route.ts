@@ -11,14 +11,12 @@ export async function PUT(
     
     if (!id) {
       const response = NextResponse.json({ error: "Notification ID is required" }, { status: 400 })
-    return addCorsHeaders(response)
     }
     
     console.log(`PUT /api/buyer/notifications/${id}/read - marking as read`)
     
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
     
     // Check if buyer_notifications table exists
@@ -33,7 +31,7 @@ export async function PUT(
     if (!tableExists.rows[0].exists) {
       const response = NextResponse.json({
         error: "Buyer notifications table not found",
-        message: "Notification marked as read (mock mode)
+        message: "Notification marked as read (mock mode)"
       })
     }
     
@@ -47,7 +45,6 @@ export async function PUT(
     
     if (result.rows.length === 0) {
       const response = NextResponse.json({ error: "Notification not found" }, { status: 404 })
-    return addCorsHeaders(response)
     }
     
     const updatedNotification = result.rows[0]
@@ -57,8 +54,7 @@ export async function PUT(
       success: true,
       message: "Notification marked as read successfully",
       notification: {
-        id: updatedNotification.id.toString()
-    return addCorsHeaders(response),
+        id: updatedNotification.id.toString(),
         isRead: updatedNotification.is_read
       }
     })
@@ -69,7 +65,6 @@ export async function PUT(
       error: "Failed to mark notification as read",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

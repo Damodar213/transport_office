@@ -26,7 +26,6 @@ export async function POST(request: NextRequest) {
     if (!userId || !password || !role) {
       console.log("Missing required fields")
       const response = NextResponse.json({ error: "Missing required fields" }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     // Test Cloudflare import
@@ -39,7 +38,6 @@ export async function POST(request: NextRequest) {
         error: "Cloudflare import failed",
         details: importError instanceof Error ? importError.message : "Unknown error"
       }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     // Test user storage import
@@ -52,7 +50,6 @@ export async function POST(request: NextRequest) {
         error: "User storage import failed",
         details: importError instanceof Error ? importError.message : "Unknown error"
       }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     const response = NextResponse.json({
@@ -64,7 +61,6 @@ export async function POST(request: NextRequest) {
         hasPassword: !!password
       }
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Simple signup test error:", error)
@@ -73,7 +69,6 @@ export async function POST(request: NextRequest) {
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

@@ -5,11 +5,9 @@ export async function GET() {
   try {
     const docs = listDocuments()
     const response = NextResponse.json({ documents: docs })
-    return addCorsHeaders(response)
   } catch (error) {
     console.error("GET /api/documents error:", error)
     const response = NextResponse.json({ error: "Failed to load documents" }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 
@@ -25,20 +23,16 @@ export async function PATCH(request: NextRequest) {
 
     if (!id || !status) {
       const response = NextResponse.json({ error: "id and status are required" }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     const updated = reviewDocument(Number(id), status, reviewNotes, reviewer || "Admin")
     if (!updated) {
       const response = NextResponse.json({ error: "Document not found" }, { status: 404 })
-    return addCorsHeaders(response)
     }
     const response = NextResponse.json({ document: updated })
-    return addCorsHeaders(response)
   } catch (error) {
     console.error("PATCH /api/documents error:", error)
     const response = NextResponse.json({ error: "Failed to review document" }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

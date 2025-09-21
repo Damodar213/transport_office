@@ -23,7 +23,6 @@ export async function GET() {
         districts: [],
         message: "Database connection failed"
       }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     // Table already exists, no need to create it
@@ -47,7 +46,6 @@ export async function GET() {
       total: result.rows.length,
       message: "Districts fetched successfully"
     })
-    return addCorsHeaders(response)
   } catch (error) {
     console.error("Error fetching districts:", error)
     const response = NextResponse.json({ 
@@ -55,7 +53,6 @@ export async function GET() {
       districts: [],
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 
@@ -78,7 +75,6 @@ export async function POST(request: Request) {
       const response = NextResponse.json({ 
         error: "District name and state are required" 
       }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     const pool = getPool()
@@ -86,7 +82,6 @@ export async function POST(request: Request) {
       const response = NextResponse.json({ 
         error: "Database not available" 
       }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     // Table already exists, no need to create it
@@ -102,7 +97,6 @@ export async function POST(request: Request) {
       district: result.rows[0],
       message: "District created successfully"
     }, { status: 201 })
-    return addCorsHeaders(response)
   } catch (error) {
     console.error("Error creating district:", error)
     
@@ -110,14 +104,12 @@ export async function POST(request: Request) {
       const response = NextResponse.json({ 
         error: "District with this name and state already exists"
       }, { status: 409 })
-    return addCorsHeaders(response)
     }
     
     const response = NextResponse.json({ 
       error: "Failed to create district",
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 
@@ -131,7 +123,6 @@ export async function PUT(request: Request) {
       const response = NextResponse.json({ 
         error: "District ID, name and state are required" 
       }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     const pool = getPool()
@@ -139,7 +130,6 @@ export async function PUT(request: Request) {
       const response = NextResponse.json({ 
         error: "Database not available" 
       }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     const result = await dbQuery(`
@@ -153,14 +143,12 @@ export async function PUT(request: Request) {
       const response = NextResponse.json({ 
         error: "District not found" 
       }, { status: 404 })
-    return addCorsHeaders(response)
     }
 
     const response = NextResponse.json({
       district: result.rows[0],
       message: "District updated successfully"
     })
-    return addCorsHeaders(response)
   } catch (error) {
     console.error("Error updating district:", error)
     
@@ -168,14 +156,12 @@ export async function PUT(request: Request) {
       const response = NextResponse.json({ 
         error: "District with this name and state already exists"
       }, { status: 409 })
-    return addCorsHeaders(response)
     }
     
     const response = NextResponse.json({ 
       error: "Failed to update district",
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 
@@ -189,7 +175,6 @@ export async function DELETE(request: NextRequest) {
       const response = NextResponse.json({ 
         error: "District ID is required" 
       }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     const pool = getPool()
@@ -197,7 +182,6 @@ export async function DELETE(request: NextRequest) {
       const response = NextResponse.json({ 
         error: "Database not available" 
       }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     const result = await dbQuery(`
@@ -208,19 +192,16 @@ export async function DELETE(request: NextRequest) {
       const response = NextResponse.json({ 
         error: "District not found" 
       }, { status: 404 })
-    return addCorsHeaders(response)
     }
 
     const response = NextResponse.json({
       message: "District deleted successfully"
     })
-    return addCorsHeaders(response)
   } catch (error) {
     console.error("Error deleting district:", error)
     const response = NextResponse.json({ 
       error: "Failed to delete district",
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }

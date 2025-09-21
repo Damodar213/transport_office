@@ -62,7 +62,6 @@ export async function POST(request: NextRequest) {
     })
 
     // Add CORS headers
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Admin login error:", error)

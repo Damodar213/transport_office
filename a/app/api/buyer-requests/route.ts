@@ -10,18 +10,15 @@ export async function GET(request: Request) {
     const session = await getSession()
     if (!session) {
       const response = NextResponse.json({ error: "Authentication required" }, { status: 401 })
-    return addCorsHeaders(response)
     }
 
     // Allow buyers and admins to access this endpoint
     if (session.role !== 'buyer' && session.role !== 'admin') {
       const response = NextResponse.json({ error: "Access denied - buyer or admin role required" }, { status: 403 })
-    return addCorsHeaders(response)
     }
 
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     const { searchParams } = new URL(request.url)
@@ -86,7 +83,6 @@ export async function GET(request: Request) {
       limit,
       offset
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error fetching buyer requests:", error)
@@ -94,7 +90,6 @@ export async function GET(request: Request) {
       error: "Failed to fetch buyer requests",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 
@@ -114,18 +109,15 @@ export async function POST(request: Request) {
     const session = await getSession()
     if (!session) {
       const response = NextResponse.json({ error: "Authentication required" }, { status: 401 })
-    return addCorsHeaders(response)
     }
 
     // Allow buyers and admins to access this endpoint
     if (session.role !== 'buyer' && session.role !== 'admin') {
       const response = NextResponse.json({ error: "Access denied - buyer or admin role required" }, { status: 403 })
-    return addCorsHeaders(response)
     }
 
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     const body = await request.json()
@@ -155,7 +147,6 @@ export async function POST(request: Request) {
       const response = NextResponse.json({ 
         error: "Missing required fields" 
       }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     // Check if buyer exists in buyers table, if not create a basic entry
@@ -173,7 +164,6 @@ export async function POST(request: Request) {
         const response = NextResponse.json({ 
           error: "Buyer not found. Please register as a buyer first." 
         }, { status: 400 })
-    return addCorsHeaders(response)
       }
       
       // Create basic buyer entry
@@ -219,7 +209,6 @@ export async function POST(request: Request) {
       message: "Buyer request created successfully",
       data: newRequest
     }, { status: 201 })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error creating buyer request:", error)
@@ -227,6 +216,5 @@ export async function POST(request: Request) {
       error: "Failed to create buyer request",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }

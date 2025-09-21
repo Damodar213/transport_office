@@ -29,7 +29,6 @@ export async function POST() {
         message: "order_submissions table does not exist",
         success: false
       })
-    return addCorsHeaders(response)
     }
 
     // Check current status values in the table
@@ -66,7 +65,6 @@ export async function POST() {
       beforeStatuses: currentStatuses.rows,
       afterStatuses: finalStatuses.rows
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Migration error:", error)
@@ -74,7 +72,6 @@ export async function POST() {
       error: "Failed to migrate order_submissions status",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

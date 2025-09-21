@@ -16,7 +16,6 @@ export async function POST() {
     const pool = getPool()
     if (!pool) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
-    return addCorsHeaders(response)
     }
 
     console.log("Fixing missing supplier record for user 111111...")
@@ -30,7 +29,6 @@ export async function POST() {
 
     if (userResult.rows.length === 0) {
       const response = NextResponse.json({ error: "User 111111 not found in users table" }, { status: 404 })
-    return addCorsHeaders(response)
     }
 
     const user = userResult.rows[0]
@@ -46,7 +44,6 @@ export async function POST() {
         message: "Supplier record already exists for user 111111",
         supplier: existingSupplier.rows[0]
       })
-    return addCorsHeaders(response)
     }
 
     // Create supplier record
@@ -85,7 +82,6 @@ export async function POST() {
       supplier: supplierResult.rows[0],
       user: user
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error creating supplier record:", error)
@@ -93,7 +89,6 @@ export async function POST() {
       error: "Failed to create supplier record",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

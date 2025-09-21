@@ -20,7 +20,6 @@ export async function POST(request: NextRequest) {
     if (!pool) {
       console.log("Database not available")
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     const body = await request.json()
@@ -67,7 +66,6 @@ export async function POST(request: NextRequest) {
         { error: "Missing required fields: loadType, (estimatedTons or numberOfGoods), deliveryPlace" },
         { status: 400 }
       )
-      return addCorsHeaders(response)
     }
 
     // Create a general manual order without specific supplier assignment
@@ -201,7 +199,6 @@ export async function POST(request: NextRequest) {
         message: whatsappMessage
       }
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Manual order creation error:", error)
@@ -209,7 +206,6 @@ export async function POST(request: NextRequest) {
       error: "Failed to create manual order",
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

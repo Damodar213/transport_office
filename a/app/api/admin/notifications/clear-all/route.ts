@@ -8,7 +8,6 @@ export async function DELETE() {
     
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
     
     // Check if notifications table exists
@@ -25,7 +24,6 @@ export async function DELETE() {
         error: "Notifications table not found",
         message: "All notifications cleared (mock mode)"
       })
-      return addCorsHeaders(response)
     }
     
     // Get count before deletion
@@ -43,7 +41,6 @@ export async function DELETE() {
     const response = NextResponse.json({ 
       message: "All notifications cleared successfully",
       clearedCount: parseInt(totalCount)
-    return addCorsHeaders(response)
     })
     
   } catch (error) {
@@ -52,7 +49,6 @@ export async function DELETE() {
       error: "Failed to clear all notifications",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

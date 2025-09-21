@@ -7,7 +7,6 @@ export async function GET() {
     const pool = getPool()
     if (!pool) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
-    return addCorsHeaders(response)
     }
 
     console.log("Checking suppliers in database...")
@@ -38,7 +37,6 @@ export async function GET() {
       totalSuppliers: suppliersResult.rows.length,
       totalSupplierUsers: usersResult.rows.length
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error checking suppliers:", error)
@@ -46,7 +44,6 @@ export async function GET() {
       error: "Failed to check suppliers",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

@@ -18,7 +18,6 @@ export async function GET(request: NextRequest) {
     if (!cacheBust && cache && Date.now() - cache.timestamp < CACHE_DURATION) {
       console.log("Returning cached data")
       const response = NextResponse.json(cache.data)
-    return addCorsHeaders(response)
     }
     
     if (cacheBust) {
@@ -29,7 +28,6 @@ export async function GET(request: NextRequest) {
     if (!getPool()) {
       console.log("Database not available")
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     // Get accepted orders from accepted_requests table where sent_by_admin = false (all supplier confirmed orders)
@@ -95,7 +93,6 @@ export async function GET(request: NextRequest) {
     }
 
     const response = NextResponse.json(responseData)
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error fetching confirmed orders:", error)
@@ -103,7 +100,6 @@ export async function GET(request: NextRequest) {
       { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     )
-    return addCorsHeaders(response)
   }
 }
 
@@ -114,7 +110,6 @@ export async function DELETE(request: NextRequest) {
     if (!getPool()) {
       console.log("Database not available")
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     // Verify the user is authenticated and is an admin
@@ -126,7 +121,6 @@ export async function DELETE(request: NextRequest) {
     if (!session) {
       console.log("Delete API - No session found")
       const response = NextResponse.json({ error: "Authentication required" }, { status: 401 })
-    return addCorsHeaders(response)
     }
 
     console.log("Delete API - User role:", session.role, "User ID:", session.userIdString)
@@ -135,7 +129,6 @@ export async function DELETE(request: NextRequest) {
     // if (session.role !== 'admin') {
     //   console.log("Delete API - Access denied, role is:", session.role)
     //   const response = NextResponse.json({ error: "Access denied - admin role required" }, { status: 403 })
-    return addCorsHeaders(response)
     // }
 
     const { searchParams } = new URL(request.url)
@@ -143,7 +136,6 @@ export async function DELETE(request: NextRequest) {
 
     if (!acceptedRequestId) {
       const response = NextResponse.json({ error: "Accepted request ID is required" }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     console.log("Deleting accepted request:", acceptedRequestId)
@@ -156,7 +148,6 @@ export async function DELETE(request: NextRequest) {
 
     if (orderCheck.rows.length === 0) {
       const response = NextResponse.json({ error: "Accepted request not found" }, { status: 404 })
-    return addCorsHeaders(response)
     }
 
     // Delete the accepted request
@@ -167,7 +158,6 @@ export async function DELETE(request: NextRequest) {
 
     if (deleteResult.rows.length === 0) {
       const response = NextResponse.json({ error: "Failed to delete accepted request" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     // Clear cache after deletion
@@ -179,7 +169,6 @@ export async function DELETE(request: NextRequest) {
       success: true,
       message: "Accepted request deleted successfully"
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error deleting accepted request:", error)
@@ -187,7 +176,6 @@ export async function DELETE(request: NextRequest) {
       { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     )
-    return addCorsHeaders(response)
   }
 }
 

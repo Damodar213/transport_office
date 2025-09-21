@@ -10,10 +10,8 @@ export async function GET() {
     // Hide password hashes from API response
     const safe = users.map(({ passwordHash, ...rest }) => rest)
     const response = NextResponse.json({ users: safe })
-    return addCorsHeaders(response)
   } catch (e) {
     const response = NextResponse.json({ error: "Failed to load users" }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 
@@ -24,12 +22,10 @@ export async function PUT(request: Request) {
     const session = await getSession()
     if (!session) {
       const response = NextResponse.json({ error: "Authentication required" }, { status: 401 })
-    return addCorsHeaders(response)
     }
 
     if (session.role !== 'admin') {
       const response = NextResponse.json({ error: "Access denied - admin role required" }, { status: 403 })
-    return addCorsHeaders(response)
     }
 
     const body = await request.json()
@@ -37,13 +33,11 @@ export async function PUT(request: Request) {
 
     if (!userId) {
       const response = NextResponse.json({ error: "User ID is required" }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     const pool = getPool()
     if (!pool) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     // Update user status in the appropriate table based on role
@@ -51,7 +45,6 @@ export async function PUT(request: Request) {
     
     if (userCheck.rows.length === 0) {
       const response = NextResponse.json({ error: "User not found" }, { status: 404 })
-    return addCorsHeaders(response)
     }
 
     const userRole = userCheck.rows[0].role
@@ -77,7 +70,6 @@ export async function PUT(request: Request) {
 
       if (updateFields.length === 0) {
         const response = NextResponse.json({ error: "No fields to update" }, { status: 400 })
-    return addCorsHeaders(response)
       }
 
       updateValues.push(userId)
@@ -108,7 +100,6 @@ export async function PUT(request: Request) {
 
       if (updateFields.length === 0) {
         const response = NextResponse.json({ error: "No fields to update" }, { status: 400 })
-    return addCorsHeaders(response)
       }
 
       updateValues.push(userId)
@@ -121,12 +112,10 @@ export async function PUT(request: Request) {
       updateResult = await dbQuery(updateQuery, updateValues)
     } else {
       const response = NextResponse.json({ error: "Cannot update admin user status" }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     if (updateResult.rows.length === 0) {
       const response = NextResponse.json({ error: "User not found in role table" }, { status: 404 })
-    return addCorsHeaders(response)
     }
 
     const response = NextResponse.json({
@@ -134,7 +123,6 @@ export async function PUT(request: Request) {
       message: "User status updated successfully",
       user: updateResult.rows[0]
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error updating user status:", error)
@@ -142,7 +130,6 @@ export async function PUT(request: Request) {
       error: "Failed to update user status",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

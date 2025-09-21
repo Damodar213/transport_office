@@ -49,14 +49,12 @@ export async function POST(request: NextRequest) {
     if (!file) {
       console.log("No file provided in request")
       const response = NextResponse.json({ error: "No file provided" }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     // Validate file size (5MB limit)
     const maxSize = 5 * 1024 * 1024
     if (file.size > maxSize) {
       const response = NextResponse.json({ error: "File size too large. Maximum 5MB allowed." }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     // Validate file type
@@ -66,7 +64,6 @@ export async function POST(request: NextRequest) {
         { error: "Invalid file type. Only JPG, PNG, and PDF files are allowed." },
         { status: 400 },
       )
-    return addCorsHeaders(response)
     }
 
     // Convert file to buffer
@@ -153,14 +150,12 @@ export async function POST(request: NextRequest) {
       size: file.size,
       type: file.type,
     })
-    return addCorsHeaders(response)
   } catch (error) {
     console.error("Upload error:", error)
     const response = NextResponse.json({ 
       error: "Upload failed", 
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 
@@ -173,14 +168,12 @@ export async function DELETE(request: NextRequest) {
 
     if (!key && !url) {
       const response = NextResponse.json({ error: "File key or URL is required" }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     const fileKey = key || (url ? extractKeyFromUrl(url) : null)
     
     if (!fileKey) {
       const response = NextResponse.json({ error: "Invalid file key or URL" }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     await deleteFromR2(fileKey)
@@ -189,14 +182,12 @@ export async function DELETE(request: NextRequest) {
       message: "File deleted successfully",
       key: fileKey,
     })
-    return addCorsHeaders(response)
   } catch (error) {
     console.error("Delete error:", error)
     const response = NextResponse.json({ 
       error: "Delete failed", 
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 
@@ -209,14 +200,12 @@ export async function GET(request: NextRequest) {
 
     if (!key && !url) {
       const response = NextResponse.json({ error: "File key or URL is required" }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     const fileKey = key || (url ? extractKeyFromUrl(url) : null)
     
     if (!fileKey) {
       const response = NextResponse.json({ error: "Invalid file key or URL" }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     // Generate signed URL valid for 1 hour
@@ -227,13 +216,11 @@ export async function GET(request: NextRequest) {
       key: fileKey,
       expiresIn: 3600
     })
-    return addCorsHeaders(response)
   } catch (error) {
     console.error("Signed URL generation error:", error)
     const response = NextResponse.json({ 
       error: "Failed to generate signed URL", 
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }

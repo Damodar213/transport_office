@@ -61,7 +61,7 @@ export async function POST() {
     const response = NextResponse.json({ 
       message: "Trucks table migration completed successfully",
       addedColumns: columnsToAdd.filter(col => !existingColumns.includes(col.name)
-    return addCorsHeaders(response)),
+    ),
       finalStructure: finalStructure.rows
     })
 
@@ -71,7 +71,6 @@ export async function POST() {
       error: "Trucks migration failed", 
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

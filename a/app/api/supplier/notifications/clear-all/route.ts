@@ -11,12 +11,10 @@ export async function DELETE(request: Request) {
     
     if (!supplierId) {
       const response = NextResponse.json({ error: "Supplier ID is required" }, { status: 400 })
-    return addCorsHeaders(response)
     }
     
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
     
     // Check if supplier_notifications table exists
@@ -50,7 +48,7 @@ export async function DELETE(request: Request) {
     const response = NextResponse.json({ 
       message: "All notifications cleared successfully",
       clearedCount: parseInt(totalCount)
-    return addCorsHeaders(response)
+    
     })
     
   } catch (error) {
@@ -59,7 +57,6 @@ export async function DELETE(request: Request) {
       error: "Failed to clear all notifications",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

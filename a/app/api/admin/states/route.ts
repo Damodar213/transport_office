@@ -15,7 +15,6 @@ export async function GET() {
         states: [],
         message: "Database connection failed"
       }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     // Fetch unique states from districts
@@ -33,7 +32,6 @@ export async function GET() {
       total: states.length,
       message: "States fetched successfully"
     })
-    return addCorsHeaders(response)
   } catch (error) {
     console.error("Error fetching states:", error)
     const response = NextResponse.json({ 
@@ -41,7 +39,6 @@ export async function GET() {
       states: [],
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

@@ -10,7 +10,6 @@ export async function GET(request: Request) {
     
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     const users = await getAllUsersAsync()
@@ -24,7 +23,6 @@ export async function GET(request: Request) {
         exportedAt: new Date().toISOString(),
         totalUsers: exportData.length
       })
-      return addCorsHeaders(response)
     }
 
     // For other formats, return the data that can be processed on the client side
@@ -41,7 +39,6 @@ export async function GET(request: Request) {
       error: "Failed to export users",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

@@ -7,7 +7,6 @@ export async function GET() {
     const pool = getPool()
     if (!pool) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
-    return addCorsHeaders(response)
     }
 
     // Get counts for all document types
@@ -28,7 +27,7 @@ export async function GET() {
       success: true,
       counts: {
         supplierDocuments: parseInt(supplierCount.rows[0].count)
-    return addCorsHeaders(response),
+    ,
         vehicleDocuments: parseInt(vehicleCount.rows[0].count),
         driverDocuments: parseInt(driverCount.rows[0].count)
       },
@@ -46,7 +45,6 @@ export async function GET() {
       error: "Test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

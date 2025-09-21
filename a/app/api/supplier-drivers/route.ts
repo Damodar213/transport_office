@@ -21,7 +21,6 @@ export async function GET(request: Request) {
 
     if (!supplierId) {
       const response = NextResponse.json({ error: "Supplier ID is required" }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     // Get supplier user_id from suppliers table
@@ -32,7 +31,6 @@ export async function GET(request: Request) {
 
     if (supplierResult.rows.length === 0) {
       const response = NextResponse.json({ error: "Supplier not found" }, { status: 404 })
-    return addCorsHeaders(response)
     }
 
     const supplierDbId = supplierResult.rows[0].user_id
@@ -54,12 +52,10 @@ export async function GET(request: Request) {
 
     const result = await dbQuery<Driver>(sql, [supplierDbId])
     const response = NextResponse.json({ drivers: result.rows })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Get drivers error:", error)
     const response = NextResponse.json({ error: "Failed to fetch drivers" }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 
@@ -86,7 +82,6 @@ export async function POST(request: Request) {
 
     if (supplierResult.rows.length === 0) {
       const response = NextResponse.json({ error: "Supplier not found" }, { status: 404 })
-    return addCorsHeaders(response)
     }
 
     const supplierId = supplierResult.rows[0].user_id
@@ -132,12 +127,10 @@ export async function POST(request: Request) {
       message: "Driver created successfully", 
       driver: result.rows[0] 
     }, { status: 201 })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Create driver error:", error)
     const response = NextResponse.json({ error: "Failed to create driver", details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 
@@ -174,7 +167,6 @@ export async function PUT(request: Request) {
 
     if (result.rows.length === 0) {
       const response = NextResponse.json({ error: "Driver not found" }, { status: 404 })
-    return addCorsHeaders(response)
     }
 
     console.log("Driver updated successfully:", result.rows[0])
@@ -199,12 +191,10 @@ export async function PUT(request: Request) {
       message: "Driver updated successfully", 
       driver: result.rows[0] 
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Update driver error:", error)
     const response = NextResponse.json({ error: "Failed to update driver", details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 
@@ -216,7 +206,6 @@ export async function DELETE(request: Request) {
 
     if (!id) {
       const response = NextResponse.json({ error: "Driver ID is required" }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     console.log("Deleting driver with ID:", id)
@@ -228,7 +217,6 @@ export async function DELETE(request: Request) {
     if (checkResult.rows.length === 0) {
       console.log("Driver not found in database")
       const response = NextResponse.json({ error: "Driver not found" }, { status: 404 })
-    return addCorsHeaders(response)
     }
 
     console.log("Driver found:", checkResult.rows[0])
@@ -250,7 +238,6 @@ export async function DELETE(request: Request) {
             error: "Cannot delete driver. Driver is assigned to confirmed orders. Please reassign or complete the orders first.",
             details: "Driver has active orders"
           }, { status: 400 })
-    return addCorsHeaders(response)
         }
       } catch (error) {
         console.log("confirmed_orders check skipped:", error)
@@ -271,7 +258,6 @@ export async function DELETE(request: Request) {
             error: "Cannot delete driver. Driver is assigned to vehicle location requests. Please reassign or complete the requests first.",
             details: "Driver has active vehicle location requests"
           }, { status: 400 })
-    return addCorsHeaders(response)
         }
       } catch (error) {
         console.log("suppliers_vehicle_location check skipped:", error)
@@ -316,7 +302,6 @@ export async function DELETE(request: Request) {
       message: "Driver deleted successfully",
       deletedDriver: checkResult.rows[0]
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Delete driver error:", error)
@@ -333,7 +318,6 @@ export async function DELETE(request: Request) {
         error: "Database connection error. Please try again.",
         details: "Connection timeout or database unavailable"
       }, { status: 503 })
-    return addCorsHeaders(response)
     }
     
     // Check if it's a foreign key constraint violation
@@ -342,14 +326,12 @@ export async function DELETE(request: Request) {
         error: "Cannot delete driver. Driver is referenced by other records in the system.",
         details: "Foreign key constraint violation"
       }, { status: 400 })
-    return addCorsHeaders(response)
     }
     
     const response = NextResponse.json({ 
       error: "Failed to delete driver", 
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

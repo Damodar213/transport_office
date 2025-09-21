@@ -18,7 +18,6 @@ export async function POST(request: NextRequest) {
 
     if (!orderId || !supplierId) {
       const response = NextResponse.json({ error: "Order ID and Supplier ID are required" }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     // Mock assignment logic - replace with actual database update
@@ -44,10 +43,8 @@ export async function POST(request: NextRequest) {
       message: "Order assigned successfully",
       assignment: assignmentData,
     })
-    return addCorsHeaders(response)
   } catch (error) {
     console.error("Order assignment error:", error)
     const response = NextResponse.json({ error: "Failed to assign order" }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }

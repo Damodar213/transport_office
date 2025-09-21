@@ -9,19 +9,16 @@ export async function PUT(request: NextRequest) {
     if (!getPool()) {
       console.log("Database not available")
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     // Verify the user is authenticated and is a buyer
     const session = await getSession()
     if (!session) {
       const response = NextResponse.json({ error: "Authentication required" }, { status: 401 })
-    return addCorsHeaders(response)
     }
 
     if (session.role !== 'buyer') {
       const response = NextResponse.json({ error: "Access denied - buyer role required" }, { status: 403 })
-    return addCorsHeaders(response)
     }
 
     const buyerId = session.userIdString
@@ -42,7 +39,6 @@ export async function PUT(request: NextRequest) {
       message: "All notifications marked as read",
       updatedCount: result.rows.length
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error marking all notifications as read:", error)
@@ -50,7 +46,6 @@ export async function PUT(request: NextRequest) {
       { error: "Internal server error", details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" },
       { status: 500 }
     )
-    return addCorsHeaders(response)
   }
 }
 

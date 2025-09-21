@@ -36,7 +36,6 @@ export async function GET(request: Request) {
         error: "Database not available",
         suppliers: []
       }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     let sql = `
@@ -75,7 +74,6 @@ export async function GET(request: Request) {
         data: supplier,
         message: supplier ? "Supplier found" : "Supplier not found"
       })
-    return addCorsHeaders(response)
     }
 
     // Return all suppliers
@@ -85,7 +83,6 @@ export async function GET(request: Request) {
       total: suppliers.length,
       message: "Real suppliers fetched successfully"
     })
-    return addCorsHeaders(response)
   } catch (error) {
     console.error("Error fetching suppliers:", error)
     const response = NextResponse.json({ 
@@ -93,6 +90,5 @@ export async function GET(request: Request) {
       suppliers: [],
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }

@@ -11,7 +11,6 @@ export async function GET(request: Request) {
       const response = NextResponse.json({ 
         error: "Buyer ID is required" 
       }, { status: 400 })
-    return addCorsHeaders(response)
     }
     
     console.log(`GET /api/buyer/notifications/count - fetching count for buyer ${buyerId}`)
@@ -46,7 +45,6 @@ export async function GET(request: Request) {
     
     console.log(`Returning unread count ${unreadCount} for buyer ${buyerId}`)
     const response = NextResponse.json({ unreadCount })
-    return addCorsHeaders(response)
     
   } catch (error) {
     console.error("Error fetching buyer notification count:", error)
@@ -54,6 +52,5 @@ export async function GET(request: Request) {
       error: "Failed to fetch notification count",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }

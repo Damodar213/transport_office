@@ -10,14 +10,12 @@ export async function GET(
   try {
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     const { orderId: orderIdStr } = await params
     const orderId = parseInt(orderIdStr)
     if (isNaN(orderId)) {
       const response = NextResponse.json({ error: "Invalid order ID" }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     const result = await dbQuery(`
@@ -37,7 +35,6 @@ export async function GET(
       success: true,
       submissions: result.rows
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error fetching order submissions:", error)
@@ -45,6 +42,5 @@ export async function GET(
       error: "Failed to fetch order submissions",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }

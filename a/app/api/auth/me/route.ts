@@ -12,7 +12,6 @@ export async function GET() {
       const response = NextResponse.json({ 
         error: "Not authenticated" 
       }, { status: 401 })
-    return addCorsHeaders(response)
     }
 
     // Get additional user details from database
@@ -73,7 +72,6 @@ export async function GET() {
       success: true,
       user: userDetails
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error getting current user:", error)
@@ -81,6 +79,5 @@ export async function GET() {
       error: "Failed to get current user",
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }

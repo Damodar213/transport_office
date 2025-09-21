@@ -8,7 +8,7 @@ export async function GET() {
     const response = NextResponse.json({
       serverTime: {
         iso: now.toISOString()
-    return addCorsHeaders(response),
+    ,
         ist: now.toLocaleString('en-US', {
           year: 'numeric',
           month: 'short',
@@ -33,6 +33,5 @@ export async function GET() {
     })
   } catch (error) {
     const response = NextResponse.json({ error: "Failed to get time" }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }

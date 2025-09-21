@@ -8,7 +8,6 @@ export async function GET(request: NextRequest) {
 
     if (!driverId) {
       const response = NextResponse.json({ error: "Driver ID is required" }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     console.log("Checking references for driver ID:", driverId)
@@ -51,7 +50,6 @@ export async function GET(request: NextRequest) {
         ? "Driver can be deleted safely" 
         : `Driver has ${references.totalReferences} references and cannot be deleted`
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Check driver references error:", error)
@@ -59,6 +57,5 @@ export async function GET(request: NextRequest) {
       error: "Failed to check driver references",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }

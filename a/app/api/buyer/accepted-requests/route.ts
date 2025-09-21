@@ -9,19 +9,16 @@ export async function GET(request: NextRequest) {
     if (!getPool()) {
       console.log("Database not available")
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     // Verify the user is authenticated and is a buyer
     const session = await getSession()
     if (!session) {
       const response = NextResponse.json({ error: "Authentication required" }, { status: 401 })
-    return addCorsHeaders(response)
     }
 
     if (session.role !== 'buyer') {
       const response = NextResponse.json({ error: "Access denied - buyer role required" }, { status: 403 })
-    return addCorsHeaders(response)
     }
 
     const buyerId = session.userIdString
@@ -65,7 +62,6 @@ export async function GET(request: NextRequest) {
       success: true,
       requests: acceptedRequests.rows
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error fetching accepted requests:", error)
@@ -73,7 +69,6 @@ export async function GET(request: NextRequest) {
       { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     )
-    return addCorsHeaders(response)
   }
 }
 
@@ -84,19 +79,16 @@ export async function DELETE(request: NextRequest) {
     if (!getPool()) {
       console.log("Database not available")
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     // Verify the user is authenticated and is a buyer
     const session = await getSession()
     if (!session) {
       const response = NextResponse.json({ error: "Authentication required" }, { status: 401 })
-    return addCorsHeaders(response)
     }
 
     if (session.role !== 'buyer') {
       const response = NextResponse.json({ error: "Access denied - buyer role required" }, { status: 403 })
-    return addCorsHeaders(response)
     }
 
     const buyerId = session.userIdString
@@ -105,7 +97,6 @@ export async function DELETE(request: NextRequest) {
 
     if (!requestId) {
       const response = NextResponse.json({ error: "Request ID is required" }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     console.log("Deleting accepted request:", requestId, "for buyer:", buyerId)
@@ -118,7 +109,6 @@ export async function DELETE(request: NextRequest) {
 
     if (requestCheck.rows.length === 0) {
       const response = NextResponse.json({ error: "Accepted request not found or access denied" }, { status: 404 })
-    return addCorsHeaders(response)
     }
 
     // Delete the accepted request
@@ -129,7 +119,6 @@ export async function DELETE(request: NextRequest) {
 
     if (deleteResult.rows.length === 0) {
       const response = NextResponse.json({ error: "Failed to delete accepted request" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     console.log("Successfully deleted accepted request:", requestId)
@@ -138,7 +127,6 @@ export async function DELETE(request: NextRequest) {
       success: true,
       message: "Accepted request deleted successfully"
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error deleting accepted request:", error)
@@ -146,6 +134,5 @@ export async function DELETE(request: NextRequest) {
       { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     )
-    return addCorsHeaders(response)
   }
 }

@@ -10,7 +10,6 @@ export async function GET(
   try {
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     const id = (await params).id
@@ -39,14 +38,12 @@ export async function GET(
       const response = NextResponse.json({ 
         error: "Buyer request not found" 
       }, { status: 404 })
-    return addCorsHeaders(response)
     }
 
     const response = NextResponse.json({
       success: true,
       data: result.rows[0]
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error fetching buyer request:", error)
@@ -54,7 +51,6 @@ export async function GET(
       error: "Failed to fetch buyer request",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 
@@ -66,7 +62,6 @@ export async function PUT(
   try {
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     const id = (await params).id
@@ -180,7 +175,6 @@ export async function PUT(
       const response = NextResponse.json({ 
         error: "No fields to update" 
       }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     // Add the ID parameter
@@ -200,7 +194,6 @@ export async function PUT(
       const response = NextResponse.json({ 
         error: "Buyer request not found" 
       }, { status: 404 })
-    return addCorsHeaders(response)
     }
 
     const updatedRequest = result.rows[0]
@@ -253,7 +246,6 @@ export async function PUT(
       message: "Buyer request updated successfully",
       data: updatedRequest
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error updating buyer request:", error)
@@ -261,7 +253,6 @@ export async function PUT(
       error: "Failed to update buyer request",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 
@@ -273,7 +264,6 @@ export async function DELETE(
   try {
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     const id = (await params).id
@@ -288,14 +278,12 @@ export async function DELETE(
       const response = NextResponse.json({ 
         error: "Buyer request not found" 
       }, { status: 404 })
-    return addCorsHeaders(response)
     }
 
     const response = NextResponse.json({
       success: true,
       message: "Buyer request deleted successfully"
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error deleting buyer request:", error)
@@ -303,7 +291,6 @@ export async function DELETE(
       error: "Failed to delete buyer request",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

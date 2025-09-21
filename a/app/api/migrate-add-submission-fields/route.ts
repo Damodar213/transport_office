@@ -151,7 +151,6 @@ export async function POST() {
       message: "Migration completed successfully - order_submissions table updated with whatsapp_sent, notification_sent, status, driver_id, and vehicle_id fields",
       success: true
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Migration error:", error)
@@ -159,6 +158,5 @@ export async function POST() {
       error: "Migration failed", 
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }

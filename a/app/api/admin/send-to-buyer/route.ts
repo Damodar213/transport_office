@@ -18,7 +18,6 @@ export async function POST(request: Request) {
     if (!getPool()) {
       console.log("Database not available")
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     const { orderSubmissionId, buyerId } = await request.json()
@@ -29,7 +28,6 @@ export async function POST(request: Request) {
         { error: "Order submission ID and buyer ID are required" },
         { status: 400 }
       )
-    return addCorsHeaders(response)
     }
 
     // Get the order submission details from accepted_requests table
@@ -65,7 +63,6 @@ export async function POST(request: Request) {
         { error: "Order submission not found" },
         { status: 404 }
       )
-    return addCorsHeaders(response)
     }
 
     const orderSubmission = orderDetails.rows[0]
@@ -87,7 +84,6 @@ export async function POST(request: Request) {
         { error: "This order has already been sent to the selected buyer" },
         { status: 409 }
       )
-    return addCorsHeaders(response)
     }
 
     // Create accepted request for the selected buyer
@@ -196,7 +192,6 @@ export async function POST(request: Request) {
       message: "Order sent to buyer successfully",
       request: acceptedRequest.rows[0]
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error sending order to buyer:", error)
@@ -204,6 +199,5 @@ export async function POST(request: Request) {
       { error: "Internal server error", details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" },
       { status: 500 }
     )
-    return addCorsHeaders(response)
   }
 }

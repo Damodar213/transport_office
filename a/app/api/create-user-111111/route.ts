@@ -108,7 +108,6 @@ export async function POST() {
       user: userResult.rows[0],
       supplier: supplierResult.rows[0]
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error creating user and supplier:", error)
@@ -116,7 +115,6 @@ export async function POST() {
       error: "Failed to create user and supplier",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

@@ -55,7 +55,6 @@ export async function GET() {
     
     console.log("Settings fetched successfully")
     const response = NextResponse.json(settings)
-    return addCorsHeaders(response)
     
   } catch (error) {
     console.error("Error in settings GET API:", error)
@@ -63,7 +62,6 @@ export async function GET() {
       error: "Failed to fetch settings",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 
@@ -75,7 +73,6 @@ export async function PUT(request: Request) {
     
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
     
     try {
@@ -123,7 +120,6 @@ export async function PUT(request: Request) {
         message: "Settings updated successfully",
         settings: {}
       })
-    return addCorsHeaders(response)
       
     } catch (error) {
       console.error("Error updating settings in database:", error)
@@ -131,7 +127,6 @@ export async function PUT(request: Request) {
         error: "Failed to update settings in database",
         details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
       }, { status: 500 })
-    return addCorsHeaders(response)
     }
     
   } catch (error) {
@@ -140,7 +135,6 @@ export async function PUT(request: Request) {
       error: "Failed to update settings",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

@@ -7,7 +7,6 @@ export async function GET(request: NextRequest) {
     
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     // Test basic database connection
@@ -19,7 +18,6 @@ export async function GET(request: NextRequest) {
       message: "Database connection working",
       result: result.rows[0]
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Test DB error:", error)
@@ -30,6 +28,5 @@ export async function GET(request: NextRequest) {
       },
       { status: 500 }
     )
-    return addCorsHeaders(response)
   }
 }

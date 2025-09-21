@@ -16,7 +16,6 @@ export async function POST(request: Request) {
   try {
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     const body = await request.json()
@@ -26,7 +25,6 @@ export async function POST(request: Request) {
       const response = NextResponse.json({ 
         error: "Order ID, Supplier ID, and Submitted By are required" 
       }, { status: 400 })
-    return addCorsHeaders(response)
     }
 
     // Insert the order submission record
@@ -42,7 +40,6 @@ export async function POST(request: Request) {
       message: "Order submission recorded successfully",
       submission: result.rows[0]
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error creating order submission:", error)
@@ -52,14 +49,12 @@ export async function POST(request: Request) {
       const response = NextResponse.json({ 
         error: "This order has already been sent to this supplier" 
       }, { status: 409 })
-    return addCorsHeaders(response)
     }
     
     const response = NextResponse.json({ 
       error: "Failed to record order submission",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 
@@ -68,7 +63,6 @@ export async function GET() {
   try {
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
     }
 
     const result = await dbQuery(`
@@ -87,7 +81,6 @@ export async function GET() {
       success: true,
       submissions: result.rows
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error fetching order submissions:", error)
@@ -95,6 +88,5 @@ export async function GET() {
       error: "Failed to fetch order submissions",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }

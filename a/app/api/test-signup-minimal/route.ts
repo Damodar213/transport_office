@@ -18,7 +18,6 @@ export async function POST(request: NextRequest) {
       success: true,
       message: "Minimal signup test completed successfully"
     })
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Minimal signup test error:", error)
@@ -26,7 +25,6 @@ export async function POST(request: NextRequest) {
       error: "Minimal signup test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 

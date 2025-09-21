@@ -191,7 +191,6 @@ export async function GET() {
     
     console.log(`Returning ${notifications.length} notifications`)
     const response = NextResponse.json({ notifications })
-    return addCorsHeaders(response)
     
   } catch (error) {
     console.error("Error in notifications API:", error)
@@ -199,7 +198,6 @@ export async function GET() {
       error: "Failed to fetch notifications",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 
@@ -221,7 +219,6 @@ export async function POST(request: Request) {
       const response = NextResponse.json({ 
         error: "Missing required fields: type, title, message, category, priority" 
       }, { status: 400 })
-    return addCorsHeaders(response)
     }
     
     console.log("POST /api/admin/notifications - creating notification:", { type, title, category, priority })
@@ -278,7 +275,6 @@ export async function POST(request: Request) {
           message: "Notification created successfully",
           notification: newNotification
         })
-    return addCorsHeaders(response)
         
       } catch (error) {
         console.error("Error creating notification in database:", error)
@@ -286,13 +282,12 @@ export async function POST(request: Request) {
           error: "Failed to create notification in database",
           details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
         }, { status: 500 })
-    return addCorsHeaders(response)
       }
     }
     
     // Fallback response if database is not available
     const response = NextResponse.json({ 
-      message: "Notification created successfully (mock mode)
+      message: "Notification created successfully (mock mode)",
       notification: {
         id: Date.now().toString(),
         type,
@@ -311,7 +306,6 @@ export async function POST(request: Request) {
       error: "Failed to create notification",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
-    return addCorsHeaders(response)
   }
 }
 
