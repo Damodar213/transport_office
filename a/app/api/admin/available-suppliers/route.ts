@@ -11,8 +11,7 @@ export async function GET() {
         error: "Database not available",
         suppliers: [],
         message: "Using fallback data"
-  }
-      })
+      }, { status: 500 })
       return addCorsHeaders(response)
     }
 

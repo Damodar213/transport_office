@@ -158,7 +158,6 @@ export async function GET() {
         message: `New ${user.role} registered: ${user.name || user.user_id}`,
         timestamp: timeText,
         status: "info"
-  }
       })
     })
 

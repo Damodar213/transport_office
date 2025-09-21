@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       phone: buyer.mobile || 'No phone',
       company_name: buyer.company_name || buyer.name || buyer.user_id,
       created_at: buyer.created_at
-  }
+    }
     }))
 
     console.log("Found buyers:", buyers.length)
