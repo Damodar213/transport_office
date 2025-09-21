@@ -16,6 +16,9 @@ export async function POST() {
     const pool = getPool()
     if (!pool) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     console.log("Creating manual_orders table...")
@@ -72,6 +75,10 @@ export async function POST() {
       success: true,
       message: "Manual orders table created successfully with all indexes"
     })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Manual orders migration error:", error)
@@ -79,6 +86,10 @@ export async function POST() {
       error: "Failed to create manual orders table",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 

@@ -20,6 +20,10 @@ export async function POST(request: Request) {
       const response = NextResponse.json({ 
         error: "Order ID and status are required" 
       }, { status: 400 })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     const pool = getPool()
@@ -27,6 +31,10 @@ export async function POST(request: Request) {
       const response = NextResponse.json({ 
         error: "Database not available" 
       }, { status: 500 })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     console.log(`Updating manual order ${orderId} status to ${status}`)
@@ -60,6 +68,10 @@ export async function POST(request: Request) {
       success: true,
       message: `Manual order status updated to ${status}`
     })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error updating manual order status:", error)
@@ -67,6 +79,10 @@ export async function POST(request: Request) {
       error: "Failed to update manual order status",
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 

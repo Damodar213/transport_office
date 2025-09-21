@@ -8,6 +8,8 @@ export async function GET() {
     const response = NextResponse.json({
       serverTime: {
         iso: now.toISOString()
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
     ,
         ist: now.toLocaleString('en-US', {
           year: 'numeric',
@@ -31,7 +33,12 @@ export async function GET() {
         nowQuery: 'SELECT NOW() AT TIME ZONE \'Asia/Kolkata\' as ist_time'
       }
     })
+    return addCorsHeaders(response)
+    return addCorsHeaders(response)
   } catch (error) {
     const response = NextResponse.json({ error: "Failed to get time" }, { status: 500 })
+  return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }

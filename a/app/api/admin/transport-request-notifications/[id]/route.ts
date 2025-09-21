@@ -10,6 +10,9 @@ export async function DELETE(
   try {
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     const { id } = await params
@@ -25,12 +28,20 @@ export async function DELETE(
       const response = NextResponse.json({ 
         error: "Notification not found" 
       }, { status: 404 })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     const response = NextResponse.json({
       success: true,
       message: "Notification deleted successfully"
     })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error deleting notification:", error)
@@ -38,6 +49,10 @@ export async function DELETE(
       error: "Failed to delete notification",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 

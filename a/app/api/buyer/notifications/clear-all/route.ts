@@ -9,12 +9,18 @@ export async function DELETE(request: Request) {
     
     if (!buyerId) {
       const response = NextResponse.json({ error: "Buyer ID is required" }, { status: 400 })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
     
     console.log(`DELETE /api/buyer/notifications/clear-all - clearing all notifications for buyer ${buyerId}`)
     
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
     
     // Check if buyer_notifications table exists
@@ -28,6 +34,9 @@ export async function DELETE(request: Request) {
     
     if (!tableExists.rows[0].exists) {
       const response = NextResponse.json({
+      return addCorsHeaders(response)
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
         error: "Buyer notifications table not found",
         message: "All notifications cleared (mock mode)
       })
@@ -48,6 +57,10 @@ export async function DELETE(request: Request) {
       message: "All buyer notifications cleared successfully",
       deletedCount: deletedCount
     })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
     
   } catch (error) {
     console.error("Error clearing all buyer notifications:", error)
@@ -55,6 +68,10 @@ export async function DELETE(request: Request) {
       error: "Failed to clear all buyer notifications",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 

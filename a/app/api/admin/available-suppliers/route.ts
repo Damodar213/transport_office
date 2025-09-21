@@ -12,6 +12,10 @@ export async function GET() {
         suppliers: [],
         message: "Using fallback data"
       }, { status: 503 })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     // Fetch verified suppliers with their vehicle and driver information
@@ -51,6 +55,10 @@ export async function GET() {
       total: suppliers.length,
       message: "Available suppliers fetched successfully"
     })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error fetching available suppliers:", error)
@@ -59,5 +67,9 @@ export async function GET() {
       suppliers: [],
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }

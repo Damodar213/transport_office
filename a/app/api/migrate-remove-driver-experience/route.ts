@@ -37,6 +37,10 @@ export async function POST() {
           error: "Failed to drop experience_years column", 
           details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
         }, { status: 500 })
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
       }
     } else {
       console.log("Column experience_years does not exist, skipping...")
@@ -58,9 +62,13 @@ export async function POST() {
     const response = NextResponse.json({ 
       message: "Drivers table migration completed successfully",
       droppedColumns: existingColumns.includes('experience_years')
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
      ? ['experience_years'] : [],
       finalStructure: finalStructure.rows
     })
+    return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Drivers migration error:", error)
@@ -68,5 +76,9 @@ export async function POST() {
       error: "Drivers migration failed", 
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }

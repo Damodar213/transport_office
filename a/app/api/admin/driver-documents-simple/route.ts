@@ -8,6 +8,9 @@ export async function GET() {
     const pool = getPool()
     if (!pool) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     // Query with JOIN to get supplier information
@@ -38,6 +41,10 @@ export async function GET() {
       total: result.rows.length,
       message: "Driver documents retrieved successfully"
     })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Driver documents error:", error)
@@ -45,6 +52,10 @@ export async function GET() {
       error: "Failed to fetch driver documents",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 

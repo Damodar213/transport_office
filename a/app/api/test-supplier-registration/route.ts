@@ -17,6 +17,9 @@ export async function POST() {
     const pool = getPool()
     if (!pool) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     console.log("Testing supplier registration...")
@@ -43,6 +46,10 @@ export async function POST() {
         step: "users_table_insert",
         message: "Failed to insert into users table"
       })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     const userId = userResult.rows[0].id
@@ -78,6 +85,10 @@ export async function POST() {
       testUserId,
       insertedData: verifyResult.rows[0]
     })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Supplier registration test error:", error)
@@ -86,6 +97,10 @@ export async function POST() {
       error: "Supplier registration test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 

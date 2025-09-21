@@ -12,6 +12,10 @@ export async function GET() {
         requests: [],
         message: "Using fallback data"
       }, { status: 503 })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     // Fetch buyer transport requests and manual orders
@@ -154,6 +158,10 @@ export async function GET() {
       total: requests.length,
       message: "Transport requests fetched successfully"
     })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error fetching transport requests:", error)
@@ -162,6 +170,10 @@ export async function GET() {
       requests: [],
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 
@@ -197,6 +209,10 @@ export async function POST(request: Request) {
           message: "Manual order assigned successfully",
           status: "assigned"
         })
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
       } else {
         // Create order submission for the buyer request
         await dbQuery(`
@@ -215,6 +231,10 @@ export async function POST(request: Request) {
           message: "Buyer request assigned successfully",
           status: "assigned"
         })
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
       }
     }
 
@@ -231,6 +251,10 @@ export async function POST(request: Request) {
           message: "Manual order rejected successfully",
           status: "cancelled"
         })
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
       } else {
         // Update buyer request status to rejected
         await dbQuery(`
@@ -243,10 +267,17 @@ export async function POST(request: Request) {
           message: "Buyer request rejected successfully",
           status: "rejected"
         })
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
       }
     }
 
     const response = NextResponse.json({ error: "Invalid action" }, { status: 400 })
+  return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error updating transport request:", error)
@@ -254,6 +285,10 @@ export async function POST(request: Request) {
       error: "Failed to update transport request",
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 
@@ -265,6 +300,9 @@ export async function DELETE(request: Request) {
 
     if (!requestId) {
       const response = NextResponse.json({ error: "Request ID is required" }, { status: 400 })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     console.log("Deleting transport request:", requestId, "type:", orderType)
@@ -278,12 +316,19 @@ export async function DELETE(request: Request) {
 
       if (deleteResult.rows.length === 0) {
         const response = NextResponse.json({ error: "Manual order not found" }, { status: 404 })
+      return addCorsHeaders(response)
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
       }
 
       const response = NextResponse.json({ 
         success: true,
         message: "Manual order deleted successfully"
       })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     } else {
       // Delete buyer request
       const deleteResult = await dbQuery(`
@@ -293,12 +338,19 @@ export async function DELETE(request: Request) {
 
       if (deleteResult.rows.length === 0) {
         const response = NextResponse.json({ error: "Buyer request not found" }, { status: 404 })
+      return addCorsHeaders(response)
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
       }
 
       const response = NextResponse.json({ 
         success: true,
         message: "Buyer request deleted successfully"
       })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
   } catch (error) {
@@ -307,5 +359,9 @@ export async function DELETE(request: Request) {
       error: "Failed to delete transport request",
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }

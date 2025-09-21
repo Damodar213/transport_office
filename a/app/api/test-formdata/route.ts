@@ -33,6 +33,10 @@ export async function POST(request: NextRequest) {
         hasPassword: !!password
       }
     })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
     
   } catch (error) {
     console.error("=== FORMDATA TEST ERROR ===", error)
@@ -41,6 +45,10 @@ export async function POST(request: NextRequest) {
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 

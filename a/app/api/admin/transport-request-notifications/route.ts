@@ -82,6 +82,9 @@ export async function GET() {
   try {
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     console.log("Fetching transport request notifications...")
@@ -98,6 +101,9 @@ export async function GET() {
     if (!tableExists.rows[0].exists) {
       console.log("transport_request_notifications table does not exist")
       const response = NextResponse.json({ notifications: [] })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     // Fetch notifications from the database
@@ -134,6 +140,9 @@ export async function GET() {
     }))
 
     const response = NextResponse.json({ notifications })
+  return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error fetching transport request notifications:", error)
@@ -141,6 +150,10 @@ export async function GET() {
       error: "Failed to fetch notifications",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 
@@ -158,6 +171,9 @@ export async function POST(request: Request) {
   try {
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     const body = await request.json()
@@ -177,6 +193,10 @@ export async function POST(request: Request) {
       const response = NextResponse.json({ 
         error: "Missing required fields: type, title, message, category, priority" 
       }, { status: 400 })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     console.log("Creating transport request notification:", { type, title, category, priority })
@@ -314,6 +334,10 @@ export async function POST(request: Request) {
       message: "Notification created successfully",
       notification: newNotification
     }, { status: 201 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error creating transport request notification:", error)
@@ -321,6 +345,10 @@ export async function POST(request: Request) {
       error: "Failed to create notification",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 

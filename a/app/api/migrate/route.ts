@@ -307,10 +307,17 @@ export async function POST() {
       tables: ["users", "suppliers", "buyers", "drivers", "trucks", "transport_orders", "confirmed_orders", "notifications", "supplier_notifications", "buyers_orders", "buyer_requests", "admins"],
       supplierId: supplierId
     })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Migration error:", error)
     const response = NextResponse.json({ error: "Migration failed", details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" }, { status: 500 })
+  return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 

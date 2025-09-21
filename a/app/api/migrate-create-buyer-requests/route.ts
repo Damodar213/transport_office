@@ -30,6 +30,10 @@ export async function POST() {
         message: "Table buyer_requests already exists, no migration needed",
         created: false
       })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     // Create the buyer_requests table
@@ -101,6 +105,10 @@ export async function POST() {
       created: true,
       tableStructure: tableStructure.rows
     })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Migration error:", error)
@@ -108,6 +116,10 @@ export async function POST() {
       error: "Failed to create buyer_requests table", 
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 

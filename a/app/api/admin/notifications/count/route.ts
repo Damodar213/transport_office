@@ -11,6 +11,9 @@ export async function GET() {
     if (!pool) {
       console.log("Database not available")
       const response = NextResponse.json({ count: 0 })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     // Test database connection first
@@ -19,6 +22,9 @@ export async function GET() {
     } catch (dbError) {
       console.error("Database connection test failed:", dbError)
       const response = NextResponse.json({ count: 0 })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     // Check if notification tables exist
@@ -35,6 +41,9 @@ export async function GET() {
     } catch (tableCheckError) {
       console.error("Error checking table existence:", tableCheckError)
       const response = NextResponse.json({ count: 0 })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
     
     // Count unread notifications from both tables
@@ -73,9 +82,15 @@ export async function GET() {
     console.log(`Total unread notifications: ${totalCount}`)
 
     const response = NextResponse.json({ count: totalCount })
+  return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error fetching notification count:", error)
     const response = NextResponse.json({ count: 0 })
+  return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }

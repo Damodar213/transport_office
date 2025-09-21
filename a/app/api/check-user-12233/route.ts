@@ -7,6 +7,9 @@ export async function GET() {
     const pool = getPool()
     if (!pool) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     console.log("Checking if user 12233 exists...")
@@ -35,6 +38,10 @@ export async function GET() {
       userData: userResult.rows[0] || null,
       supplierData: supplierResult.rows[0] || null
     })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error checking user 12233:", error)
@@ -42,6 +49,10 @@ export async function GET() {
       error: "Failed to check user 12233",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 

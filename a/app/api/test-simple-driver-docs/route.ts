@@ -7,6 +7,9 @@ export async function GET() {
     const pool = getPool()
     if (!pool) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     // Simple test - just check if table exists
@@ -20,9 +23,13 @@ export async function GET() {
     const response = NextResponse.json({
       success: true,
       tables: result.rows.map(row => row.table_name)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
     ,
       message: "Tables check completed"
     })
+    return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Simple test error:", error)
@@ -30,6 +37,10 @@ export async function GET() {
       error: "Test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 

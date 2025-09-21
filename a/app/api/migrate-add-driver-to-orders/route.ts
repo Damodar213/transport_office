@@ -37,6 +37,10 @@ export async function POST() {
           error: "Failed to add driver_id column", 
           details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
         }, { status: 500 })
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
       }
     } else {
       console.log("Column driver_id already exists, skipping...")
@@ -58,9 +62,13 @@ export async function POST() {
     const response = NextResponse.json({ 
       message: "Transport orders table migration completed successfully",
       addedColumns: !existingColumns.includes('driver_id')
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
      ? ['driver_id'] : [],
       finalStructure: finalStructure.rows
     })
+    return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Transport orders migration error:", error)
@@ -68,5 +76,9 @@ export async function POST() {
       error: "Transport orders migration failed", 
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }

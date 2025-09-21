@@ -16,6 +16,10 @@ export async function GET() {
         message: "No active session - user needs to log in",
         recommendation: "Log in with valid buyer credentials first"
       })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     console.log("User session:", {
@@ -33,6 +37,10 @@ export async function GET() {
         userRole: session.role,
         recommendation: "Log in as a buyer to test buyer functionality"
       })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     // Test 3: Check buyer data in database
@@ -81,6 +89,10 @@ export async function GET() {
       userData: userData.rows[0] || null,
       authStatus: "Buyer authentication is working correctly"
     })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Buyer authentication test error:", error)
@@ -90,6 +102,10 @@ export async function GET() {
       message: "Test failed with error",
       error: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 

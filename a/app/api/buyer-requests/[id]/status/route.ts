@@ -15,6 +15,10 @@ export async function PUT(
       const response = NextResponse.json({ 
         error: "Status is required" 
       }, { status: 400 })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     // Validate status value
@@ -23,12 +27,20 @@ export async function PUT(
       const response = NextResponse.json({ 
         error: "Invalid status value" 
       }, { status: 400 })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     if (!getPool()) {
       const response = NextResponse.json({ 
         error: "Database not available" 
       }, { status: 500 })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     // Update the order status
@@ -43,6 +55,10 @@ export async function PUT(
       const response = NextResponse.json({ 
         error: "Order not found" 
       }, { status: 404 })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     const updatedOrder = result.rows[0]
@@ -159,6 +175,10 @@ export async function PUT(
       message: "Order status updated successfully",
       data: updatedOrder
     })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error updating order status:", error)
@@ -166,6 +186,10 @@ export async function PUT(
       error: "Failed to update order status",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 

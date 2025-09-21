@@ -31,6 +31,10 @@ export async function GET(request: NextRequest) {
         inTransit: 5,
         delivered: 17,
       })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     if (role === "buyer" && userId) {
@@ -42,11 +46,21 @@ export async function GET(request: NextRequest) {
         inTransit: 3,
         delivered: 12,
       })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     const response = NextResponse.json(mockStats)
+ return addCorsHeaders(response)
+  return addCorsHeaders(response)
   } catch (error) {
+  return addCorsHeaders(response)
     console.error("Statistics error:", error)
     const response = NextResponse.json({ error: "Failed to fetch statistics" }, { status: 500 })
+  return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }

@@ -43,6 +43,9 @@ export async function POST(request: NextRequest) {
       } catch (jsonError) {
         console.error("JSON parsing also failed:", jsonError)
         const response = NextResponse.json({ error: "Failed to parse request data" }, { status: 400 })
+      return addCorsHeaders(response)
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
       }
     }
 
@@ -55,6 +58,9 @@ export async function POST(request: NextRequest) {
     if (!userId || !password || !role) {
       console.log("Missing required fields")
       const response = NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     // Hash password
@@ -162,6 +168,9 @@ export async function POST(request: NextRequest) {
       } catch (uploadError) {
         console.error("File upload error:", uploadError)
         const response = NextResponse.json({ error: "File upload failed" }, { status: 500 })
+      return addCorsHeaders(response)
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
       }
 
       // Save to database with document URLs
@@ -210,6 +219,10 @@ export async function POST(request: NextRequest) {
           error: "Failed to save user to database",
           details: dbError instanceof Error ? dbError.message : "Unknown error"
         }, { status: 500 })
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
       }
     } else if (role === "buyer") {
       console.log("Processing buyer registration...")
@@ -236,6 +249,10 @@ export async function POST(request: NextRequest) {
           error: "Failed to save user to database",
           details: dbError instanceof Error ? dbError.message : "Unknown error"
         }, { status: 500 })
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
       }
     } else if (role === "admin") {
       console.log("Processing admin registration...")
@@ -245,6 +262,9 @@ export async function POST(request: NextRequest) {
       if (adminKey !== "TRANSPORT_ADMIN_2024") {
         console.log("Invalid admin key provided")
         const response = NextResponse.json({ error: "Invalid admin authorization key" }, { status: 403 })
+      return addCorsHeaders(response)
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
       }
 
       const adminData = {
@@ -278,14 +298,24 @@ export async function POST(request: NextRequest) {
           error: "Failed to save admin to database",
           details: dbError instanceof Error ? dbError.message : "Unknown error"
         }, { status: 500 })
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
       }
     } else {
       console.log("Invalid role specified:", role)
       const response = NextResponse.json({ error: "Invalid role specified" }, { status: 400 })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     console.log("=== SIGNUP REQUEST SUCCESS ===")
     const response = NextResponse.json({ message: "Account created successfully" }, { status: 201 })
+  return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   } catch (error) {
     console.error("=== SIGNUP REQUEST ERROR ===")
     console.error("Signup error:", error)
@@ -293,5 +323,9 @@ export async function POST(request: NextRequest) {
       error: "Internal server error",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }

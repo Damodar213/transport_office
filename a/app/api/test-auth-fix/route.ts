@@ -15,6 +15,10 @@ export async function GET() {
       message: user ? "SECURITY ISSUE: User still found!" : "SECURITY FIXED: User not found",
       user: user ? { id: user.id, userId: user.userId, role: user.role } : null
     })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Auth fix test error:", error)
@@ -22,6 +26,10 @@ export async function GET() {
       error: "Auth fix test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 

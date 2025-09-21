@@ -83,6 +83,9 @@ export async function GET() {
   try {
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     console.log("Fetching supplier vehicle location notifications...")
@@ -99,6 +102,9 @@ export async function GET() {
     if (!tableExists.rows[0].exists) {
       console.log("supplier_vehicle_location_notifications table does not exist")
       const response = NextResponse.json({ notifications: [] })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     // Fetch notifications from the database
@@ -157,6 +163,9 @@ export async function GET() {
 
     console.log(`Returning ${notifications.length} notifications`)
     const response = NextResponse.json({ notifications })
+  return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error fetching supplier vehicle location notifications:", error)
@@ -164,6 +173,10 @@ export async function GET() {
       error: "Failed to fetch notifications",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 
@@ -181,6 +194,9 @@ export async function POST(request: Request) {
   try {
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     const body = await request.json()
@@ -205,6 +221,10 @@ export async function POST(request: Request) {
       const response = NextResponse.json({ 
         error: "Missing required fields" 
       }, { status: 400 })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     // Check if notification already exists for this vehicle location
@@ -217,6 +237,10 @@ export async function POST(request: Request) {
       const response = NextResponse.json({ 
         error: "Notification already exists for this vehicle location" 
       }, { status: 409 })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
 
     // Insert new notification
@@ -258,6 +282,10 @@ export async function POST(request: Request) {
       message: "Notification created successfully",
       notification: newNotification
     })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error creating supplier vehicle location notification:", error)
@@ -265,6 +293,10 @@ export async function POST(request: Request) {
       error: "Failed to create notification",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 

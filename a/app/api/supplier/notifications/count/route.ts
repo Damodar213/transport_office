@@ -11,6 +11,10 @@ export async function GET(request: Request) {
       const response = NextResponse.json({ 
         error: "Supplier ID is required" 
       }, { status: 400 })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
     
     if (!getPool()) {
@@ -18,6 +22,10 @@ export async function GET(request: Request) {
         unreadCount: 0,
         totalCount: 0
       })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
     
     try {
@@ -35,6 +43,10 @@ export async function GET(request: Request) {
           unreadCount: 0,
           totalCount: 0
         })
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
+       return addCorsHeaders(response)
+        return addCorsHeaders(response)
       }
       
       // Get unread count
@@ -58,6 +70,10 @@ export async function GET(request: Request) {
         unreadCount,
         totalCount
       })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
       
     } catch (error) {
       console.error("Error fetching notification count:", error)
@@ -65,6 +81,10 @@ export async function GET(request: Request) {
         unreadCount: 0,
         totalCount: 0
       })
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
     
   } catch (error) {
@@ -73,6 +93,10 @@ export async function GET(request: Request) {
       error: "Failed to fetch notification count",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 

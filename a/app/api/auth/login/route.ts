@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
     if (!normalizedUserId || !password || !normalizedRole) {
       console.log(`[AUTH] Missing required fields for user: ${normalizedUserId}`)
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+      return addCorsHeaders(response)
     }
 
     // Use async version that can query database if available
@@ -36,6 +37,7 @@ export async function POST(request: NextRequest) {
     if (!user) {
       console.log(`[AUTH] User not found: ${normalizedUserId} with role: ${normalizedRole}`)
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
+      return addCorsHeaders(response)
     }
 
     console.log(`[AUTH] User found, verifying password for: ${user.userId}`)
@@ -46,6 +48,7 @@ export async function POST(request: NextRequest) {
     if (!isValidPassword) {
       console.log(`[AUTH] Invalid password for user: ${normalizedUserId}`)
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
+      return addCorsHeaders(response)
     }
 
     console.log(`[AUTH] Successful login for user: ${normalizedUserId}`)
@@ -62,6 +65,9 @@ export async function POST(request: NextRequest) {
     }
 
     const response = NextResponse.json({ message: "Login successful", user: sessionData }, { status: 200 })
+  return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
 
     // Set session cookie
     response.cookies.set("session", JSON.stringify(sessionData), {

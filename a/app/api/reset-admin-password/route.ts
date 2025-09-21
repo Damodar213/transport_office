@@ -19,6 +19,9 @@ export async function POST() {
     // Check if database is available
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
     
     // Generate new password hash for "admin123"
@@ -35,6 +38,9 @@ export async function POST() {
     
     if (result.rows.length === 0) {
       const response = NextResponse.json({ error: "Admin user not found in database" }, { status: 404 })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
     
     console.log("Admin password updated successfully")
@@ -45,10 +51,17 @@ export async function POST() {
       userId: "admin",
       role: "admin"
     })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
     
   } catch (error) {
     console.error("Reset admin password error:", error)
     const response = NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
+  return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 

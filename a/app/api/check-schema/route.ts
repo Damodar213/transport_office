@@ -8,6 +8,9 @@ export async function GET() {
     
     if (!getPool()) {
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
+     return addCorsHeaders(response)
+      return addCorsHeaders(response)
     }
     
     // Check what tables exist
@@ -67,10 +70,17 @@ export async function GET() {
       tableStructures,
       message: "Schema check completed"
     })
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
     
   } catch (error) {
     console.error("Check schema error:", error)
     const response = NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
+  return addCorsHeaders(response)
+   return addCorsHeaders(response)
+    return addCorsHeaders(response)
   }
 }
 
