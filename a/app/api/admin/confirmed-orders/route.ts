@@ -44,7 +44,7 @@ export async function GET() {
         body_type: "Loading..."
       },
       supplier_company: "Loading..."
-    })
+    }))
     
     const response = NextResponse.json({ 
       confirmedOrders,

@@ -38,14 +38,14 @@ export async function GET() {
     const activeBuyers = activeBuyersResult.rows[0].count
 
     // Get active buyers count (buyers with recent activity)
-    const activeBuyersWithActivityResult = await dbQuery()
+    const activeBuyersWithActivityResult = await dbQuery(
       "SELECT COUNT(DISTINCT b.user_id) as count FROM buyers b JOIN users u ON b.user_id = u.user_id WHERE u.created_at >= $1",
       [weekAgo.toISOString()]
     )
     const activeBuyersWithActivity = activeBuyersWithActivityResult.rows[0].count
 
     // Get pending reviews count (pending transport orders)
-    const pendingReviewsResult = await dbQuery()
+    const pendingReviewsResult = await dbQuery(
       "SELECT COUNT(*) as count FROM suppliers_vehicle_location WHERE status = 'pending'"
     )
     const pendingReviews = pendingReviewsResult.rows[0].count

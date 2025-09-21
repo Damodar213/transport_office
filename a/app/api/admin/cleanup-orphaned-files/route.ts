@@ -37,14 +37,11 @@ export async function GET(request: NextRequest) {
           driverDocuments: driverDocs.rows.length,
           totalR2Files: r2Files.length,
           orphanedFiles: orphanedFiles.map(file => ({
-
-}
             key: file.key,
             url: file.url,
             size: file.size,
             lastModified: file.lastModified
-
-)
+          }))
 })),
           missingFiles,
           databaseUrls: Array.from(allDbUrls),

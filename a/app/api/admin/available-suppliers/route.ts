@@ -63,3 +63,4 @@ export async function GET() {
     }, { status: 500 })
     return addCorsHeaders(response)
   }
+}
