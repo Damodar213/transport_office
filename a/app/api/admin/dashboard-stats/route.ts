@@ -28,7 +28,7 @@ export async function GET() {
     const activeSuppliers = activeSuppliersResult.rows[0].count
 
     // Get verified suppliers count (suppliers with documents)
-    const verifiedSuppliersResult = await dbQuery()
+    const verifiedSuppliersResult = await dbQuery(
       "SELECT COUNT(DISTINCT s.user_id) as count FROM suppliers s JOIN documents d ON s.user_id = d.user_id"
     )
     const verifiedSuppliers = verifiedSuppliersResult.rows[0].count

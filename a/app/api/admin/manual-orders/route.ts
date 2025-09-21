@@ -117,9 +117,6 @@ export async function POST(request: Request) {
     if (!orderId || !action) {
       const response = NextResponse.json({ 
         error: "Order ID and action are required" 
- 
- 
-})
       }, { status: 400 })
       return addCorsHeaders(response)
     }
@@ -129,9 +126,6 @@ export async function POST(request: Request) {
       if (!supplierId || !supplierName) {
         const response = NextResponse.json({ 
           error: "Supplier ID and name are required for assignment" 
- 
- 
-})
         }, { status: 400 })
         return addCorsHeaders(response)
       }
@@ -142,7 +136,7 @@ export async function POST(request: Request) {
           status = 'assigned',
           assigned_supplier_id = $1,
           assigned_supplier_name = $2,
-          admin_notes = $3,)
+          admin_notes = $3,
           updated_at = NOW()
         WHERE id = $4
         RETURNING *
@@ -162,7 +156,8 @@ export async function POST(request: Request) {
         success: true,
         message: "Manual order assigned successfully",
         order: result.rows[0]
-)
+
+)
 })
       return addCorsHeaders(response)
     }
@@ -183,7 +178,7 @@ export async function POST(request: Request) {
         UPDATE manual_orders 
         SET 
           status = $1,
-          admin_notes = $2,)
+          admin_notes = $2,
           updated_at = NOW()
         WHERE id = $3
         RETURNING *
@@ -203,7 +198,8 @@ export async function POST(request: Request) {
         success: true,
         message: "Manual order status updated successfully",
         order: result.rows[0]
-)
+
+)
 })
       return addCorsHeaders(response)
     }

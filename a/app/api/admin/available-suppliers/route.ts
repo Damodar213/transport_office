@@ -5,7 +5,7 @@ import { dbQuery } from "@/lib/db"
 export async function GET() {
   try {
     // Check if database is available
-    const pool = await import("@/lib/db").then(m => m.getPool()
+    const pool = await import("@/lib/db").then(m => m.getPool())
     if (!pool) {
       const response = NextResponse.json({ 
         error: "Database not available",
@@ -35,7 +35,7 @@ export async function GET() {
     const suppliers = result.rows.map(row => ({
       id: row.id,
       name: row.name || 'Unknown',
-      companyName: row.companyName || 'Unknown Company',)
+      companyName: row.companyName || 'Unknown Company',
       availableVehicles: parseInt(row.numberOfVehicles) || 0,
       rating: 4.5, // Default rating since we're not calculating it
       location: 'Multiple Locations', // Can be enhanced with actual location data
@@ -45,16 +45,13 @@ export async function GET() {
       gstNumber: row.gstNumber,
       totalVehicles: parseInt(row.numberOfVehicles) || 0,
       availableDrivers: 2 // Default value since we're not counting actual drivers
-
-
-})
+    }))
+    
     const response = NextResponse.json({
       suppliers,
       total: suppliers.length,
       message: "Available suppliers fetched successfully"
-
-)
-})
+    })
     return addCorsHeaders(response)
     
   } catch (error) {
@@ -63,9 +60,6 @@ export async function GET() {
       error: "Failed to fetch available suppliers",
       suppliers: [],
       message: error instanceof Error ? error.message : "Unknown error"
-
-
-})
     }, { status: 500 })
     return addCorsHeaders(response)
   }

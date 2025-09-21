@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
     if (!getPool()) {
       console.log("Database not available")
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+      return response
     }
 
     // Get all buyers
@@ -39,13 +40,11 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       buyers: buyers
-
-)
-})
+    })
+    return response
 
   } catch (error) {
     console.error("Error fetching buyers:", error)
-    const response = NextResponse.json({ error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 })
-    return addCorsHeaders(response)
+    const response = NextResponse.json({ error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
+    return response
   }

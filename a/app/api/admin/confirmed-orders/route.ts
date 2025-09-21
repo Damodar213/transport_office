@@ -45,6 +45,7 @@ export async function GET() {
       },
       supplier_company: "Loading..."
     })
+    
     const response = NextResponse.json({ 
       confirmedOrders,
       totalCount: countResult.rows[0].count

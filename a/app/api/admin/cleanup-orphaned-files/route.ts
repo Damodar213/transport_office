@@ -26,10 +26,10 @@ export async function GET(request: NextRequest) {
         const r2Files = await listR2Files()
         
         // Find orphaned files (files in R2 that are not in database)
-        const orphanedFiles = r2Files.filter(file => !allDbUrls.has(file.url)
+        const orphanedFiles = r2Files.filter(file => !allDbUrls.has(file.url))
         // Find database URLs that don't exist in R2
-        const missingFiles = Array.from(allDbUrls).filter(url => )
-          isR2Url(url) && !r2Files.some(file => file.url === url)
+        const missingFiles = Array.from(allDbUrls).filter(url => 
+          isR2Url(url) && !r2Files.some(file => file.url === url))
         return createApiResponse({
           totalDbDocuments: allDbUrls.size,
           supplierDocuments: supplierDocs.rows.length,
