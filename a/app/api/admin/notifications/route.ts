@@ -201,9 +201,8 @@ export async function GET() {
 }
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -281,9 +280,11 @@ export async function POST(request: Request) {
         const response = NextResponse.json({ 
           error: "Failed to create notification in database",
           details: error instanceof Error ? error.message : "Unknown error"
-      })
-    return addCorsHeaders(response)
-  }
+        }, { status: 500 })
+        return addCorsHeaders(response)
+      }
+    }
+    
     // Fallback response if database is not available
     const response = NextResponse.json({ 
       message: "Notification created successfully (mock mode)",
@@ -296,7 +297,8 @@ export async function POST(request: Request) {
         isRead: false,
         category,
         priority
-      })
+      }
+    })
     return addCorsHeaders(response)
 
   } catch (error) {
@@ -304,6 +306,6 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to create notification",
       details: error instanceof Error ? error.message : "Unknown error"
-  })
+    }, { status: 500 })
     return addCorsHeaders(response)
   }

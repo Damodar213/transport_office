@@ -89,9 +89,8 @@ export async function GET(request: Request) {
 
 // POST - Update manual order status or assign to supplier
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -137,6 +136,10 @@ export async function POST(request: Request) {
       `, [supplierId, supplierName, adminNotes || '', orderId])
 
       if (result.rows.length === 0) {
+        const response = NextResponse.json({ 
+          error: "Order not found" 
+        }, { status: 404 })
+        return addCorsHeaders(response)
       }
 
       const response = NextResponse.json({
@@ -167,14 +170,19 @@ export async function POST(request: Request) {
       `, [status, adminNotes || '', orderId])
 
       if (result.rows.length === 0) {
+        const response = NextResponse.json({ 
+          error: "Order not found" 
+        }, { status: 404 })
+        return addCorsHeaders(response)
       }
 
       const response = NextResponse.json({
         success: true,
         message: "Manual order status updated successfully",
         order: result.rows[0]
-    })
-    return addCorsHeaders(response)
+      })
+      return addCorsHeaders(response)
+    }
 
   } catch (error) {
     console.error("Error updating manual order:", error)

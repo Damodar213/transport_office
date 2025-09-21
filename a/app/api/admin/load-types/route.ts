@@ -90,9 +90,8 @@ export async function GET() {
 
 // POST - Create new load type
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -127,10 +126,8 @@ export async function POST(request: Request) {
           created_at TIMESTAMP DEFAULT NOW(),
           updated_at TIMESTAMP DEFAULT NOW()
         )
-      `)})
-    return addCorsHeaders(response)
-
-  } catch (error) {
+      `)
+    } catch (error) {
       console.error("Error ensuring table exists:", error)
     }
 

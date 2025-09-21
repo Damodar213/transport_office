@@ -6,9 +6,9 @@ export async function GET() {
   try {
     console.log("Checking database schema...")
     
-    if (!getPool()) {})
-    return addCorsHeaders(response)
-  }
+    if (!getPool()) {
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+    }
     // Check what tables exist
     const tablesResult = await dbQuery(`
       SELECT table_name 

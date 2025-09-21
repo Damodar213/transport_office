@@ -14,9 +14,9 @@ export async function POST(request: Request) {
 
 
   try {
-    if (!getPool()) {})
-    return addCorsHeaders(response)
-  }
+    if (!getPool()) {
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+    }
     const body = await request.json()
     const { orderId, supplierId, submittedBy } = body
 
@@ -57,9 +57,9 @@ export async function POST(request: Request) {
 // GET - Get all order submissions (for admin view)
 export async function GET() {
   try {
-    if (!getPool()) {})
-    return addCorsHeaders(response)
-  }
+    if (!getPool()) {
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+    }
     const result = await dbQuery(`
       SELECT 
         os.*,

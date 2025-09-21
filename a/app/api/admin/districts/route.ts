@@ -58,9 +58,8 @@ export async function GET() {
 
 // POST - Create new district
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)

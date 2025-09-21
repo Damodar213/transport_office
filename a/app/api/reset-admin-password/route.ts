@@ -17,9 +17,9 @@ export async function POST() {
     console.log("Resetting admin password...")
     
     // Check if database is available
-    if (!getPool()) {})
-    return addCorsHeaders(response)
-  }
+    if (!getPool()) {
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+    }
     // Generate new password hash for "admin123"
     const newPassword = "admin123"
     const newPasswordHash = await bcrypt.hash(newPassword, 10)

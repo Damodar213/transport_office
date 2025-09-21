@@ -68,9 +68,9 @@ export async function PUT(request: Request) {
     
     console.log("PUT /api/admin/settings - updating settings...")
     
-    if (!getPool()) {})
-    return addCorsHeaders(response)
-  }
+    if (!getPool()) {
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+    }
     try {
       // Check if settings table exists, create if not
       const tableExists = await dbQuery(`

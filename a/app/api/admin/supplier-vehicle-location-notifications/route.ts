@@ -81,9 +81,9 @@ function formatTimestamp(timestamp: string | Date): string {
 // GET - Fetch all supplier vehicle location notifications
 export async function GET() {
   try {
-    if (!getPool()) {})
-    return addCorsHeaders(response)
-  }
+    if (!getPool()) {
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+    }
     console.log("Fetching supplier vehicle location notifications...")
 
     // Check if table exists
@@ -174,9 +174,9 @@ export async function POST(request: Request) {
 
 
   try {
-    if (!getPool()) {})
-    return addCorsHeaders(response)
-  }
+    if (!getPool()) {
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+    }
     const body = await request.json()
     const {
       vehicle_location_id,
