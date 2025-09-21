@@ -34,7 +34,7 @@ const orders = [
 ]
 
 // GET - Fetch single order
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const orderId = Number.parseInt(params.id)
     const order = orders.find((o) => o.id === orderId)
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 // PUT - Update order
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const orderId = Number.parseInt(params.id)
     const body = await request.json()
@@ -75,7 +75,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 }
 
 // DELETE - Delete order
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const orderId = Number.parseInt(params.id)
     const orderIndex = orders.findIndex((o) => o.id === orderId)

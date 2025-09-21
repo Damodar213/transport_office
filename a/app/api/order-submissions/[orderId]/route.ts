@@ -4,7 +4,7 @@ import { dbQuery, getPool } from "@/lib/db"
 // GET - Get all submissions for a specific order
 export async function GET(
   request: Request,
-  { params }: { params: { orderId: string } }
+  { params }: { params: Promise<{ orderId: string }> }
 ) {
   try {
     if (!getPool()) {

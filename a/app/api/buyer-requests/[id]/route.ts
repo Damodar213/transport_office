@@ -4,7 +4,7 @@ import { dbQuery, getPool } from "@/lib/db"
 // GET - Fetch a specific buyer request by ID
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     if (!getPool()) {
@@ -56,7 +56,7 @@ export async function GET(
 // PUT - Update a buyer request (for admin operations)
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     if (!getPool()) {
@@ -258,7 +258,7 @@ export async function PUT(
 // DELETE - Delete a buyer request (admin only)
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     if (!getPool()) {

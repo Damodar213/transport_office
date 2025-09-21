@@ -4,7 +4,7 @@ import { dbQuery, getPool } from "@/lib/db"
 // DELETE - Delete a transport request notification
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     if (!getPool()) {

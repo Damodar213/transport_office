@@ -5,7 +5,7 @@ import { getSession } from "@/lib/auth"
 // DELETE - Delete a user (admin only)
 export async function DELETE(
   request: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
     // Check if user is authenticated and is admin
