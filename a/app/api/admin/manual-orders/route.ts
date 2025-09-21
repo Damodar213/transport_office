@@ -80,7 +80,7 @@ export async function GET(request: Request) {
     console.error("Error fetching manual orders:", error)
     return NextResponse.json({ 
       error: "Failed to fetch manual orders",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }
@@ -170,7 +170,7 @@ export async function POST(request: Request) {
     console.error("Error updating manual order:", error)
     return NextResponse.json({ 
       error: "Failed to update manual order",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

@@ -62,7 +62,7 @@ export async function GET() {
     console.error("Database connection test failed:", error)
     return createApiError(
       "Database connection failed",
-      error instanceof Error ? error.message : "Unknown error",
+      error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
       503
     )
   }

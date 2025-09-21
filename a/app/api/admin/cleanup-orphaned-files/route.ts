@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
           } catch (error) {
             results.failed.push({
               url,
-              error: error instanceof Error ? error.message : 'Unknown error'
+              error: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : 'Unknown error'
             })
             console.error(`Failed to delete file ${url}:`, error)
           }

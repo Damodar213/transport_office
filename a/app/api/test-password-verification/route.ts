@@ -43,7 +43,7 @@ export async function POST() {
     console.error("Password verification test error:", error)
     return NextResponse.json({ 
       error: "Password verification test failed",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

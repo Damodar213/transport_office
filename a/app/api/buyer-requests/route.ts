@@ -87,7 +87,7 @@ export async function GET(request: Request) {
     console.error("Error fetching buyer requests:", error)
     return NextResponse.json({ 
       error: "Failed to fetch buyer requests",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }
@@ -204,7 +204,7 @@ export async function POST(request: Request) {
     console.error("Error creating buyer request:", error)
     return NextResponse.json({ 
       error: "Failed to create buyer request",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

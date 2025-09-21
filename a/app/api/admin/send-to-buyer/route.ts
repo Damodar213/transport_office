@@ -186,7 +186,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Error sending order to buyer:", error)
     return NextResponse.json(
-      { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
+      { error: "Internal server error", details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" },
       { status: 500 }
     )
   }

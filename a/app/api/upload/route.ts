@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
     console.error("Upload error:", error)
     return NextResponse.json({ 
       error: "Upload failed", 
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }
@@ -176,7 +176,7 @@ export async function DELETE(request: NextRequest) {
     console.error("Delete error:", error)
     return NextResponse.json({ 
       error: "Delete failed", 
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }
@@ -210,7 +210,7 @@ export async function GET(request: NextRequest) {
     console.error("Signed URL generation error:", error)
     return NextResponse.json({ 
       error: "Failed to generate signed URL", 
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

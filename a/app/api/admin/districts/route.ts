@@ -51,7 +51,7 @@ export async function GET() {
     return NextResponse.json({ 
       error: "Failed to fetch districts",
       districts: [],
-      message: error instanceof Error ? error.message : "Unknown error"
+      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }
@@ -91,7 +91,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Error creating district:", error)
     
-    if (error instanceof Error && error.message.includes('duplicate key')) {
+    if (error instanceof Error && error instanceof Error ? error.message : "Unknown error".includes('duplicate key')) {
       return NextResponse.json({ 
         error: "District with this name and state already exists"
       }, { status: 409 })
@@ -99,7 +99,7 @@ export async function POST(request: Request) {
     
     return NextResponse.json({ 
       error: "Failed to create district",
-      message: error instanceof Error ? error.message : "Unknown error"
+      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }
@@ -143,7 +143,7 @@ export async function PUT(request: Request) {
   } catch (error) {
     console.error("Error updating district:", error)
     
-    if (error instanceof Error && error.message.includes('duplicate key')) {
+    if (error instanceof Error && error instanceof Error ? error.message : "Unknown error".includes('duplicate key')) {
       return NextResponse.json({ 
         error: "District with this name and state already exists"
       }, { status: 409 })
@@ -151,7 +151,7 @@ export async function PUT(request: Request) {
     
     return NextResponse.json({ 
       error: "Failed to update district",
-      message: error instanceof Error ? error.message : "Unknown error"
+      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }
@@ -192,7 +192,7 @@ export async function DELETE(request: NextRequest) {
     console.error("Error deleting district:", error)
     return NextResponse.json({ 
       error: "Failed to delete district",
-      message: error instanceof Error ? error.message : "Unknown error"
+      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

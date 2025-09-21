@@ -41,7 +41,7 @@ export async function GET() {
     console.error("Error checking suppliers:", error)
     return NextResponse.json({ 
       error: "Failed to check suppliers",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

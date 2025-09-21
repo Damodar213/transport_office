@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     console.error("Error sending order to suppliers:", error)
     return NextResponse.json({ 
       error: "Failed to send order to suppliers",
-      message: error instanceof Error ? error.message : "Unknown error"
+      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

@@ -127,7 +127,7 @@ export async function PUT(request: Request) {
     console.error("Error updating user status:", error)
     return NextResponse.json({ 
       error: "Failed to update user status",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

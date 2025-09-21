@@ -151,7 +151,7 @@ export async function POST() {
     console.error("Migration error:", error)
     return createApiError(
       "Failed to create vehicle and driver document tables",
-      error instanceof Error ? error.message : "Unknown error",
+      error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
       500
     )
   }

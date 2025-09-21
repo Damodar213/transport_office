@@ -83,7 +83,7 @@ export async function GET() {
     return NextResponse.json({ 
       error: "Failed to fetch load types",
       loadTypes: [],
-      message: error instanceof Error ? error.message : "Unknown error"
+      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }
@@ -137,7 +137,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Error creating load type:", error)
     
-    if (error instanceof Error && error.message.includes('duplicate key')) {
+    if (error instanceof Error && error instanceof Error ? error.message : "Unknown error".includes('duplicate key')) {
       return NextResponse.json({ 
         error: "Load type with this name already exists"
       }, { status: 409 })
@@ -145,7 +145,7 @@ export async function POST(request: Request) {
     
     return NextResponse.json({ 
       error: "Failed to create load type",
-      message: error instanceof Error ? error.message : "Unknown error"
+      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }
@@ -189,7 +189,7 @@ export async function PUT(request: Request) {
   } catch (error) {
     console.error("Error updating load type:", error)
     
-    if (error instanceof Error && error.message.includes('duplicate key')) {
+    if (error instanceof Error && error instanceof Error ? error.message : "Unknown error".includes('duplicate key')) {
       return NextResponse.json({ 
         error: "Load type with this name already exists"
       }, { status: 409 })
@@ -197,7 +197,7 @@ export async function PUT(request: Request) {
     
     return NextResponse.json({ 
       error: "Failed to update load type",
-      message: error instanceof Error ? error.message : "Unknown error"
+      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }
@@ -238,7 +238,7 @@ export async function DELETE(request: NextRequest) {
     console.error("Error deleting load type:", error)
     return NextResponse.json({ 
       error: "Failed to delete load type",
-      message: error instanceof Error ? error.message : "Unknown error"
+      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

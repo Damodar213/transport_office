@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     console.error("Error exporting users:", error)
     return NextResponse.json({ 
       error: "Failed to export users",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

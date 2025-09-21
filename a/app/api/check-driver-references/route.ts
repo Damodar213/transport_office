@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
     console.error("Check driver references error:", error)
     return NextResponse.json({ 
       error: "Failed to check driver references",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

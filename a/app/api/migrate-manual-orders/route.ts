@@ -67,7 +67,7 @@ export async function POST() {
     console.error("Manual orders migration error:", error)
     return NextResponse.json({ 
       error: "Failed to create manual orders table",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

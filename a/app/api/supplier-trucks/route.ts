@@ -187,12 +187,12 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Create truck error:", error)
     console.error("Error details:", {
-      message: error instanceof Error ? error.message : "Unknown error",
+      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
     })
     return NextResponse.json({ 
       error: "Failed to create truck", 
-      details: error instanceof Error ? error.message : "Unknown error" 
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
     }, { status: 500 })
   }
 }
@@ -319,7 +319,7 @@ export async function DELETE(request: Request) {
 
   } catch (error) {
     console.error("Delete truck error:", error)
-    return NextResponse.json({ error: "Failed to delete truck", details: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to delete truck", details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" }, { status: 500 })
   }
 }
 

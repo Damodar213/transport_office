@@ -103,7 +103,7 @@ export async function POST() {
     console.error("Error creating user and supplier:", error)
     return NextResponse.json({ 
       error: "Failed to create user and supplier",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

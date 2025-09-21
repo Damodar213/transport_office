@@ -56,7 +56,7 @@ export async function DELETE(
     console.error("Error deleting buyer notification:", error)
     return NextResponse.json({
       error: "Failed to delete notification",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

@@ -106,7 +106,7 @@ export async function GET() {
       success: false,
       test: "error",
       message: "Test failed with error",
-      error: error instanceof Error ? error.message : "Unknown error"
+      error: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

@@ -52,6 +52,6 @@ export async function GET() {
 
   } catch (error) {
     console.error("Get admin confirmed orders error:", error)
-    return NextResponse.json({ error: "Failed to fetch confirmed orders", details: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to fetch confirmed orders", details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" }, { status: 500 })
   }
 }

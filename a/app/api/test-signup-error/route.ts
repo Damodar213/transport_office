@@ -65,7 +65,7 @@ export async function POST() {
     return NextResponse.json({ 
       success: false,
       error: "Signup test failed",
-      details: error instanceof Error ? error.message : "Unknown error",
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
     }, { status: 500 })
   }

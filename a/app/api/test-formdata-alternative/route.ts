@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     console.error("=== FORMDATA ALTERNATIVE ERROR ===", error)
     return NextResponse.json({ 
       error: "Form data alternative test failed",
-      details: error instanceof Error ? error.message : "Unknown error",
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
     }, { status: 500 })
   }

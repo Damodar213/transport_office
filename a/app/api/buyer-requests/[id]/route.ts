@@ -48,7 +48,7 @@ export async function GET(
     console.error("Error fetching buyer request:", error)
     return NextResponse.json({ 
       error: "Failed to fetch buyer request",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }
@@ -250,7 +250,7 @@ export async function PUT(
     console.error("Error updating buyer request:", error)
     return NextResponse.json({ 
       error: "Failed to update buyer request",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }
@@ -288,7 +288,7 @@ export async function DELETE(
     console.error("Error deleting buyer request:", error)
     return NextResponse.json({ 
       error: "Failed to delete buyer request",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

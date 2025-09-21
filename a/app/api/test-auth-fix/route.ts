@@ -19,7 +19,7 @@ export async function GET() {
     console.error("Auth fix test error:", error)
     return NextResponse.json({ 
       error: "Auth fix test failed",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

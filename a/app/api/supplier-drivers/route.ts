@@ -120,7 +120,7 @@ export async function POST(request: Request) {
 
   } catch (error) {
     console.error("Create driver error:", error)
-    return NextResponse.json({ error: "Failed to create driver", details: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to create driver", details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" }, { status: 500 })
   }
 }
 
@@ -184,7 +184,7 @@ export async function PUT(request: Request) {
 
   } catch (error) {
     console.error("Update driver error:", error)
-    return NextResponse.json({ error: "Failed to update driver", details: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to update driver", details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" }, { status: 500 })
   }
 }
 
@@ -298,10 +298,10 @@ export async function DELETE(request: Request) {
     
     // Check if it's a database connection error
     if (error instanceof Error && (
-      error.message.includes('connection') || 
-      error.message.includes('timeout') ||
-      error.message.includes('ECONNRESET') ||
-      error.message.includes('Connection terminated')
+      error instanceof Error ? error.message : "Unknown error".includes('connection') || 
+      error instanceof Error ? error.message : "Unknown error".includes('timeout') ||
+      error instanceof Error ? error.message : "Unknown error".includes('ECONNRESET') ||
+      error instanceof Error ? error.message : "Unknown error".includes('Connection terminated')
     )) {
       return NextResponse.json({ 
         error: "Database connection error. Please try again.",
@@ -310,7 +310,7 @@ export async function DELETE(request: Request) {
     }
     
     // Check if it's a foreign key constraint violation
-    if (error instanceof Error && error.message.includes('violates foreign key constraint')) {
+    if (error instanceof Error && error instanceof Error ? error.message : "Unknown error".includes('violates foreign key constraint')) {
       return NextResponse.json({ 
         error: "Cannot delete driver. Driver is referenced by other records in the system.",
         details: "Foreign key constraint violation"
@@ -319,7 +319,7 @@ export async function DELETE(request: Request) {
     
     return NextResponse.json({ 
       error: "Failed to delete driver", 
-      details: error instanceof Error ? error.message : "Unknown error" 
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
     }, { status: 500 })
   }
 }

@@ -52,7 +52,7 @@ export async function DELETE(request: Request) {
     console.error("Error clearing all buyer notifications:", error)
     return NextResponse.json({
       error: "Failed to clear all buyer notifications",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

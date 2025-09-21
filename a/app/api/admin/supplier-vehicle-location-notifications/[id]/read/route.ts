@@ -36,7 +36,7 @@ export async function PUT(
     console.error("Error marking supplier notification as read:", error)
     return NextResponse.json({ 
       error: "Failed to mark notification as read",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

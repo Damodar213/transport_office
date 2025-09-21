@@ -38,7 +38,7 @@ export async function GET(
     console.error("Error fetching order submissions:", error)
     return NextResponse.json({ 
       error: "Failed to fetch order submissions",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

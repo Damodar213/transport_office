@@ -39,7 +39,7 @@ export async function GET() {
     console.error("Error checking supplier 111111:", error)
     return NextResponse.json({ 
       error: "Failed to check supplier 111111",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

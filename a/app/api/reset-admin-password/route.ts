@@ -38,7 +38,7 @@ export async function POST() {
     
   } catch (error) {
     console.error("Reset admin password error:", error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
   }
 }
 

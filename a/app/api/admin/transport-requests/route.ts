@@ -159,7 +159,7 @@ export async function GET() {
     return NextResponse.json({ 
       error: "Failed to fetch transport requests",
       requests: [],
-      message: error instanceof Error ? error.message : "Unknown error"
+      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }
@@ -242,7 +242,7 @@ export async function POST(request: Request) {
     console.error("Error updating transport request:", error)
     return NextResponse.json({ 
       error: "Failed to update transport request",
-      message: error instanceof Error ? error.message : "Unknown error"
+      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }
@@ -295,7 +295,7 @@ export async function DELETE(request: Request) {
     console.error("Error deleting transport request:", error)
     return NextResponse.json({ 
       error: "Failed to delete transport request",
-      message: error instanceof Error ? error.message : "Unknown error"
+      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

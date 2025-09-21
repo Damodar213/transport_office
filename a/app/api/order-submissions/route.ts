@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     console.error("Error creating order submission:", error)
     
     // Handle unique constraint violation (order already sent to this supplier)
-    if (error instanceof Error && error.message.includes('unique constraint')) {
+    if (error instanceof Error && error instanceof Error ? error.message : "Unknown error".includes('unique constraint')) {
       return NextResponse.json({ 
         error: "This order has already been sent to this supplier" 
       }, { status: 409 })
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     
     return NextResponse.json({ 
       error: "Failed to record order submission",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }
@@ -76,7 +76,7 @@ export async function GET() {
     console.error("Error fetching order submissions:", error)
     return NextResponse.json({ 
       error: "Failed to fetch order submissions",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

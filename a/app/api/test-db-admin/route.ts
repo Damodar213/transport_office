@@ -36,7 +36,7 @@ export async function GET() {
     })
   } catch (error) {
     console.error("Test database admin error:", error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
   }
 }
 

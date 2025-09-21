@@ -48,7 +48,7 @@ export async function GET() {
     console.error("Test driver documents error:", error)
     return createApiError(
       "Failed to test driver documents",
-      error instanceof Error ? error.message : "Unknown error",
+      error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
       500
     )
   }

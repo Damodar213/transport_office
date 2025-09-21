@@ -75,7 +75,7 @@ export async function POST(request: Request) {
       } catch (error) {
         console.error(`Failed to create submission for supplier ${supplierId}:`, error)
         // Don't continue if order submission creation fails - this is critical
-        throw new Error(`Failed to create order submission for supplier ${supplierId}: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        throw new Error(`Failed to create order submission for supplier ${supplierId}: ${error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : 'Unknown error'}`)
       }
     }
 
@@ -149,7 +149,7 @@ export async function POST(request: Request) {
     console.error("Error sending manual order to suppliers:", error)
     return NextResponse.json({ 
       error: "Failed to send manual order to suppliers",
-      message: error instanceof Error ? error.message : "Unknown error"
+      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

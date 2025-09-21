@@ -58,7 +58,7 @@ export async function POST() {
     console.error("Trucks migration error:", error)
     return NextResponse.json({ 
       error: "Trucks migration failed", 
-      details: error instanceof Error ? error.message : "Unknown error" 
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
     }, { status: 500 })
   }
 }

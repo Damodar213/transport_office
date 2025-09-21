@@ -35,7 +35,7 @@ export async function GET() {
     console.error("Test vehicle documents error:", error)
     return createApiError(
       "Failed to test vehicle documents",
-      error instanceof Error ? error.message : "Unknown error",
+      error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
       500
     )
   }

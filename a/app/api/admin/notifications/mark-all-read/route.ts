@@ -45,7 +45,7 @@ export async function PUT() {
     console.error("Error marking all notifications as read:", error)
     return NextResponse.json({ 
       error: "Failed to mark all notifications as read",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

@@ -25,7 +25,7 @@ export async function POST() {
         console.error("Error adding column driver_id:", error)
         return NextResponse.json({ 
           error: "Failed to add driver_id column", 
-          details: error instanceof Error ? error.message : "Unknown error" 
+          details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
         }, { status: 500 })
       }
     } else {
@@ -55,7 +55,7 @@ export async function POST() {
     console.error("Transport orders migration error:", error)
     return NextResponse.json({ 
       error: "Transport orders migration failed", 
-      details: error instanceof Error ? error.message : "Unknown error" 
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
     }, { status: 500 })
   }
 }

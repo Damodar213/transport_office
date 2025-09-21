@@ -31,7 +31,7 @@ export async function POST() {
         console.error("Error renaming column:", error)
         return NextResponse.json({ 
           error: "Failed to rename column",
-          details: error instanceof Error ? error.message : "Unknown error"
+          details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
         }, { status: 500 })
       }
     } else if (!hasNumberOfVehicles && !hasNumberOfWheels) {
@@ -43,7 +43,7 @@ export async function POST() {
         console.error("Error adding column:", error)
         return NextResponse.json({ 
           error: "Failed to add column",
-          details: error instanceof Error ? error.message : "Unknown error"
+          details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
         }, { status: 500 })
       }
     }
@@ -70,7 +70,7 @@ export async function POST() {
     console.error("Trucks migration error:", error)
     return NextResponse.json({ 
       error: "Failed to migrate trucks table",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

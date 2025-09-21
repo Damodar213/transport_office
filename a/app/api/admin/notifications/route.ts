@@ -195,7 +195,7 @@ export async function GET() {
     console.error("Error in notifications API:", error)
     return NextResponse.json({ 
       error: "Failed to fetch notifications",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }
@@ -270,7 +270,7 @@ export async function POST(request: Request) {
         console.error("Error creating notification in database:", error)
         return NextResponse.json({ 
           error: "Failed to create notification in database",
-          details: error instanceof Error ? error.message : "Unknown error"
+          details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
         }, { status: 500 })
       }
     }
@@ -294,7 +294,7 @@ export async function POST(request: Request) {
     console.error("Error creating notification:", error)
     return NextResponse.json({ 
       error: "Failed to create notification",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

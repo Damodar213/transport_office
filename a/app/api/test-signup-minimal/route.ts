@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     console.error("Minimal signup test error:", error)
     return NextResponse.json({ 
       error: "Minimal signup test failed",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

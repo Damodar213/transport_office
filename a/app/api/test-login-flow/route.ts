@@ -76,7 +76,7 @@ export async function POST() {
       success: false,
       step: "error",
       error: "Login flow test failed",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

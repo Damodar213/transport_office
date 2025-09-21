@@ -53,7 +53,7 @@ export async function GET() {
       return NextResponse.json({
         status: "error",
         error: "Database connection test failed",
-        details: error instanceof Error ? error.message : "Unknown error"
+        details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
       }, { status: 500 })
     }
     
@@ -61,7 +61,7 @@ export async function GET() {
     console.error("Error in database test API:", error)
     return NextResponse.json({ 
       error: "Failed to test database connection",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

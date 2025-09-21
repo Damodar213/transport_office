@@ -280,7 +280,7 @@ export async function POST(request: NextRequest) {
     console.error("Signup error:", error)
     return NextResponse.json({ 
       error: "Internal server error",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

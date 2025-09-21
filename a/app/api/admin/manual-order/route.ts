@@ -195,7 +195,7 @@ export async function POST(request: NextRequest) {
     console.error("Manual order creation error:", error)
     return NextResponse.json({ 
       error: "Failed to create manual order",
-      message: error instanceof Error ? error.message : "Unknown error"
+      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

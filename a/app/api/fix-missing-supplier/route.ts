@@ -77,7 +77,7 @@ export async function POST() {
     console.error("Error creating supplier record:", error)
     return NextResponse.json({ 
       error: "Failed to create supplier record",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

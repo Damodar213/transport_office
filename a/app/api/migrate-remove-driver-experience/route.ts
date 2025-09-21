@@ -25,7 +25,7 @@ export async function POST() {
         console.error("Error dropping column experience_years:", error)
         return NextResponse.json({ 
           error: "Failed to drop experience_years column", 
-          details: error instanceof Error ? error.message : "Unknown error" 
+          details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
         }, { status: 500 })
       }
     } else {
@@ -55,7 +55,7 @@ export async function POST() {
     console.error("Drivers migration error:", error)
     return NextResponse.json({ 
       error: "Drivers migration failed", 
-      details: error instanceof Error ? error.message : "Unknown error" 
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
     }, { status: 500 })
   }
 }

@@ -96,7 +96,7 @@ export async function POST() {
     console.error("Migration error:", error)
     return NextResponse.json({ 
       error: "Failed to create buyer_requests table", 
-      details: error instanceof Error ? error.message : "Unknown error" 
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
     }, { status: 500 })
   }
 }

@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     console.error("Error updating manual order status:", error)
     return NextResponse.json({ 
       error: "Failed to update manual order status",
-      message: error instanceof Error ? error.message : "Unknown error"
+      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

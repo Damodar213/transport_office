@@ -59,7 +59,7 @@ export async function GET() {
     console.error("Error in settings GET API:", error)
     return NextResponse.json({ 
       error: "Failed to fetch settings",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }
@@ -124,7 +124,7 @@ export async function PUT(request: Request) {
       console.error("Error updating settings in database:", error)
       return NextResponse.json({ 
         error: "Failed to update settings in database",
-        details: error instanceof Error ? error.message : "Unknown error"
+        details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
       }, { status: 500 })
     }
     
@@ -132,7 +132,7 @@ export async function PUT(request: Request) {
     console.error("Error in settings PUT API:", error)
     return NextResponse.json({ 
       error: "Failed to update settings",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

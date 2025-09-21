@@ -54,7 +54,7 @@ export async function GET() {
     console.error("Registration issues test error:", error)
     return NextResponse.json({ 
       error: "Registration issues test failed",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

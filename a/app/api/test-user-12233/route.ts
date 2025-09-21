@@ -33,7 +33,7 @@ export async function GET() {
     console.error("User check error:", error)
     return NextResponse.json({ 
       error: "User check failed",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

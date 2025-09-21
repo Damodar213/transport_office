@@ -76,7 +76,7 @@ export async function GET() {
     console.error("Error getting current user:", error)
     return NextResponse.json({ 
       error: "Failed to get current user",
-      message: error instanceof Error ? error.message : "Unknown error"
+      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

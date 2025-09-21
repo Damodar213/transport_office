@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
     console.error("Get driver blocking orders error:", error)
     return NextResponse.json({ 
       error: "Failed to get driver blocking orders",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }

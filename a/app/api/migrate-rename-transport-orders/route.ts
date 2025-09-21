@@ -43,7 +43,7 @@ export async function POST() {
       console.error("Error renaming table:", error)
       return NextResponse.json({ 
         error: "Failed to rename table", 
-        details: error instanceof Error ? error.message : "Unknown error" 
+        details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
       }, { status: 500 })
     }
 
@@ -72,7 +72,7 @@ export async function POST() {
     console.error("Table migration error:", error)
     return NextResponse.json({ 
       error: "Table migration failed", 
-      details: error instanceof Error ? error.message : "Unknown error" 
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
     }, { status: 500 })
   }
 }

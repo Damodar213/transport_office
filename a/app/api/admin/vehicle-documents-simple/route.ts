@@ -42,7 +42,7 @@ export async function GET() {
     console.error("Vehicle documents error:", error)
     return NextResponse.json({ 
       error: "Failed to fetch vehicle documents",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
   }
 }
