@@ -6,10 +6,6 @@ export async function GET() {
   try {
     const pool = getPool()
     if (!pool) {
-      const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     // Check Cloudflare environment variables
@@ -52,22 +48,11 @@ export async function GET() {
       suppliersTableStructure: suppliersTableCheck.rows,
       recentUsers: recentUsers.rows,
       message: "Registration issues diagnostic completed"
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-
   } catch (error) {
     console.error("Registration issues test error:", error)
     const response = NextResponse.json({ 
       error: "Registration issues test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 

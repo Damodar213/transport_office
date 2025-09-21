@@ -31,11 +31,6 @@ export async function POST() {
         success: false,
         step: "user_lookup",
         message: "User not found"
-      })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     console.log("User details:", {
@@ -58,11 +53,6 @@ export async function POST() {
         message: "Invalid password",
         userFound: true,
         passwordValid: false
-      })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     // Step 3: Create session
@@ -86,12 +76,6 @@ export async function POST() {
       userFound: true,
       passwordValid: true,
       sessionData
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-
   } catch (error) {
     console.error("Login flow test error:", error)
     const response = NextResponse.json({ 
@@ -99,11 +83,6 @@ export async function POST() {
       step: "error",
       error: "Login flow test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 

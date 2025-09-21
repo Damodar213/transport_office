@@ -19,22 +19,12 @@ export async function POST(request: Request) {
     if (!orderId || !supplierIds || !Array.isArray(supplierIds) || supplierIds.length === 0) {
       const response = NextResponse.json({ 
         error: "Order ID and supplier IDs are required" 
-      }, { status: 400 })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     const pool = getPool()
     if (!pool) {
       const response = NextResponse.json({ 
         error: "Database not available" 
-      }, { status: 500 })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     // Create WhatsApp message
@@ -72,22 +62,11 @@ export async function POST(request: Request) {
       sentOrders: sentOrders,
       totalSent: supplierIds.length,
       whatsappMessage: message
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-
   } catch (error) {
     console.error("Error sending order to suppliers:", error)
     const response = NextResponse.json({ 
       error: "Failed to send order to suppliers",
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 

@@ -15,20 +15,11 @@ export async function GET() {
     console.log("Database users:", dbUsers.map(u => ({ id: u.id, userId: u.userId, role: u.role })))
     
     const response = NextResponse.json({
-      fileUsers: fileUsers.map(u => ({ id: u.id, userId: u.userId, role: u.role, email: u.email })
-return addCorsHeaders(response)
 ),
       dbUsers: dbUsers.map(u => ({ id: u.id, userId: u.userId, role: u.role, email: u.email })),
       message: "Users listed successfully"
-    })
-    return addCorsHeaders(response)
-    return addCorsHeaders(response)
   } catch (error) {
     console.error("List users error:", error)
-    const response = NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
-  return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 

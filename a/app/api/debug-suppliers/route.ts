@@ -6,10 +6,6 @@ export async function GET() {
   try {
     const pool = getPool()
     if (!pool) {
-      const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     console.log("Checking suppliers in database...")
@@ -39,22 +35,11 @@ export async function GET() {
       supplierUsers: usersResult.rows,
       totalSuppliers: suppliersResult.rows.length,
       totalSupplierUsers: usersResult.rows.length
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-
   } catch (error) {
     console.error("Error checking suppliers:", error)
     const response = NextResponse.json({ 
       error: "Failed to check suppliers",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 

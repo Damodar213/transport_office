@@ -6,10 +6,6 @@ export async function GET() {
   try {
     const pool = getPool()
     if (!pool) {
-      const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     // Check recent users in database
@@ -43,22 +39,11 @@ export async function GET() {
       databaseUsers: recentUsers.rows,
       fileUsers: fileUsers,
       message: "Registration test completed"
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-
   } catch (error) {
     console.error("Registration test error:", error)
     const response = NextResponse.json({ 
       error: "Registration test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 

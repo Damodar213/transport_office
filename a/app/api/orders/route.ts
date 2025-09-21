@@ -207,10 +207,6 @@ export async function GET(request: NextRequest) {
           updatedAt: row.updated_at,
         }))
 
-        const response = NextResponse.json({ orders: transformedOrders })
-      return addCorsHeaders(response)
-       return addCorsHeaders(response)
-        return addCorsHeaders(response)
       }
     } catch (dbError) {
       console.log("Database query failed, falling back to mock data:", dbError)
@@ -251,16 +247,8 @@ export async function GET(request: NextRequest) {
     // Sort by creation date (newest first)
     filteredOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 
-    const response = NextResponse.json({ orders: filteredOrders })
-  return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   } catch (error) {
     console.error("Get orders error:", error)
-    const response = NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 })
-  return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 
@@ -305,15 +293,7 @@ export async function POST(request: NextRequest) {
 
     orders.push(newOrder)
 
-    const response = NextResponse.json({ message: "Order created successfully", order: newOrder }, { status: 201 })
-  return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   } catch (error) {
     console.error("Create order error:", error)
-    const response = NextResponse.json({ error: "Failed to create order" }, { status: 500 })
-  return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }

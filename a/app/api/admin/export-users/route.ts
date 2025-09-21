@@ -9,10 +9,6 @@ export async function GET(request: Request) {
     const format = searchParams.get('format') || 'excel'
     
     if (!getPool()) {
-      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     const users = await getAllUsersAsync()
@@ -25,9 +21,6 @@ export async function GET(request: Request) {
         users: exportData,
         exportedAt: new Date().toISOString(),
         totalUsers: exportData.length
-      })
-      return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     // For other formats, return the data that can be processed on the client side
@@ -36,20 +29,11 @@ export async function GET(request: Request) {
       format,
       exportedAt: new Date().toISOString(),
       totalUsers: exportData.length
-    })
-    return addCorsHeaders(response)
-    return addCorsHeaders(response)
-
   } catch (error) {
     console.error("Error exporting users:", error)
     const response = NextResponse.json({ 
       error: "Failed to export users",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 

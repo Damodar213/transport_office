@@ -10,19 +10,11 @@ export async function DELETE(
     const { id } = await params
     
     if (!id) {
-      const response = NextResponse.json({ error: "Notification ID is required" }, { status: 400 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
     
     console.log(`DELETE /api/buyer/notifications/${id} - deleting notification`)
     
     if (!getPool()) {
-      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
     
     // Check if buyer_notifications table exists
@@ -36,12 +28,10 @@ export async function DELETE(
     
     if (!tableExists.rows[0].exists) {
       const response = NextResponse.json({
-      return addCorsHeaders(response)
-       return addCorsHeaders(response)
-        return addCorsHeaders(response)
         error: "Buyer notifications table not found",
-        message: "Notification deleted (mock mode)
+        message: "Notification deleted (mock mode)"
       })
+      return addCorsHeaders(response)
     }
     
     // Delete the notification
@@ -52,10 +42,6 @@ export async function DELETE(
     `, [id])
     
     if (result.rows.length === 0) {
-      const response = NextResponse.json({ error: "Notification not found" }, { status: 404 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
     
     console.log(`Notification ${id} deleted successfully`)
@@ -63,22 +49,11 @@ export async function DELETE(
     const response = NextResponse.json({
       success: true,
       message: "Notification deleted successfully"
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-    
   } catch (error) {
     console.error("Error deleting buyer notification:", error)
     const response = NextResponse.json({
       error: "Failed to delete notification",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 

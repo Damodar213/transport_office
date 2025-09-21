@@ -6,10 +6,6 @@ export async function GET() {
   try {
     const pool = getPool()
     if (!pool) {
-      const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     // Check drivers table
@@ -26,26 +22,15 @@ export async function GET() {
 
     const response = NextResponse.json({
       success: true,
-      driverCount: parseInt(driverCount)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
+      driverCount: parseInt(driverCount)    
     ,
       sampleDrivers: sampleDrivers.rows,
       message: `Found ${driverCount} drivers in database`
-    })
-    return addCorsHeaders(response)
-    return addCorsHeaders(response)
-
   } catch (error) {
     console.error("Drivers table test error:", error)
     const response = NextResponse.json({ 
       error: "Test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 

@@ -7,10 +7,6 @@ export async function GET(request: Request) {
   try {
     const pool = getPool()
     if (!pool) {
-      const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     console.log("Fetching manual orders...")
@@ -78,22 +74,11 @@ export async function GET(request: Request) {
       orders: result.rows,
       total: result.rows.length,
       message: "Manual orders fetched successfully"
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-
   } catch (error) {
     console.error("Error fetching manual orders:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch manual orders",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 
@@ -111,10 +96,6 @@ export async function POST(request: Request) {
   try {
     const pool = getPool()
     if (!pool) {
-      const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     const body = await request.json()
@@ -125,11 +106,6 @@ export async function POST(request: Request) {
     if (!orderId || !action) {
       const response = NextResponse.json({ 
         error: "Order ID and action are required" 
-      }, { status: 400 })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     if (action === "assign") {
@@ -137,11 +113,6 @@ export async function POST(request: Request) {
       if (!supplierId || !supplierName) {
         const response = NextResponse.json({ 
           error: "Supplier ID and name are required for assignment" 
-        }, { status: 400 })
-       return addCorsHeaders(response)
-        return addCorsHeaders(response)
-       return addCorsHeaders(response)
-        return addCorsHeaders(response)
       }
 
       const result = await dbQuery(`
@@ -157,21 +128,12 @@ export async function POST(request: Request) {
       `, [supplierId, supplierName, adminNotes || '', orderId])
 
       if (result.rows.length === 0) {
-        const response = NextResponse.json({ error: "Manual order not found" }, { status: 404 })
-      return addCorsHeaders(response)
-       return addCorsHeaders(response)
-        return addCorsHeaders(response)
       }
 
       const response = NextResponse.json({
         success: true,
         message: "Manual order assigned successfully",
         order: result.rows[0]
-      })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     if (action === "update_status") {
@@ -179,11 +141,6 @@ export async function POST(request: Request) {
       if (!status) {
         const response = NextResponse.json({ 
           error: "Status is required for status update" 
-        }, { status: 400 })
-       return addCorsHeaders(response)
-        return addCorsHeaders(response)
-       return addCorsHeaders(response)
-        return addCorsHeaders(response)
       }
 
       const result = await dbQuery(`
@@ -197,38 +154,19 @@ export async function POST(request: Request) {
       `, [status, adminNotes || '', orderId])
 
       if (result.rows.length === 0) {
-        const response = NextResponse.json({ error: "Manual order not found" }, { status: 404 })
-      return addCorsHeaders(response)
-       return addCorsHeaders(response)
-        return addCorsHeaders(response)
       }
 
       const response = NextResponse.json({
         success: true,
         message: "Manual order status updated successfully",
         order: result.rows[0]
-      })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
-
-    const response = NextResponse.json({ error: "Invalid action" }, { status: 400 })
-  return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error updating manual order:", error)
     const response = NextResponse.json({ 
       error: "Failed to update manual order",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 

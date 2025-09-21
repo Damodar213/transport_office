@@ -15,11 +15,6 @@ export async function GET() {
         test: "authentication",
         message: "No active session - user needs to log in",
         recommendation: "Log in with valid credentials first"
-      })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     console.log("User session:", {
@@ -36,11 +31,6 @@ export async function GET() {
         message: "User does not have buyer or admin role",
         userRole: session.role,
         recommendation: "Log in as a buyer or admin to test buyer requests functionality"
-      })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     // Test 3: Check buyer_requests table structure
@@ -107,12 +97,6 @@ export async function GET() {
         data: buyers.rows
       },
       apiStatus: "Buyer requests API is working correctly"
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-
   } catch (error) {
     console.error("Buyer requests API test error:", error)
     const response = NextResponse.json({
@@ -120,11 +104,6 @@ export async function GET() {
       test: "error",
       message: "Test failed with error",
       error: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 

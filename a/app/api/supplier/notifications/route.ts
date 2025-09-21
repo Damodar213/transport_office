@@ -71,11 +71,6 @@ export async function GET(request: Request) {
     if (!supplierId) {
       const response = NextResponse.json({ 
         error: "Supplier ID is required" 
-      }, { status: 400 })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
     
     // In a real application, you would fetch notifications from the database
@@ -141,21 +136,11 @@ export async function GET(request: Request) {
     }
     
     console.log(`Returning ${notifications.length} notifications for supplier ${supplierId}`)
-    const response = NextResponse.json({ notifications })
-  return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-    
   } catch (error) {
     console.error("Error in supplier notifications API:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch notifications",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 
@@ -176,11 +161,6 @@ export async function POST(request: Request) {
     if (!type || !title || !message || !category || !priority || !supplierId) {
       const response = NextResponse.json({ 
         error: "Missing required fields: type, title, message, category, priority, supplierId" 
-      }, { status: 400 })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
     
     console.log("POST /api/supplier/notifications - creating notification:", { type, title, category, priority, supplierId })
@@ -255,22 +235,11 @@ export async function POST(request: Request) {
         const response = NextResponse.json({ 
           message: "Notification created successfully",
           notification: newNotification
-        })
-       return addCorsHeaders(response)
-        return addCorsHeaders(response)
-       return addCorsHeaders(response)
-        return addCorsHeaders(response)
-        
       } catch (error) {
         console.error("Error creating notification in database:", error)
         const response = NextResponse.json({ 
           error: "Failed to create notification in database",
           details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-        }, { status: 500 })
-       return addCorsHeaders(response)
-        return addCorsHeaders(response)
-       return addCorsHeaders(response)
-        return addCorsHeaders(response)
       }
     }
     
@@ -285,10 +254,6 @@ export async function POST(request: Request) {
       hour12: true
     })
     
-    const response = NextResponse.json({ 
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
       message: "Notification created successfully (mock mode)
       notification: {
         id: Date.now().toString(),
@@ -310,11 +275,6 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to create notification",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 

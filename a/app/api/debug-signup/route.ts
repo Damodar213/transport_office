@@ -32,10 +32,6 @@ export async function POST(request: NextRequest) {
       console.log("✓ bcryptjs imported")
     } catch (e) {
       console.error("✗ bcryptjs import failed:", e)
-      const response = NextResponse.json({ error: "bcryptjs import failed" }, { status: 500 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
     
     try {
@@ -43,10 +39,6 @@ export async function POST(request: NextRequest) {
       console.log("✓ user-storage imported")
     } catch (e) {
       console.error("✗ user-storage import failed:", e)
-      const response = NextResponse.json({ error: "user-storage import failed" }, { status: 500 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
     
     try {
@@ -54,10 +46,6 @@ export async function POST(request: NextRequest) {
       console.log("✓ cloudflare-r2 imported")
     } catch (e) {
       console.error("✗ cloudflare-r2 import failed:", e)
-      const response = NextResponse.json({ error: "cloudflare-r2 import failed" }, { status: 500 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
     
     console.log("=== DEBUG SIGNUP SUCCESS ===")
@@ -70,23 +58,12 @@ export async function POST(request: NextRequest) {
         userId,
         hasPassword: !!password
       }
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-    
   } catch (error) {
     console.error("=== DEBUG SIGNUP ERROR ===", error)
     const response = NextResponse.json({ 
       error: "Debug signup failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 

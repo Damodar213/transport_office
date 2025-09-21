@@ -34,11 +34,6 @@ export async function POST() {
       const response = NextResponse.json({ 
         message: "Table transport_orders does not exist, no migration needed",
         renamed: false
-      })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     if (checkNewTable.rows.length > 0) {
@@ -46,11 +41,6 @@ export async function POST() {
       const response = NextResponse.json({ 
         message: "Table suppliers_vehicle_location already exists, no migration needed",
         renamed: false
-      })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     // Rename the table
@@ -62,11 +52,6 @@ export async function POST() {
       const response = NextResponse.json({ 
         error: "Failed to rename table", 
         details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
-      }, { status: 500 })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     // Verify the new table structure
@@ -88,21 +73,10 @@ export async function POST() {
       oldTableName: "transport_orders",
       newTableName: "suppliers_vehicle_location",
       finalStructure: finalStructure.rows
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-
   } catch (error) {
     console.error("Table migration error:", error)
     const response = NextResponse.json({ 
       error: "Table migration failed", 
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }

@@ -32,19 +32,11 @@ export async function GET(request: NextRequest) {
     console.log("GET /api/supplier-confirmed-orders - supplierId:", supplierId)
 
     if (!supplierId) {
-      const response = NextResponse.json({ error: "Supplier ID is required" }, { status: 400 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     // Check if database is available
     if (!getPool()) {
       console.log("Database not available")
-      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     // First, let's check if the tables exist and have data
@@ -106,11 +98,6 @@ export async function GET(request: NextRequest) {
     }))
 
     console.log("Returning confirmed orders:", confirmedOrders.length)
-    const response = NextResponse.json({ confirmedOrders })
-  return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-
   } catch (error) {
     console.error("Get supplier confirmed orders error:", error)
     
@@ -120,11 +107,6 @@ export async function GET(request: NextRequest) {
       confirmedOrders: [],
       error: "Failed to fetch confirmed orders, using fallback",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 
@@ -144,10 +126,6 @@ export async function POST(request: NextRequest) {
     const { transport_order_id, supplier_id, status, notes } = body
 
     if (!transport_order_id || !supplier_id) {
-      const response = NextResponse.json({ error: "Transport order ID and supplier ID are required" }, { status: 400 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     const sql = `
@@ -223,18 +201,8 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({ 
       message: "Confirmed order created successfully", 
       confirmedOrder: newConfirmedOrder 
-    }, { status: 201 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-
   } catch (error) {
     console.error("Create confirmed order error:", error)
-    const response = NextResponse.json({ error: "Failed to create confirmed order" }, { status: 500 })
-  return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 
@@ -245,10 +213,6 @@ export async function PUT(request: NextRequest) {
     const { id, status, notes } = body
 
     if (!id) {
-      const response = NextResponse.json({ error: "Confirmed order ID is required" }, { status: 400 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     const sql = `
@@ -271,10 +235,6 @@ export async function PUT(request: NextRequest) {
     const result = await dbQuery(sql, params)
 
     if (result.rows.length === 0) {
-      const response = NextResponse.json({ error: "Confirmed order not found" }, { status: 404 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     const updatedOrder = result.rows[0]
@@ -282,17 +242,7 @@ export async function PUT(request: NextRequest) {
     const response = NextResponse.json({ 
       message: "Confirmed order updated successfully", 
       confirmedOrder: updatedOrder 
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-
   } catch (error) {
     console.error("Update confirmed order error:", error)
-    const response = NextResponse.json({ error: "Failed to update confirmed order" }, { status: 500 })
-  return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }

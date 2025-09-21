@@ -11,11 +11,6 @@ export async function GET() {
         error: "Database not available",
         suppliers: [],
         message: "Using fallback data"
-      }, { status: 503 })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     // Fetch verified suppliers with their vehicle and driver information
@@ -54,22 +49,11 @@ export async function GET() {
       suppliers,
       total: suppliers.length,
       message: "Available suppliers fetched successfully"
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-
   } catch (error) {
     console.error("Error fetching available suppliers:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch available suppliers",
       suppliers: [],
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }

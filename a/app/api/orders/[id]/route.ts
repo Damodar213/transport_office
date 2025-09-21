@@ -42,22 +42,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const order = orders.find((o) => o.id === orderId)
 
     if (!order) {
-      const response = NextResponse.json({ error: "Order not found" }, { status: 404 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
-    const response = NextResponse.json({ order })
-  return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   } catch (error) {
     console.error("Get order error:", error)
-    const response = NextResponse.json({ error: "Failed to fetch order" }, { status: 500 })
-  return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 
@@ -70,10 +58,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     const orderIndex = orders.findIndex((o) => o.id === orderId)
     if (orderIndex === -1) {
-      const response = NextResponse.json({ error: "Order not found" }, { status: 404 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     orders[orderIndex] = {
@@ -82,16 +66,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       updatedAt: new Date().toISOString(),
     }
 
-    const response = NextResponse.json({ message: "Order updated successfully", order: orders[orderIndex] })
-  return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   } catch (error) {
     console.error("Update order error:", error)
-    const response = NextResponse.json({ error: "Failed to update order" }, { status: 500 })
-  return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 
@@ -103,23 +79,11 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     const orderIndex = orders.findIndex((o) => o.id === orderId)
 
     if (orderIndex === -1) {
-      const response = NextResponse.json({ error: "Order not found" }, { status: 404 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     orders.splice(orderIndex, 1)
 
-    const response = NextResponse.json({ message: "Order deleted successfully" })
-  return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   } catch (error) {
     console.error("Delete order error:", error)
-    const response = NextResponse.json({ error: "Failed to delete order" }, { status: 500 })
-  return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }

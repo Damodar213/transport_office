@@ -9,24 +9,12 @@ export async function GET(request: Request) {
     // Verify the user is authenticated and is a supplier
     const session = await getSession()
     if (!session) {
-      const response = NextResponse.json({ error: "Authentication required" }, { status: 401 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     if (session.role !== 'supplier') {
-      const response = NextResponse.json({ error: "Access denied - supplier role required" }, { status: 403 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     if (!getPool()) {
-      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     const supplierId = session.userIdString
@@ -184,21 +172,10 @@ export async function GET(request: Request) {
     const response = NextResponse.json({
       success: true,
       orders: transformedOrders
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-
   } catch (error) {
     console.error("Error fetching supplier orders:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch orders",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }

@@ -54,20 +54,10 @@ export async function GET() {
     }
     
     console.log("Settings fetched successfully")
-    const response = NextResponse.json(settings)
- return addCorsHeaders(response)
-  return addCorsHeaders(response)
-  } catch (error) {
-  return addCorsHeaders(response)
     console.error("Error in settings GET API:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch settings",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 
@@ -78,10 +68,6 @@ export async function PUT(request: Request) {
     console.log("PUT /api/admin/settings - updating settings...")
     
     if (!getPool()) {
-      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
     
     try {
@@ -128,22 +114,11 @@ export async function PUT(request: Request) {
       const response = NextResponse.json({ 
         message: "Settings updated successfully",
         settings: {}
-      })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-      
     } catch (error) {
       console.error("Error updating settings in database:", error)
       const response = NextResponse.json({ 
         error: "Failed to update settings in database",
         details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-      }, { status: 500 })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
     
   } catch (error) {
@@ -151,11 +126,6 @@ export async function PUT(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to update settings",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 

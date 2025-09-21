@@ -12,10 +12,6 @@ export async function GET() {
     console.log("Database admin found:", dbAdmin ? { id: dbAdmin.id, userId: dbAdmin.userId, role: dbAdmin.role, email: dbAdmin.email } : null)
     
     if (!dbAdmin) {
-      const response = NextResponse.json({ error: "Database admin not found" }, { status: 404 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
     
     // Test common passwords
@@ -37,17 +33,8 @@ export async function GET() {
       },
       passwordResults,
       message: "Database admin test completed"
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   } catch (error) {
     console.error("Test database admin error:", error)
-    const response = NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
-  return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 

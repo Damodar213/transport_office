@@ -17,22 +17,11 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       message: "Minimal signup test completed successfully"
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-
   } catch (error) {
     console.error("Minimal signup test error:", error)
     const response = NextResponse.json({ 
       error: "Minimal signup test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 

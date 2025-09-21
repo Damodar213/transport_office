@@ -12,42 +12,22 @@ export async function DELETE(
     // Check if user is authenticated and is admin
     const session = await getSession()
     if (!session) {
-      const response = NextResponse.json({ error: "Authentication required" }, { status: 401 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     if (session.role !== 'admin') {
-      const response = NextResponse.json({ error: "Access denied - admin role required" }, { status: 403 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     const pool = getPool()
     if (!pool) {
-      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     const { userId } = await params
 
     if (!userId) {
-      const response = NextResponse.json({ error: "User ID is required" }, { status: 400 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     // Prevent admin from deleting themselves
     if (userId === session.userIdString) {
-      const response = NextResponse.json({ error: "You cannot delete your own account" }, { status: 400 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     console.log("Deleting user with ID:", userId)
@@ -56,10 +36,6 @@ export async function DELETE(
     const userCheck = await dbQuery("SELECT user_id, role, name FROM users WHERE user_id = $1", [userId])
     
     if (userCheck.rows.length === 0) {
-      const response = NextResponse.json({ error: "User not found" }, { status: 404 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     const user = userCheck.rows[0]
@@ -116,12 +92,6 @@ export async function DELETE(
           name: user.name,
           role: user.role
         }
-      })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-
     } catch (error) {
       await client.query('ROLLBACK')
       throw error
@@ -134,11 +104,6 @@ export async function DELETE(
     const response = NextResponse.json({ 
       error: "Failed to delete user",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 

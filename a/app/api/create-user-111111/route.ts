@@ -107,22 +107,11 @@ export async function POST() {
       message: "User 111111 and supplier record created successfully",
       user: userResult.rows[0],
       supplier: supplierResult.rows[0]
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-
   } catch (error) {
     console.error("Error creating user and supplier:", error)
     const response = NextResponse.json({ 
       error: "Failed to create user and supplier",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 

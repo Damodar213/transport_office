@@ -6,10 +6,6 @@ import { dbQuery, getPool } from "@/lib/db"
 export async function PUT() {
   try {
     if (!getPool()) {
-      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     console.log("PUT /api/admin/transport-request-notifications/mark-all-read - marking all as read")
@@ -29,22 +25,11 @@ export async function PUT() {
       success: true,
       message: "All transport request notifications marked as read successfully",
       updatedCount
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-
   } catch (error) {
     console.error("Error marking all transport request notifications as read:", error)
     const response = NextResponse.json({ 
       error: "Failed to mark all notifications as read",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 

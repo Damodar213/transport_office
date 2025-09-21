@@ -11,10 +11,6 @@ export async function PUT(
     console.log(`PUT /api/supplier/notifications/${id}/read - marking as read`)
     
     if (!getPool()) {
-      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
     
     // Check if supplier_notifications table exists
@@ -27,10 +23,6 @@ export async function PUT(
     `)
     
     if (!tableExists.rows[0].exists) {
-      const response = NextResponse.json({ 
-      return addCorsHeaders(response)
-       return addCorsHeaders(response)
-        return addCorsHeaders(response)
         error: "Supplier notifications table not found",
         message: "Notification marked as read (mock mode)
       })
@@ -45,32 +37,17 @@ export async function PUT(
     `, [id])
     
     if (result.rows.length === 0) {
-      const response = NextResponse.json({ error: "Notification not found" }, { status: 404 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
     
     console.log(`Supplier notification ${id} marked as read successfully`)
     const response = NextResponse.json({ 
       message: "Notification marked as read successfully",
       notificationId: id
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-    
   } catch (error) {
     console.error("Error marking supplier notification as read:", error)
     const response = NextResponse.json({ 
       error: "Failed to mark notification as read",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 

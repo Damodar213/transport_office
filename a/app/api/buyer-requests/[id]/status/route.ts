@@ -14,11 +14,6 @@ export async function PUT(
     if (!status) {
       const response = NextResponse.json({ 
         error: "Status is required" 
-      }, { status: 400 })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     // Validate status value
@@ -26,21 +21,11 @@ export async function PUT(
     if (!validStatuses.includes(status)) {
       const response = NextResponse.json({ 
         error: "Invalid status value" 
-      }, { status: 400 })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     if (!getPool()) {
       const response = NextResponse.json({ 
         error: "Database not available" 
-      }, { status: 500 })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     // Update the order status
@@ -54,11 +39,6 @@ export async function PUT(
     if (result.rows.length === 0) {
       const response = NextResponse.json({ 
         error: "Order not found" 
-      }, { status: 404 })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     const updatedOrder = result.rows[0]
@@ -174,22 +154,11 @@ export async function PUT(
       success: true,
       message: "Order status updated successfully",
       data: updatedOrder
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-
   } catch (error) {
     console.error("Error updating order status:", error)
     const response = NextResponse.json({ 
       error: "Failed to update order status",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 

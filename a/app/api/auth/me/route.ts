@@ -11,11 +11,6 @@ export async function GET() {
     if (!session) {
       const response = NextResponse.json({ 
         error: "Not authenticated" 
-      }, { status: 401 })
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
 
     // Get additional user details from database
@@ -75,21 +70,10 @@ export async function GET() {
     const response = NextResponse.json({
       success: true,
       user: userDetails
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-
   } catch (error) {
     console.error("Error getting current user:", error)
     const response = NextResponse.json({ 
       error: "Failed to get current user",
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }

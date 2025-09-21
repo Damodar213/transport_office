@@ -50,12 +50,6 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({
       message: "Admin login successful",
       admin: adminInfo
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-
     // Set session cookie
     response.cookies.set("session", JSON.stringify(sessionData), {
       httpOnly: true,

@@ -17,26 +17,13 @@ export async function GET() {
     }
     
     if (!dbHealth.healthy) {
-      const response = NextResponse.json(health, { status: 503 })
-    return addCorsHeaders(response)
-     return addCorsHeaders(response)
-      return addCorsHeaders(response)
     }
     
-    const response = NextResponse.json(health, { status: 200 })
-  return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   } catch (error) {
     const response = NextResponse.json({
       status: "unhealthy",
-      timestamp: new Date()
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
+      timestamp: new Date()    
     .toISOString(),
       error: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 503 })
-    return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }

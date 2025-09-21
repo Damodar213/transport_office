@@ -42,11 +42,6 @@ export async function POST() {
         const response = NextResponse.json({ 
           error: "Failed to rename column",
           details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-        }, { status: 500 })
-       return addCorsHeaders(response)
-        return addCorsHeaders(response)
-       return addCorsHeaders(response)
-        return addCorsHeaders(response)
       }
     } else if (!hasNumberOfVehicles && !hasNumberOfWheels) {
       // Add number_of_wheels column if neither exists
@@ -58,11 +53,6 @@ export async function POST() {
         const response = NextResponse.json({ 
           error: "Failed to add column",
           details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-        }, { status: 500 })
-       return addCorsHeaders(response)
-        return addCorsHeaders(response)
-       return addCorsHeaders(response)
-        return addCorsHeaders(response)
       }
     }
 
@@ -82,22 +72,11 @@ export async function POST() {
     const response = NextResponse.json({ 
       message: "Trucks table migration completed successfully",
       finalStructure: finalStructure.rows
-    })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-
   } catch (error) {
     console.error("Trucks migration error:", error)
     const response = NextResponse.json({ 
       error: "Failed to migrate trucks table",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
-    }, { status: 500 })
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
-   return addCorsHeaders(response)
-    return addCorsHeaders(response)
   }
 }
 
