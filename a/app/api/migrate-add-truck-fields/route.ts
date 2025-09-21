@@ -3,9 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -30,6 +30,7 @@ export async function POST() {
     const columnsToAdd = [
       { name: 'number_of_vehicles', type: 'INTEGER' },
       { name: 'document_url', type: 'TEXT' }
+
     ]
     
     for (const column of columnsToAdd) {
@@ -40,9 +41,11 @@ export async function POST() {
         } catch (error) {
           console.error(`Error adding column ${column.name}:`, error)
         }
+
       } else {
         console.log(`Column ${column.name} already exists, skipping...`)
       }
+
     }
 
     // Verify the final table structure
@@ -70,6 +73,15 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Trucks migration failed", 
       details: error instanceof Error ? error.message : "Unknown error" 
+ 
+ 
+ 
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

@@ -3,9 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -145,6 +145,7 @@ export async function POST() {
       } else {
         console.log("vehicle_id field already exists")
       }
+
     }
 
     const response = NextResponse.json({ 
@@ -157,6 +158,15 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Migration failed", 
       details: error instanceof Error ? error.message : "Unknown error" 
+ 
+ 
+ 
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

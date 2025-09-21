@@ -8,6 +8,7 @@ export async function GET() {
     if (!pool) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     // Test the JOIN step by step
     const driverDocs = await dbQuery(`
       SELECT dd.supplier_id, dd.driver_name
@@ -47,6 +48,15 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Join test failed",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

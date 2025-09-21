@@ -3,9 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -19,12 +19,30 @@ export async function POST(request: Request) {
     if (!orderId || !status) {
       const response = NextResponse.json({ 
         error: "Order ID and status are required" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
     }
 
     const pool = getPool()
     if (!pool) {
       const response = NextResponse.json({ 
         error: "Database not available" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
     }
 
     console.log(`Updating manual order ${orderId} status to ${status}`)
@@ -34,6 +52,12 @@ export async function POST(request: Request) {
     // as they should already be set when the order was sent to suppliers
     await dbQuery(`
       UPDATE manual_orders 
+ }
+
+ }
+
+ }
+
       SET status = $1, updated_at = CURRENT_TIMESTAMP
       WHERE id = $2
     `, [status, orderId])
@@ -51,6 +75,15 @@ export async function POST(request: Request) {
         status: order.status,
         assigned_supplier_id: order.assigned_supplier_id,
         assigned_supplier_name: order.assigned_supplier_name
+
+
+
+        }
+
+        }
+
+        }
+
       })
     }
 
@@ -62,6 +95,15 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to update manual order status",
       message: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

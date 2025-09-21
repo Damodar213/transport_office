@@ -5,6 +5,7 @@ import { dbQuery, getPool } from "@/lib/db"
 export async function OPTIONS(request: NextRequest) {
   return handleCors(request)
 }
+
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -30,6 +31,15 @@ export async function POST(request: Request) {
       console.log("Database pool not available")
       const response = NextResponse.json({ 
         error: "Database not available" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
       }, { status: 500 })
       return addCorsHeaders(response)
     }
@@ -68,7 +78,17 @@ export async function POST(request: Request) {
         whatsapp: phoneNumber,
         mobile: phoneNumber,
         message: message
+
+
+
+        }
+
+        }
+
+        }
+
       }
+
     })
 
     // Create order submissions for each supplier
@@ -88,6 +108,7 @@ export async function POST(request: Request) {
         // Don't continue if order submission creation fails - this is critical
         throw new Error(`Failed to create order submission for supplier ${supplierId}: ${error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : 'Unknown error'}`)
       }
+
     }
 
     // Create notifications for each supplier (separate from order submissions)
@@ -119,6 +140,7 @@ export async function POST(request: Request) {
         console.error(`Failed to create notification for supplier ${supplierId}:`, notificationError)
         // Don't fail the whole operation if notification creation fails
       }
+
     }
 
     // Store the supplier information for later assignment when status is updated
@@ -151,8 +173,26 @@ export async function POST(request: Request) {
       totalSent: supplierIds.length,
       whatsappMessage: message,
       primarySupplier: primarySupplier ? {
+
+
+
+      }
+
+      }
+
+      }
+
         id: primarySupplier.id,
         name: primarySupplier.company_name
+
+
+
+        }
+
+        }
+
+        }
+
       } : null
     })
     return addCorsHeaders(response)
@@ -162,9 +202,19 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to send manual order to suppliers",
       message: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
     }, { status: 500 })
     return addCorsHeaders(response)
   }
+
 }
 
 function createManualOrderWhatsAppMessage(orderDetails: any) {
@@ -186,10 +236,11 @@ function createManualOrderWhatsAppMessage(orderDetails: any) {
     if (orderDetails.fromTaluk && orderDetails.fromTaluk !== orderDetails.fromPlace) {
       fromParts.push(orderDetails.fromTaluk)
     }
+
     fromParts.push(orderDetails.fromDistrict, orderDetails.fromState)
     fromLocationStr = fromParts.join(', ')
   }
-    
+
   // Build comprehensive to location string
   let toLocationStr = orderDetails.toLocation || 'Unknown'
   if (orderDetails.toPlace && orderDetails.toDistrict && orderDetails.toState) {
@@ -197,26 +248,45 @@ function createManualOrderWhatsAppMessage(orderDetails: any) {
     if (orderDetails.toTaluk && orderDetails.toTaluk !== orderDetails.toPlace) {
       toParts.push(orderDetails.toTaluk)
     }
+
     toParts.push(orderDetails.toDistrict, orderDetails.toState)
     toLocationStr = toParts.join(', ')
   }
 
   return `🚛 *NEW TRANSPORT ORDER AVAILABLE*
 
-📋 *Order Details:*
+📋 *Order Details: *
+ }
+
+ }
+
+ }
+
 • Load Type: ${loadInfo}
 • Weight: ${loadInfoStr || 'N/A'}
 • From: ${fromLocationStr}
 • To: ${toLocationStr}
 • Required Date: ${requiredDate}
 
-📝 *Special Instructions:*
+📝 *Special Instructions: *
+ }
+
+ }
+
+ }
+
 ${specialInstructions}
 
 Please review and respond if you can handle this transport order.
 
-*Contact for more details:*
+*Contact for more details: *
 *MAHALAXMI TRANSPORT*
 📞 8217563933
 📞 80736 27241`
+ }
+
+ }
+
+ }
+
 }

@@ -4,9 +4,9 @@ import { dbQuery, getPool } from "@/lib/db"
 import { createApiResponse, createApiError } from "@/lib/api-utils"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -18,6 +18,7 @@ export async function POST() {
     if (!pool) {
       return createApiError("Database not available", null, 503)
     }
+
     console.log("Migrating existing vehicle documents...")
 
     // Get all trucks with documents
@@ -56,17 +57,28 @@ export async function POST() {
         } else {
           console.log(`Vehicle document already exists for truck ${truck.id}`)
         }
+
       } catch (error) {
         console.error(`Error migrating vehicle document ${truck.id}:`, error)
       }
+
     }
-    
+
     console.log(`Migration completed. ${migratedCount} vehicle documents migrated.`)
 
     return createApiResponse({
       message: "Vehicle document migration completed",
       migratedCount,
       totalTrucks: trucksResult.rows.length
+
+
+
+      }
+
+      }
+
+      }
+
     })
 
   } catch (error) {
@@ -77,6 +89,5 @@ export async function POST() {
       500
     )
   }
+
 }
-
-

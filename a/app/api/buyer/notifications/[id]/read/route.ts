@@ -5,18 +5,19 @@ import { dbQuery, getPool } from "@/lib/db"
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
+
 ) {
   try {
     const { id } = await params
     
     if (!id) {
     }
-    
+
     console.log(`PUT /api/buyer/notifications/${id}/read - marking as read`)
     
     if (!getPool()) {
     }
-    
+
     // Check if buyer_notifications table exists
     const tableExists = await dbQuery(`
       SELECT EXISTS (
@@ -31,7 +32,7 @@ export async function PUT(
         error: "Buyer notifications table not found",
         message: "Notification marked as read (mock mode)"
     }
-    
+
     // Update the notification to mark as read
     const result = await dbQuery(`
       UPDATE buyer_notifications
@@ -42,7 +43,7 @@ export async function PUT(
     
     if (result.rows.length === 0) {
     }
-    
+
     const updatedNotification = result.rows[0]
     console.log(`Notification ${id} marked as read successfully`)
     
@@ -50,8 +51,26 @@ export async function PUT(
       success: true,
       message: "Notification marked as read successfully",
       notification: {
+
+
+
+      }
+
+      }
+
+      }
+
         id: updatedNotification.id.toString(),
         isRead: updatedNotification.is_read
+
+
+
+        }
+
+        }
+
+        }
+
       })
     return addCorsHeaders(response)
 
@@ -60,6 +79,15 @@ export async function PUT(
     const response = NextResponse.json({
       error: "Failed to mark notification as read",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

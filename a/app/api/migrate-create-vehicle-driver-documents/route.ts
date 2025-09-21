@@ -4,9 +4,9 @@ import { dbQuery, getPool } from "@/lib/db"
 import { createApiResponse, createApiError } from "@/lib/api-utils"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -18,6 +18,7 @@ export async function POST() {
     if (!pool) {
       return createApiError("Database not available", null, 503)
     }
+
     console.log("Creating vehicle_documents and driver_documents tables...")
 
     // Create vehicle_documents table
@@ -113,7 +114,9 @@ export async function POST() {
   } catch (error) {
           console.error(`Error migrating vehicle document ${truck.id}:`, error)
         }
+
       }
+
       console.log("Vehicle document migration completed")
     } catch (vehicleMigrationError) {
       console.warn("Could not migrate vehicle documents:", vehicleMigrationError)
@@ -149,7 +152,9 @@ export async function POST() {
   } catch (error) {
           console.error(`Error migrating driver document ${driver.id}:`, error)
         }
+
       }
+
       console.log("Driver document migration completed")
     } catch (driverMigrationError) {
       console.warn("Could not migrate driver documents:", driverMigrationError)
@@ -158,6 +163,15 @@ export async function POST() {
     return createApiResponse({
       message: "vehicle_documents and driver_documents tables created successfully",
       migrated: true
+
+
+
+      }
+
+      }
+
+      }
+
     })
 
   } catch (error) {
@@ -168,6 +182,5 @@ export async function POST() {
       500
     )
   }
+
 }
-
-

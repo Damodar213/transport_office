@@ -3,9 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -31,6 +31,7 @@ export async function POST() {
         created: false})
     return addCorsHeaders(response)
   }
+
     // Create the buyer_requests table
     await dbQuery(`
       CREATE TABLE buyer_requests (
@@ -106,6 +107,15 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Failed to create buyer_requests table", 
       details: error instanceof Error ? error.message : "Unknown error" 
+ 
+ 
+ 
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

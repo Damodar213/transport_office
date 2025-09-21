@@ -9,6 +9,7 @@ export async function GET() {
     if (!getPool()) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     // Get total users count
     const totalUsersResult = await dbQuery("SELECT COUNT(*) as count FROM users")
     const totalUsers = totalUsersResult.rows[0].count
@@ -125,6 +126,7 @@ export async function GET() {
     } else if (currentSuccessRate > 0) {
       orderSuccessRateChange = "100.0"
     }
+
     if (currentSuccessRate > previousSuccessRate) orderSuccessRateTrend = "up"
     else if (currentSuccessRate < previousSuccessRate) orderSuccessRateTrend = "down"
 
@@ -156,6 +158,15 @@ export async function GET() {
         message: `New ${user.role} registered: ${user.name || user.user_id}`,
         timestamp: timeText,
         status: "info"
+
+
+
+        }
+
+        }
+
+        }
+
       })
     })
 
@@ -177,6 +188,15 @@ export async function GET() {
         message: `Order ${order.id} ${order.status} for supplier ${order.supplier_id}`,
         timestamp: timeText,
         status: status
+
+
+
+        }
+
+        }
+
+        }
+
       })
     })
 
@@ -200,6 +220,15 @@ export async function GET() {
       change: "+0.1%",
       trend: "up",
       description: "Last 30 days"
+
+
+
+      }
+
+      }
+
+      }
+
     }
 
     // Calculate average response time (mock - you can implement real API monitoring)
@@ -208,16 +237,52 @@ export async function GET() {
       change: "-0.3s",
       trend: "up",
       description: "API response time"
+
+
+
+      }
+
+      }
+
+      }
+
     }
 
     // Calculate user satisfaction based on order completion rate
     const userSatisfaction = {
       value: currentTotal > 0 ? (currentCompleted / currentTotal * 5).toFixed(1) : "4.8",
       change: previousSuccessRate > 0 ? 
+
+
+
+      }
+
+      }
+
+      }
+
         ((currentSuccessRate - previousSuccessRate) / previousSuccessRate * 100).toFixed(1) : "0.0",
       trend: currentSuccessRate > previousSuccessRate ? "up" : 
+
+
+
+      }
+
+      }
+
+      }
+
              currentSuccessRate < previousSuccessRate ? "down" : "stable",
       description: "Based on order success rate"
+
+
+
+      }
+
+      }
+
+      }
+
     }
 
     // --- Dynamic System Health ---
@@ -225,24 +290,60 @@ export async function GET() {
     const databasePerformance = {
       value: 92,
       label: "Database Performance"
+
+
+
+      }
+
+      }
+
+      }
+
     }
 
     // Calculate API response time performance
     const apiResponseTime = {
       value: 85,
       label: "API Response Time"
+
+
+
+      }
+
+      }
+
+      }
+
     }
 
     // Calculate storage usage (mock - you can implement real storage monitoring)
     const storageUsage = {
       value: 67,
       label: "Storage Usage"
+
+
+
+      }
+
+      }
+
+      }
+
     }
 
     // Calculate user activity based on recent logins/actions
     const userActivity = {
       value: weeklyUsers > 0 ? Math.min(94, (weeklyUsers / totalUsers * 100)) : 94,
       label: "User Activity"
+
+
+
+      }
+
+      }
+
+      }
+
     }
 
     // --- Dynamic Today's Summary ---
@@ -269,6 +370,15 @@ export async function GET() {
       ordersProcessed: ordersToday,
       documentsVerified: todayDocumentsVerified,
       issuesResolved: todayIssuesResolved
+
+
+
+      }
+
+      }
+
+      }
+
     }
 
     // --- Dynamic Pending Actions ---
@@ -295,6 +405,15 @@ export async function GET() {
       orderAssignments: pendingOrderAssignments,
       userVerifications: pendingUserVerifications,
       supportTickets: supportTickets
+
+
+
+      }
+
+      }
+
+      }
+
     }
 
     // --- Dynamic System Alerts ---
@@ -306,96 +425,294 @@ export async function GET() {
         type: "warning",
         message: `High pending review queue (${pendingReviews} items)`,
         icon: "AlertTriangle"
+
+
+
+        }
+
+        }
+
+        }
+
       })
     }
-    
+
     // Check for low order success rate
     if (currentSuccessRate < 80) {
       systemAlerts.push({
         type: "error",
         message: `Low order success rate (${currentSuccessRate.toFixed(1)}%)`,
         icon: "AlertTriangle"
+
+
+
+        }
+
+        }
+
+        }
+
       })
     }
-    
+
     // Check for pending user verifications
     if (pendingUserVerifications > 0) {
       systemAlerts.push({
         type: "warning",
         message: `${pendingUserVerifications} users need verification`,
         icon: "AlertTriangle"
+
+
+
+        }
+
+        }
+
+        }
+
       })
     }
-    
+
     // Check for support tickets
     if (supportTickets > 0) {
       systemAlerts.push({
         type: "error",
         message: `${supportTickets} support tickets require attention`,
         icon: "AlertTriangle"
+
+
+
+        }
+
+        }
+
+        }
+
       })
     }
-    
+
     // Always show system status
     if (systemAlerts.length === 0) {
       systemAlerts.push({
         type: "success",
         message: "All systems operational",
         icon: "CheckCircle"
+
+
+
+        }
+
+        }
+
+        }
+
       })
     }
-    
+
     // Show registration activity
     if (todayRegistrations > 0) {
       systemAlerts.push({
         type: "info",
         message: `${todayRegistrations} new registrations today`,
         icon: "Clock"
+
+
+
+        }
+
+        }
+
+        }
+
       })
     } else if (weeklyUsers > 0) {
       systemAlerts.push({
         type: "info",
         message: `${weeklyUsers} new registrations this week`,
         icon: "Clock"
+
+
+
+        }
+
+        }
+
+        }
+
       })
     }
 
     const stats = {
       totalUsers: {
+
+
+
+      }
+
+      }
+
+      }
+
         count: totalUsers,
         change: `+${weeklyUsers} this week`,
         trend: weeklyUsers > 0 ? "up" : "down"
+
+
+
+        }
+
+        }
+
+        }
+
       },
       activeSuppliers: {
+
+
+
+      }
+
+      }
+
+      }
+
         count: activeSuppliers,
         change: `${verifiedSuppliers} verified`,
         trend: verifiedSuppliers > 0 ? "up" : "stable"
+
+
+
+        }
+
+        }
+
+        }
+
       },
       activeBuyers: {
+
+
+
+      }
+
+      }
+
+      }
+
         count: activeBuyers,
         change: `${activeBuyersWithActivity} active`,
         trend: activeBuyersWithActivity > 0 ? "up" : "stable"
+
+
+
+        }
+
+        }
+
+        }
+
       },
       pendingReviews: {
+
+
+
+      }
+
+      }
+
+      }
+
         count: pendingReviews,
         change: "Documents & Orders",
         trend: pendingReviews > 0 ? "attention" : "stable"
+
+
+
+        }
+
+        }
+
+        }
+
       },
       ordersToday: {
+
+
+
+      }
+
+      }
+
+      }
+
         count: ordersToday,
         change: ordersChangeText,
         trend: ordersChange > 0 ? "up" : ordersChange < 0 ? "down" : "stable"
+
+
+
+        }
+
+        }
+
+        }
+
       },
       // Additional stats for overview tab
       totalOrders: {
+
+
+
+      }
+
+      }
+
+      }
+
         count: totalOrders,
         label: "Total Orders"
+
+
+
+        }
+
+        }
+
+        }
+
       },
       completedOrders: {
+
+
+
+      }
+
+      }
+
+      }
+
         count: completedOrders,
         label: "Completed Orders"
+
+
+
+        }
+
+        }
+
+        }
+
       },
       totalRevenue: {
+
+
+
+      }
+
+      }
+
+      }
+
         count: totalRevenue.toLocaleString(),
         label: "Total Revenue (₹)"
       },
@@ -404,6 +721,15 @@ export async function GET() {
       averageResponseTime,
       userSatisfaction,
       orderSuccessRate: {
+
+
+
+      }
+
+      }
+
+      }
+
         value: currentSuccessRate.toFixed(1),
         change: `${orderSuccessRateChange}%`,
         trend: orderSuccessRateTrend,
@@ -411,6 +737,15 @@ export async function GET() {
       },
       // Dynamic system health
       systemHealth: {
+
+
+
+      }
+
+      }
+
+      }
+
         databasePerformance,
         apiResponseTime,
         storageUsage,
@@ -430,8 +765,17 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to fetch dashboard stats",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
     }, { status: 500 })
     return addCorsHeaders(response)
   }
-}
 
+}

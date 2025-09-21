@@ -8,6 +8,7 @@ export async function GET() {
     if (!pool) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     // Get counts for all document types
     const [supplierCount, vehicleCount, driverCount] = await Promise.all([
       dbQuery("SELECT COUNT(*) as count FROM supplier_documents"),
@@ -31,16 +32,52 @@ export async function GET() {
         driverDocuments: parseInt(driverCount.rows[0].count)
       },
       samples: {
+
+
+
+      }
+
+      }
+
+      }
+
         supplierDocuments: supplierDocs.rows,
         vehicleDocuments: vehicleDocs.rows,
         driverDocuments: driverDocs.rows
+
+
+
+        }
+
+        }
+
+        }
+
       },
       message: "All document types checked successfully"
+
+
+
+      }
+
+      }
+
+      }
+
   } catch (error) {
     console.error("All documents test error:", error)
     const response = NextResponse.json({ 
       error: "Test failed",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

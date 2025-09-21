@@ -2,9 +2,9 @@ import { type NextRequest, NextResponse } from "next/server"
 import { handleCors, addCorsHeaders } from "@/lib/cors"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST(request: NextRequest) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -33,30 +33,48 @@ export async function POST(request: NextRequest) {
     } catch (e) {
       console.error("✗ bcryptjs import failed:", e)
     }
-    
+
     try {
       const userStorage = await import("@/lib/user-storage")
       console.log("✓ user-storage imported")
     } catch (e) {
       console.error("✗ user-storage import failed:", e)
     }
-    
+
     try {
       const cloudflare = await import("@/lib/cloudflare-r2")
       console.log("✓ cloudflare-r2 imported")
     } catch (e) {
       console.error("✗ cloudflare-r2 import failed:", e)
     }
-    
+
     console.log("=== DEBUG SIGNUP SUCCESS ===")
     
     const response = NextResponse.json({
       success: true,
       message: "Debug signup completed successfully",
       formData: {
+
+
+
+      }
+
+      }
+
+      }
+
         role,
         userId,
         hasPassword: !!password
+
+
+
+        }
+
+        }
+
+        }
+
       })
     return addCorsHeaders(response)
 
@@ -66,6 +84,15 @@ export async function POST(request: NextRequest) {
       error: "Debug signup failed",
       details: error instanceof Error ? error.message : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

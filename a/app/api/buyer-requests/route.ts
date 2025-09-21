@@ -11,6 +11,7 @@ export async function GET(request: Request) {
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
+
     // Allow buyers and admins to access this endpoint
     if (session.role !== 'buyer' && session.role !== 'admin') {
     }
@@ -86,14 +87,24 @@ export async function GET(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to fetch buyer requests",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }
+
 // POST - Create a new buyer request
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -106,6 +117,7 @@ export async function POST(request: Request) {
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
+
     // Allow buyers and admins to access this endpoint
     if (session.role !== 'buyer' && session.role !== 'admin') {
     }
@@ -139,6 +151,15 @@ export async function POST(request: Request) {
         !to_state || !to_district || !to_place || !delivery_place) {
       const response = NextResponse.json({ 
         error: "Missing required fields" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
     }
 
     // Check if buyer exists in buyers table, if not create a basic entry
@@ -155,8 +176,17 @@ export async function POST(request: Request) {
       if (userCheck.rows.length === 0) {
         const response = NextResponse.json({ 
           error: "Buyer not found. Please register as a buyer first." 
+ 
+ 
+ 
+          }
+
+          }
+
+          }
+
       }
-      
+
       // Create basic buyer entry
       await dbQuery(`
         INSERT INTO buyers (user_id, company_name, gst_number)
@@ -206,6 +236,15 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to create buyer request",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

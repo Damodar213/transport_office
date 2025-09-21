@@ -11,10 +11,10 @@ export async function DELETE(request: Request) {
     
     if (!supplierId) {
     }
-    
+
     if (!getPool()) {
     }
-    
+
     // Check if supplier_notifications table exists
     const tableExists = await dbQuery(`
       SELECT EXISTS (
@@ -29,7 +29,7 @@ export async function DELETE(request: Request) {
         message: "All notifications cleared (mock mode)"
       })
     }
-    
+
     // Get count before deletion
     const countResult = await dbQuery(`
       SELECT COUNT(*) as total_count FROM supplier_notifications WHERE supplier_id = $1
@@ -52,6 +52,15 @@ export async function DELETE(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to clear all notifications",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

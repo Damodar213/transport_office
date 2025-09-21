@@ -19,6 +19,15 @@ export interface SupplierConfirmedOrder {
   body_type: string
   admin_notes?: string
   admin_action_date?: string
+
+
+
+  }
+
+  }
+
+  }
+
 }
 
 // GET - Fetch confirmed orders for a specific supplier
@@ -80,6 +89,12 @@ export async function GET(request: NextRequest) {
 
     // Transform the result to match the interface
     const confirmedOrders: SupplierConfirmedOrder[] = result.rows.map(row => ({
+ }
+
+ }
+
+ }
+
       id: row.id,
       transport_order_id: row.transport_order_id,
       supplier_id: row.supplier_id,
@@ -95,6 +110,15 @@ export async function GET(request: NextRequest) {
       body_type: row.body_type,
       admin_notes: row.admin_notes,
       admin_action_date: row.admin_action_date
+
+
+
+      }
+
+      }
+
+      }
+
     }))
 
     console.log("Returning confirmed orders:", confirmedOrders.length)
@@ -107,14 +131,24 @@ export async function GET(request: NextRequest) {
       confirmedOrders: [],
       error: "Failed to fetch confirmed orders, using fallback",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }
+
 // POST - Create a new confirmed order (when admin confirms a transport order)
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST(request: NextRequest) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -174,9 +208,27 @@ export async function POST(request: NextRequest) {
       const notificationResponse = await fetch(`${process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000'}/api/admin/notifications`, {
         method: 'POST',
         headers: {
+
+
+
+        }
+
+        }
+
+        }
+
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+
+
+
+        }
+
+        }
+
+        }
+
           type: "success",
           title: "Supplier Confirmed Order",
           message: `Supplier ${supplierCompany} has confirmed order ${orderDetails.order_number} for ${orderDetails.load_type} transport from ${orderDetails.from_place} to ${orderDetails.to_place}`,
@@ -185,6 +237,15 @@ export async function POST(request: NextRequest) {
           orderId: transport_order_id,
           supplierId: supplier_id,
           status: status
+
+
+
+          }
+
+          }
+
+          }
+
         })
       })
 
@@ -193,6 +254,7 @@ export async function POST(request: NextRequest) {
       } else {
         console.error("❌ Failed to create notification:", await notificationResponse.text())
       }
+
     } catch (notificationError) {
       console.error("Error creating notification for supplier confirmed order:", notificationError)
       // Don't fail the main operation if notification creation fails
@@ -206,6 +268,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Create confirmed order error:", error)
   }
+
 }
 
 // PUT - Update confirmed order status
@@ -249,4 +312,5 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error("Update confirmed order error:", error)
   }
+
 }

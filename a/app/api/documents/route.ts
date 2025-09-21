@@ -9,6 +9,7 @@ export async function GET() {
     console.error("GET /api/documents error:", error)
     const response = NextResponse.json({ error: "Failed to load documents" }, { status: 500 })
   }
+
 }
 
 export async function PATCH(request: NextRequest) {
@@ -19,6 +20,15 @@ export async function PATCH(request: NextRequest) {
       status: "approved" | "rejected"
       reviewNotes?: string
       reviewer?: string
+
+
+
+      }
+
+      }
+
+      }
+
     }
 
     if (!id || !status) {
@@ -29,11 +39,11 @@ export async function PATCH(request: NextRequest) {
     if (!updated) {
       const response = NextResponse.json({ error: "Document not found" }, { status: 404 })
     }
+
     const response = NextResponse.json({ document: updated })
   } catch (error) {
     console.error("PATCH /api/documents error:", error)
     const response = NextResponse.json({ error: "Failed to review document" }, { status: 500 })
   }
+
 }
-
-

@@ -4,9 +4,9 @@ import { dbQuery, getPool } from "@/lib/db"
 import { createApiResponse, createApiError } from "@/lib/api-utils"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -18,6 +18,7 @@ export async function POST() {
     if (!pool) {
       return createApiError("Database not available", null, 503)
     }
+
     console.log("Migrating existing driver documents...")
 
     // Get all drivers with license documents
@@ -56,17 +57,28 @@ export async function POST() {
         } else {
           console.log(`Driver document already exists for driver ${driver.id}`)
         }
+
       } catch (error) {
         console.error(`Error migrating driver document ${driver.id}:`, error)
       }
+
     }
-    
+
     console.log(`Migration completed. ${migratedCount} driver documents migrated.`)
 
     return createApiResponse({
       message: "Driver document migration completed",
       migratedCount,
       totalDrivers: driversResult.rows.length
+
+
+
+      }
+
+      }
+
+      }
+
     })
 
   } catch (error) {
@@ -77,6 +89,5 @@ export async function POST() {
       500
     )
   }
+
 }
-
-

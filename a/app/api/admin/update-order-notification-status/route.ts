@@ -3,9 +3,9 @@ import { dbQuery, getPool } from "@/lib/db"
 import { getSession } from "@/lib/auth"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST(request: NextRequest) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
       const response = NextResponse.json(
         { error: "Missing required fields: orderSubmissionId, orderType" },
         { status: 400 }
+
       )
     }
 
@@ -64,6 +65,15 @@ export async function POST(request: NextRequest) {
       success: true,
       message: "Order notification status updated successfully",
       updatedRows: updateResult.rows.length
+
+
+
+      }
+
+      }
+
+      }
+
     })
 
   } catch (error) {
@@ -72,12 +82,19 @@ export async function POST(request: NextRequest) {
       { 
         error: "Internal server error", 
         details: error instanceof Error ? error.message : "Unknown error"
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
       },
       { status: 500 }
+
     )
   }
+
 }
-
-
-
-

@@ -10,8 +10,17 @@ export async function GET(request: Request) {
     if (!buyerId) {
       const response = NextResponse.json({ 
         error: "Buyer ID is required" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
     }
-    
+
     console.log(`GET /api/buyer/notifications/count - fetching count for buyer ${buyerId}`)
     console.log("Database pool available:", !!getPool())
     
@@ -37,17 +46,28 @@ export async function GET(request: Request) {
           
           unreadCount = parseInt(result.rows[0].count) || 0
         }
+
       } catch (error) {
         console.error("Error fetching notification count from database:", error)
       }
+
     }
-    
+
     console.log(`Returning unread count ${unreadCount} for buyer ${buyerId}`)
   } catch (error) {
     console.error("Error fetching buyer notification count:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch notification count",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

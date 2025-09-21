@@ -4,9 +4,9 @@ import bcrypt from "bcryptjs"
 import { findUserByCredentialsAsync } from "@/lib/user-storage"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -31,6 +31,15 @@ export async function POST() {
         success: false,
         step: "user_lookup",
         message: "User not found"
+
+
+
+        }
+
+        }
+
+        }
+
     }
 
     console.log("User details:", {
@@ -53,6 +62,15 @@ export async function POST() {
         message: "Invalid password",
         userFound: true,
         passwordValid: false
+
+
+
+        }
+
+        }
+
+        }
+
     }
 
     // Step 3: Create session
@@ -85,6 +103,15 @@ export async function POST() {
       step: "error",
       error: "Login flow test failed",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

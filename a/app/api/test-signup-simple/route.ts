@@ -2,9 +2,9 @@ import { type NextRequest, NextResponse } from "next/server"
 import { handleCors, addCorsHeaders } from "@/lib/cors"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST(request: NextRequest) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -36,6 +36,15 @@ export async function POST(request: NextRequest) {
       const response = NextResponse.json({ 
         error: "Cloudflare import failed",
         details: importError instanceof Error ? importError.message : "Unknown error"
+
+
+
+        }
+
+        }
+
+        }
+
     }
 
     // Test user storage import
@@ -47,15 +56,42 @@ export async function POST(request: NextRequest) {
       const response = NextResponse.json({ 
         error: "User storage import failed",
         details: importError instanceof Error ? importError.message : "Unknown error"
+
+
+
+        }
+
+        }
+
+        }
+
     }
 
     const response = NextResponse.json({
       success: true,
       message: "Simple signup test completed successfully",
       formData: {
+
+
+
+      }
+
+      }
+
+      }
+
         role,
         userId,
         hasPassword: !!password
+
+
+
+        }
+
+        }
+
+        }
+
       })
     return addCorsHeaders(response)
 
@@ -65,6 +101,15 @@ export async function POST(request: NextRequest) {
       error: "Simple signup test failed",
       details: error instanceof Error ? error.message : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

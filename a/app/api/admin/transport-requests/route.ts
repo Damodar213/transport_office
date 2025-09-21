@@ -13,6 +13,7 @@ export async function GET() {
         message: "Using fallback data"})
     return addCorsHeaders(response)
   }
+
     // Fetch buyer transport requests and manual orders
     const result = await dbQuery(`
       -- Buyer requests (only valid ones with proper buyer data)
@@ -105,6 +106,7 @@ export async function GET() {
           // For manual orders, ensure we have valid order data
           return row.load_type && row.estimated_tons;
         }
+
         return false;
       })
       .map(row => ({
@@ -115,9 +117,27 @@ export async function GET() {
         loadType: row.load_type || 'General Cargo',
         fromLocation: row.orderType === 'manual_order' 
           ? row.from_place || 'Admin Specified Location'
+
+
+
+        }
+
+        }
+
+        }
+
           : `${row.from_place || 'Unknown'}, ${row.from_district || 'Unknown'}, ${row.from_state || 'Unknown'}`,
         toLocation: row.orderType === 'manual_order'
           ? row.to_place || 'Unknown'
+
+
+
+        }
+
+        }
+
+        }
+
           : `${row.to_place || 'Unknown'}, ${row.to_district || 'Unknown'}, ${row.to_state || 'Unknown'}`,
         fromState: row.from_state || undefined,
         fromDistrict: row.from_district || undefined,
@@ -140,12 +160,40 @@ export async function GET() {
         route: {
           from: row.orderType === 'manual_order' 
             ? row.from_place || 'Admin Specified Location'
+
+
+
+        }
+
+        }
+
+        }
+
             : `${row.from_place || 'Unknown'}, ${row.from_district || 'Unknown'}, ${row.from_state || 'Unknown'}`,
           to: row.orderType === 'manual_order'
             ? row.to_place || 'Unknown'
+
+
+
+          }
+
+          }
+
+          }
+
             : `${row.to_place || 'Unknown'}, ${row.to_district || 'Unknown'}, ${row.to_state || 'Unknown'}`,
           taluk: row.from_taluk
+
+
+
+          }
+
+          }
+
+          }
+
         }
+
       }))
 
     const response = NextResponse.json({
@@ -160,13 +208,23 @@ export async function GET() {
       error: "Failed to fetch transport requests",
       requests: [],
       message: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }
+
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -194,6 +252,15 @@ export async function POST(request: Request) {
         const response = NextResponse.json({ 
           message: "Manual order assigned successfully",
           status: "assigned"
+
+
+
+          }
+
+          }
+
+          }
+
       } else {
         // Create order submission for the buyer request
         await dbQuery(`
@@ -211,9 +278,19 @@ export async function POST(request: Request) {
         const response = NextResponse.json({ 
           message: "Buyer request assigned successfully",
           status: "assigned"
+
+
+
+          }
+
+          }
+
+          }
+
       })
     return addCorsHeaders(response)
   }
+
     if (action === 'reject') {
       if (orderType === 'manual_order') {
         // Update manual order status to rejected
@@ -226,6 +303,15 @@ export async function POST(request: Request) {
         const response = NextResponse.json({ 
           message: "Manual order rejected successfully",
           status: "cancelled"
+
+
+
+          }
+
+          }
+
+          }
+
       } else {
         // Update buyer request status to rejected
         await dbQuery(`
@@ -237,17 +323,37 @@ export async function POST(request: Request) {
         const response = NextResponse.json({ 
           message: "Buyer request rejected successfully",
           status: "rejected"
+
+
+
+          }
+
+          }
+
+          }
+
       })
     return addCorsHeaders(response)
   }
+
   } catch (error) {
     console.error("Error updating transport request:", error)
     const response = NextResponse.json({ 
       error: "Failed to update transport request",
       message: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }
+
 export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
@@ -272,6 +378,15 @@ export async function DELETE(request: Request) {
       const response = NextResponse.json({ 
         success: true,
         message: "Manual order deleted successfully"
+
+
+
+        }
+
+        }
+
+        }
+
     } else {
       // Delete buyer request
       const deleteResult = await dbQuery(`
@@ -285,6 +400,15 @@ export async function DELETE(request: Request) {
       const response = NextResponse.json({ 
         success: true,
         message: "Buyer request deleted successfully"
+
+
+
+        }
+
+        }
+
+        }
+
     })
     return addCorsHeaders(response)
 
@@ -293,6 +417,15 @@ export async function DELETE(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to delete transport request",
       message: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

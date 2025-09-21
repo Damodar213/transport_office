@@ -3,9 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -37,9 +37,11 @@ export async function POST() {
         } catch (error) {
           console.error(`Error dropping column ${column}:`, error)
         }
+
       } else {
         console.log(`Column ${column} does not exist, skipping...`)
       }
+
     }
 
     // Verify the final table structure
@@ -67,6 +69,15 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Trucks migration failed", 
       details: error instanceof Error ? error.message : "Unknown error" 
+ 
+ 
+ 
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

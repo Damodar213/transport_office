@@ -14,6 +14,15 @@ export interface Truck {
   is_active: boolean
   created_at: string
   updated_at: string
+
+
+
+  }
+
+  }
+
+  }
+
 }
 
 // GET - Fetch trucks for a specific supplier
@@ -24,6 +33,7 @@ export async function GET(request: Request) {
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
+
     // Only allow suppliers to access this endpoint
     if (session.role !== 'supplier') {
     }
@@ -69,13 +79,14 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Get trucks error:", error)
   }
+
 }
 
 // POST - Create new truck
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -88,6 +99,7 @@ export async function POST(request: Request) {
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
+
     // Only allow suppliers to access this endpoint
     if (session.role !== 'supplier') {
     }
@@ -98,8 +110,10 @@ export async function POST(request: Request) {
     // Validate required fields
     if (!body.supplierId) {
     }
+
     if (!body.vehicleNumber) {
     }
+
     if (!body.bodyType) {
     }
 
@@ -170,8 +184,9 @@ export async function POST(request: Request) {
         console.error("Error creating vehicle document submission:", docError)
         // Don't fail the truck creation if document submission creation fails
       }
+
     }
-    
+
     const response = NextResponse.json({ 
       message: "Truck created successfully", 
       truck: result.rows[0]})
@@ -182,13 +197,32 @@ export async function POST(request: Request) {
     console.error("Error details:", {
       message: error instanceof Error ? error.message : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
+
+
+
+      }
+
+      }
+
+      }
+
     })
     const response = NextResponse.json({ 
       error: "Failed to create truck", 
       details: error instanceof Error ? error.message : "Unknown error" 
+ 
+ 
+ 
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }
+
 // PUT - Update truck
 export async function PUT(request: Request) {
   try {
@@ -197,6 +231,7 @@ export async function PUT(request: Request) {
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
+
     // Only allow suppliers to access this endpoint
     if (session.role !== 'supplier') {
     }
@@ -206,6 +241,12 @@ export async function PUT(request: Request) {
 
     // SECURITY CHECK: First verify the truck belongs to the logged-in supplier
     const truckCheck = await dbQuery(
+ }
+
+ }
+
+ }
+
       "SELECT supplier_id FROM trucks WHERE id = $1",
       [id]
     )
@@ -254,6 +295,7 @@ export async function PUT(request: Request) {
   } catch (error) {
     console.error("Update truck error:", error)
   }
+
 }
 
 // DELETE - Delete truck (hard delete - completely remove from database)
@@ -264,6 +306,7 @@ export async function DELETE(request: Request) {
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
+
     // Only allow suppliers to access this endpoint
     if (session.role !== 'supplier') {
     }
@@ -301,5 +344,5 @@ export async function DELETE(request: Request) {
   } catch (error) {
     console.error("Delete truck error:", error)
   }
-}
 
+}

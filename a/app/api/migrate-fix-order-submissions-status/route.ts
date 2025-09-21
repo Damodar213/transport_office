@@ -3,9 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -30,6 +30,7 @@ export async function POST() {
         success: false})
     return addCorsHeaders(response)
   }
+
     // Check current status values in the table
     const currentStatuses = await dbQuery(`
       SELECT status, COUNT(*) as count 
@@ -63,11 +64,29 @@ export async function POST() {
       updatedCount: updateResult.rows.length,
       beforeStatuses: currentStatuses.rows,
       afterStatuses: finalStatuses.rows
+
+
+
+      }
+
+      }
+
+      }
+
   } catch (error) {
     console.error("Migration error:", error)
     const response = NextResponse.json({ 
       error: "Failed to migrate order_submissions status",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

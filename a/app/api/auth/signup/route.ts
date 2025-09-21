@@ -11,9 +11,9 @@ import { join } from "path"
 import { existsSync } from "fs"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST(request: NextRequest) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
       } catch (jsonError) {
         console.error("JSON parsing also failed:", jsonError)
       }
+
     }
 
     const role = formData.get("role") as string
@@ -81,6 +82,15 @@ export async function POST(request: NextRequest) {
         mobile: supplierData.mobile,
         companyName: supplierData.companyName,
         numberOfVehicles: supplierData.numberOfVehicles
+
+
+
+        }
+
+        }
+
+        }
+
       })
 
       const documentUrls: Record<string, string> = {}
@@ -103,7 +113,6 @@ export async function POST(request: NextRequest) {
           console.log("Upload directory exists")
         }
 
-
         if (pan && pan.size > 0) {
           console.log("Uploading PAN document to Cloudflare...")
           const bytes = await pan.arrayBuffer()
@@ -116,6 +125,15 @@ export async function POST(request: NextRequest) {
               uploadedAt: new Date().toISOString(),
               userId: userId,
               documentType: "pan"
+
+
+
+              }
+
+              }
+
+              }
+
             })
             documentUrls.pan = uploadResult.url
             console.log("PAN document uploaded to Cloudflare:", documentUrls.pan)
@@ -129,6 +147,7 @@ export async function POST(request: NextRequest) {
             documentUrls.pan = `/uploads/supplier-documents/${filename}`
             console.log("PAN document saved locally:", documentUrls.pan)
           }
+
         }
 
         if (gstCertificate && gstCertificate.size > 0) {
@@ -143,6 +162,15 @@ export async function POST(request: NextRequest) {
               uploadedAt: new Date().toISOString(),
               userId: userId,
               documentType: "gst"
+
+
+
+              }
+
+              }
+
+              }
+
             })
             documentUrls.gstCertificate = uploadResult.url
             console.log("GST document uploaded to Cloudflare:", documentUrls.gstCertificate)
@@ -156,7 +184,9 @@ export async function POST(request: NextRequest) {
             documentUrls.gstCertificate = `/uploads/supplier-documents/${filename}`
             console.log("GST document saved locally:", documentUrls.gstCertificate)
           }
+
         }
+
       } catch (uploadError) {
         console.error("File upload error:", uploadError)
       }
@@ -176,6 +206,7 @@ export async function POST(request: NextRequest) {
           const documentEntries = [
             { type: 'pan', url: documentUrls.pan },
             { type: 'gst', url: (documentUrls as any).gstCertificate }
+
           ].filter(entry => entry.url)
 
           for (const entry of documentEntries) {
@@ -188,7 +219,9 @@ export async function POST(request: NextRequest) {
             } catch (docError) {
               console.error(`Error saving document ${entry.type}:`, docError)
             }
+
           }
+
         } else {
           // Fallback to file storage
           bulkAddSupplierDocuments({
@@ -196,17 +229,37 @@ export async function POST(request: NextRequest) {
             supplierName: supplierData.name,
             companyName: supplierData.companyName,
             documentUrls: {
+
+
+
+            }
+
+            }
+
+            }
+
               pan: documentUrls.pan,
               gst: (documentUrls as any).gstCertificate,
             },
           })
         }
+
       } catch (dbError) {
         console.error("Database save error:", dbError)
         const response = NextResponse.json({ 
           error: "Failed to save user to database",
           details: dbError instanceof Error ? dbError.message : "Unknown error"
+
+
+
+          }
+
+          }
+
+          }
+
       }
+
     } else if (role === "buyer") {
       console.log("Processing buyer registration...")
       const buyerData = {
@@ -220,6 +273,15 @@ export async function POST(request: NextRequest) {
       console.log("Buyer data prepared:", { 
         userId: buyerData.userId,
         companyName: buyerData.companyName
+
+
+
+        }
+
+        }
+
+        }
+
       })
 
       // Save to database
@@ -231,7 +293,17 @@ export async function POST(request: NextRequest) {
         const response = NextResponse.json({ 
           error: "Failed to save user to database",
           details: dbError instanceof Error ? dbError.message : "Unknown error"
+
+
+
+          }
+
+          }
+
+          }
+
       }
+
     } else if (role === "admin") {
       console.log("Processing admin registration...")
       const adminKey = formData.get("adminKey") as string
@@ -249,12 +321,30 @@ export async function POST(request: NextRequest) {
         mobile: formData.get("mobile") as string,
         email: formData.get("email") as string,
         permissions: ["all"] // Default admin permissions
+
+
+
+        }
+
+        }
+
+        }
+
       }
 
       console.log("Admin data prepared:", { 
         userId: adminData.userId,
         name: adminData.name,
         email: adminData.email
+
+
+
+        }
+
+        }
+
+        }
+
       })
 
       // Save to admin database
@@ -266,12 +356,23 @@ export async function POST(request: NextRequest) {
           // Fallback to file storage for admin (not ideal but prevents crash)
           console.log("Admin registration skipped - database not available")
         }
+
       } catch (dbError) {
         console.error("Admin database save error:", dbError)
         const response = NextResponse.json({ 
           error: "Failed to save admin to database",
           details: dbError instanceof Error ? dbError.message : "Unknown error"
+
+
+
+          }
+
+          }
+
+          }
+
       }
+
     } else {
       console.log("Invalid role specified:", role)
     }
@@ -283,6 +384,15 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({ 
       error: "Internal server error",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

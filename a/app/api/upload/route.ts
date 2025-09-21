@@ -18,13 +18,23 @@ async function uploadToLocal(file: Buffer, key: string, contentType: string): Pr
     key,
     size: file.length,
     type: contentType
+
+
+
+    }
+
+    }
+
+    }
+
   }
+
 }
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST(request: NextRequest) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -126,17 +136,22 @@ export async function POST(request: NextRequest) {
               } else {
                 console.error("Driver not found in database with ID:", driverId)
               }
+
             } catch (driverDocError) {
               console.error("Error creating driver document submission:", driverDocError)
             }
+
           } else {
             console.error("No driver ID provided in form data")
           }
+
         }
+
       } catch (docError) {
         console.error("Error creating document submission:", docError)
         // Don't fail the upload if document submission creation fails
       }
+
     }
 
     const response = NextResponse.json({
@@ -153,9 +168,19 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({ 
       error: "Upload failed", 
       details: error instanceof Error ? error.message : "Unknown error"
+ 
+ 
+ 
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }
+
 // Handle file deletion
 export async function DELETE(request: NextRequest) {
   try {
@@ -183,9 +208,19 @@ export async function DELETE(request: NextRequest) {
     const response = NextResponse.json({ 
       error: "Delete failed", 
       details: error instanceof Error ? error.message : "Unknown error"
+ 
+ 
+ 
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }
+
 // Handle signed URL generation for viewing files
 export async function GET(request: NextRequest) {
   try {
@@ -215,6 +250,15 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({ 
       error: "Failed to generate signed URL", 
       details: error instanceof Error ? error.message : "Unknown error"
+ 
+ 
+ 
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

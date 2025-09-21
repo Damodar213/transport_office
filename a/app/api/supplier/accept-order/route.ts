@@ -3,9 +3,9 @@ import { dbQuery, getPool } from "@/lib/db"
 import { getSession } from "@/lib/auth"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST(request: NextRequest) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -22,6 +22,7 @@ export async function POST(request: NextRequest) {
       const response = NextResponse.json(
         { error: "Missing required fields: orderId, driverId, vehicleId, driverMobile" },
         { status: 400 }
+
       )
     }
 
@@ -156,15 +157,17 @@ export async function POST(request: NextRequest) {
         [parsedOrderId]
       )
       }
+
       console.log("Order details result:", orderDetails.rows.length, "rows")
       
       if (orderDetails.rows.length > 0 && orderDetails.rows[0].order_number) {
         orderNumber = orderDetails.rows[0].order_number
       }
+
     } catch (joinError) {
       console.log("JOIN query failed, using fallback order number:", joinError instanceof Error ? joinError.message : "Unknown error")
     }
-    
+
     console.log("Order number for notification:", orderNumber)
 
     // Create notification for admin with detailed information
@@ -313,6 +316,7 @@ export async function POST(request: NextRequest) {
         )
         console.log("Manual order accepted request created successfully")
         }
+
       } else {
         console.log("Creating accepted request for buyer request...")
         
@@ -418,13 +422,24 @@ export async function POST(request: NextRequest) {
         )
         console.log("Buyer request accepted request created successfully")
         }
+
       }
+
       console.log("Accepted request created successfully:", acceptedRequestResult.rows[0]?.id)
     } catch (acceptedRequestError) {
       console.error("Accepted request creation failed:", acceptedRequestError)
       console.error("Error details:", {
         message: acceptedRequestError instanceof Error ? acceptedRequestError.message : "Unknown error",
         stack: acceptedRequestError instanceof Error ? acceptedRequestError.stack : "No stack trace"
+
+
+
+        }
+
+        }
+
+        }
+
       })
       // Don't fail the whole operation if accepted request creation fails
     }
@@ -433,12 +448,31 @@ export async function POST(request: NextRequest) {
       success: true,
       message: "Order accepted successfully",
       confirmation: {
+
+
+
+      }
+
+      }
+
+      }
+
         orderId,
         driverName: driver.driver_name,
         driverMobile,
         vehicleNumber: vehicle.vehicle_number,
         vehicleType: vehicle.body_type
+
+
+
+        }
+
+        }
+
+        }
+
       }
+
     })
 
   } catch (error) {
@@ -448,6 +482,15 @@ export async function POST(request: NextRequest) {
       message: error instanceof Error ? error.message : "Unknown error",
       name: error instanceof Error ? error.name : "Unknown",
       cause: error instanceof Error ? error.cause : undefined
+
+
+
+      }
+
+      }
+
+      }
+
     })
     const response = NextResponse.json(
       { 
@@ -457,6 +500,8 @@ export async function POST(request: NextRequest) {
      : undefined
       },
       { status: 500 }
+
     )
   }
+
 }

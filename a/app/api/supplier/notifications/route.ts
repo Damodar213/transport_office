@@ -14,6 +14,15 @@ const mockSupplierNotifications = [
     category: "order",
     priority: "high",
     orderId: "123"
+
+
+
+    }
+
+    }
+
+    }
+
   },
   {
     id: "2",
@@ -25,6 +34,15 @@ const mockSupplierNotifications = [
     category: "driver",
     priority: "medium",
     driverId: "driver_001"
+
+
+
+    }
+
+    }
+
+    }
+
   },
   {
     id: "3",
@@ -36,6 +54,15 @@ const mockSupplierNotifications = [
     category: "vehicle",
     priority: "low",
     vehicleId: "truck_001"
+
+
+
+    }
+
+    }
+
+    }
+
   },
   {
     id: "4",
@@ -47,6 +74,15 @@ const mockSupplierNotifications = [
     category: "payment",
     priority: "medium",
     orderId: "120"
+
+
+
+    }
+
+    }
+
+    }
+
   },
   {
     id: "5",
@@ -58,7 +94,17 @@ const mockSupplierNotifications = [
     category: "order",
     priority: "high",
     orderId: "125"
+
+
+
+    }
+
+    }
+
+    }
+
   }
+
 ]
 
 export async function GET(request: Request) {
@@ -71,8 +117,17 @@ export async function GET(request: Request) {
     if (!supplierId) {
       const response = NextResponse.json({ 
         error: "Supplier ID is required" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
     }
-    
+
     // In a real application, you would fetch notifications from the database
     // For now, we'll return mock data
     let notifications = [...mockSupplierNotifications]
@@ -123,31 +178,54 @@ export async function GET(request: Request) {
                 orderId: row.order_id,
                 driverId: row.driver_id,
                 vehicleId: row.vehicle_id
+
+
+
+                }
+
+                }
+
+                }
+
               }
+
             })
           }
+
         } else {
           console.log("Supplier notifications table doesn't exist, using mock data")
         }
+
       } catch (error) {
         console.error("Error fetching notifications from database:", error)
         console.log("Falling back to mock notifications")
       }
+
     }
-    
+
     console.log(`Returning ${notifications.length} notifications for supplier ${supplierId}`)
   } catch (error) {
     console.error("Error in supplier notifications API:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch notifications",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }
+
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -162,7 +240,7 @@ export async function POST(request: Request) {
       const response = NextResponse.json({ 
         error: "Missing required fields: type, title, message, category, priority, supplierId" 
     }
-    
+
     console.log("POST /api/supplier/notifications - creating notification:", { type, title, category, priority, supplierId })
     
     // In a real application, you would save to the database
@@ -197,7 +275,7 @@ export async function POST(request: Request) {
           `)
           console.log("Created supplier_notifications table")
         }
-        
+
         // Insert new notification
         const result = await dbQuery(`
           INSERT INTO supplier_notifications (supplier_id, type, title, message, category, priority, order_id, driver_id, vehicle_id, created_at, updated_at)
@@ -215,6 +293,15 @@ export async function POST(request: Request) {
           hour: '2-digit',
           minute: '2-digit',
           hour12: true
+
+
+
+          }
+
+          }
+
+          }
+
         })
         
         const newNotification = {
@@ -230,7 +317,7 @@ export async function POST(request: Request) {
           driverId,
           vehicleId
         }
-        
+
         console.log("Supplier notification created successfully:", newNotification.id)
         const response = NextResponse.json({ 
           message: "Notification created successfully",
@@ -242,9 +329,19 @@ export async function POST(request: Request) {
         const response = NextResponse.json({ 
           error: "Failed to create notification in database",
           details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+          }
+
+          }
+
+          }
+
       })
     return addCorsHeaders(response)
   }
+
     // Fallback response if database is not available
     const currentIndianTime = new Date().toLocaleString("en-US", {
       timeZone: "Asia/Kolkata",
@@ -254,6 +351,15 @@ export async function POST(request: Request) {
       hour: '2-digit',
       minute: '2-digit',
       hour12: true
+
+
+
+      }
+
+      }
+
+      }
+
     })
     
       message: "Notification created successfully (mock mode)"
@@ -270,6 +376,7 @@ export async function POST(request: Request) {
         driverId,
         vehicleId
       }
+
     })
     
   } catch (error) {
@@ -277,9 +384,19 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to create notification",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }
+
 function formatTimestamp(timestamp: string | Date): string {
   try {
     // Parse the timestamp and ensure it's treated as IST
@@ -291,13 +408,13 @@ function formatTimestamp(timestamp: string | Date): string {
     } else {
       created = timestamp
     }
-    
+
     // Check if timestamp is valid
     if (isNaN(created.getTime())) {
       console.error("Invalid timestamp:", timestamp)
       return "Invalid time"
     }
-    
+
     // Format the date in IST (don't double-convert)
     const formattedDate = created.toLocaleString('en-US', {
       year: 'numeric',
@@ -307,6 +424,15 @@ function formatTimestamp(timestamp: string | Date): string {
       minute: '2-digit',
       hour12: true,
       timeZone: 'Asia/Kolkata'
+
+
+
+      }
+
+      }
+
+      }
+
     })
     
     // Calculate relative time using current IST time
@@ -317,7 +443,7 @@ function formatTimestamp(timestamp: string | Date): string {
     if (Math.abs(diffMs) < 60000) {
       return "Just now"
     }
-    
+
     // If it's within 24 hours (past or future), show relative time + actual time
     if (Math.abs(diffMs) < 24 * 60 * 60 * 1000) {
       const diffMins = Math.floor(Math.abs(diffMs) / (1000 * 60))
@@ -330,8 +456,9 @@ function formatTimestamp(timestamp: string | Date): string {
         const timeText = diffMs > 0 ? `${diffHours} hour${diffHours === 1 ? '' : 's'} ago` : `in ${diffHours} hour${diffHours === 1 ? '' : 's'}`
         return `${timeText} (${formattedDate})`
       }
+
     }
-    
+
     // For older notifications, show the full date and time
     return formattedDate
     
@@ -348,14 +475,20 @@ function formatTimestamp(timestamp: string | Date): string {
         minute: '2-digit',
         hour12: true,
         timeZone: 'Asia/Kolkata'
+
+
+
+        }
+
+        }
+
+        }
+
       })
     } catch {
       return "Time unavailable"
     }
+
   }
+
 }
-
-
-
-
-

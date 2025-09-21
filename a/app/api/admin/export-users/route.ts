@@ -21,6 +21,15 @@ export async function GET(request: Request) {
         users: exportData,
         exportedAt: new Date().toISOString(),
         totalUsers: exportData.length
+
+
+
+        }
+
+        }
+
+        }
+
       })
       return addCorsHeaders(response)
     }
@@ -31,6 +40,15 @@ export async function GET(request: Request) {
       format,
       exportedAt: new Date().toISOString(),
       totalUsers: exportData.length
+
+
+
+      }
+
+      }
+
+      }
+
     })
     return addCorsHeaders(response)
     
@@ -39,8 +57,17 @@ export async function GET(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to export users",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
     }, { status: 500 })
     return addCorsHeaders(response)
   }
-}
 
+}

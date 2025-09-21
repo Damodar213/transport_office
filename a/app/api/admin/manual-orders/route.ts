@@ -9,6 +9,7 @@ export async function GET(request: Request) {
     if (!pool) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     console.log("Fetching manual orders...")
 
     // Get all manual orders with optional filtering
@@ -74,6 +75,15 @@ export async function GET(request: Request) {
       orders: result.rows,
       total: result.rows.length,
       message: "Manual orders fetched successfully"
+
+
+
+      }
+
+      }
+
+      }
+
     })
     return addCorsHeaders(response)
     
@@ -82,15 +92,26 @@ export async function GET(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to fetch manual orders",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
     }, { status: 500 })
     return addCorsHeaders(response)
   }
+
 }
 
 // POST - Update manual order status or assign to supplier
 export async function OPTIONS(request: NextRequest) {
   return handleCors(request)
 }
+
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -102,6 +123,7 @@ export async function POST(request: Request) {
     if (!pool) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     const body = await request.json()
     const { orderId, action, supplierId, supplierName, adminNotes, status } = body
 
@@ -110,6 +132,15 @@ export async function POST(request: Request) {
     if (!orderId || !action) {
       const response = NextResponse.json({ 
         error: "Order ID and action are required" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
       }, { status: 400 })
       return addCorsHeaders(response)
     }
@@ -119,6 +150,15 @@ export async function POST(request: Request) {
       if (!supplierId || !supplierName) {
         const response = NextResponse.json({ 
           error: "Supplier ID and name are required for assignment" 
+ 
+ 
+ 
+          }
+
+          }
+
+          }
+
         }, { status: 400 })
         return addCorsHeaders(response)
       }
@@ -138,6 +178,15 @@ export async function POST(request: Request) {
       if (result.rows.length === 0) {
         const response = NextResponse.json({ 
           error: "Order not found" 
+ 
+ 
+ 
+          }
+
+          }
+
+          }
+
         }, { status: 404 })
         return addCorsHeaders(response)
       }
@@ -146,6 +195,15 @@ export async function POST(request: Request) {
         success: true,
         message: "Manual order assigned successfully",
         order: result.rows[0]
+
+
+
+        }
+
+        }
+
+        }
+
       })
       return addCorsHeaders(response)
     }
@@ -155,6 +213,15 @@ export async function POST(request: Request) {
       if (!status) {
         const response = NextResponse.json({ 
           error: "Status is required for status update" 
+ 
+ 
+ 
+          }
+
+          }
+
+          }
+
         }, { status: 400 })
         return addCorsHeaders(response)
       }
@@ -172,6 +239,15 @@ export async function POST(request: Request) {
       if (result.rows.length === 0) {
         const response = NextResponse.json({ 
           error: "Order not found" 
+ 
+ 
+ 
+          }
+
+          }
+
+          }
+
         }, { status: 404 })
         return addCorsHeaders(response)
       }
@@ -180,6 +256,15 @@ export async function POST(request: Request) {
         success: true,
         message: "Manual order status updated successfully",
         order: result.rows[0]
+
+
+
+        }
+
+        }
+
+        }
+
       })
       return addCorsHeaders(response)
     }
@@ -189,8 +274,17 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to update manual order",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
     }, { status: 500 })
     return addCorsHeaders(response)
   }
-}
 
+}

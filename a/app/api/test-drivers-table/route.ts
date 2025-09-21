@@ -8,6 +8,7 @@ export async function GET() {
     if (!pool) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     // Check drivers table
     const driversResult = await dbQuery("SELECT COUNT(*) as count FROM drivers")
     const driverCount = driversResult.rows[0].count
@@ -31,6 +32,15 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Test failed",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

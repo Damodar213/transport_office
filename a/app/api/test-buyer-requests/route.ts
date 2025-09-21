@@ -17,10 +17,20 @@ export async function GET() {
         recommendation: "Log in with valid credentials first"})
     return addCorsHeaders(response)
   }
+
     console.log("User session:", {
       userId: session.userId,
       userIdString: session.userIdString,
       role: session.role
+
+
+
+      }
+
+      }
+
+      }
+
     })
 
     // Test 2: Check if user has appropriate role
@@ -31,10 +41,25 @@ export async function GET() {
         message: "User does not have buyer or admin role",
         userRole: session.role,
         recommendation: "Log in as a buyer or admin to test buyer requests functionality"
+
+
+
+        }
+
+        }
+
+        }
+
     }
 
     // Test 3: Check buyer_requests table structure
     const tableStructure = await dbQuery(`
+ }
+
+ }
+
+ }
+
       SELECT column_name, data_type, is_nullable
       FROM information_schema.columns 
       WHERE table_name = 'buyer_requests' 
@@ -49,6 +74,12 @@ export async function GET() {
     // Test 4: Check existing buyer requests
     let query = `
       SELECT 
+ }
+
+ }
+
+ }
+
         br.id, br.buyer_id, br.order_number, br.status, br.created_at,
         b.company_name as buyer_company,
         u.name as buyer_name
@@ -71,6 +102,12 @@ export async function GET() {
 
     // Test 5: Check buyers table
     const buyers = await dbQuery(
+ }
+
+ }
+
+ }
+
       "SELECT user_id, company_name, gst_number FROM buyers ORDER BY created_at DESC LIMIT 5"
     )
 
@@ -81,22 +118,85 @@ export async function GET() {
       test: "buyer_requests_api",
       message: "Buyer requests API test completed",
       currentUser: {
+
+
+
+      }
+
+      }
+
+      }
+
         userId: session.userId,
         userIdString: session.userIdString,
         role: session.role,
         email: session.email,
         name: session.name
+
+
+
+        }
+
+        }
+
+        }
+
       },
       tableStructure: tableStructure.rows,
       buyerRequests: {
+
+
+
+      }
+
+      }
+
+      }
+
         count: buyerRequests.rows.length,
         requests: buyerRequests.rows
+
+
+
+        }
+
+        }
+
+        }
+
       },
       buyers: {
+
+
+
+      }
+
+      }
+
+      }
+
         count: buyers.rows.length,
         data: buyers.rows
+
+
+
+        }
+
+        }
+
+        }
+
       },
       apiStatus: "Buyer requests API is working correctly"
+
+
+
+      }
+
+      }
+
+      }
+
   } catch (error) {
     console.error("Buyer requests API test error:", error)
     const response = NextResponse.json({
@@ -104,6 +204,15 @@ export async function GET() {
       test: "error",
       message: "Test failed with error",
       error: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

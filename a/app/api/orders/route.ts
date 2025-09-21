@@ -47,11 +47,26 @@ export interface TransportOrder {
   vehicleNumber?: string
   currentLocation?: string
   progress?: number
+
+
+
+  }
+
+  }
+
+  }
+
 }
 
 // Mock database - replace with actual database implementation
 const orders: TransportOrder[] = [
   {
+ }
+
+ }
+
+ }
+
     id: 1,
     orderNumber: "ORD-2024-001",
     buyerId: "BUY001",
@@ -208,6 +223,7 @@ export async function GET(request: NextRequest) {
         }))
 
       }
+
     } catch (dbError) {
       console.log("Database query failed, falling back to mock data:", dbError)
     }
@@ -250,6 +266,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Get orders error:", error)
   }
+
 }
 
 // Helper function to calculate progress based on status
@@ -265,14 +282,15 @@ function calculateProgress(status: string): number {
     cancelled: 0,
     rejected: 0,
   }
+
   return progressMap[status] || 0
 }
 
 // POST - Create new order
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST(request: NextRequest) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -283,6 +301,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
 
     const newOrder: TransportOrder = {
+ }
+
+ }
+
+ }
+
       id: nextOrderId++,
       orderNumber: `ORD-${new Date().getFullYear()}-${String(nextOrderId - 1).padStart(3, "0")}`,
       status: "draft",
@@ -296,4 +320,5 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Create order error:", error)
   }
+
 }

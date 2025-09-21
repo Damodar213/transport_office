@@ -5,6 +5,7 @@ import { dbQuery, getPool } from "@/lib/db"
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
+
 ) {
   try {
     const { id } = await params
@@ -12,7 +13,7 @@ export async function DELETE(
     
     if (!getPool()) {
     }
-    
+
     // Check if supplier_notifications table exists
     const tableExists = await dbQuery(`
       SELECT EXISTS (
@@ -27,7 +28,7 @@ export async function DELETE(
         message: "Notification deleted (mock mode)"
       })
     }
-    
+
     // Delete notification
     const result = await dbQuery(`
       DELETE FROM supplier_notifications 
@@ -37,7 +38,7 @@ export async function DELETE(
     
     if (result.rows.length === 0) {
     }
-    
+
     console.log(`Supplier notification ${id} deleted successfully`)
     const response = NextResponse.json({ 
       message: "Notification deleted successfully",
@@ -49,6 +50,15 @@ export async function DELETE(
     const response = NextResponse.json({ 
       error: "Failed to delete notification",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

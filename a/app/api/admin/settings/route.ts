@@ -10,7 +10,7 @@ export async function GET() {
     console.log("GET /api/admin/settings - fetching settings...")
     
     let settings = { ...defaultSettings }
-    
+
     // If database is available, try to fetch settings
     if (getPool()) {
       try {
@@ -39,28 +39,43 @@ export async function GET() {
                 if (settings[category as keyof typeof settings]) {
                   (settings[category as keyof typeof settings] as any)[key] = value
                 }
+
               } catch (parseError) {
                 console.warn(`Failed to parse setting ${row.setting_key}:`, parseError)
               }
+
             })
           }
+
         } else {
           console.log("Settings table doesn't exist, using default values")
         }
+
       } catch (error) {
         console.error("Error fetching settings from database:", error)
         console.log("Falling back to default settings")
       }
+
     }
-    
+
     console.log("Settings fetched successfully")
     console.error("Error in settings GET API:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch settings",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
     }, { status: 500 })
     return addCorsHeaders(response)
   }
+
 }
 
 export async function PUT(request: Request) {
@@ -72,6 +87,7 @@ export async function PUT(request: Request) {
     if (!getPool()) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     try {
       // Check if settings table exists, create if not
       const tableExists = await dbQuery(`
@@ -95,7 +111,7 @@ export async function PUT(request: Request) {
         `)
         console.log("Created admin_settings table")
       }
-      
+
       // Prepare settings for storage
       const settingsToStore: any[] = []
       
@@ -111,11 +127,20 @@ export async function PUT(request: Request) {
             updated_at = CURRENT_TIMESTAMP
         `, [setting.key, JSON.stringify(setting.value), setting.type])
       }
-      
+
       console.log("Settings updated successfully")
       const response = NextResponse.json({ 
         message: "Settings updated successfully",
         settings: settings
+
+
+
+        }
+
+        }
+
+        }
+
       })
       return addCorsHeaders(response)
 
@@ -124,6 +149,15 @@ export async function PUT(request: Request) {
       const response = NextResponse.json({ 
         error: "Failed to update settings in database",
         details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+        }
+
+        }
+
+        }
+
     })
     return addCorsHeaders(response)
 
@@ -132,7 +166,17 @@ export async function PUT(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to update settings",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
     }, { status: 500 })
     return addCorsHeaders(response)
   }
+
 }

@@ -11,10 +11,10 @@ export async function PUT(request: Request) {
     
     if (!supplierId) {
     }
-    
+
     if (!getPool()) {
     }
-    
+
     // Check if supplier_notifications table exists
     const tableExists = await dbQuery(`
       SELECT EXISTS (
@@ -29,7 +29,7 @@ export async function PUT(request: Request) {
         message: "All notifications marked as read (mock mode)"
       })
     }
-    
+
     // Update all unread notifications for this supplier to mark as read
     const result = await dbQuery(`
       UPDATE supplier_notifications 
@@ -51,6 +51,15 @@ export async function PUT(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to mark all notifications as read",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

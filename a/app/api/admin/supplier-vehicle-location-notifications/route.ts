@@ -14,13 +14,13 @@ function formatTimestamp(timestamp: string | Date): string {
     } else {
       created = timestamp
     }
-    
+
     // Check if timestamp is valid
     if (isNaN(created.getTime())) {
       console.error("Invalid timestamp:", timestamp)
       return "Invalid time"
     }
-    
+
     // Format the date in IST (don't double-convert)
     const formattedDate = created.toLocaleString('en-US', {
       year: 'numeric',
@@ -30,6 +30,15 @@ function formatTimestamp(timestamp: string | Date): string {
       minute: '2-digit',
       hour12: true,
       timeZone: 'Asia/Kolkata'
+
+
+
+      }
+
+      }
+
+      }
+
     })
     
     // Calculate relative time using current IST time
@@ -40,7 +49,7 @@ function formatTimestamp(timestamp: string | Date): string {
     if (Math.abs(diffMs) < 60000) {
       return "Just now"
     }
-    
+
     // If it's within 24 hours (past or future), show relative time + actual time
     if (Math.abs(diffMs) < 24 * 60 * 60 * 1000) {
       const diffMins = Math.floor(Math.abs(diffMs) / (1000 * 60))
@@ -53,8 +62,9 @@ function formatTimestamp(timestamp: string | Date): string {
         const timeText = diffMs > 0 ? `${diffHours} hour${diffHours === 1 ? '' : 's'} ago` : `in ${diffHours} hour${diffHours === 1 ? '' : 's'}`
         return `${timeText} (${formattedDate})`
       }
+
     }
-    
+
     // For older notifications, show the full date and time
     return formattedDate
     
@@ -71,11 +81,22 @@ function formatTimestamp(timestamp: string | Date): string {
         minute: '2-digit',
         hour12: true,
         timeZone: 'Asia/Kolkata'
+
+
+
+        }
+
+        }
+
+        }
+
       })
     } catch {
       return "Time unavailable"
     }
+
   }
+
 }
 
 // GET - Fetch all supplier vehicle location notifications
@@ -84,6 +105,7 @@ export async function GET() {
     if (!getPool()) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     console.log("Fetching supplier vehicle location notifications...")
 
     // Check if table exists
@@ -146,11 +168,22 @@ export async function GET() {
           driverName: row.driver_name,
           status: row.status,
           recommendedLocation: row.recommended_location
+
+
+
+          }
+
+          }
+
+          }
+
         }
+
       } catch (mapError) {
         console.error("Error mapping notification row:", mapError, row)
         return null
       }
+
     }).filter(Boolean) // Remove any null entries
 
     console.log(`Returning ${notifications.length} notifications`)
@@ -159,14 +192,26 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to fetch notifications",
       details: error instanceof Error ? error.message : "Unknown error"
-  })
+
+
+
+      }
+
+      }
+
+      }
+
+    }, { status: 500 })
     return addCorsHeaders(response)
   }
+
+}
+
 // POST - Create a new supplier vehicle location notification
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -177,6 +222,7 @@ export async function POST(request: Request) {
     if (!getPool()) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     const body = await request.json()
     const {
       vehicle_location_id,
@@ -198,6 +244,15 @@ export async function POST(request: Request) {
     if (!vehicle_location_id || !supplier_id || !supplier_name || !state || !district || !place || !vehicle_number || !body_type) {
       const response = NextResponse.json({ 
         error: "Missing required fields" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
     }
 
     // Check if notification already exists for this vehicle location
@@ -209,6 +264,15 @@ export async function POST(request: Request) {
     if (existingNotification.rows.length > 0) {
       const response = NextResponse.json({ 
         error: "Notification already exists for this vehicle location" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
     }
 
     // Insert new notification
@@ -241,6 +305,15 @@ export async function POST(request: Request) {
       bodyType: body_type,
       driverName: driver_name,
       status: status
+
+
+
+      }
+
+      }
+
+      }
+
     }
 
     console.log("Created new supplier vehicle location notification:", newNotification.id)
@@ -256,6 +329,15 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to create notification",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

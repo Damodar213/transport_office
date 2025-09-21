@@ -11,6 +11,7 @@ export async function GET(request: Request) {
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
+
     if (session.role !== 'supplier') {
     }
 
@@ -167,6 +168,15 @@ export async function GET(request: Request) {
       id: row.submission_id, // Map submission_id to id for frontend compatibility
       status: row.submission_status, // Use submission_status for filtering pending orders
       order_status: row.order_status // Keep original order_status for reference
+
+
+
+      }
+
+      }
+
+      }
+
     }))
 
     const response = NextResponse.json({
@@ -179,6 +189,15 @@ export async function GET(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to fetch orders",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

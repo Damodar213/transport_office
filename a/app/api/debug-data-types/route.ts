@@ -8,6 +8,7 @@ export async function GET() {
     if (!pool) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     // Check data types
     const driverDocsTypes = await dbQuery(`
       SELECT column_name, data_type 
@@ -52,6 +53,15 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Data types debug failed",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

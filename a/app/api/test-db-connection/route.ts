@@ -12,6 +12,7 @@ export async function GET() {
     if (!config.database.enabled) {
       return createApiError("Database not available", null, 503)
     }
+
     const pool = getPool()
     if (!pool) {
       return createApiError(
@@ -41,10 +42,29 @@ export async function GET() {
         version: versionResult.rows[0]?.version?.split(' ')[0] + ' ' + versionResult.rows[0]?.version?.split(' ')[1],
         tables: tablesResult.rows.length,
         config: {
+
+
+
+        }
+
+        }
+
+        }
+
           databaseEnabled: config.database.enabled,
           nodeEnv: config.app.nodeEnv,
           websiteUrl: config.app.websiteUrl
+
+
+
+          }
+
+          }
+
+          }
+
         }
+
       }, "Database connection test successful")
     } else {
       return createApiError(
@@ -62,4 +82,5 @@ export async function GET() {
       503
     )
   }
+
 }

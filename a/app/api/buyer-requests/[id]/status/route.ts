@@ -5,6 +5,7 @@ import { dbQuery, getPool } from "@/lib/db"
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
+
 ) {
   try {
     const { id } = await params
@@ -14,6 +15,15 @@ export async function PUT(
     if (!status) {
       const response = NextResponse.json({ 
         error: "Status is required" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
     }
 
     // Validate status value
@@ -21,11 +31,29 @@ export async function PUT(
     if (!validStatuses.includes(status)) {
       const response = NextResponse.json({ 
         error: "Invalid status value" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
     }
 
     if (!getPool()) {
       const response = NextResponse.json({ 
         error: "Database not available" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
     }
 
     // Update the order status
@@ -39,6 +67,15 @@ export async function PUT(
     if (result.rows.length === 0) {
       const response = NextResponse.json({ 
         error: "Order not found" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
     }
 
     const updatedOrder = result.rows[0]
@@ -61,9 +98,27 @@ export async function PUT(
         const notificationResponse = await fetch(`${process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000'}/api/admin/transport-request-notifications`, {
           method: 'POST',
           headers: {
+
+
+
+          }
+
+          }
+
+          }
+
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
+
+
+
+          }
+
+          }
+
+          }
+
             type: "info",
             title: "New Buyer Order Submitted",
             message: `New transport order ${updatedOrder.order_number} submitted by ${buyerDetails.company_name} (${buyerDetails.name}). Load: ${updatedOrder.load_type}, Route: ${updatedOrder.from_place} → ${updatedOrder.to_place}${updatedOrder.estimated_tons ? `, ${updatedOrder.estimated_tons} tons` : ''}${updatedOrder.number_of_goods ? `, ${updatedOrder.number_of_goods} goods` : ''}${updatedOrder.delivery_place ? `, Delivery: ${updatedOrder.delivery_place}` : ''}`,
@@ -72,6 +127,15 @@ export async function PUT(
             orderId: updatedOrder.id,
             buyerId: updatedOrder.buyer_id,
             status: status
+
+
+
+            }
+
+            }
+
+            }
+
           })
         })
 
@@ -80,10 +144,12 @@ export async function PUT(
         } else {
           console.error("❌ Failed to create notification:", await notificationResponse.text())
         }
+
       } catch (notificationError) {
         console.error("Error creating notification for buyer order submission:", notificationError)
         // Don't fail the main operation if notification creation fails
       }
+
     }
 
     // Create notification for buyer when order status changes (except when buyer submits)
@@ -94,9 +160,27 @@ export async function PUT(
         const buyerNotificationResponse = await fetch(`${process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000'}/api/buyer/notifications`, {
           method: 'POST',
           headers: {
+
+
+
+          }
+
+          }
+
+          }
+
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
+
+
+
+          }
+
+          }
+
+          }
+
             type: "info",
             title: "Order Status Updated",
             message: `Your transport order ${updatedOrder.order_number} status has been updated to: ${status.toUpperCase()}. Load: ${updatedOrder.load_type}, Route: ${updatedOrder.from_place} → ${updatedOrder.to_place}`,
@@ -104,6 +188,15 @@ export async function PUT(
             priority: "medium",
             buyerId: updatedOrder.buyer_id,
             orderId: updatedOrder.id
+
+
+
+            }
+
+            }
+
+            }
+
           })
         })
 
@@ -112,10 +205,12 @@ export async function PUT(
         } else {
           console.error("❌ Failed to create buyer notification:", await buyerNotificationResponse.text())
         }
+
       } catch (notificationError) {
         console.error("Error creating buyer notification for order status change:", notificationError)
         // Don't fail the main operation if notification creation fails
       }
+
     }
 
     // Also create a notification when buyer submits order (status changes to 'pending')
@@ -126,9 +221,27 @@ export async function PUT(
         const buyerNotificationResponse = await fetch(`${process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000'}/api/buyer/notifications`, {
           method: 'POST',
           headers: {
+
+
+
+          }
+
+          }
+
+          }
+
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
+
+
+
+          }
+
+          }
+
+          }
+
             type: "success",
             title: "Order Submitted Successfully",
             message: `Your transport order ${updatedOrder.order_number} has been submitted successfully and is now pending admin approval. Load: ${updatedOrder.load_type}, Route: ${updatedOrder.from_place} → ${updatedOrder.to_place}`,
@@ -136,6 +249,15 @@ export async function PUT(
             priority: "high",
             buyerId: updatedOrder.buyer_id,
             orderId: updatedOrder.id
+
+
+
+            }
+
+            }
+
+            }
+
           })
         })
 
@@ -144,10 +266,12 @@ export async function PUT(
         } else {
           console.error("❌ Failed to create buyer notification:", await buyerNotificationResponse.text())
         }
+
       } catch (notificationError) {
         console.error("Error creating buyer notification for order submission:", notificationError)
         // Don't fail the main operation if notification creation fails
       }
+
     }
 
     const response = NextResponse.json({
@@ -161,6 +285,15 @@ export async function PUT(
     const response = NextResponse.json({ 
       error: "Failed to update order status",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

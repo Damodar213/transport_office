@@ -4,9 +4,9 @@ import { dbQuery, getPool } from "@/lib/db"
 
 // POST - Create a new order submission record
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -17,6 +17,7 @@ export async function POST(request: Request) {
     if (!getPool()) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     const body = await request.json()
     const { orderId, supplierId, submittedBy } = body
 
@@ -46,20 +47,40 @@ export async function POST(request: Request) {
     if (error instanceof Error && error instanceof Error ? error.message : "Unknown error".includes('unique constraint')) {
       const response = NextResponse.json({ 
         error: "This order has already been sent to this supplier" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
     }
-    
+
     const response = NextResponse.json({ 
       error: "Failed to record order submission",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }
+
 // GET - Get all order submissions (for admin view)
 export async function GET() {
   try {
     if (!getPool()) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     const result = await dbQuery(`
       SELECT 
         os.*,
@@ -82,6 +103,15 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to fetch order submissions",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

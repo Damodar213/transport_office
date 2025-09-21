@@ -13,7 +13,7 @@ export async function GET() {
     
     if (!dbAdmin) {
     }
-    
+
     // Test common passwords
     const testPasswords = ["admin123", "admin", "password", "123456", "admin@123", "Admin123"]
     const passwordResults: any = {}
@@ -23,23 +23,45 @@ export async function GET() {
       passwordResults[testPassword] = isValid
       console.log(`Password "${testPassword}": ${isValid}`)
     }
-    
+
     const response = NextResponse.json({
       adminUser: {
+
+
+
+      }
+
+      }
+
+      }
+
         id: dbAdmin.id,
         userId: dbAdmin.userId,
         role: dbAdmin.role,
         email: dbAdmin.email
+
+
+
+        }
+
+        }
+
+        }
+
       },
       passwordResults,
       message: "Database admin test completed"
+
+
+
+      }
+
+      }
+
+      }
+
   } catch (error) {
     console.error("Test database admin error:", error)
   }
+
 }
-
-
-
-
-
-

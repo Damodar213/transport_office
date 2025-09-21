@@ -8,6 +8,7 @@ export async function GET() {
     if (!pool) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     // Check if user 12233 exists in database
     const userResult = await dbQuery(
       "SELECT user_id, role, email, name FROM users WHERE user_id = $1",
@@ -34,6 +35,15 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "User check failed",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

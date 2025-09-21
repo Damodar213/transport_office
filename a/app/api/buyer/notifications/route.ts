@@ -13,13 +13,13 @@ function formatTimestamp(timestamp: string | Date): string {
     } else {
       created = timestamp
     }
-    
+
     // Check if timestamp is valid
     if (isNaN(created.getTime())) {
       console.error("Invalid timestamp:", timestamp)
       return "Invalid time"
     }
-    
+
     // Get current time
     const now = new Date()
     
@@ -32,6 +32,15 @@ function formatTimestamp(timestamp: string | Date): string {
       minute: '2-digit',
       hour12: true,
       timeZone: 'Asia/Kolkata'
+
+
+
+      }
+
+      }
+
+      }
+
     })
     
     // Calculate relative time using UTC timestamps (more reliable)
@@ -41,7 +50,7 @@ function formatTimestamp(timestamp: string | Date): string {
     if (Math.abs(diffMs) < 60000) {
       return "Just now"
     }
-    
+
     // If it's within 24 hours (past or future), show relative time + actual time
     if (Math.abs(diffMs) < 24 * 60 * 60 * 1000) {
       const diffMins = Math.floor(Math.abs(diffMs) / (1000 * 60))
@@ -54,8 +63,9 @@ function formatTimestamp(timestamp: string | Date): string {
         const timeText = diffMs > 0 ? `${diffHours} hour${diffHours === 1 ? '' : 's'} ago` : `in ${diffHours} hour${diffHours === 1 ? '' : 's'}`
         return `${timeText} (${formattedDate})`
       }
+
     }
-    
+
     // For older notifications, show the full date and time
     return formattedDate
     
@@ -72,11 +82,22 @@ function formatTimestamp(timestamp: string | Date): string {
         minute: '2-digit',
         hour12: true,
         timeZone: 'Asia/Kolkata'
+
+
+
+        }
+
+        }
+
+        }
+
       })
     } catch (fallbackError) {
       return "Invalid time"
     }
+
   }
+
 }
 
 export async function GET(request: NextRequest) {
@@ -134,11 +155,29 @@ export async function GET(request: NextRequest) {
       category: notification.category,
       priority: notification.priority,
       orderId: notification.order_id
+
+
+
+      }
+
+      }
+
+      }
+
     }))
 
     const response = NextResponse.json({
       success: true,
       notifications: formattedNotifications
+
+
+
+      }
+
+      }
+
+      }
+
     })
 
   } catch (error) {
@@ -146,6 +185,8 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json(
       { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
+
     )
   }
+
 }

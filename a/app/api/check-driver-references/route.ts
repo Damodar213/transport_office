@@ -16,6 +16,15 @@ export async function GET(request: NextRequest) {
       confirmedOrders: 0,
       vehicleLocation: 0,
       totalReferences: 0
+
+
+
+      }
+
+      }
+
+      }
+
     }
 
     // Check confirmed_orders table
@@ -52,6 +61,15 @@ export async function GET(request: NextRequest) {
       canDelete: references.totalReferences === 0,
       message: references.totalReferences === 0 
         ? "Driver can be deleted safely" 
+
+
+
+      }
+
+      }
+
+      }
+
         : `Driver has ${references.totalReferences} references and cannot be deleted`
     })
 
@@ -60,6 +78,16 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({ 
       error: "Failed to check driver references",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
     }, { status: 500 })
   }
+
 }

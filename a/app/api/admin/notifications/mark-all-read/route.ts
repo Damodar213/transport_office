@@ -9,6 +9,7 @@ export async function PUT() {
     if (!getPool()) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     // Check if notifications table exists
     const tableExists = await dbQuery(`
       SELECT EXISTS (
@@ -25,7 +26,7 @@ export async function PUT() {
       })
       return addCorsHeaders(response)
     }
-    
+
     // Update all unread notifications to mark as read
     const result = await dbQuery(`
       UPDATE notifications 
@@ -48,12 +49,17 @@ export async function PUT() {
     const response = NextResponse.json({ 
       error: "Failed to mark all notifications as read",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
     }, { status: 500 })
     return addCorsHeaders(response)
   }
+
 }
-
-
-
-
-

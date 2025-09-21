@@ -9,6 +9,7 @@ export async function GET() {
     if (!pool) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     // Query with JOIN to get supplier information
     const result = await dbQuery(`
       SELECT 
@@ -43,6 +44,15 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to fetch vehicle documents",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

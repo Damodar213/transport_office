@@ -16,6 +16,7 @@ export async function GET() {
         message: "Database connection failed"})
     return addCorsHeaders(response)
   }
+
     // Fetch unique states from districts
     const result = await dbQuery(`
       SELECT DISTINCT state
@@ -38,7 +39,17 @@ export async function GET() {
       error: "Failed to fetch states",
       states: [],
       message: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
     }, { status: 500 })
     return addCorsHeaders(response)
   }
+
 }

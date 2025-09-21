@@ -3,9 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -42,7 +42,17 @@ export async function POST() {
         const response = NextResponse.json({ 
           error: "Failed to rename column",
           details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+          }
+
+          }
+
+          }
+
       }
+
     } else if (!hasNumberOfVehicles && !hasNumberOfWheels) {
       // Add number_of_wheels column if neither exists
       try {
@@ -53,9 +63,19 @@ export async function POST() {
         const response = NextResponse.json({ 
           error: "Failed to add column",
           details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+          }
+
+          }
+
+          }
+
       })
     return addCorsHeaders(response)
   }
+
     // Verify the final table structure
     const finalStructure = await dbQuery(`
       SELECT column_name, data_type, is_nullable
@@ -79,6 +99,15 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Failed to migrate trucks table",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

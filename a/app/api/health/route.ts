@@ -16,15 +16,25 @@ export async function GET() {
       version: process.version})
     return addCorsHeaders(response)
   }
+
     if (!dbHealth.healthy) {
     }
-    
+
   } catch (error) {
     const response = NextResponse.json({
       status: "unhealthy",
       timestamp: new Date()    
     .toISOString(),
       error: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

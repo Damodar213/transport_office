@@ -3,9 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -17,6 +17,7 @@ export async function POST() {
     if (!pool) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     // Get the first driver from the database
     const driverResult = await dbQuery(`
       SELECT d.id, d.supplier_id, d.driver_name, d.license_document_url
@@ -29,6 +30,15 @@ export async function POST() {
       const response = NextResponse.json({ 
         error: "No drivers with documents found",
         message: "Please create a driver with a document first"
+
+
+
+        }
+
+        }
+
+        }
+
     }
 
     const driver = driverResult.rows[0]
@@ -54,6 +64,15 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Test failed",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

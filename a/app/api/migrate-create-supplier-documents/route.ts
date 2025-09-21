@@ -4,9 +4,9 @@ import { dbQuery, getPool } from "@/lib/db"
 import { createApiResponse, createApiError } from "@/lib/api-utils"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -18,6 +18,7 @@ export async function POST() {
     if (!pool) {
       return createApiError("Database not available", null, 503)
     }
+
     console.log("Creating supplier_documents table...")
 
     // Create supplier_documents table
@@ -87,10 +88,14 @@ export async function POST() {
   } catch (error) {
               console.error(`Error migrating document ${submission.id}:`, error)
             }
+
           }
+
           console.log("Document migration completed")
         }
+
       }
+
     } catch (migrationError) {
       console.warn("Could not migrate existing documents:", migrationError)
     }
@@ -129,9 +134,13 @@ export async function POST() {
   } catch (error) {
               console.error(`Error migrating user document ${user.user_id}-${docType}:`, error)
             }
+
           }
+
         }
+
       }
+
       console.log("User document migration completed")
     } catch (userMigrationError) {
       console.warn("Could not migrate user documents:", userMigrationError)
@@ -140,6 +149,15 @@ export async function POST() {
     return createApiResponse({
       message: "supplier_documents table created successfully",
       migrated: true
+
+
+
+      }
+
+      }
+
+      }
+
     })
 
   } catch (error) {
@@ -150,6 +168,5 @@ export async function POST() {
       500
     )
   }
+
 }
-
-

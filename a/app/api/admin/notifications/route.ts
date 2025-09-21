@@ -14,13 +14,13 @@ function formatTimestamp(timestamp: string | Date): string {
     } else {
       created = timestamp
     }
-    
+
     // Check if timestamp is valid
     if (isNaN(created.getTime())) {
       console.error("Invalid timestamp:", timestamp)
       return "Invalid time"
     }
-    
+
     // Format the date in IST (don't double-convert)
     const formattedDate = created.toLocaleString('en-US', {
       year: 'numeric',
@@ -30,6 +30,15 @@ function formatTimestamp(timestamp: string | Date): string {
       minute: '2-digit',
       hour12: true,
       timeZone: 'Asia/Kolkata'
+
+
+
+      }
+
+      }
+
+      }
+
     })
     
     // Calculate relative time using current IST time
@@ -40,7 +49,7 @@ function formatTimestamp(timestamp: string | Date): string {
     if (Math.abs(diffMs) < 60000) {
       return "Just now"
     }
-    
+
     // If it's within 24 hours (past or future), show relative time + actual time
     if (Math.abs(diffMs) < 24 * 60 * 60 * 1000) {
       const diffMins = Math.floor(Math.abs(diffMs) / (1000 * 60))
@@ -53,8 +62,9 @@ function formatTimestamp(timestamp: string | Date): string {
         const timeText = diffMs > 0 ? `${diffHours} hour${diffHours === 1 ? '' : 's'} ago` : `in ${diffHours} hour${diffHours === 1 ? '' : 's'}`
         return `${timeText} (${formattedDate})`
       }
+
     }
-    
+
     // For older notifications, show the full date and time
     return formattedDate
     
@@ -71,11 +81,22 @@ function formatTimestamp(timestamp: string | Date): string {
         minute: '2-digit',
         hour12: true,
         timeZone: 'Asia/Kolkata'
+
+
+
+        }
+
+        }
+
+        }
+
       })
     } catch {
       return "Time unavailable"
     }
+
   }
+
 }
 
 // Mock notifications data (fallback if database is empty)
@@ -89,6 +110,15 @@ const mockNotifications = [
     isRead: false,
     category: "order",
     priority: "medium"
+
+
+
+    }
+
+    }
+
+    }
+
   },
   {
     id: "2",
@@ -99,6 +129,15 @@ const mockNotifications = [
     isRead: false,
     category: "order",
     priority: "medium"
+
+
+
+    }
+
+    }
+
+    }
+
   },
   {
     id: "3",
@@ -109,6 +148,15 @@ const mockNotifications = [
     isRead: false,
     category: "order",
     priority: "medium"
+
+
+
+    }
+
+    }
+
+    }
+
   },
   {
     id: "4",
@@ -119,6 +167,15 @@ const mockNotifications = [
     isRead: true,
     category: "user",
     priority: "low"
+
+
+
+    }
+
+    }
+
+    }
+
   },
   {
     id: "5",
@@ -129,7 +186,17 @@ const mockNotifications = [
     isRead: false,
     category: "system",
     priority: "high"
+
+
+
+    }
+
+    }
+
+    }
+
   }
+
 ]
 
 export async function GET() {
@@ -178,31 +245,54 @@ export async function GET() {
               isRead: row.is_read,
               category: row.category,
               priority: row.priority
+
+
+
+              }
+
+              }
+
+              }
+
             }))
           }
+
         } else {
           console.log("Notifications table doesn't exist, using mock data")
         }
+
       } catch (error) {
         console.error("Error fetching notifications from database:", error)
         console.log("Falling back to mock notifications")
       }
+
     }
-    
+
     console.log(`Returning ${notifications.length} notifications`)
   } catch (error) {
     console.error("Error in notifications API:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch notifications",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
     }, { status: 500 })
     return addCorsHeaders(response)
   }
+
 }
 
 export async function OPTIONS(request: NextRequest) {
   return handleCors(request)
 }
+
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -219,7 +309,7 @@ export async function POST(request: Request) {
       }, { status: 400 })
       return addCorsHeaders(response)
     }
-    
+
     console.log("POST /api/admin/notifications - creating notification:", { type, title, category, priority })
     
     // In a real application, you would save to the database
@@ -250,7 +340,7 @@ export async function POST(request: Request) {
           `)
           console.log("Created notifications table")
         }
-        
+
         // Insert new notification
         const result = await dbQuery(`
           INSERT INTO notifications (type, title, message, category, priority, created_at, updated_at)
@@ -268,7 +358,7 @@ export async function POST(request: Request) {
           category,
           priority
         }
-        
+
         console.log("Notification created successfully:", newNotification.id)
         const response = NextResponse.json({ 
           message: "Notification created successfully",
@@ -280,15 +370,34 @@ export async function POST(request: Request) {
         const response = NextResponse.json({ 
           error: "Failed to create notification in database",
           details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+          }
+
+          }
+
+          }
+
         }, { status: 500 })
         return addCorsHeaders(response)
       }
+
     }
-    
+
     // Fallback response if database is not available
     const response = NextResponse.json({ 
       message: "Notification created successfully (mock mode)",
       notification: {
+
+
+
+      }
+
+      }
+
+      }
+
         id: Date.now().toString(),
         type,
         title,
@@ -298,6 +407,7 @@ export async function POST(request: Request) {
         category,
         priority
       }
+
     })
     return addCorsHeaders(response)
 
@@ -306,7 +416,17 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to create notification",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
     }, { status: 500 })
     return addCorsHeaders(response)
   }
+
 }

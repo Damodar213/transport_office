@@ -8,6 +8,7 @@ export async function GET() {
     if (!pool) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     // Check recent users in database
     const recentUsers = await dbQuery(`
       SELECT u.user_id, u.role, u.name, u.created_at, s.company_name, s.gst_number
@@ -31,6 +32,15 @@ export async function GET() {
         role: u.role,
         name: u.name,
         createdAt: u.createdAt
+
+
+
+        }
+
+        }
+
+        }
+
       }))
     }
 
@@ -46,6 +56,15 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Registration test failed",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

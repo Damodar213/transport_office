@@ -7,6 +7,15 @@ export interface LoadType {
   description?: string
   isActive: boolean
   createdAt: string
+
+
+
+  }
+
+  }
+
+  }
+
 }
 
 // GET - Fetch all load types
@@ -21,6 +30,15 @@ export async function GET() {
         error: "Database not available",
         loadTypes: [],
         message: "Database connection failed"
+
+
+
+        }
+
+        }
+
+        }
+
       }, { status: 500 })
     }
 
@@ -29,6 +47,12 @@ export async function GET() {
       // Create table if it doesn't exist
       await dbQuery(`
         CREATE TABLE IF NOT EXISTS load_types (
+ }
+
+ }
+
+ }
+
           id SERIAL PRIMARY KEY,
           name VARCHAR(255) NOT NULL UNIQUE,
           description TEXT,
@@ -55,6 +79,7 @@ export async function GET() {
           ('Other', 'Miscellaneous items', true)
         `)
       }
+
     } catch (error) {
       console.error("Error setting up table:", error)
       // Continue anyway, might already exist
@@ -77,6 +102,15 @@ export async function GET() {
       loadTypes: result.rows,
       total: result.rows.length,
       message: "Load types fetched successfully"
+
+
+
+      }
+
+      }
+
+      }
+
     })
   } catch (error) {
     console.error("Error fetching load types:", error)
@@ -84,14 +118,25 @@ export async function GET() {
       error: "Failed to fetch load types",
       loadTypes: [],
       message: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
     }, { status: 500 })
   }
+
 }
 
 // POST - Create new load type
 export async function OPTIONS(request: NextRequest) {
   return handleCors(request)
 }
+
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -105,6 +150,15 @@ export async function POST(request: Request) {
     if (!name || !name.trim()) {
       const response = NextResponse.json({ 
         error: "Load type name is required" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
       }, { status: 400 })
     }
 
@@ -112,6 +166,15 @@ export async function POST(request: Request) {
     if (!pool) {
       const response = NextResponse.json({ 
         error: "Database not available" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
       }, { status: 500 })
     }
 
@@ -141,6 +204,15 @@ export async function POST(request: Request) {
     const response = NextResponse.json({
       loadType: result.rows[0],
       message: "Load type created successfully"
+
+
+
+      }
+
+      }
+
+      }
+
     }, { status: 201 })
   } catch (error) {
     console.error("Error creating load type:", error)
@@ -148,14 +220,33 @@ export async function POST(request: Request) {
     if (error instanceof Error && error instanceof Error ? error.message : "Unknown error".includes('duplicate key')) {
       const response = NextResponse.json({ 
         error: "Load type with this name already exists"
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
       }, { status: 409 })
     }
-    
+
     const response = NextResponse.json({ 
       error: "Failed to create load type",
       message: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
     }, { status: 500 })
   }
+
 }
 
 // PUT - Update load type
@@ -167,6 +258,15 @@ export async function PUT(request: Request) {
     if (!id || !name || !name.trim()) {
       const response = NextResponse.json({ 
         error: "Load type ID and name are required" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
       }, { status: 400 })
     }
 
@@ -174,6 +274,15 @@ export async function PUT(request: Request) {
     if (!pool) {
       const response = NextResponse.json({ 
         error: "Database not available" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
       }, { status: 500 })
     }
 
@@ -187,12 +296,30 @@ export async function PUT(request: Request) {
     if (result.rows.length === 0) {
       const response = NextResponse.json({ 
         error: "Load type not found" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
       }, { status: 404 })
     }
 
     const response = NextResponse.json({
       loadType: result.rows[0],
       message: "Load type updated successfully"
+
+
+
+      }
+
+      }
+
+      }
+
     })
   } catch (error) {
     console.error("Error updating load type:", error)
@@ -200,14 +327,33 @@ export async function PUT(request: Request) {
     if (error instanceof Error && error instanceof Error ? error.message : "Unknown error".includes('duplicate key')) {
       const response = NextResponse.json({ 
         error: "Load type with this name already exists"
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
       }, { status: 409 })
     }
-    
+
     const response = NextResponse.json({ 
       error: "Failed to update load type",
       message: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
     }, { status: 500 })
   }
+
 }
 
 // DELETE - Delete load type
@@ -219,6 +365,15 @@ export async function DELETE(request: NextRequest) {
     if (!id) {
       const response = NextResponse.json({ 
         error: "Load type ID is required" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
       }, { status: 400 })
     }
 
@@ -226,6 +381,15 @@ export async function DELETE(request: NextRequest) {
     if (!pool) {
       const response = NextResponse.json({ 
         error: "Database not available" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
       }, { status: 500 })
     }
 
@@ -236,17 +400,45 @@ export async function DELETE(request: NextRequest) {
     if (result.rows.length === 0) {
       const response = NextResponse.json({ 
         error: "Load type not found" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
       }, { status: 404 })
     }
 
     const response = NextResponse.json({
       message: "Load type deleted successfully"
+
+
+
+      }
+
+      }
+
+      }
+
     })
   } catch (error) {
     console.error("Error deleting load type:", error)
     const response = NextResponse.json({ 
       error: "Failed to delete load type",
       message: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
     }, { status: 500 })
   }
+
 }

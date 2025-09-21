@@ -13,13 +13,13 @@ function formatTimestamp(timestamp: string | Date): string {
     } else {
       created = timestamp
     }
-    
+
     // Check if timestamp is valid
     if (isNaN(created.getTime())) {
       console.error("Invalid timestamp:", timestamp)
       return "Invalid time"
     }
-    
+
     // Format the date in IST (don't double-convert)
     const formattedDate = created.toLocaleString('en-US', {
       year: 'numeric',
@@ -29,6 +29,15 @@ function formatTimestamp(timestamp: string | Date): string {
       minute: '2-digit',
       hour12: true,
       timeZone: 'Asia/Kolkata'
+
+
+
+      }
+
+      }
+
+      }
+
     })
     
     // Calculate relative time using current IST time
@@ -39,7 +48,7 @@ function formatTimestamp(timestamp: string | Date): string {
     if (Math.abs(diffMs) < 60000) {
       return "Just now"
     }
-    
+
     // If it's within 24 hours (past or future), show relative time + actual time
     if (Math.abs(diffMs) < 24 * 60 * 60 * 1000) {
       const diffMins = Math.floor(Math.abs(diffMs) / (1000 * 60))
@@ -52,8 +61,9 @@ function formatTimestamp(timestamp: string | Date): string {
         const timeText = diffMs > 0 ? `${diffHours} hour${diffHours === 1 ? '' : 's'} ago` : `in ${diffHours} hour${diffHours === 1 ? '' : 's'}`
         return `${timeText} (${formattedDate})`
       }
+
     }
-    
+
     // For older notifications, show the full date and time
     return formattedDate
     
@@ -70,11 +80,22 @@ function formatTimestamp(timestamp: string | Date): string {
         minute: '2-digit',
         hour12: true,
         timeZone: 'Asia/Kolkata'
+
+
+
+        }
+
+        }
+
+        }
+
       })
     } catch {
       return "Time unavailable"
     }
+
   }
+
 }
 
 // GET - Fetch all transport request notifications (buyer orders)
@@ -83,6 +104,7 @@ export async function GET() {
     if (!getPool()) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     console.log("Fetching transport request notifications...")
 
     // Check if table exists
@@ -129,6 +151,15 @@ export async function GET() {
       orderId: row.id,
       buyerId: row.buyer_id,
       status: "pending"
+
+
+
+      }
+
+      }
+
+      }
+
     }))
 
   } catch (error) {
@@ -136,14 +167,24 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to fetch notifications",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }
+
 // POST - Create a new transport request notification
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -154,6 +195,7 @@ export async function POST(request: Request) {
     if (!getPool()) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     const body = await request.json()
     const {
       type,
@@ -228,6 +270,7 @@ export async function POST(request: Request) {
       } catch (alterError) {
         console.log("Table already has required columns or alter failed:", alterError)
       }
+
     }
 
     // Extract order number from the message (it's already in the correct format)
@@ -236,21 +279,21 @@ export async function POST(request: Request) {
       const orderMatch = message.match(/transport order\s+([A-Z0-9-]+)/)
       orderNumber = orderMatch ? orderMatch[1].trim() : "Unknown"
     }
-    
+
     // Parse load type from message
     let loadType = "Unknown"
     if (message.includes("Load:")) {
       const loadMatch = message.match(/Load:\s*([^,]+)/)
       loadType = loadMatch ? loadMatch[1].trim() : "Unknown"
     }
-    
+
     // Parse buyer name from message
     let buyerName = "Unknown"
     if (message.includes("submitted by")) {
       const buyerMatch = message.match(/submitted by\s*([^(]+)/)
       buyerName = buyerMatch ? buyerMatch[1].trim() : "Unknown"
     }
-    
+
     // Parse from location from message
     let fromLocation = "Unknown"
     if (message.includes("Route:")) {
@@ -264,21 +307,21 @@ export async function POST(request: Request) {
       const toMatch = message.match(/→\s*([^,]+)/)
       toLocation = toMatch ? toMatch[1].trim() : "Unknown"
     }
-    
+
     // Parse estimated tons from message
     let estimatedTons = null
     if (message.includes("tons")) {
       const tonsMatch = message.match(/(\d+\.?\d*)\s*tons/)
       estimatedTons = tonsMatch ? parseFloat(tonsMatch[1]) : null
     }
-    
+
     // Parse number of goods from message (if available)
     let numberOfGoods = null
     if (message.includes("goods")) {
       const goodsMatch = message.match(/(\d+)\s*goods/)
       numberOfGoods = goodsMatch ? parseInt(goodsMatch[1]) : null
     }
-    
+
     // Parse delivery place from message (if available)
     let deliveryPlace = "Unknown"
     if (message.includes("Delivery:")) {
@@ -313,6 +356,15 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to create notification",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

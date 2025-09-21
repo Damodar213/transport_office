@@ -33,6 +33,15 @@ export async function GET(request: NextRequest) {
       phone: buyer.mobile || 'No phone',
       company_name: buyer.company_name || buyer.name || buyer.user_id,
       created_at: buyer.created_at
+
+
+
+      }
+
+      }
+
+      }
+
     }))
 
     console.log("Found buyers:", buyers.length)
@@ -40,6 +49,15 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       buyers: buyers
+
+
+
+      }
+
+      }
+
+      }
+
     })
 
   } catch (error) {
@@ -47,6 +65,8 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json(
       { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
+
     )
   }
+
 }

@@ -5,6 +5,7 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 export async function OPTIONS(request: NextRequest) {
   return handleCors(request)
 }
+
 export async function POST(request: NextRequest) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -65,6 +66,7 @@ export async function POST(request: NextRequest) {
       const response = NextResponse.json(
         { error: "Missing required fields: loadType, (estimatedTons or numberOfGoods), deliveryPlace" },
         { status: 400 }
+
       )
     }
 
@@ -170,6 +172,15 @@ export async function POST(request: NextRequest) {
       success: true,
       message: "Manual order created successfully",
       order: {
+
+
+
+      }
+
+      }
+
+      }
+
         id: newOrder.id,
         orderNumber: newOrder.order_number,
         loadType: newOrder.load_type,
@@ -190,14 +201,51 @@ export async function POST(request: NextRequest) {
         status: newOrder.status,
         createdBy: newOrder.created_by,
         createdAt: newOrder.created_at
+
+
+
+        }
+
+        }
+
+        }
+
       },
       notification: notificationResult ? {
+
+
+
+      }
+
+      }
+
+      }
+
         id: notificationResult.rows[0].id,
         message: notificationResult.rows[0].message
+
+
+
+        }
+
+        }
+
+        }
+
       } : null,
       whatsapp: {
         message: whatsappMessage
+
+
+
       }
+
+      }
+
+      }
+
+      }
+
     })
 
   } catch (error) {
@@ -205,8 +253,18 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({ 
       error: "Failed to create manual order",
       message: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
     }, { status: 500 })
   }
+
 }
 
 function createWhatsAppMessage(orderDetails: any) {
@@ -243,7 +301,7 @@ function createWhatsAppMessage(orderDetails: any) {
   } else if (fromLocation) {
     fromLocationStr = fromLocation
   }
-    
+
   // Build comprehensive to location string
   let toLocationStr = deliveryPlace
   if (toPlace && toDistrict && toState) {
@@ -254,23 +312,41 @@ function createWhatsAppMessage(orderDetails: any) {
   } else if (deliveryPlace) {
     toLocationStr = deliveryPlace
   }
-  
+
   return `🚛 *NEW TRANSPORT ORDER AVAILABLE*
 
-📋 *Order Details:*
+📋 *Order Details: *
+ }
+
+ }
+
+ }
+
 • Load Type: ${loadType}
 • Weight: ${loadInfo}
 • From: ${fromLocationStr}
 • To: ${toLocationStr}
 ${requiredDate ? `• Required Date: ${requiredDate}` : ''}
 
-📝 *Special Instructions:*
+📝 *Special Instructions: *
+ }
+
+ }
+
+ }
+
 ${specialInstructions || 'Manual order created by admin'}
 
 Please review and respond if you can handle this transport order.
 
-*Contact for more details:*
+*Contact for more details: *
 *MAHALAXMI TRANSPORT*
 📞 8217563933
 📞 80736 27241`
+ }
+
+ }
+
+ }
+
 }

@@ -8,6 +8,7 @@ export async function GET() {
     if (!pool) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     // Simple test - just check if table exists
     const result = await dbQuery(`
       SELECT table_name 
@@ -28,6 +29,15 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Test failed",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

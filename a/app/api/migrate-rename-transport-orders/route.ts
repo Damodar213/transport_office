@@ -3,9 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -36,11 +36,21 @@ export async function POST() {
         renamed: false})
     return addCorsHeaders(response)
   }
+
     if (checkNewTable.rows.length > 0) {
       console.log("Table suppliers_vehicle_location already exists, skipping migration...")
       const response = NextResponse.json({ 
         message: "Table suppliers_vehicle_location already exists, no migration needed",
         renamed: false
+
+
+
+        }
+
+        }
+
+        }
+
     }
 
     // Rename the table
@@ -52,6 +62,15 @@ export async function POST() {
       const response = NextResponse.json({ 
         error: "Failed to rename table", 
         details: error instanceof Error ? error.message : "Unknown error" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
     }
 
     // Verify the new table structure
@@ -80,6 +99,15 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Table migration failed", 
       details: error instanceof Error ? error.message : "Unknown error" 
+ 
+ 
+ 
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

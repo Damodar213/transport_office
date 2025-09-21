@@ -40,24 +40,61 @@ export async function GET(request: NextRequest) {
           driverDocuments: driverDocs.rows.length,
           totalR2Files: r2Files.length,
           orphanedFiles: orphanedFiles.map(file => ({
+
+
+
+          }
+
+          }
+
+          }
+
             key: file.key,
             url: file.url,
             size: file.size,
             lastModified: file.lastModified
+
+
+
+            }
+
+            }
+
+            }
+
           })),
           missingFiles,
           databaseUrls: Array.from(allDbUrls),
           r2Files: r2Files.map(file => ({
+
+
+
+          }
+
+          }
+
+          }
+
             key: file.key,
             url: file.url,
             size: file.size,
             lastModified: file.lastModified
+
+
+
+            }
+
+            }
+
+            }
+
           }))
         })
       } catch (error) {
         console.error("Error listing documents:", error)
         return createApiError("Failed to list documents", error, 500)
       }
+
     })
   }, ["admin"])
 }
@@ -66,6 +103,7 @@ export async function GET(request: NextRequest) {
 export async function OPTIONS(request: NextRequest) {
   return handleCors(request)
 }
+
 export async function POST(request: NextRequest) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -86,6 +124,15 @@ export async function POST(request: NextRequest) {
           successful: [] as string[],
           failed: [] as { url: string, error: string }[],
           skipped: [] as string[]
+
+
+
+          }
+
+          }
+
+          }
+
         }
 
         for (const url of urlsToDelete) {
@@ -105,24 +152,54 @@ export async function POST(request: NextRequest) {
             results.failed.push({
               url,
               error: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : 'Unknown error'
+
+
+
+              }
+
+              }
+
+              }
+
             })
             console.error(`Failed to delete file ${url}:`, error)
           }
+
         }
 
         return createApiResponse({
           ...results,
           summary: {
+
+
+
+          }
+
+          }
+
+          }
+
             total: urlsToDelete.length,
             successful: results.successful.length,
             failed: results.failed.length,
             skipped: results.skipped.length
+
+
+
+            }
+
+            }
+
+            }
+
           }
+
         }, "Cleanup completed")
       } catch (error) {
         console.error("Error during cleanup:", error)
         return createApiError("Failed to cleanup files", error, 500)
       }
+
     })
   }, ["admin"])
 }

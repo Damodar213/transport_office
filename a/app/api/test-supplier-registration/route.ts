@@ -4,9 +4,9 @@ import { getPool, dbQuery } from "@/lib/db"
 import bcrypt from "bcryptjs"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST() {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -18,6 +18,7 @@ export async function POST() {
     if (!pool) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     console.log("Testing supplier registration...")
 
     // Test data
@@ -41,6 +42,15 @@ export async function POST() {
         success: false,
         step: "users_table_insert",
         message: "Failed to insert into users table"
+
+
+
+        }
+
+        }
+
+        }
+
     }
 
     const userId = userResult.rows[0].id
@@ -83,6 +93,15 @@ export async function POST() {
       success: false,
       error: "Supplier registration test failed",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

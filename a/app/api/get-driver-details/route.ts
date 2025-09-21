@@ -100,10 +100,28 @@ export async function GET(request: NextRequest) {
       totalReferences: totalReferences,
       canDelete: totalReferences === 0,
       deletionBlockers: totalReferences > 0 ? {
+
+
+
+      }
+
+      }
+
+      }
+
         confirmedOrders: references.confirmedOrders.length,
         transportOrders: references.transportOrders.length,
         buyerRequests: references.buyerRequests.length,
         vehicleLocation: references.vehicleLocation.length
+
+
+
+        }
+
+        }
+
+        }
+
       } : null
     })
     
@@ -112,6 +130,16 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({ 
       error: "Failed to get driver details", 
       details: error instanceof Error ? error.message : "Unknown error" 
+ 
+ 
+ 
+      }
+
+      }
+
+      }
+
     }, { status: 500 })
   }
+
 }

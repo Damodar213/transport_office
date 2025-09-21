@@ -9,12 +9,12 @@ export async function DELETE(request: Request) {
     
     if (!buyerId) {
     }
-    
+
     console.log(`DELETE /api/buyer/notifications/clear-all - clearing all notifications for buyer ${buyerId}`)
     
     if (!getPool()) {
     }
-    
+
     // Check if buyer_notifications table exists
     const tableExists = await dbQuery(`
       SELECT EXISTS (
@@ -31,7 +31,7 @@ export async function DELETE(request: Request) {
       })
       return addCorsHeaders(response)
     }
-    
+
     // Delete all notifications for this buyer
     const result = await dbQuery(`
       DELETE FROM buyer_notifications
@@ -53,6 +53,15 @@ export async function DELETE(request: Request) {
     const response = NextResponse.json({
       error: "Failed to clear all buyer notifications",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

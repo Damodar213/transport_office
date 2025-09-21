@@ -11,6 +11,15 @@ export async function GET() {
         error: "Database not available",
         suppliers: [],
         message: "Using fallback data"
+
+
+
+        }
+
+        }
+
+        }
+
       })
       return addCorsHeaders(response)
     }
@@ -45,12 +54,30 @@ export async function GET() {
       gstNumber: row.gstNumber,
       totalVehicles: parseInt(row.numberOfVehicles) || 0,
       availableDrivers: 2 // Default value since we're not counting actual drivers
+
+
+
+      }
+
+      }
+
+      }
+
     }))
 
     const response = NextResponse.json({
       suppliers,
       total: suppliers.length,
       message: "Available suppliers fetched successfully"
+
+
+
+      }
+
+      }
+
+      }
+
     })
     return addCorsHeaders(response)
     
@@ -60,7 +87,17 @@ export async function GET() {
       error: "Failed to fetch available suppliers",
       suppliers: [],
       message: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
     }, { status: 500 })
     return addCorsHeaders(response)
   }
+
 }

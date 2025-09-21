@@ -5,6 +5,7 @@ import { dbQuery, getPool } from "@/lib/db"
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
+
 ) {
   try {
     const { id } = await params
@@ -12,7 +13,7 @@ export async function PUT(
     
     if (!getPool()) {
     }
-    
+
     // Check if supplier_notifications table exists
     const tableExists = await dbQuery(`
       SELECT EXISTS (
@@ -27,7 +28,7 @@ export async function PUT(
         message: "Notification marked as read (mock mode)"
       })
     }
-    
+
     // Update notification to mark as read
     const result = await dbQuery(`
       UPDATE supplier_notifications 
@@ -38,7 +39,7 @@ export async function PUT(
     
     if (result.rows.length === 0) {
     }
-    
+
     console.log(`Supplier notification ${id} marked as read successfully`)
     const response = NextResponse.json({ 
       message: "Notification marked as read successfully",
@@ -50,6 +51,15 @@ export async function PUT(
     const response = NextResponse.json({ 
       error: "Failed to mark notification as read",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

@@ -19,12 +19,12 @@ export async function GET(request: NextRequest) {
       console.log("Returning cached data")
       const response = NextResponse.json(cache.data)
     }
-    
+
     if (cacheBust) {
       console.log("Cache busting requested, clearing cache")
       cache = null
     }
-    
+
     if (!getPool()) {
       console.log("Database not available")
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
@@ -84,6 +84,15 @@ export async function GET(request: NextRequest) {
     const responseData = {
       success: true,
       orders: confirmedOrders.rows
+
+
+
+      }
+
+      }
+
+      }
+
     }
 
     // Cache the response
@@ -99,8 +108,10 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json(
       { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
+
     )
   }
+
 }
 
 export async function DELETE(request: NextRequest) {
@@ -168,6 +179,15 @@ export async function DELETE(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       message: "Accepted request deleted successfully"
+
+
+
+      }
+
+      }
+
+      }
+
     })
 
   } catch (error) {
@@ -175,8 +195,8 @@ export async function DELETE(request: NextRequest) {
     const response = NextResponse.json(
       { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
+
     )
   }
+
 }
-
-

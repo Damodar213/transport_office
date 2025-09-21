@@ -6,6 +6,7 @@ import { dbQuery, getPool } from "@/lib/db"
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ orderId: string }> }
+
 ) {
   try {
     if (!getPool()) {
@@ -39,6 +40,15 @@ export async function GET(
     const response = NextResponse.json({ 
       error: "Failed to fetch order submissions",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

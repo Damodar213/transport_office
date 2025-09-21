@@ -8,6 +8,7 @@ export async function PUT() {
     if (!getPool()) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     console.log("PUT /api/admin/transport-request-notifications/mark-all-read - marking all as read")
 
     // Update all unread notifications to mark as read
@@ -32,6 +33,15 @@ export async function PUT() {
     const response = NextResponse.json({ 
       error: "Failed to mark all notifications as read",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

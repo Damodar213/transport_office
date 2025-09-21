@@ -17,6 +17,15 @@ export async function GET(request: NextRequest) {
       success: true,
       message: "Database connection working",
       result: result.rows[0]
+
+
+
+      }
+
+      }
+
+      }
+
     })
 
   } catch (error) {
@@ -25,8 +34,19 @@ export async function GET(request: NextRequest) {
       { 
         error: "Database test failed", 
         details: error instanceof Error ? error.message : "Unknown error" 
+ 
+ 
+ 
+        }
+
+        }
+
+        }
+
       },
       { status: 500 }
+
     )
   }
+
 }

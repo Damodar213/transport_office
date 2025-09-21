@@ -21,6 +21,15 @@ export interface Supplier {
   is_active?: boolean
   created_at?: string
   updated_at?: string
+
+
+
+  }
+
+  }
+
+  }
+
 }
 
 export async function GET(request: Request) {
@@ -35,6 +44,17 @@ export async function GET(request: Request) {
       const response = NextResponse.json({ 
         error: "Database not available",
         suppliers: []
+
+
+
+        }
+
+        }
+
+        }
+
+      }, { status: 500 })
+      return addCorsHeaders(response)
     }
 
     let sql = `
@@ -72,6 +92,15 @@ export async function GET(request: Request) {
         success: true,
         data: supplier,
         message: supplier ? "Supplier found" : "Supplier not found"
+
+
+
+        }
+
+        }
+
+        }
+
     }
 
     // Return all suppliers
@@ -88,6 +117,15 @@ export async function GET(request: Request) {
       error: "Failed to fetch suppliers",
       suppliers: [],
       message: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

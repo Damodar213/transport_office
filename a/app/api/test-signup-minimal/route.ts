@@ -2,9 +2,9 @@ import { type NextRequest, NextResponse } from "next/server"
 import { handleCors, addCorsHeaders } from "@/lib/cors"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST(request: NextRequest) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -24,6 +24,15 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({ 
       error: "Minimal signup test failed",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

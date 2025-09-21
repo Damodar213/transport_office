@@ -17,10 +17,20 @@ export async function GET() {
         recommendation: "Log in with valid credentials first"})
     return addCorsHeaders(response)
   }
+
     console.log("User session:", {
       userId: session.userId,
       userIdString: session.userIdString,
       role: session.role
+
+
+
+      }
+
+      }
+
+      }
+
     })
 
     // Test 2: Check if user is a supplier
@@ -31,10 +41,25 @@ export async function GET() {
         message: "User is not a supplier",
         userRole: session.role,
         recommendation: "Log in as a supplier to test truck data isolation"
+
+
+
+        }
+
+        }
+
+        }
+
     }
 
     // Test 3: Check trucks for current supplier
     const currentSupplierTrucks = await dbQuery(
+ }
+
+ }
+
+ }
+
       "SELECT id, supplier_id, vehicle_number, body_type FROM trucks WHERE supplier_id = $1",
       [session.userIdString]
     )
@@ -50,6 +75,12 @@ export async function GET() {
 
     // Test 5: Check if there are trucks from other suppliers
     const otherSuppliersTrucks = await dbQuery(
+ }
+
+ }
+
+ }
+
       "SELECT DISTINCT supplier_id, COUNT(*) as truck_count FROM trucks WHERE supplier_id != $1 GROUP BY supplier_id",
       [session.userIdString]
     )
@@ -61,18 +92,81 @@ export async function GET() {
       test: "data_isolation",
       message: "Data isolation test completed",
       currentUser: {
+
+
+
+      }
+
+      }
+
+      }
+
         userId: session.userIdString,
         role: session.role
+
+
+
+        }
+
+        }
+
+        }
+
       },
       currentSupplierTrucks: {
+
+
+
+      }
+
+      }
+
+      }
+
         count: currentSupplierTrucks.rows.length,
         trucks: currentSupplierTrucks.rows
+
+
+
+        }
+
+        }
+
+        }
+
       },
       databaseOverview: {
+
+
+
+      }
+
+      }
+
+      }
+
         totalTrucks: allTrucks.rows.length,
         otherSuppliers: otherSuppliersTrucks.rows
+
+
+
+        }
+
+        }
+
+        }
+
       },
       securityStatus: "Data isolation is working correctly - each supplier can only see their own trucks"
+
+
+
+      }
+
+      }
+
+      }
+
   } catch (error) {
     console.error("Data isolation test error:", error)
     const response = NextResponse.json({
@@ -80,6 +174,15 @@ export async function GET() {
       test: "error",
       message: "Test failed with error",
       error: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

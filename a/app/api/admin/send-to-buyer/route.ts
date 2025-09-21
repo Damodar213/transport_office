@@ -5,6 +5,7 @@ import { dbQuery, getPool } from "@/lib/db"
 export async function OPTIONS(request: NextRequest) {
   return handleCors(request)
 }
+
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -17,6 +18,7 @@ export async function POST(request: Request) {
     if (!getPool()) {
       console.log("Import successful")
     }
+
     const { orderSubmissionId, buyerId } = await request.json()
     console.log("Order submission ID:", orderSubmissionId, "Buyer ID:", buyerId)
 
@@ -24,6 +26,7 @@ export async function POST(request: Request) {
       const response = NextResponse.json(
         { error: "Order submission ID and buyer ID are required" },
         { status: 400 }
+
       )
       return addCorsHeaders(response)
     }
@@ -59,6 +62,7 @@ export async function POST(request: Request) {
     if (orderDetails.rows.length === 0) {
       const response = NextResponse.json(
         { status: 404 }
+
       )
     }
 
@@ -68,6 +72,15 @@ export async function POST(request: Request) {
     const order = {
       ...orderSubmission,
       buyer_request_id: orderSubmission.original_order_submission_id
+
+
+
+      }
+
+      }
+
+      }
+
     }
 
     // Check if accepted request already exists for this buyer
@@ -79,6 +92,7 @@ export async function POST(request: Request) {
     if (existingRequest.rows.length > 0) {
       const response = NextResponse.json(
         { status: 409 }
+
       )
     }
 
@@ -193,6 +207,8 @@ export async function POST(request: Request) {
     console.error("Error sending order to buyer:", error)
     const response = NextResponse.json(
       { status: 500 }
+
     )
   }
+
 }

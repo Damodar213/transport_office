@@ -11,6 +11,15 @@ export interface Driver {
   is_active: boolean
   created_at: string
   updated_at: string
+
+
+
+  }
+
+  }
+
+  }
+
 }
 
 // GET - Fetch drivers for a specific supplier
@@ -52,13 +61,14 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Get drivers error:", error)
   }
+
 }
 
 // POST - Create new driver
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
+
 export async function POST(request: Request) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -78,6 +88,7 @@ export async function POST(request: Request) {
     if (supplierResult.rows.length === 0) {})
     return addCorsHeaders(response)
   }
+
     const supplierId = supplierResult.rows[0].user_id
     console.log("Found supplier ID:", supplierId)
 
@@ -115,8 +126,9 @@ export async function POST(request: Request) {
         console.error("Error creating driver document submission:", docError)
         // Don't fail the driver creation if document submission creation fails
       }
+
     }
-    
+
     const response = NextResponse.json({ 
       message: "Driver created successfully", 
       driver: result.rows[0]})
@@ -125,6 +137,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Create driver error:", error)
   }
+
 }
 
 // PUT - Update driver
@@ -177,8 +190,9 @@ export async function PUT(request: Request) {
         console.error("Error creating driver document submission:", docError)
         // Don't fail the driver update if document submission creation fails
       }
+
     }
-    
+
     const response = NextResponse.json({ 
       message: "Driver updated successfully", 
       driver: result.rows[0]})
@@ -187,6 +201,7 @@ export async function PUT(request: Request) {
   } catch (error) {
     console.error("Update driver error:", error)
   }
+
 }
 
 // DELETE - Delete driver (hard delete - completely remove from database)
@@ -226,6 +241,15 @@ export async function DELETE(request: Request) {
           const response = NextResponse.json({ 
             error: "Cannot delete driver. Driver is assigned to confirmed orders. Please reassign or complete the orders first.",
             details: "Driver has active orders"
+
+
+
+            }
+
+            }
+
+            }
+
         })
     return addCorsHeaders(response)
 
@@ -247,6 +271,15 @@ export async function DELETE(request: Request) {
           const response = NextResponse.json({ 
             error: "Cannot delete driver. Driver is assigned to vehicle location requests. Please reassign or complete the requests first.",
             details: "Driver has active vehicle location requests"
+
+
+
+            }
+
+            }
+
+            }
+
         })
     return addCorsHeaders(response)
 
@@ -280,11 +313,12 @@ export async function DELETE(request: Request) {
           console.log("All delete attempts failed, throwing error")
           throw error // Re-throw if all retries failed
         }
-        
+
         // Wait before retry (exponential backoff)
         console.log(`Waiting ${1000 * retryCount}ms before retry...`)
         await new Promise(resolve => setTimeout(resolve, 1000 * retryCount))
       }
+
     }
 
     console.log("Driver deleted successfully:", checkResult.rows[0].driver_name)
@@ -308,18 +342,45 @@ export async function DELETE(request: Request) {
       const response = NextResponse.json({ 
         error: "Database connection error. Please try again.",
         details: "Connection timeout or database unavailable"
+
+
+
+        }
+
+        }
+
+        }
+
     }
-    
+
     // Check if it's a foreign key constraint violation
     if (error instanceof Error && error instanceof Error ? error.message : "Unknown error".includes('violates foreign key constraint')) {
       const response = NextResponse.json({ 
         error: "Cannot delete driver. Driver is referenced by other records in the system.",
         details: "Foreign key constraint violation"
+
+
+
+        }
+
+        }
+
+        }
+
     }
-    
+
     const response = NextResponse.json({ 
       error: "Failed to delete driver", 
       details: error instanceof Error ? error.message : "Unknown error" 
+ 
+ 
+ 
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }

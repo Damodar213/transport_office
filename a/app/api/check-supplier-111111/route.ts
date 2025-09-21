@@ -8,6 +8,7 @@ export async function GET() {
     if (!pool) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
+
     console.log("Checking supplier 111111...")
 
     // Check if user 111111 exists in users table
@@ -40,6 +41,15 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to check supplier 111111",
       details: error instanceof Error ? error.message : "Unknown error"
+
+
+
+      }
+
+      }
+
+      }
+
   })
     return addCorsHeaders(response)
   }
