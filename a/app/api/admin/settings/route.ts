@@ -20,7 +20,6 @@ export async function GET() {
             SELECT FROM information_schema.tables 
             WHERE table_schema = 'public' 
             AND table_name = 'admin_settings')
-          )
         `)
         
         if (tableExists.rows[0].exists) {
@@ -83,7 +82,6 @@ export async function PUT(request: Request) {
           SELECT FROM information_schema.tables 
           WHERE table_schema = 'public' 
           AND table_name = 'admin_settings')
-        )
       `)
       
       if (!tableExists.rows[0].exists) {

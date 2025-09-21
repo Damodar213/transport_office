@@ -14,8 +14,7 @@ export async function GET(request: Request) {
  
 })
     console.log(`GET /api/buyer/notifications/count - fetching count for buyer ${buyerId}`)
-    console.log("Database pool available:", !!getPool())
-    
+    console.log("Database pool available:", !!getPool()
     let unreadCount = 0
     
     if (getPool()) {
@@ -26,7 +25,6 @@ export async function GET(request: Request) {
             SELECT FROM information_schema.tables 
             WHERE table_schema = 'public' 
             AND table_name = 'buyer_notifications')
-          )
         `)
         
         if (tableExists.rows[0].exists) {

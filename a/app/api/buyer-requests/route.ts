@@ -74,11 +74,10 @@ export async function GET(request: Request) {
 
     const result = await dbQuery(query, params)
     
-    const response = NextResponse.json({
-      success: true,
+    const response = NextResponse.json({ success: true,
       data: result.rows,
       total: result.rows.length,
-      limit,)
+      limit })
       offset})
     return addCorsHeaders(response)
 
@@ -202,9 +201,8 @@ export async function POST(request: Request) {
 
     // Note: Notifications are now created only when the order is submitted, not when created as draft
 
-    const response = NextResponse.json({
-      success: true,
-      message: "Buyer request created successfully",)
+    const response = NextResponse.json({ success: true,
+      message: "Buyer request created successfully" })
       data: newRequest})
     return addCorsHeaders(response)
 

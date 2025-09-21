@@ -18,7 +18,6 @@ export async function GET() {
       return createApiError("Database pool not available",
         "Failed to create database connection pool",
         503)
-      )
     }
 
     // Test basic connection with health check
@@ -55,7 +54,6 @@ export async function GET() {
       return createApiError("Database health check failed",
         health.message,
         503)
-      )
     }
 
   } catch (error) {
@@ -63,5 +61,4 @@ export async function GET() {
     return createApiError("Database connection failed",
       error instanceof Error ? error.message : "Unknown error",
       503)
-    )
   }

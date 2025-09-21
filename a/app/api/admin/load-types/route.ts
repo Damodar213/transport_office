@@ -40,7 +40,6 @@ export async function GET() {
           is_active BOOLEAN DEFAULT TRUE,
           created_at TIMESTAMP DEFAULT NOW(),
           updated_at TIMESTAMP DEFAULT NOW()
-        )
       `)
       
       // Check if table is empty and insert default data
@@ -142,7 +141,6 @@ export async function POST(request: Request) {
           is_active BOOLEAN DEFAULT TRUE,
           created_at TIMESTAMP DEFAULT NOW(),
           updated_at TIMESTAMP DEFAULT NOW()
-        )
       `)
     } catch (error) {
       console.error("Error ensuring table exists:", error)

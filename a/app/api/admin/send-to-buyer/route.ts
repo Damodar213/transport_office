@@ -26,7 +26,6 @@ export async function POST(request: Request) {
       const response = NextResponse.json({ error: "Order submission ID and buyer ID are required" },
         { status: 400 }
 )
-      )
       return addCorsHeaders(response)
     }
 
@@ -61,7 +60,6 @@ export async function POST(request: Request) {
     if (orderDetails.rows.length === 0) {
       const response = NextResponse.json({ status: 404 }
 )
-      )
     }
 
     const orderSubmission = orderDetails.rows[0]
@@ -82,7 +80,6 @@ export async function POST(request: Request) {
     if (existingRequest.rows.length > 0) {
       const response = NextResponse.json({ status: 409 }
 )
-      )
     }
 
     // Create accepted request for the selected buyer
@@ -184,9 +181,8 @@ export async function POST(request: Request) {
       console.log("Buyer notification creation failed:", notificationError instanceof Error ? notificationError.message : "Unknown error")
     }
 
-    const response = NextResponse.json({
-      success: true,
-      message: "Order sent to buyer successfully",)
+    const response = NextResponse.json({ success: true,
+      message: "Order sent to buyer successfully" })
       request: acceptedRequest.rows[0]})
     return addCorsHeaders(response)
 
@@ -194,5 +190,4 @@ export async function POST(request: Request) {
     console.error("Error sending order to buyer:", error)
     const response = NextResponse.json({ status: 500 }
 )
-    )
   }

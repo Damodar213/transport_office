@@ -28,9 +28,8 @@ export async function GET() {
       LIMIT 5)
     `)
 
-    const response = NextResponse.json({
-      success: true,
-      documents: joinTest.rows,)
+    const response = NextResponse.json({ success: true,
+      documents: joinTest.rows })
       message: "Join test with casting completed"})
     return addCorsHeaders(response)
 

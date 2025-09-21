@@ -37,7 +37,6 @@ export async function POST() {
         reviewed_at TIMESTAMP WITH TIME ZONE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-      )
     `)
 
     // Create driver_documents table
@@ -56,7 +55,6 @@ export async function POST() {
         reviewed_at TIMESTAMP WITH TIME ZONE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-      )
     `)
 
     // Create indexes for better performance
@@ -167,5 +165,4 @@ export async function POST() {
     return createApiError("Failed to create vehicle and driver document tables",
       error instanceof Error ? error.message : "Unknown error",
       500)
-    )
   }

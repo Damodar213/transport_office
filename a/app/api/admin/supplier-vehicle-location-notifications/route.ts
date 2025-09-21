@@ -46,9 +46,8 @@ function formatTimestamp(timestamp: string | Date): string {
 
     // If it's within 24 hours (past or future), show relative time + actual time
     if (Math.abs(diffMs) < 24 * 60 * 60 * 1000) {
-      const diffMins = Math.floor(Math.abs(diffMs) / (1000 * 60))
-      const diffHours = Math.floor(Math.abs(diffMs) / (1000 * 60 * 60))
-      
+      const diffMins = Math.floor(Math.abs(diffMs) / (1000 * 60)
+      const diffHours = Math.floor(Math.abs(diffMs) / (1000 * 60 * 60)
       if (diffMins < 60) {
         const timeText = diffMs > 0 ? `${diffMins} minute${diffMins === 1 ? '' : 's'} ago` : `in ${diffMins} minute${diffMins === 1 ? '' : 's'}`
         return `${timeText} (${formattedDate})`
@@ -94,7 +93,6 @@ export async function GET() {
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
         AND table_name = 'supplier_vehicle_location_notifications')
-      )
     `)
 
     if (!tableExists.rows[0].exists) {
@@ -257,9 +255,8 @@ export async function POST(request: Request) {
 }
     console.log("Created new supplier vehicle location notification:", newNotification.id)
 
-    const response = NextResponse.json({
-      success: true,
-      message: "Notification created successfully",)
+    const response = NextResponse.json({ success: true,
+      message: "Notification created successfully" })
       notification: newNotification})
     return addCorsHeaders(response)
 

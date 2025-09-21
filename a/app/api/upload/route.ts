@@ -21,8 +21,6 @@ async function uploadToLocal(file: Buffer, key: string, contentType: string): Pr
 
 
 }
-}
-
 export async function OPTIONS(request: NextRequest) {
   return handleCors(request)
 }
@@ -61,7 +59,6 @@ export async function POST(request: NextRequest) {
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "application/pdf"]
     if (!allowedTypes.includes(file.type)) { : ""
       const response = NextResponse.json({ status: 400 },)
-      )
     }
 
     // Convert file to buffer
@@ -77,8 +74,7 @@ export async function POST(request: NextRequest) {
       uploadResult = await uploadToR2(buffer, key, file.type, {
         originalName: file.name,)
         uploadedAt: new Date().toISOString(),
-        userId: userId || "anonymous",
-      })
+        userId: userId || "anonymous"})
       console.log("File uploaded to Cloudflare R2 successfully")
     } catch (r2Error) {
       console.log("Cloudflare R2 not configured, falling back to local storage:", r2Error)
@@ -109,8 +105,6 @@ export async function POST(request: NextRequest) {
                  LEFT JOIN users u ON d.supplier_id = u.user_id 
                  WHERE d.id = $1`,
                 [driverId])
-              )
-              
               console.log("Driver query result:", driverResult.rows)
               
               if (driverResult.rows.length > 0) {
@@ -138,13 +132,12 @@ export async function POST(request: NextRequest) {
         console.error("Error creating document submission:", docError)
         // Don't fail the upload if document submission creation fails
   }
-    const response = NextResponse.json({
-      message: "File uploaded successfully",
+    const response = NextResponse.json({ message: "File uploaded successfully",
       url: uploadResult.url,
       key: uploadResult.key,
       filename: file.name,
-      size: file.size,)
-      type: file.type,})
+      size: file.size })
+      type: file.type})
     return addCorsHeaders(response)
 
   } catch (error) {
@@ -176,9 +169,8 @@ export async function DELETE(request: NextRequest) {
 
     await deleteFromR2(fileKey)
 
-    const response = NextResponse.json({
-      message: "File deleted successfully",)
-      key: fileKey,})
+    const response = NextResponse.json({ message: "File deleted successfully" })
+      key: fileKey})
     return addCorsHeaders(response)
 
   } catch (error) {
@@ -211,9 +203,8 @@ export async function GET(request: NextRequest) {
     // Generate signed URL valid for 1 hour
     const signedUrl = await getSignedDownloadUrl(fileKey, 3600)
 
-    const response = NextResponse.json({
-      signedUrl,
-      key: fileKey,)
+    const response = NextResponse.json({ signedUrl,
+      key: fileKey })
       expiresIn: 3600})
     return addCorsHeaders(response)
 

@@ -35,13 +35,12 @@ export async function GET() {
 
 
 }
-      }))
+      })
     }
 
-    const response = NextResponse.json({
-      success: true,
+    const response = NextResponse.json({ success: true,
       databaseUsers: recentUsers.rows,
-      fileUsers: fileUsers,)
+      fileUsers: fileUsers })
       message: "Registration test completed"})
     return addCorsHeaders(response)
 

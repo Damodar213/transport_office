@@ -35,11 +35,10 @@ export async function GET() {
       LIMIT 3)
     `)
 
-    const response = NextResponse.json({
-      success: true,
+    const response = NextResponse.json({ success: true,
       driverDocs: driverDocs.rows,
       users: users.rows,
-      joinTest: joinTest.rows,)
+      joinTest: joinTest.rows })
       message: "Join test completed"})
     return addCorsHeaders(response)
 

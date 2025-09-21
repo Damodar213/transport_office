@@ -5,9 +5,8 @@ import { logResourceUsage } from "@/lib/resource-monitor"
 import { handleCors, addCorsHeaders } from "@/lib/cors"
 
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
 export async function POST(request: NextRequest) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)
@@ -26,6 +25,8 @@ export async function POST(request: NextRequest) {
 
     if (!normalizedUserId || !password || !normalizedRole) {
       console.log(`[AUTH] Missing required fields for user: ${normalizedUserId}`)
+      const errorResponse = NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+      return addCorsHeaders(errorResponse)
     }
 
     // Use async version that can query database if available
@@ -34,6 +35,8 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       console.log(`[AUTH] User not found: ${normalizedUserId} with role: ${normalizedRole}`)
+      const errorResponse = NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
+      return addCorsHeaders(errorResponse)
     }
 
     console.log(`[AUTH] User found, verifying password for: ${user.userId}`)
@@ -43,6 +46,8 @@ export async function POST(request: NextRequest) {
 
     if (!isValidPassword) {
       console.log(`[AUTH] Invalid password for user: ${normalizedUserId}`)
+      const errorResponse = NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
+      return addCorsHeaders(errorResponse)
     }
 
     console.log(`[AUTH] Successful login for user: ${normalizedUserId}`)
@@ -55,8 +60,13 @@ export async function POST(request: NextRequest) {
       role: user.role,
       email: user.email,
       name: user.name,
-      companyName: user.companyName,
-    }
+      companyName: user.companyName}
+
+    // Create response with session data
+    const response = NextResponse.json({
+      success: true,
+      user: sessionData
+    })
 
     // Set session cookie
     response.cookies.set("session", JSON.stringify(sessionData), {
@@ -66,9 +76,11 @@ export async function POST(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 7, // 7 days
     })
 
-    // Add CORS headers
+    // Add CORS headers and return response
+    return addCorsHeaders(response)
   } catch (error) {
     console.error("Login error:", error)
     const errorResponse = NextResponse.json({ error: "Internal server error" }, { status: 500 })
     return addCorsHeaders(errorResponse)
   }
+}

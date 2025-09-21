@@ -102,10 +102,9 @@ export async function POST() {
       SELECT user_id, company_name, contact_person, number_of_vehicles FROM suppliers WHERE user_id = '111111')
     `)
 
-    const response = NextResponse.json({
-      success: true,
+    const response = NextResponse.json({ success: true,
       message: "User 111111 and supplier record created successfully",
-      user: userResult.rows[0],)
+      user: userResult.rows[0] })
       supplier: supplierResult.rows[0]})
     return addCorsHeaders(response)
 

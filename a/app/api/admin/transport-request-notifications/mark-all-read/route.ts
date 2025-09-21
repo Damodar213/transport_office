@@ -22,9 +22,8 @@ export async function PUT() {
     const updatedCount = result.rows.length
     console.log(`${updatedCount} transport request notifications marked as read successfully`)
 
-    const response = NextResponse.json({
-      success: true,
-      message: "All transport request notifications marked as read successfully",)
+    const response = NextResponse.json({ success: true,
+      message: "All transport request notifications marked as read successfully" })
       updatedCount})
     return addCorsHeaders(response)
 

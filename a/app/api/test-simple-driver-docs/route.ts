@@ -17,8 +17,7 @@ export async function GET() {
       AND table_name IN ('driver_documents', 'vehicle_documents')
     `)
 
-    const response = NextResponse.json({
-      success: true,)
+    const response = NextResponse.json({ success: true })
       tables: result.rows.map(row => row.table_name)    
     ,
       message: "Tables check completed"})

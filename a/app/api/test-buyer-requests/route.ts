@@ -10,10 +10,9 @@ export async function GET() {
     // Test 1: Check if user is authenticated
     const session = await getSession()
     if (!session) {
-      const response = NextResponse.json({
-        success: false,
+      const response = NextResponse.json({ success: false,
         test: "authentication",
-        message: "No active session - user needs to log in",)
+        message: "No active session - user needs to log in" })
         recommendation: "Log in with valid credentials first"})
     return addCorsHeaders(response)
   }
@@ -79,8 +78,6 @@ export async function GET() {
     // Test 5: Check buyers table
     const buyers = await dbQuery(}
       "SELECT user_id, company_name, gst_number FROM buyers ORDER BY created_at DESC LIMIT 5")
-    )
-
     console.log(`Found ${buyers.rows.length} buyers in database`)
 
     const response = NextResponse.json({

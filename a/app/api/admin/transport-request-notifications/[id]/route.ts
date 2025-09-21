@@ -26,8 +26,7 @@ export async function DELETE(request: Request,
  
  
 }
-    const response = NextResponse.json({
-      success: true,)
+    const response = NextResponse.json({ success: true })
       message: "Notification deleted successfully"})
     return addCorsHeaders(response)
 

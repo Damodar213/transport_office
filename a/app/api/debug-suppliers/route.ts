@@ -30,11 +30,10 @@ export async function GET() {
 
     console.log(`Found ${suppliersResult.rows.length} suppliers and ${usersResult.rows.length} supplier users`)
 
-    const response = NextResponse.json({
-      success: true,
+    const response = NextResponse.json({ success: true,
       suppliers: suppliersResult.rows,
       supplierUsers: usersResult.rows,
-      totalSuppliers: suppliersResult.rows.length,)
+      totalSuppliers: suppliersResult.rows.length })
       totalSupplierUsers: usersResult.rows.length})
     return addCorsHeaders(response)
 

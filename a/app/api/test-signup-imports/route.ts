@@ -57,8 +57,7 @@ export async function POST(request: NextRequest) {
       console.error("cloudflare-r2 import error:", error)
     }
 
-    const response = NextResponse.json({
-      success: true,)
+    const response = NextResponse.json({ success: true })
       message: "All imports successful"})
     return addCorsHeaders(response)
 

@@ -10,10 +10,9 @@ export async function GET() {
     // Test 1: Check if user is authenticated
     const session = await getSession()
     if (!session) {
-      const response = NextResponse.json({
-        success: false,
+      const response = NextResponse.json({ success: false,
         test: "authentication",
-        message: "No active session - user needs to log in",)
+        message: "No active session - user needs to log in" })
         recommendation: "Log in with valid buyer credentials first"})
     return addCorsHeaders(response)
   }
@@ -43,24 +42,18 @@ export async function GET() {
 }
       "SELECT user_id, company_name, gst_number FROM buyers WHERE user_id = $1",
       [session.userIdString])
-    )
-
     console.log(`Buyer data found: ${buyerData.rows.length > 0 ? 'Yes' : 'No'}`)
 
     // Test 4: Check buyer requests
     const buyerRequests = await dbQuery(}
       "SELECT id, status, created_at FROM buyer_requests WHERE buyer_id = $1 ORDER BY created_at DESC LIMIT 5",
       [session.userIdString])
-    )
-
     console.log(`Found ${buyerRequests.rows.length} buyer requests`)
 
     // Test 5: Check user data in users table
     const userData = await dbQuery(}
       "SELECT user_id, role, email, name FROM users WHERE user_id = $1",
       [session.userIdString])
-    )
-
     console.log("User data:", userData.rows[0] || "Not found")
 
     const response = NextResponse.json({

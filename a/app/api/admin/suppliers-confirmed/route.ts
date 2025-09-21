@@ -100,7 +100,6 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({ error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
 )
-    )
   }
 export async function DELETE(request: NextRequest) {
   try {
@@ -142,8 +141,6 @@ export async function DELETE(request: NextRequest) {
     // Verify the accepted request exists
     const orderCheck = await dbQuery("SELECT * FROM accepted_requests WHERE id = $1",
       [acceptedRequestId])
-    )
-
     if (orderCheck.rows.length === 0) {
       const response = NextResponse.json({ error: "Accepted request not found" }, { status: 404 })
     }
@@ -151,8 +148,6 @@ export async function DELETE(request: NextRequest) {
     // Delete the accepted request
     const deleteResult = await dbQuery("DELETE FROM accepted_requests WHERE id = $1",
       [acceptedRequestId])
-    )
-
     if (deleteResult.rows.length === 0) {
       const response = NextResponse.json({ error: "Failed to delete accepted request" }, { status: 500 })
     }
@@ -175,5 +170,4 @@ export async function DELETE(request: NextRequest) {
     const response = NextResponse.json({ error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
 )
-    )
   }

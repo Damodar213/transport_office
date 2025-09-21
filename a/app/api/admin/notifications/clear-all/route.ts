@@ -16,12 +16,10 @@ export async function DELETE() {
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
         AND table_name = 'notifications')
-      )
     `)
     
     if (!tableExists.rows[0].exists) {
-      const response = NextResponse.json({ 
-        error: "Notifications table not found",)
+      const response = NextResponse.json({ error: "Notifications table not found" })
         message: "All notifications cleared (mock mode)"
 })
       return addCorsHeaders(response)
@@ -39,8 +37,7 @@ export async function DELETE() {
     `)
     
     console.log(`${totalCount} notifications cleared successfully`)
-    const response = NextResponse.json({ 
-      message: "All notifications cleared successfully",)
+    const response = NextResponse.json({ message: "All notifications cleared successfully" })
       clearedCount: parseInt(totalCount)
 })
     return addCorsHeaders(response)

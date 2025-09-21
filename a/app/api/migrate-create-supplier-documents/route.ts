@@ -37,7 +37,6 @@ export async function POST() {
         reviewed_at TIMESTAMP WITH TIME ZONE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-      )
     `)
 
     // Create indexes for better performance
@@ -60,7 +59,7 @@ export async function POST() {
       const documentsPath = path.join(process.cwd(), 'data', 'documents.json')
       
       if (fs.existsSync(documentsPath)) {
-        const documentsData = JSON.parse(fs.readFileSync(documentsPath, 'utf8'))
+        const documentsData = JSON.parse(fs.readFileSync(documentsPath, 'utf8')
         console.log(`Found ${documentsData.submissions ? .length || 0} existing document submissions to migrate`)
         
         if (documentsData.submissions && documentsData.submissions.length > 0) {
@@ -146,5 +145,4 @@ export async function POST() {
     return createApiError("Failed to create supplier_documents table",
       error instanceof Error ? error.message : "Unknown error",
       500)
-    )
   }

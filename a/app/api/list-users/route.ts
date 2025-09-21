@@ -8,12 +8,10 @@ export async function GET() {
     
     // Get users from file storage
     const fileUsers = getAllUsers()
-    console.log("File users:", fileUsers.map(u => ({ id: u.id, userId: u.userId, role: u.role })))
-    
+    console.log("File users:", fileUsers.map(u => ({ id: u.id, userId: u.userId, role: u.role }))
     // Get users from database
     const dbUsers = await getAllUsersAsync()
-    console.log("Database users:", dbUsers.map(u => ({ id: u.id, userId: u.userId, role: u.role })))
-    
+    console.log("Database users:", dbUsers.map(u => ({ id: u.id, userId: u.userId, role: u.role }))
     const response = NextResponse.json({)
 ),
       dbUsers: dbUsers.map(u => ({ id: u.id, userId: u.userId, role: u.role, email: u.email })),

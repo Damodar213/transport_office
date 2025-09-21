@@ -56,8 +56,7 @@ export async function POST() {
       console.log(`- ${row.column_name}: ${row.data_type} (${row.is_nullable === 'YES' ? 'nullable' : 'not null'})`)
     })
 
-    const response = NextResponse.json({ 
-      message: "Drivers table migration completed successfully",)
+    const response = NextResponse.json({ message: "Drivers table migration completed successfully" })
       droppedColumns: existingColumns.includes('experience_years')    
      ? ['experience_years'] : [],
       finalStructure: finalStructure.rows})

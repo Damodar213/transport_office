@@ -9,11 +9,9 @@ export async function GET() {
     try {
       const cloudflareModule = await import("@/lib/cloudflare-r2")
       console.log("Cloudflare module imported successfully")
-      console.log("Available exports:", Object.keys(cloudflareModule))
-      
-      const response = NextResponse.json({
-        success: true,
-        message: "Cloudflare import successful",)
+      console.log("Available exports:", Object.keys(cloudflareModule)
+      const response = NextResponse.json({ success: true,
+        message: "Cloudflare import successful" })
         exports: Object.keys(cloudflareModule)    
 } catch (importError) {
       console.error("Cloudflare import error:", importError)

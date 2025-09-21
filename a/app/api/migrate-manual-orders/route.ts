@@ -37,7 +37,6 @@ export async function POST() {
         required_date DATE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-      )
     `
 
     await dbQuery(createTableSQL)
@@ -67,8 +66,7 @@ export async function POST() {
     await dbQuery(createDateIndexSQL)
     console.log("✅ Created date index created successfully")
 
-    const response = NextResponse.json({
-      success: true,)
+    const response = NextResponse.json({ success: true })
       message: "Manual orders table created successfully with all indexes"})
     return addCorsHeaders(response)
 

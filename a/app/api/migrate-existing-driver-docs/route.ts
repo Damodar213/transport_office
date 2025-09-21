@@ -36,8 +36,6 @@ export async function POST() {
         // Check if document submission already exists
         const existingDoc = await dbQuery(`SELECT id FROM driver_documents WHERE driver_id = $1 AND document_type = 'license'`,
           [driver.id])
-        )
-        
         if (existingDoc.rows.length === 0) {
           await dbQuery()
             `INSERT INTO driver_documents (driver_id, supplier_id, driver_name, document_type, document_url, submitted_at, status)
@@ -76,5 +74,4 @@ export async function POST() {
     return createApiError("Failed to migrate driver documents",
       error instanceof Error ? error.message : "Unknown error",
       500)
-    )
   }

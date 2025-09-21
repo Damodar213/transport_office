@@ -21,7 +21,6 @@ export async function POST(request: NextRequest) {
       const response = NextResponse.json({ error: "Missing required fields: orderSubmissionId, orderType" },
         { status: 400 }
 )
-      )
     }
 
     if (!getPool()) {
@@ -78,5 +77,4 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
 )
-    )
   }

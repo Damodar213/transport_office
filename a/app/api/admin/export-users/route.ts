@@ -17,8 +17,7 @@ export async function GET(request: Request) {
     const exportData = users.map(({ passwordHash, ...rest }) => rest)
 
     if (format === 'json') {
-      const response = NextResponse.json({ 
-        users: exportData,)
+      const response = NextResponse.json({ users: exportData })
         exportedAt: new Date().toISOString(),
         totalUsers: exportData.length
 
@@ -29,9 +28,8 @@ export async function GET(request: Request) {
     }
 
     // For other formats, return the data that can be processed on the client side
-    const response = NextResponse.json({ 
-      users: exportData,
-      format,)
+    const response = NextResponse.json({ users: exportData,
+      format })
       exportedAt: new Date().toISOString(),
       totalUsers: exportData.length
 

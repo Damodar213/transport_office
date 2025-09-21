@@ -30,9 +30,6 @@ function formatTimestamp(timestamp: string | Date): string {
       minute: '2-digit',
       hour12: true,
       timeZone: 'Asia/Kolkata'
-
-
-})
     })
     
     // Calculate relative time using current IST time
@@ -46,16 +43,15 @@ function formatTimestamp(timestamp: string | Date): string {
 
     // If it's within 24 hours (past or future), show relative time + actual time
     if (Math.abs(diffMs) < 24 * 60 * 60 * 1000) {
-      const diffMins = Math.floor(Math.abs(diffMs) / (1000 * 60))
-      const diffHours = Math.floor(Math.abs(diffMs) / (1000 * 60 * 60))
-      
+      const diffMins = Math.floor(Math.abs(diffMs) / (1000 * 60)
+      const diffHours = Math.floor(Math.abs(diffMs) / (1000 * 60 * 60)
       if (diffMins < 60) {
         const timeText = diffMs > 0 ? `${diffMins} minute${diffMins === 1 ? '' : 's'} ago` : `in ${diffMins} minute${diffMins === 1 ? '' : 's'}`
         return `${timeText} (${formattedDate})`
       } else {
         const timeText = diffMs > 0 ? `${diffHours} hour${diffHours === 1 ? '' : 's'} ago` : `in ${diffHours} hour${diffHours === 1 ? '' : 's'}`
         return `${timeText} (${formattedDate})`
-  }
+      }
     // For older notifications, show the full date and time
     return formattedDate
     
@@ -72,13 +68,11 @@ function formatTimestamp(timestamp: string | Date): string {
         minute: '2-digit',
         hour12: true,
         timeZone: 'Asia/Kolkata'
-
-
-})
       })
     } catch {
       return "Time unavailable"
-  }
+    }
+}
 // Mock notifications data (fallback if database is empty)
 const mockNotifications = [
   {
@@ -90,9 +84,6 @@ const mockNotifications = [
     isRead: false,
     category: "order",
     priority: "medium"
-
-
-}
   },
   {
     id: "2",
@@ -103,9 +94,6 @@ const mockNotifications = [
     isRead: false,
     category: "order",
     priority: "medium"
-
-
-}
   },
   {
     id: "3",
@@ -116,9 +104,6 @@ const mockNotifications = [
     isRead: false,
     category: "order",
     priority: "medium"
-
-
-}
   },
   {
     id: "4",
@@ -142,9 +127,7 @@ const mockNotifications = [
     isRead: false,
     category: "system",
     priority: "high"
-
-
-}
+  }
 ]
 
 export async function GET() {
@@ -164,7 +147,6 @@ export async function GET() {
             SELECT FROM information_schema.tables 
             WHERE table_schema = 'public' 
             AND table_name = 'notifications')
-          )
         `)
         
         if (tableExists.rows[0].exists) {
@@ -196,7 +178,7 @@ export async function GET() {
 
 
 }
-            }))
+            })
           }
 
         } else {
@@ -251,7 +233,6 @@ export async function POST(request: Request) {
             SELECT FROM information_schema.tables 
             WHERE table_schema = 'public' 
             AND table_name = 'notifications')
-          )
         `)
         
         if (!tableExists.rows[0].exists) {
@@ -290,8 +271,7 @@ export async function POST(request: Request) {
         }
 
         console.log("Notification created successfully:", newNotification.id)
-        const response = NextResponse.json({ 
-          message: "Notification created successfully",)
+        const response = NextResponse.json({ message: "Notification created successfully" })
           notification: newNotification})
     return addCorsHeaders(response)
 

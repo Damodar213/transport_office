@@ -30,8 +30,7 @@ export async function GET() {
       LIMIT 5)
     `)
 
-    const response = NextResponse.json({
-      success: true,)
+    const response = NextResponse.json({ success: true })
       vehicleDocumentCount: parseInt(docCount)    
     ,
       vehicleDocuments: sampleDocs.rows,

@@ -32,10 +32,9 @@ export async function GET() {
       ORDER BY vd.submitted_at DESC)
     `)
 
-    const response = NextResponse.json({
-      success: true,
+    const response = NextResponse.json({ success: true,
       documents: result.rows,
-      total: result.rows.length,)
+      total: result.rows.length })
       message: "Vehicle documents retrieved successfully"})
     return addCorsHeaders(response)
 

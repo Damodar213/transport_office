@@ -15,8 +15,7 @@ export async function POST(request: NextRequest) {
     console.log("=== TESTING FORMDATA ALTERNATIVE ===")
     
     // Try different approaches to handle form data
-    console.log("Content-Type:", request.headers.get("content-type"))
-    
+    console.log("Content-Type:", request.headers.get("content-type")
     // Approach 1: Try to get as array buffer
     console.log("Attempting to get as array buffer...")
     const arrayBuffer = await request.arrayBuffer()
@@ -38,7 +37,7 @@ export async function POST(request: NextRequest) {
     try {
       const formData = await request.formData()
       console.log("FormData success!")
-      const entries = Array.from(formData.entries())
+      const entries = Array.from(formData.entries()
       console.log("FormData entries:", entries)
     } catch (formDataError) {
       console.error("FormData error:", formDataError)

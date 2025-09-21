@@ -33,8 +33,7 @@ export async function GET(request: NextRequest) {
       phone: buyer.mobile || 'No phone',
       company_name: buyer.company_name || buyer.name || buyer.user_id,
       created_at: buyer.created_at
-    }))
-
+    })
     console.log("Found buyers:", buyers.length)
 
     const response = NextResponse.json({
@@ -48,7 +47,5 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching buyers:", error)
     const response = NextResponse.json({ error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 })
-    )
     return addCorsHeaders(response)
   }
-}

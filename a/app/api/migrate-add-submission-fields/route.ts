@@ -21,7 +21,6 @@ export async function POST() {
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
         AND table_name = 'order_submissions')
-      )
     `)
 
     if (!tableExists.rows[0].exists) {
@@ -41,7 +40,6 @@ export async function POST() {
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           UNIQUE(order_id, supplier_id)
-        )
       `)
       console.log("Created order_submissions table with whatsapp_sent and notification_sent fields")
     } else {
@@ -52,7 +50,6 @@ export async function POST() {
           WHERE table_schema = 'public' 
           AND table_name = 'order_submissions' 
           AND column_name = 'whatsapp_sent')
-        )
       `)
 
       const notificationFieldExists = await dbQuery(`
@@ -61,7 +58,6 @@ export async function POST() {
           WHERE table_schema = 'public' 
           AND table_name = 'order_submissions' 
           AND column_name = 'notification_sent')
-        )
       `)
 
       const statusFieldExists = await dbQuery(`
@@ -70,7 +66,6 @@ export async function POST() {
           WHERE table_schema = 'public' 
           AND table_name = 'order_submissions' 
           AND column_name = 'status')
-        )
       `)
 
       const driverIdFieldExists = await dbQuery(`
@@ -79,7 +74,6 @@ export async function POST() {
           WHERE table_schema = 'public' 
           AND table_name = 'order_submissions' 
           AND column_name = 'driver_id')
-        )
       `)
 
       const vehicleIdFieldExists = await dbQuery(`
@@ -88,7 +82,6 @@ export async function POST() {
           WHERE table_schema = 'public' 
           AND table_name = 'order_submissions' 
           AND column_name = 'vehicle_id')
-        )
       `)
 
       // Add whatsapp_sent field if it doesn't exist
@@ -117,7 +110,7 @@ export async function POST() {
       if (!statusFieldExists.rows[0].exists) {
         await dbQuery(`
           ALTER TABLE order_submissions )
-          ADD COLUMN status VARCHAR(20) DEFAULT 'new' CHECK (status IN ('new', 'viewed', 'responded', 'confirmed', 'rejected'))
+          ADD COLUMN status VARCHAR(20) DEFAULT 'new' CHECK (status IN ('new', 'viewed', 'responded', 'confirmed', 'rejected')
         `)
         console.log("Added status field to order_submissions table")
       } else {
@@ -145,8 +138,7 @@ export async function POST() {
       } else {
         console.log("vehicle_id field already exists")
   }
-    const response = NextResponse.json({ 
-      message: "Migration completed successfully - order_submissions table updated with whatsapp_sent, notification_sent, status, driver_id, and vehicle_id fields",)
+    const response = NextResponse.json({ message: "Migration completed successfully - order_submissions table updated with whatsapp_sent, notification_sent, status, driver_id, and vehicle_id fields" })
       success: true})
     return addCorsHeaders(response)
 

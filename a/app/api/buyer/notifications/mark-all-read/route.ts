@@ -25,7 +25,8 @@ export async function PUT(request: NextRequest) {
     console.log("Marking all notifications as read for buyer:", buyerId)
 
     // Update all unread notifications for this buyer to read
-    const result = await dbQuery(`UPDATE buyer_notifications )
+    const result = await dbQuery(`UPDATE buyer_notifications 
+)
        SET is_read = true, updated_at = NOW() AT TIME ZONE 'Asia/Kolkata'
        WHERE buyer_id = $1 AND is_read = false`,
       [buyerId]
@@ -47,5 +48,5 @@ export async function PUT(request: NextRequest) {
     const response = NextResponse.json({ error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
 )
-    )
   }
+

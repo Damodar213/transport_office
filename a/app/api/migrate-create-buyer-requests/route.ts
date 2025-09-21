@@ -21,13 +21,11 @@ export async function POST() {
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
         AND table_name = 'buyer_requests')
-      )
     `)
 
     if (tableExists.rows[0].exists) {
       console.log("Table buyer_requests already exists, skipping creation...")
-      const response = NextResponse.json({ 
-        message: "Table buyer_requests already exists, no migration needed",)
+      const response = NextResponse.json({ message: "Table buyer_requests already exists, no migration needed" })
         created: false})
     return addCorsHeaders(response)
   }
@@ -96,9 +94,8 @@ export async function POST() {
       console.log(`- ${row.column_name}: ${row.data_type} (${row.is_nullable === 'YES' ? 'nullable' : 'not null'}) ${row.column_default ? `default: ${row.column_default}` : ''}`)
     })
 
-    const response = NextResponse.json({ 
-      message: "buyer_requests table created successfully",
-      created: true,)
+    const response = NextResponse.json({ message: "buyer_requests table created successfully",
+      created: true })
       tableStructure: tableStructure.rows})
     return addCorsHeaders(response)
 

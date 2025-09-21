@@ -20,19 +20,19 @@ export async function POST() {
       SELECT EXISTS (
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
-        AND table_name = 'order_submissions')
-      )
+        AND table_name = 'order_submissions'
+)
     `)
 
     if (!tableExists.rows[0].exists) {
-      const response = NextResponse.json({ 
-        message: "order_submissions table does not exist",)
+      const response = NextResponse.json({ message: "order_submissions table does not exist" })
         success: false})
     return addCorsHeaders(response)
   }
 
     // Check current status values in the table
-    const currentStatuses = await dbQuery(`)
+    const currentStatuses = await dbQuery(`
+)
       SELECT status, COUNT(*) as count 
       FROM order_submissions 
       GROUP BY status
@@ -42,7 +42,8 @@ export async function POST() {
 
     // Update any 'submitted' status to 'new' since 'submitted' is not in the allowed values
     const updateResult = await dbQuery(`
-      UPDATE order_submissions )
+      UPDATE order_submissions 
+)
       SET status = 'new', updated_at = NOW() AT TIME ZONE 'Asia/Kolkata'
       WHERE status = 'submitted'
     `)
@@ -50,7 +51,8 @@ export async function POST() {
     console.log(`Updated ${updateResult.rows.length} order submissions from 'submitted' to 'new'`)
 
     // Check final status values
-    const finalStatuses = await dbQuery(`)
+    const finalStatuses = await dbQuery(`
+)
       SELECT status, COUNT(*) as count 
       FROM order_submissions 
       GROUP BY status
@@ -78,3 +80,4 @@ export async function POST() {
   })
     return addCorsHeaders(response)
   }
+

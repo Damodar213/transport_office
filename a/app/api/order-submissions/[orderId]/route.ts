@@ -29,8 +29,7 @@ export async function GET(request: Request,
       ORDER BY os.submitted_at DESC)
     `, [orderId])
 
-    const response = NextResponse.json({
-      success: true,)
+    const response = NextResponse.json({ success: true })
       submissions: result.rows})
     return addCorsHeaders(response)
 

@@ -123,8 +123,6 @@ export async function PATCH(request: NextRequest) {
          WHERE id = $5
          RETURNING *`,
         [status, reviewNotes || null, reviewer || session.name || "Admin", now, id])
-      )
-
       if (result.rows.length === 0) {
         return createApiError("Document not found", null, 404)
       }
@@ -148,8 +146,6 @@ export async function DELETE(request: NextRequest) {
       // First, get the document to retrieve the file URL before deleting
       const getResult = await dbQuery(`SELECT document_url FROM vehicle_documents WHERE id = $1`,
         [id])
-      )
-
       if (getResult.rows.length === 0) {
         return createApiError("Document not found", null, 404)
       }
@@ -159,8 +155,6 @@ export async function DELETE(request: NextRequest) {
       // Delete from database
       const result = await dbQuery(`DELETE FROM vehicle_documents WHERE id = $1 RETURNING *`,
         [id])
-      )
-
       // Delete from Cloudflare R2 if the URL is an R2 URL
       if (documentUrl && isR2Url(documentUrl)) {
         try {

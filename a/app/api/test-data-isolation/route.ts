@@ -10,10 +10,9 @@ export async function GET() {
     // Test 1: Check if user is authenticated
     const session = await getSession()
     if (!session) {
-      const response = NextResponse.json({
-        success: false,
+      const response = NextResponse.json({ success: false,
         test: "authentication",
-        message: "No active session - user needs to log in",)
+        message: "No active session - user needs to log in" })
         recommendation: "Log in with valid credentials first"})
     return addCorsHeaders(response)
   }
@@ -43,14 +42,10 @@ export async function GET() {
 }
       "SELECT id, supplier_id, vehicle_number, body_type FROM trucks WHERE supplier_id = $1",
       [session.userIdString])
-    )
-
     console.log(`Found ${currentSupplierTrucks.rows.length} trucks for supplier ${session.userIdString}`)
 
     // Test 4: Check all trucks in database (for comparison)
     const allTrucks = await dbQuery("SELECT id, supplier_id, vehicle_number, body_type FROM trucks ORDER BY supplier_id")
-    )
-
     console.log(`Total trucks in database: ${allTrucks.rows.length}`)
 
     // Test 5: Check if there are trucks from other suppliers

@@ -54,8 +54,7 @@ export async function POST() {
       console.log(`- ${row.column_name}: ${row.data_type} (${row.is_nullable === 'YES' ? 'nullable' : 'not null'})`)
     })
 
-    const response = NextResponse.json({ 
-      message: "Trucks table migration completed successfully",)
+    const response = NextResponse.json({ message: "Trucks table migration completed successfully" })
       droppedColumns: columnsToDrop.filter(col => existingColumns.includes(col)    
     ),
       finalStructure: finalStructure.rows})

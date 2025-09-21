@@ -108,4 +108,3 @@ function createWhatsAppMessage(orderDetails: any) {
 📞 8217563933
 📞 80736 27241`
 }
-}

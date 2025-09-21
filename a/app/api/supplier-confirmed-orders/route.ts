@@ -100,8 +100,7 @@ export async function GET(request: NextRequest) {
 
 
 })
-    }))
-
+    })
     console.log("Returning confirmed orders:", confirmedOrders.length)
   } catch (error) {
     console.error("Get supplier confirmed orders error:", error)
@@ -162,16 +161,12 @@ export async function POST(request: NextRequest) {
       // Get supplier details for the notification
       const supplierResult = await dbQuery("SELECT company_name FROM suppliers WHERE user_id = $1",
         [supplier_id])
-      )
-      
       const supplierCompany = supplierResult.rows.length > 0 ? supplierResult.rows[0].company_name  : ""
         : `Supplier ${supplier_id}`
 
       // Get transport order details for the notification
       const transportOrderResult = await dbQuery("SELECT order_number, load_type, from_place, to_place FROM transport_requests WHERE id = $1",
         [transport_order_id])
-      )
-      
       const orderDetails = transportOrderResult.rows.length > 0 ? transportOrderResult.rows[0] : ""
         : { order_number: `Order ${transport_order_id}`, load_type: "Unknown", from_place: "Unknown", to_place: "Unknown" }
 
@@ -181,8 +176,7 @@ export async function POST(request: NextRequest) {
 
 
 }
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json'},
         body: JSON.stringify({
 
 
@@ -204,7 +198,7 @@ export async function POST(request: NextRequest) {
       if (notificationResponse.ok) {
         console.log("✅ Notification created successfully for supplier confirmed order")
       } else {
-        console.error("❌ Failed to create notification:", await notificationResponse.text())
+        console.error("❌ Failed to create notification:", await notificationResponse.text()
       }
 
     } catch (notificationError) {
@@ -212,8 +206,7 @@ export async function POST(request: NextRequest) {
       // Don't fail the main operation if notification creation fails
     }
 
-    const response = NextResponse.json({ 
-      message: "Confirmed order created successfully", )
+    const response = NextResponse.json({ message: "Confirmed order created successfully" })
       confirmedOrder: newConfirmedOrder})
     return addCorsHeaders(response)
 
@@ -253,8 +246,7 @@ export async function PUT(request: NextRequest) {
 
     const updatedOrder = result.rows[0]
 
-    const response = NextResponse.json({ 
-      message: "Confirmed order updated successfully", )
+    const response = NextResponse.json({ message: "Confirmed order updated successfully" })
       confirmedOrder: updatedOrder})
     return addCorsHeaders(response)
 

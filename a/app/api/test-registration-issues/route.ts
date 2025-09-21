@@ -43,12 +43,11 @@ export async function GET() {
       LIMIT 5)
     `)
 
-    const response = NextResponse.json({
-      success: true,
+    const response = NextResponse.json({ success: true,
       cloudflareConfig,
       usersTableStructure: usersTableCheck.rows,
       suppliersTableStructure: suppliersTableCheck.rows,
-      recentUsers: recentUsers.rows,)
+      recentUsers: recentUsers.rows })
       message: "Registration issues diagnostic completed"})
     return addCorsHeaders(response)
 

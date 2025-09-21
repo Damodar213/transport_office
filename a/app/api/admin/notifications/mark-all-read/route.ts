@@ -16,12 +16,10 @@ export async function PUT() {
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
         AND table_name = 'notifications')
-      )
     `)
     
     if (!tableExists.rows[0].exists) {
-      const response = NextResponse.json({ 
-        error: "Notifications table not found",)
+      const response = NextResponse.json({ error: "Notifications table not found" })
         message: "All notifications marked as read (mock mode)"
 })
       return addCorsHeaders(response)
@@ -38,8 +36,7 @@ export async function PUT() {
     const updatedCount = result.rows[0].updated_count
     
     console.log(`${updatedCount} notifications marked as read successfully`)
-    const response = NextResponse.json({ 
-      message: "All notifications marked as read successfully",)
+    const response = NextResponse.json({ message: "All notifications marked as read successfully" })
       updatedCount: parseInt(updatedCount)
 })
     return addCorsHeaders(response)

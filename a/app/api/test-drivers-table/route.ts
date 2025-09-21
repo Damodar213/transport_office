@@ -21,8 +21,7 @@ export async function GET() {
       LIMIT 5)
     `)
 
-    const response = NextResponse.json({
-      success: true,)
+    const response = NextResponse.json({ success: true })
       driverCount: parseInt(driverCount)    
     ,
       sampleDrivers: sampleDrivers.rows,

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 import { getSession } from "@/lib/auth"
 
@@ -20,14 +21,14 @@ export async function POST(request: NextRequest) {
     if (!orderId || !driverId || !vehicleId || !driverMobile) {
       console.log("Missing required fields")
       const response = NextResponse.json({ error: "Missing required fields: orderId, driverId, vehicleId, driverMobile" },
-        { status: 400 }
-)
-      )
+        { status: 400 })
+      return addCorsHeaders(response)
     }
 
     if (!getPool()) {
       console.log("Database not available")
       const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+      return addCorsHeaders(response)
     }
 
     // Verify the user is authenticated and is a supplier
@@ -35,11 +36,13 @@ export async function POST(request: NextRequest) {
     if (!session) {
       console.log("No session found - user not authenticated")
       const response = NextResponse.json({ error: "Authentication required. Please log in as a supplier." }, { status: 401 })
+      return addCorsHeaders(response)
     }
 
     if (session.role !== 'supplier') {
       console.log("User role is not supplier:", session.role)
       const response = NextResponse.json({ error: "Access denied - supplier role required. Current role: " + session.role }, { status: 403 })
+      return addCorsHeaders(response)
     }
 
     const supplierId = session.userIdString
@@ -54,7 +57,6 @@ export async function POST(request: NextRequest) {
     // Check both order_submissions and manual_order_submissions tables
     let orderCheck = await dbQuery("SELECT *, 'buyer_request' as order_type FROM order_submissions WHERE id = $1 AND supplier_id = $2",
       [parsedOrderId, supplierId])
-    )
     console.log("Order submissions check result:", orderCheck.rows.length, "rows")
 
     let orderType = 'buyer_request'
@@ -62,7 +64,6 @@ export async function POST(request: NextRequest) {
       // Check manual order submissions
       orderCheck = await dbQuery("SELECT *, 'manual_order' as order_type FROM manual_order_submissions WHERE id = $1 AND supplier_id = $2",
         [parsedOrderId, supplierId])
-      )
       console.log("Manual order submissions check result:", orderCheck.rows.length, "rows")
       orderType = 'manual_order'
     }
@@ -70,6 +71,7 @@ export async function POST(request: NextRequest) {
     if (orderCheck.rows.length === 0) {
       console.log("Order not found or not authorized")
       const response = NextResponse.json({ error: "Order not found or not authorized" }, { status: 404 })
+      return addCorsHeaders(response)
     }
 
     console.log("Order type:", orderType)
@@ -81,7 +83,6 @@ export async function POST(request: NextRequest) {
     
     const driverResult = await dbQuery("SELECT driver_name, mobile FROM drivers WHERE id = $1 AND supplier_id = $2",
       [parsedDriverId, supplierId])
-    )
     console.log("Driver result:", driverResult.rows.length, "rows")
 
     console.log("Checking vehicle:", vehicleId, "for supplier:", supplierId)
@@ -90,21 +91,22 @@ export async function POST(request: NextRequest) {
     
     const vehicleResult = await dbQuery("SELECT vehicle_number, body_type FROM trucks WHERE id = $1 AND supplier_id = $2",
       [parsedVehicleId, supplierId])
-    )
     console.log("Vehicle result:", vehicleResult.rows.length, "rows")
 
     if (driverResult.rows.length === 0) {
       console.log("Driver not found for supplier:", supplierId, "driver ID:", parsedDriverId)
       const response = NextResponse.json({ 
-        error: `Driver not found. Please ensure you have drivers registered in your account. Supplier: ${supplierId}, Driver ID: ${parsedDriverId}` )
+        error: `Driver not found. Please ensure you have drivers registered in your account. Supplier: ${supplierId}, Driver ID: ${parsedDriverId}`
       }, { status: 404 })
+      return addCorsHeaders(response)
     }
 
     if (vehicleResult.rows.length === 0) {
       console.log("Vehicle not found for supplier:", supplierId, "vehicle ID:", parsedVehicleId)
       const response = NextResponse.json({ 
-        error: `Vehicle not found. Please ensure you have vehicles registered in your account. Supplier: ${supplierId}, Vehicle ID: ${parsedVehicleId}` )
+        error: `Vehicle not found. Please ensure you have vehicles registered in your account. Supplier: ${supplierId}, Vehicle ID: ${parsedVehicleId}`
       }, { status: 404 })
+      return addCorsHeaders(response)
     }
 
     const driver = driverResult.rows[0]
@@ -115,17 +117,17 @@ export async function POST(request: NextRequest) {
     let updateResult
     if (orderType === 'manual_order') {
       // Update manual_order_submissions table
-      updateResult = await dbQuery()
+      updateResult = await dbQuery(
         "UPDATE manual_order_submissions SET status = 'accepted', updated_at = NOW() AT TIME ZONE 'Asia/Kolkata' WHERE id = $1",
         [parsedOrderId]
       )
       console.log("Manual order update result:", updateResult.rows.length, "rows affected")
     } else {
       // Update order_submissions table (just update timestamp, don't change status due to constraint)
-      updateResult = await dbQuery()
-      "UPDATE order_submissions SET updated_at = NOW() AT TIME ZONE 'Asia/Kolkata' WHERE id = $1",
-      [parsedOrderId]
-    )
+      updateResult = await dbQuery(
+        "UPDATE order_submissions SET updated_at = NOW() AT TIME ZONE 'Asia/Kolkata' WHERE id = $1",
+        [parsedOrderId]
+      )
       console.log("Order submissions update result:", updateResult.rows.length, "rows affected")
     }
 
@@ -141,14 +143,12 @@ export async function POST(request: NextRequest) {
            LEFT JOIN manual_orders mo ON mos.order_id = mo.id 
            WHERE mos.id = $1`,
           [parsedOrderId])
-        )
       } else {
         orderDetails = await dbQuery(`SELECT br.order_number 
          FROM order_submissions os 
          LEFT JOIN buyer_requests br ON os.order_id = br.id 
          WHERE os.id = $1`,
         [parsedOrderId])
-      )
       }
 
       console.log("Order details result:", orderDetails.rows.length, "rows")
@@ -169,7 +169,6 @@ export async function POST(request: NextRequest) {
       // Get supplier company name for better notification
       const supplierInfo = await dbQuery(`SELECT company_name FROM suppliers WHERE user_id = $1`,
         [supplierId])
-      )
       const supplierCompany = supplierInfo.rows.length > 0 ? supplierInfo.rows[0].company_name : 'Unknown Company'
       
       const notificationResult = await dbQuery(`INSERT INTO notifications (
@@ -208,8 +207,6 @@ export async function POST(request: NextRequest) {
         // First, try to get the order details to ensure they exist
         const orderDetailsCheck = await dbQuery("SELECT id, order_id, supplier_id, status FROM manual_order_submissions WHERE id = $1",
           [parsedOrderId])
-        )
-        
         if (orderDetailsCheck.rows.length === 0) {
           console.log("Manual order submission not found, creating simple accepted request")
           // Create a simple accepted request without complex joins
@@ -263,7 +260,6 @@ export async function POST(request: NextRequest) {
             sent_by_admin,
             created_at,
             updated_at)
-          ) 
           SELECT 
             mos.order_id,
             mos.id,
@@ -310,8 +306,6 @@ export async function POST(request: NextRequest) {
         // First, try to get the order details to ensure they exist
         const orderDetailsCheck = await dbQuery("SELECT id, order_id, supplier_id, status FROM order_submissions WHERE id = $1",
           [parsedOrderId])
-        )
-        
         if (orderDetailsCheck.rows.length === 0) {
           console.log("Order submission not found, creating simple accepted request")
           // Create a simple accepted request without complex joins
@@ -337,7 +331,8 @@ export async function POST(request: NextRequest) {
         } else {
           console.log("Order submission found, creating full accepted request")
           // Create accepted request for buyer request with full details
-          acceptedRequestResult = await dbQuery(`INSERT INTO accepted_requests (
+          try {
+            acceptedRequestResult = await dbQuery(`INSERT INTO accepted_requests (
           buyer_request_id,
           order_submission_id,
           buyer_id,
@@ -365,7 +360,6 @@ export async function POST(request: NextRequest) {
             sent_by_admin,
             created_at,
             updated_at)
-        ) 
         SELECT 
           os.order_id,
           os.id,
@@ -404,16 +398,12 @@ export async function POST(request: NextRequest) {
           [parsedOrderId, parsedDriverId, parsedVehicleId, supplierId]
         )
         console.log("Buyer request accepted request created successfully")
-  }
-      console.log("Accepted request created successfully:", acceptedRequestResult.rows[0]?.id)
-    } catch (acceptedRequestError) {
+        console.log("Accepted request created successfully:", acceptedRequestResult.rows[0]?.id)
+      } catch (acceptedRequestError) {
       console.error("Accepted request creation failed:", acceptedRequestError)
       console.error("Error details:", {
         message: acceptedRequestError instanceof Error ? acceptedRequestError.message : "Unknown error",
         stack: acceptedRequestError instanceof Error ? acceptedRequestError.stack : "No stack trace"
-
-
-})
       })
       // Don't fail the whole operation if accepted request creation fails
     }
@@ -422,18 +412,14 @@ export async function POST(request: NextRequest) {
       success: true,
       message: "Order accepted successfully",
       confirmation: {
-
-
-}
         orderId,
         driverName: driver.driver_name,
         driverMobile,
         vehicleNumber: vehicle.vehicle_number,
         vehicleType: vehicle.body_type
-
-
-})
+      }
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error accepting order:", error)
@@ -442,17 +428,14 @@ export async function POST(request: NextRequest) {
       message: error instanceof Error ? error.message : "Unknown error",
       name: error instanceof Error ? error.name : "Unknown",
       cause: error instanceof Error ? error.cause : undefined
-
-
-})
     })
+    
     const response = NextResponse.json({ 
-        error: "Internal server error", 
-        details: error instanceof Error ? error.message : "Unknown error",)
-        stack: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : undefined)
-     : undefined
-},
-      { status: 500 }
-
-    )
+      error: "Internal server error", 
+      details: error instanceof Error ? error.message : "Unknown error",
+      stack: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : undefined) : undefined
+    }, { status: 500 })
+    
+    return addCorsHeaders(response)
   }
+}

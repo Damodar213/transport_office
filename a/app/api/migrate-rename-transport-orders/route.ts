@@ -31,8 +31,7 @@ export async function POST() {
 
     if (checkOldTable.rows.length === 0) {
       console.log("Table transport_orders does not exist, skipping migration...")
-      const response = NextResponse.json({ 
-        message: "Table transport_orders does not exist, no migration needed",)
+      const response = NextResponse.json({ message: "Table transport_orders does not exist, no migration needed" })
         renamed: false})
     return addCorsHeaders(response)
   }
@@ -70,11 +69,10 @@ export async function POST() {
       console.log(`- ${row.column_name}: ${row.data_type} (${row.is_nullable === 'YES' ? 'nullable' : 'not null'})`)
     })
 
-    const response = NextResponse.json({ 
-      message: "Table migration completed successfully",
+    const response = NextResponse.json({ message: "Table migration completed successfully",
       renamed: true,
       oldTableName: "transport_orders",
-      newTableName: "suppliers_vehicle_location",)
+      newTableName: "suppliers_vehicle_location" })
       finalStructure: finalStructure.rows})
     return addCorsHeaders(response)
 

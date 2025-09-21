@@ -19,7 +19,6 @@ export async function DELETE(request: Request,
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
         AND table_name = 'supplier_notifications')
-      )
     `)
     
     if (!tableExists.rows[0].exists) {
@@ -39,8 +38,7 @@ export async function DELETE(request: Request,
     }
 
     console.log(`Supplier notification ${id} deleted successfully`)
-    const response = NextResponse.json({ 
-      message: "Notification deleted successfully",)
+    const response = NextResponse.json({ message: "Notification deleted successfully" })
       notificationId: id})
     return addCorsHeaders(response)
 

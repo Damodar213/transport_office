@@ -65,16 +65,13 @@ export async function POST() {
        LEFT JOIN suppliers s ON s.user_id = u.user_id
        WHERE u.user_id = $1`,
       [testUserId])
-    )
-
     // Clean up test data
     await dbQuery("DELETE FROM suppliers WHERE user_id = $1", [testUserId])
     await dbQuery("DELETE FROM users WHERE user_id = $1", [testUserId])
 
-    const response = NextResponse.json({
-      success: true,
+    const response = NextResponse.json({ success: true,
       message: "Supplier registration test completed successfully",
-      testUserId,)
+      testUserId })
       insertedData: verifyResult.rows[0]})
     return addCorsHeaders(response)
 

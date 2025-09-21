@@ -80,8 +80,7 @@ const orders: TransportOrder[] = [
     rate: 15000,
     distance: 350,
     createdAt: "2024-02-10 09:15",
-    updatedAt: "2024-02-11 08:00",
-  },
+    updatedAt: "2024-02-11 08:00"},
   {
     id: 2,
     orderNumber: "ORD-2024-002",
@@ -97,8 +96,7 @@ const orders: TransportOrder[] = [
     taluk: "Pune",
     status: "pending",
     createdAt: "2024-02-11 11:20",
-    updatedAt: "2024-02-11 11:20",
-  },
+    updatedAt: "2024-02-11 11:20"},
 ]
 
 let nextOrderId = 3
@@ -205,9 +203,7 @@ export async function GET(request: NextRequest) {
           currentLocation: row.current_location,
           progress: calculateProgress(row.status),
           createdAt: row.created_at,
-          updatedAt: row.updated_at,
-        }))
-
+          updatedAt: row.updated_at})
       }
 
     } catch (dbError) {
@@ -247,8 +243,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Sort by creation date (newest first)
-    filteredOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-
+    filteredOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   } catch (error) { : ""
     console.error("Get orders error:", error)
   }
@@ -263,8 +258,7 @@ function calculateProgress(status: string): number {
     in_transit: 75,
     delivered: 100,
     cancelled: 0,
-    rejected: 0,
-  }
+    rejected: 0}
 
   return progressMap[status] || 0
 }
@@ -290,8 +284,7 @@ export async function POST(request: NextRequest) {
       status: "draft",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      ...body,
-    }
+      ...body}
 
     orders.push(newOrder)
 

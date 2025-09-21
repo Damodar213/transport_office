@@ -19,12 +19,10 @@ export async function DELETE(request: Request,
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
         AND table_name = 'notifications')
-      )
     `)
     
     if (!tableExists.rows[0].exists) {
-      const response = NextResponse.json({ 
-        error: "Notifications table not found",)
+      const response = NextResponse.json({ error: "Notifications table not found" })
         message: "Notification deleted (mock mode)"
 })
       return addCorsHeaders(response)

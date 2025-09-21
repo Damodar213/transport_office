@@ -21,7 +21,6 @@ export async function PUT(request: Request) {
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
         AND table_name = 'supplier_notifications')
-      )
     `)
     
     if (!tableExists.rows[0].exists) {
@@ -40,8 +39,7 @@ export async function PUT(request: Request) {
     const updatedCount = result.rows.length || 0
     
     console.log(`${updatedCount} supplier notifications marked as read successfully`)
-    const response = NextResponse.json({ 
-      message: "All notifications marked as read successfully",)
+    const response = NextResponse.json({ message: "All notifications marked as read successfully" })
       updatedCount: parseInt(updatedCount.toString()    
     )})
     return addCorsHeaders(response)

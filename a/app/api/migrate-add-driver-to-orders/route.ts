@@ -56,8 +56,7 @@ export async function POST() {
       console.log(`- ${row.column_name}: ${row.data_type} (${row.is_nullable === 'YES' ? 'nullable' : 'not null'})`)
     })
 
-    const response = NextResponse.json({ 
-      message: "Transport orders table migration completed successfully",)
+    const response = NextResponse.json({ message: "Transport orders table migration completed successfully" })
       addedColumns: !existingColumns.includes('driver_id')    
      ? ['driver_id'] : [],
       finalStructure: finalStructure.rows})

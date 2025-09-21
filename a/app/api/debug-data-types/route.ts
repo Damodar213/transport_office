@@ -39,12 +39,11 @@ export async function GET() {
       LIMIT 1)
     `)
 
-    const response = NextResponse.json({
-      success: true,
+    const response = NextResponse.json({ success: true,
       driverDocsTypes: driverDocsTypes.rows,
       usersTypes: usersTypes.rows,
       sampleDriverDoc: sampleDriverDoc.rows[0] || null,
-      sampleUser: sampleUser.rows[0] || null,)
+      sampleUser: sampleUser.rows[0] || null })
       message: "Data types debug completed"})
     return addCorsHeaders(response)
 

@@ -30,8 +30,7 @@ const orders = [
     rate: 15000,
     distance: 350,
     createdAt: "2024-02-10 09:15",
-    updatedAt: "2024-02-11 08:00",
-  },
+    updatedAt: "2024-02-11 08:00"},
 ]
 
 // GET - Fetch single order
@@ -61,8 +60,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     orders[orderIndex] = {
       ...orders[orderIndex],
       ...body,
-      updatedAt: new Date().toISOString(),
-    }
+      updatedAt: new Date().toISOString()}
 
   } catch (error) {
     console.error("Update order error:", error)

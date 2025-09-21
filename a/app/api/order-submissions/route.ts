@@ -34,9 +34,8 @@ export async function POST(request: Request) {
       [orderId, supplierId, submittedBy, body.whatsappSent || false, body.notificationSent || false]
     )
 
-    const response = NextResponse.json({
-      success: true,
-      message: "Order submission recorded successfully",)
+    const response = NextResponse.json({ success: true,
+      message: "Order submission recorded successfully" })
       submission: result.rows[0]})
     return addCorsHeaders(response)
 
@@ -79,8 +78,7 @@ export async function GET() {
       ORDER BY os.submitted_at DESC)
     `)
 
-    const response = NextResponse.json({
-      success: true,)
+    const response = NextResponse.json({ success: true })
       submissions: result.rows})
     return addCorsHeaders(response)
 

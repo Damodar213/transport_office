@@ -10,9 +10,8 @@ export async function GET() {
     // Check if database is available
     const pool = getPool()
     if (!pool) {
-      const response = NextResponse.json({ 
-        error: "Database not available",
-        states: [],)
+      const response = NextResponse.json({ error: "Database not available",
+        states: [] })
         message: "Database connection failed"})
     return addCorsHeaders(response)
   }
@@ -27,9 +26,8 @@ export async function GET() {
 
     const states = result.rows.map(row => row.state)
 
-    const response = NextResponse.json({
-      states: states,
-      total: states.length,)
+    const response = NextResponse.json({ states: states,
+      total: states.length })
       message: "States fetched successfully"})
     return addCorsHeaders(response)
 

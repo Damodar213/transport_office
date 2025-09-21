@@ -28,11 +28,10 @@ export async function GET() {
     console.log(`User 12233 exists: ${userResult.rows.length > 0}`)
     console.log(`Supplier 12233 exists: ${supplierResult.rows.length > 0}`)
 
-    const response = NextResponse.json({
-      success: true,
+    const response = NextResponse.json({ success: true,
       userExists: userResult.rows.length > 0,
       supplierExists: supplierResult.rows.length > 0,
-      userData: userResult.rows[0] || null,)
+      userData: userResult.rows[0] || null })
       supplierData: supplierResult.rows[0] || null})
     return addCorsHeaders(response)
 

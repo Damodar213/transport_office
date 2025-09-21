@@ -33,10 +33,9 @@ export async function GET() {
       ORDER BY ordinal_position)
     `)
 
-    const response = NextResponse.json({
-      success: true,
+    const response = NextResponse.json({ success: true,
       driverDocuments: docsResult.rows,
-      usersTableStructure: usersResult.rows,)
+      usersTableStructure: usersResult.rows })
       message: "Debug info retrieved"})
     return addCorsHeaders(response)
 

@@ -102,10 +102,7 @@ export async function GET(request: NextRequest) {
         ...row,
         supplier_name: "John Transport Co.",
         supplier_company: "aaa"
-
-
-})
-      }))
+      })
     } else {
       // For admin view, get supplier details
       orders = []
@@ -113,7 +110,6 @@ export async function GET(request: NextRequest) {
         try {
           const supplierResult = await dbQuery("SELECT company_name FROM suppliers WHERE user_id = $1",
             [row.supplier_id])
-          )
           const companyName = supplierResult.rows[0]?.company_name || "Unknown Company"
           
           orders.push({
@@ -155,8 +151,6 @@ export async function POST(request: NextRequest) {
     // First, get the supplier user_id from suppliers table
     const supplierResult = await dbQuery("SELECT user_id FROM suppliers WHERE user_id = $1",
       [body.supplierId])
-    )
-
     if (supplierResult.rows.length === 0) {})
     return addCorsHeaders(response)
   }
@@ -168,7 +162,6 @@ export async function POST(request: NextRequest) {
     if (body.driverId) {
       const driverResult = await dbQuery("SELECT driver_name FROM drivers WHERE id = $1",
         [body.driverId])
-      )
       if (driverResult.rows.length > 0) {
         driverName = driverResult.rows[0].driver_name
   }
@@ -201,8 +194,6 @@ export async function POST(request: NextRequest) {
     // Get supplier details for the response
     const supplierDetails = await dbQuery("SELECT company_name FROM suppliers WHERE user_id = $1",
       [supplierId])
-    )
-
     const orderWithSupplier = {
       ...newOrder,
       supplier_name: "John Transport Co.", // Use the company name from your existing data
@@ -218,8 +209,7 @@ export async function POST(request: NextRequest) {
 
 
 }
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json'},
         body: JSON.stringify({
 
 
@@ -246,7 +236,7 @@ export async function POST(request: NextRequest) {
       if (notificationResponse.ok) {
         console.log("✅ Notification created successfully for supplier vehicle location order")
       } else {
-        console.error("❌ Failed to create notification:", await notificationResponse.text())
+        console.error("❌ Failed to create notification:", await notificationResponse.text()
       }
 
     } catch (notificationError) {
@@ -254,8 +244,7 @@ export async function POST(request: NextRequest) {
       // Don't fail the main operation if notification creation fails
     }
 
-    const response = NextResponse.json({ 
-      message: "Supplier order created successfully", )
+    const response = NextResponse.json({ message: "Supplier order created successfully" })
       order: orderWithSupplier})
     return addCorsHeaders(response)
 
@@ -336,15 +325,12 @@ export async function PUT(request: NextRequest) {
     // Get supplier details for the response
     const supplierDetails = await dbQuery("SELECT s.company_name FROM suppliers s WHERE s.user_id = $1",
       [updatedOrder.supplier_id])
-    )
-
     const orderWithSupplier = {
       ...updatedOrder,
       supplier_name: supplierDetails.rows[0].company_name,
       supplier_company: supplierDetails.rows[0].company_name
 }
-    const response = NextResponse.json({ 
-      message: "Order updated successfully", )
+    const response = NextResponse.json({ message: "Order updated successfully" })
       order: orderWithSupplier})
     return addCorsHeaders(response)
 
@@ -386,8 +372,7 @@ export async function DELETE(request: NextRequest) {
 
     console.log("Successfully deleted order:", orderId)
 
-    const response = NextResponse.json({ 
-      message: "Order deleted successfully",)
+    const response = NextResponse.json({ message: "Order deleted successfully" })
       deletedOrderId: orderId})
     return addCorsHeaders(response)
 

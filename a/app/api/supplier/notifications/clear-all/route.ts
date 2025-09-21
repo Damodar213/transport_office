@@ -21,7 +21,6 @@ export async function DELETE(request: Request) {
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
         AND table_name = 'supplier_notifications')
-      )
     `)
     
     if (!tableExists.rows[0].exists) {
@@ -42,8 +41,7 @@ export async function DELETE(request: Request) {
     `, [supplierId])
     
     console.log(`${totalCount} supplier notifications cleared successfully`)
-    const response = NextResponse.json({ 
-      message: "All notifications cleared successfully",)
+    const response = NextResponse.json({ message: "All notifications cleared successfully" })
       clearedCount: parseInt(totalCount)})
     return addCorsHeaders(response)
 

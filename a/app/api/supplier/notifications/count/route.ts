@@ -27,7 +27,6 @@ export async function GET(request: Request) {
           SELECT FROM information_schema.tables 
           WHERE table_schema = 'public' 
           AND table_name = 'supplier_notifications')
-        )
       `)
       
       if (!tableExists.rows[0].exists) {
@@ -54,8 +53,7 @@ export async function GET(request: Request) {
       const unreadCount = parseInt(unreadResult.rows[0].unread_count)
       const totalCount = parseInt(totalResult.rows[0].total_count)
       
-      const response = NextResponse.json({
-        unreadCount,)
+      const response = NextResponse.json({ unreadCount })
         totalCount})
     return addCorsHeaders(response)
 

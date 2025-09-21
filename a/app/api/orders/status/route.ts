@@ -31,8 +31,7 @@ export async function PUT(request: NextRequest) {
       status,
       notes,
       updatedBy,
-      updatedAt: new Date().toISOString(),
-    }
+      updatedAt: new Date().toISOString()}
 
     console.log("Order status update:", statusUpdate)
 
@@ -41,7 +40,7 @@ export async function PUT(request: NextRequest) {
 
     const response = NextResponse.json({
       message: "Order status updated successfully",
-      update: statusUpdate,})
+      update: statusUpdate})
     return addCorsHeaders(response)
 
   } catch (error) {

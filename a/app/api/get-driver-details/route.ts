@@ -15,8 +15,6 @@ export async function GET(request: NextRequest) {
     // Get driver information
     const driverResult = await dbQuery("SELECT * FROM drivers WHERE id = $1",
       [driverId])
-    )
-
     if (driverResult.rows.length === 0) {
       const response = NextResponse.json({ error: "Driver not found" }, { status: 404 })
     }
@@ -33,7 +31,6 @@ export async function GET(request: NextRequest) {
         LEFT JOIN transport_orders to ON co.transport_order_id = to.id
         WHERE co.driver_id = $1`,
         [driverId])
-      )
       references.confirmedOrders = confirmedOrders.rows})
     return addCorsHeaders(response)
 
@@ -46,7 +43,6 @@ export async function GET(request: NextRequest) {
     try {
       const transportOrders = await dbQuery("SELECT id, state, district, place, status, created_at, vehicle_number FROM transport_orders WHERE driver_id = $1",
         [driverId])
-      )
       references.transportOrders = transportOrders.rows})
     return addCorsHeaders(response)
 
@@ -59,7 +55,6 @@ export async function GET(request: NextRequest) {
     try {
       const buyerRequests = await dbQuery("SELECT id, pickup_location, delivery_location, status, created_at FROM buyer_requests WHERE driver_id = $1",
         [driverId])
-      )
       references.buyerRequests = buyerRequests.rows})
     return addCorsHeaders(response)
 
@@ -72,7 +67,6 @@ export async function GET(request: NextRequest) {
     try {
       const vehicleLocation = await dbQuery("SELECT id, place, district, state, status, created_at FROM suppliers_vehicle_location WHERE driver_id = $1",
         [driverId])
-      )
       references.vehicleLocation = vehicleLocation.rows})
     return addCorsHeaders(response)
 

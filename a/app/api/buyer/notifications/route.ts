@@ -47,9 +47,8 @@ function formatTimestamp(timestamp: string | Date): string {
 
     // If it's within 24 hours (past or future), show relative time + actual time
     if (Math.abs(diffMs) < 24 * 60 * 60 * 1000) {
-      const diffMins = Math.floor(Math.abs(diffMs) / (1000 * 60))
-      const diffHours = Math.floor(Math.abs(diffMs) / (1000 * 60 * 60))
-      
+      const diffMins = Math.floor(Math.abs(diffMs) / (1000 * 60)
+      const diffHours = Math.floor(Math.abs(diffMs) / (1000 * 60 * 60)
       if (diffMins < 60) {
         const timeText = diffMs > 0 ? `${diffMins} minute${diffMins === 1 ? '' : 's'} ago` : `in ${diffMins} minute${diffMins === 1 ? '' : 's'}`
         return `${timeText} (${formattedDate})`
@@ -138,8 +137,7 @@ export async function GET(request: NextRequest) {
 
 
 }
-    }))
-
+    })
     const response = NextResponse.json({
       success: true,
       notifications: formattedNotifications
@@ -153,5 +151,4 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({ error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
 )
-    )
   }

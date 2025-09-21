@@ -5,11 +5,10 @@ import { dbQuery } from "@/lib/db"
 export async function GET() {
   try {
     // Check if database is available
-    const pool = await import("@/lib/db").then(m => m.getPool())
+    const pool = await import("@/lib/db").then(m => m.getPool()
     if (!pool) {
-      const response = NextResponse.json({ 
-        error: "Database not available",
-        requests: [],)
+      const response = NextResponse.json({ error: "Database not available",
+        requests: [] })
         message: "Using fallback data"})
     return addCorsHeaders(response)
   }
@@ -162,11 +161,9 @@ export async function GET() {
 
 
 }
-      }))
-
-    const response = NextResponse.json({
-      requests,
-      total: requests.length,)
+      })
+    const response = NextResponse.json({ requests,
+      total: requests.length })
       message: "Transport requests fetched successfully"})
     return addCorsHeaders(response)
 

@@ -21,12 +21,10 @@ export async function DELETE(request: Request) {
         SELECT FROM information_schema.tables
         WHERE table_schema = 'public'
         AND table_name = 'buyer_notifications')
-      )
     `)
     
     if (!tableExists.rows[0].exists) {
-      const response = NextResponse.json({
-        error: "Buyer notifications table not found",)
+      const response = NextResponse.json({ error: "Buyer notifications table not found" })
         message: "All notifications cleared (mock mode)"
 })
       return addCorsHeaders(response)
@@ -42,9 +40,8 @@ export async function DELETE(request: Request) {
     const deletedCount = result.rows.length
     console.log(`${deletedCount} buyer notifications cleared for buyer ${buyerId}`)
     
-    const response = NextResponse.json({
-      success: true,
-      message: "All buyer notifications cleared successfully",)
+    const response = NextResponse.json({ success: true,
+      message: "All buyer notifications cleared successfully" })
       deletedCount: deletedCount})
     return addCorsHeaders(response)
 

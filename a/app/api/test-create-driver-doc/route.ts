@@ -45,9 +45,8 @@ export async function POST() {
       [driver.id, driver.supplier_id, driver.driver_name, 'license', driver.license_document_url, now]
     )
 
-    const response = NextResponse.json({
-      success: true,
-      message: "Driver document submission created successfully",)
+    const response = NextResponse.json({ success: true,
+      message: "Driver document submission created successfully" })
       document: result.rows[0]})
     return addCorsHeaders(response)
 

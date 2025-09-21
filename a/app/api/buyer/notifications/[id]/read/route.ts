@@ -23,12 +23,10 @@ export async function PUT(request: Request,
         SELECT FROM information_schema.tables
         WHERE table_schema = 'public'
         AND table_name = 'buyer_notifications')
-      )
     `)
     
     if (!tableExists.rows[0].exists) {
-      const response = NextResponse.json({
-        error: "Buyer notifications table not found",)
+      const response = NextResponse.json({ error: "Buyer notifications table not found" })
         message: "Notification marked as read (mock mode)"
 }
 

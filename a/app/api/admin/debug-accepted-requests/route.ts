@@ -79,7 +79,6 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({ error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
 )
-    )
   }
 export async function DELETE(request: NextRequest) {
   try {
@@ -98,15 +97,12 @@ export async function DELETE(request: NextRequest) {
       const response = NextResponse.json({ error: "Both orderSubmissionId and buyerId are required" },
         { status: 400 }
 )
-      )
     }
 
     // Delete orphaned records for this specific order and buyer
     const deleteResult = await dbQuery(`DELETE FROM accepted_requests 
        WHERE order_submission_id = $1 AND buyer_id = $2 AND sent_by_admin = false`,
       [orderSubmissionId, buyerId])
-    )
-
     console.log("Cleaned up orphaned records:", {
       orderSubmissionId,
       buyerId,
@@ -130,5 +126,4 @@ export async function DELETE(request: NextRequest) {
     const response = NextResponse.json({ error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
 )
-    )
   }

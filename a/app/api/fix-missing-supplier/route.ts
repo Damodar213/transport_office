@@ -73,10 +73,9 @@ export async function POST() {
 
     console.log("Created supplier record:", supplierResult.rows[0])
 
-    const response = NextResponse.json({
-      success: true,
+    const response = NextResponse.json({ success: true,
       message: "Supplier record created successfully for user 111111",
-      supplier: supplierResult.rows[0],)
+      supplier: supplierResult.rows[0] })
       user: user})
     return addCorsHeaders(response)
 

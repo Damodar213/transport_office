@@ -30,8 +30,7 @@ export async function POST(request: NextRequest) {
       adminNotes,
       assignedBy,
       assignedAt: new Date().toISOString(),
-      status: "assigned",
-    }
+      status: "assigned"}
 
     console.log("Order assignment:", assignmentData)
 
@@ -40,7 +39,7 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json({
       message: "Order assigned successfully",
-      assignment: assignmentData,})
+      assignment: assignmentData})
     return addCorsHeaders(response)
 
   } catch (error) {

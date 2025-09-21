@@ -55,13 +55,13 @@ export async function GET(request: Request) {
     if (limit) {
       paramCount++
       sql += ` LIMIT $${paramCount}`
-      params.push(parseInt(limit))
+      params.push(parseInt(limit)
     }
 
     if (offset) {
       paramCount++
       sql += ` OFFSET $${paramCount}`
-      params.push(parseInt(offset))
+      params.push(parseInt(offset)
     }
 
     console.log("Manual orders SQL:", sql)

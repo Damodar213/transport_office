@@ -26,8 +26,6 @@ export async function GET(request: Request) {
     // Get supplier user_id from suppliers table
     const supplierResult = await dbQuery("SELECT user_id FROM suppliers WHERE user_id = $1",
       [supplierId])
-    )
-
     if (supplierResult.rows.length === 0) {
     }
 
@@ -70,8 +68,6 @@ export async function POST(request: Request) {
     // Get supplier user_id from suppliers table
     const supplierResult = await dbQuery("SELECT user_id FROM suppliers WHERE user_id = $1",
       [body.supplierId])
-    )
-
     if (supplierResult.rows.length === 0) {})
     return addCorsHeaders(response)
   }
@@ -112,8 +108,7 @@ export async function POST(request: Request) {
         console.error("Error creating driver document submission:", docError)
         // Don't fail the driver creation if document submission creation fails
   }
-    const response = NextResponse.json({ 
-      message: "Driver created successfully", )
+    const response = NextResponse.json({ message: "Driver created successfully" })
       driver: result.rows[0]})
     return addCorsHeaders(response)
 
@@ -170,8 +165,7 @@ export async function PUT(request: Request) {
         console.error("Error creating driver document submission:", docError)
         // Don't fail the driver update if document submission creation fails
   }
-    const response = NextResponse.json({ 
-      message: "Driver updated successfully", )
+    const response = NextResponse.json({ message: "Driver updated successfully" })
       driver: result.rows[0]})
     return addCorsHeaders(response)
 
@@ -278,12 +272,11 @@ export async function DELETE(request: Request) {
 
         // Wait before retry (exponential backoff)
         console.log(`Waiting ${1000 * retryCount}ms before retry...`)
-        await new Promise(resolve => setTimeout(resolve, 1000 * retryCount))
+        await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)
   }
     console.log("Driver deleted successfully:", checkResult.rows[0].driver_name)
     
-    const response = NextResponse.json({ 
-      message: "Driver deleted successfully",)
+    const response = NextResponse.json({ message: "Driver deleted successfully" })
       deletedDriver: checkResult.rows[0]})
     return addCorsHeaders(response)
 

@@ -65,18 +65,16 @@ export async function POST() {
       role: user.role,
       email: user.email,
       name: user.name,
-      companyName: user.companyName,
-    }
+      companyName: user.companyName}
 
     console.log("Session data:", sessionData)
     console.log("=== LOGIN FLOW COMPLETE ===")
 
-    const response = NextResponse.json({
-      success: true,
+    const response = NextResponse.json({ success: true,
       step: "complete",
       message: "Login flow completed successfully",
       userFound: true,
-      passwordValid: true,)
+      passwordValid: true })
       sessionData})
     return addCorsHeaders(response)
 

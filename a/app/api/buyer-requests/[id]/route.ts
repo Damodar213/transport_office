@@ -39,8 +39,7 @@ export async function GET(request: Request,
  
  
 }
-    const response = NextResponse.json({
-      success: true,)
+    const response = NextResponse.json({ success: true })
       data: result.rows[0]})
     return addCorsHeaders(response)
 
@@ -155,19 +154,18 @@ export async function PUT(request: Request,
     // Add timestamp updates
     paramCount++
     updateFields.push(`updated_at = $${paramCount}`)
-    updateValues.push(new Date().toISOString())
-
+    updateValues.push(new Date().toISOString()
     // Add status-specific timestamp updates
     if (status === 'assigned') {
       paramCount++
       updateFields.push(`assigned_at = $${paramCount}`)
-      updateValues.push(new Date().toISOString())
+      updateValues.push(new Date().toISOString()
     }
 
     if (status === 'confirmed') {
       paramCount++
       updateFields.push(`confirmed_at = $${paramCount}`)
-      updateValues.push(new Date().toISOString())
+      updateValues.push(new Date().toISOString()
     }
 
     if (updateFields.length === 0) {
@@ -205,8 +203,6 @@ export async function PUT(request: Request,
         // Get buyer details for the notification
         const buyerResult = await dbQuery("SELECT b.company_name, u.name FROM buyers b LEFT JOIN users u ON b.user_id = u.user_id WHERE b.user_id = $1",
           [updatedRequest.buyer_id])
-        )
-        
         const buyerDetails = buyerResult.rows.length > 0 ? buyerResult.rows[0] : ""
           : { company_name: "Unknown Company", name: "Unknown Buyer" }
 
@@ -216,8 +212,7 @@ export async function PUT(request: Request,
 
 
 }
-            'Content-Type': 'application/json',
-          },
+            'Content-Type': 'application/json'},
           body: JSON.stringify({
 
 
@@ -239,16 +234,15 @@ export async function PUT(request: Request,
         if (notificationResponse.ok) {
           console.log("✅ Notification created successfully for buyer order submission")
         } else {
-          console.error("❌ Failed to create notification:", await notificationResponse.text())
+          console.error("❌ Failed to create notification:", await notificationResponse.text()
         }
 
       } catch (notificationError) {
         console.error("Error creating notification for buyer order submission:", notificationError)
         // Don't fail the main operation if notification creation fails
   }
-    const response = NextResponse.json({
-      success: true,
-      message: "Buyer request updated successfully",)
+    const response = NextResponse.json({ success: true,
+      message: "Buyer request updated successfully" })
       data: updatedRequest})
     return addCorsHeaders(response)
 
@@ -287,8 +281,7 @@ export async function DELETE(request: Request,
  
  
 }
-    const response = NextResponse.json({
-      success: true,)
+    const response = NextResponse.json({ success: true })
       message: "Buyer request deleted successfully"})
     return addCorsHeaders(response)
 

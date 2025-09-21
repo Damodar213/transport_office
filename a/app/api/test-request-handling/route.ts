@@ -16,8 +16,7 @@ export async function POST(request: NextRequest) {
     
     console.log("Request method:", request.method)
     console.log("Request URL:", request.url)
-    console.log("Request headers:", Object.fromEntries(request.headers.entries()))
-    
+    console.log("Request headers:", Object.fromEntries(request.headers.entries())
     // Try to get the request body as text first
     console.log("Attempting to get request body as text...")
     const textBody = await request.text()

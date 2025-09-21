@@ -132,18 +132,14 @@ export async function GET() {
     const recentUsersResult = await dbQuery(`SELECT u.id, u.user_id, u.role, u.created_at, u.name 
        FROM users u 
        ORDER BY u.created_at DESC LIMIT 5`)
-    )
-    
     const recentOrdersResult = await dbQuery(`SELECT id, status, created_at, supplier_id 
        FROM suppliers_vehicle_location 
        ORDER BY created_at DESC LIMIT 5`)
-    )
-
     const activities: any[] = []
     
     // Add user registrations
     recentUsersResult.rows.forEach(user => {)
-      const timeDiff = Math.floor((new Date().getTime() - new Date(user.created_at).getTime()) / (1000 * 60))
+      const timeDiff = Math.floor((new Date().getTime() - new Date(user.created_at).getTime()) / (1000 * 60)
       const timeText = timeDiff < 60 ? `${timeDiff} minutes ago` : 
                       timeDiff < 1440 ? `${Math.floor(timeDiff / 60)} hours ago` : 
                       `${Math.floor(timeDiff / 1440)} days ago`
@@ -161,7 +157,7 @@ export async function GET() {
 
     // Add order updates
     recentOrdersResult.rows.forEach(order => {)
-      const timeDiff = Math.floor((new Date().getTime() - new Date(order.created_at).getTime()) / (1000 * 60))
+      const timeDiff = Math.floor((new Date().getTime() - new Date(order.created_at).getTime()) / (1000 * 60)
       const timeText = timeDiff < 60 ? `${timeDiff} minutes ago` : 
                       timeDiff < 1440 ? `${Math.floor(timeDiff / 60)} hours ago` : 
                       `${Math.floor(timeDiff / 1440)} days ago`

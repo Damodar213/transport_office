@@ -80,10 +80,9 @@ export async function GET(request: Request) {
 
 }
     // Return all suppliers
-    const response = NextResponse.json({
-      success: true,
+    const response = NextResponse.json({ success: true,
       suppliers: suppliers,
-      total: suppliers.length,)
+      total: suppliers.length })
       message: "Real suppliers fetched successfully"})
     return addCorsHeaders(response)
 

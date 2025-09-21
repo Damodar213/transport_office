@@ -18,8 +18,7 @@ export async function GET(request: NextRequest) {
       cancelled: 0,
       totalRevenue: 2450000,
       avgDeliveryTime: 2.3,
-      completionRate: 98.7,
-    }
+      completionRate: 98.7}
 
     // Filter stats based on user role and ID
     if (role === "supplier" && userId) {
@@ -29,8 +28,7 @@ export async function GET(request: NextRequest) {
         pending: 8,
         confirmed: 15,
         inTransit: 5,
-        delivered: 17,
-    }
+        delivered: 17}
 
     if (role === "buyer" && userId) {
       const response = NextResponse.json({
@@ -39,8 +37,7 @@ export async function GET(request: NextRequest) {
         pending: 5,
         confirmed: 12,
         inTransit: 3,
-        delivered: 12,
-    }
+        delivered: 12}
 
     console.error("Statistics error:", error)
   }

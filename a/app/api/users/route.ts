@@ -106,9 +106,8 @@ export async function PUT(request: Request) {
     if (updateResult.rows.length === 0) {
     }
 
-    const response = NextResponse.json({
-      success: true,
-      message: "User status updated successfully",)
+    const response = NextResponse.json({ success: true,
+      message: "User status updated successfully" })
       user: updateResult.rows[0]})
     return addCorsHeaders(response)
 

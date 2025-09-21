@@ -71,7 +71,6 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({ error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
 )
-    )
   }
 export async function DELETE(request: NextRequest) {
   try {
@@ -105,8 +104,6 @@ export async function DELETE(request: NextRequest) {
     // Verify the accepted request belongs to this buyer
     const requestCheck = await dbQuery("SELECT * FROM accepted_requests WHERE id = $1 AND buyer_id = $2",
       [requestId, buyerId])
-    )
-
     if (requestCheck.rows.length === 0) {
       const response = NextResponse.json({ error: "Accepted request not found or access denied" }, { status: 404 })
     }
@@ -114,8 +111,6 @@ export async function DELETE(request: NextRequest) {
     // Delete the accepted request
     const deleteResult = await dbQuery("DELETE FROM accepted_requests WHERE id = $1 AND buyer_id = $2",
       [requestId, buyerId])
-    )
-
     if (deleteResult.rows.length === 0) {
       const response = NextResponse.json({ error: "Failed to delete accepted request" }, { status: 500 })
     }
@@ -135,5 +130,4 @@ export async function DELETE(request: NextRequest) {
     const response = NextResponse.json({ error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
 )
-    )
   }

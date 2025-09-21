@@ -7,8 +7,7 @@ export async function GET() {
     console.log("GET /api/admin/settings/test-db - testing database connection...")
     
     if (!getPool()) {
-      const response = NextResponse.json({ 
-        error: "Database not available",)
+      const response = NextResponse.json({ error: "Database not available" })
         status: "disconnected"})
     return addCorsHeaders(response)
   }
