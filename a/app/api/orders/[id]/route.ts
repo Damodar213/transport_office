@@ -36,7 +36,8 @@ const orders = [
 // GET - Fetch single order
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const orderId = Number.parseInt(params.id)
+    const { id } = await params
+    const orderId = Number.parseInt(id)
     const order = orders.find((o) => o.id === orderId)
 
     if (!order) {
@@ -53,7 +54,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 // PUT - Update order
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const orderId = Number.parseInt(params.id)
+    const { id } = await params
+    const orderId = Number.parseInt(id)
     const body = await request.json()
 
     const orderIndex = orders.findIndex((o) => o.id === orderId)
@@ -77,7 +79,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 // DELETE - Delete order
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const orderId = Number.parseInt(params.id)
+    const { id } = await params
+    const orderId = Number.parseInt(id)
     const orderIndex = orders.findIndex((o) => o.id === orderId)
 
     if (orderIndex === -1) {

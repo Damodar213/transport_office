@@ -27,7 +27,7 @@ export async function POST() {
       gstNumber: "TEST123",
       email: "test@example.com",
       numberOfVehicles: 5,
-      documents: null,
+        documents: undefined,
     }
 
     console.log("Testing createUserAsync with data:", {

@@ -37,7 +37,7 @@ export async function withAuth(
 
       // Add user to request object
       const authenticatedRequest = request as AuthenticatedRequest
-      authenticatedRequest.user = session
+      authenticatedRequest.user = session as any
 
       return await handler(authenticatedRequest)
     } catch (error) {

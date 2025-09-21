@@ -11,7 +11,8 @@ export async function GET(
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
 
-    const orderId = parseInt(params.orderId)
+    const { orderId: orderIdStr } = await params
+    const orderId = parseInt(orderIdStr)
     if (isNaN(orderId)) {
       return NextResponse.json({ error: "Invalid order ID" }, { status: 400 })
     }

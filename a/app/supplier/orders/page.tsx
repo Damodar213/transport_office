@@ -164,7 +164,7 @@ export default function SupplierOrdersPage() {
         'Load Type': order.load_type,
         'From': order.from_place,
         'To': order.to_place,
-        'Status': order.submission_status,
+        'Status': (order as any).submission_status,
         'Contact': order.buyer_mobile || 'N/A'
       }))
 
@@ -256,7 +256,7 @@ export default function SupplierOrdersPage() {
         'Number of Goods': order.number_of_goods || 'N/A',
         'Rate': order.rate || 'N/A',
         'Distance (KM)': order.distance_km || 'N/A',
-        'Status': order.submission_status,
+        'Status': (order as any).submission_status,
         'Buyer Email': order.buyer_email || 'N/A',
         'Buyer Mobile': order.buyer_mobile || 'N/A',
         'Required Date': order.required_date || 'N/A',

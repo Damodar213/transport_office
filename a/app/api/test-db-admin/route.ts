@@ -16,7 +16,7 @@ export async function GET() {
     
     // Test common passwords
     const testPasswords = ["admin123", "admin", "password", "123456", "admin@123", "Admin123"]
-    const passwordResults = {}
+    const passwordResults: any = {}
     
     for (const testPassword of testPasswords) {
       const isValid = await bcrypt.compare(testPassword, dbAdmin.passwordHash)

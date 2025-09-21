@@ -467,7 +467,7 @@ export function OrderTracking({ onDataChange }: OrderTrackingProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">
-              {orders.filter((o) => o.status === "pending" || o.status === "confirmed").length}
+              {orders.filter((o) => o.status === "confirmed").length}
             </div>
             <p className="text-xs text-muted-foreground">Awaiting confirmation</p>
           </CardContent>

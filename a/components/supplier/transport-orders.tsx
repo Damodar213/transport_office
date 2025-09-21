@@ -378,7 +378,7 @@ export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) 
                       } />
                     </SelectTrigger>
                     <SelectContent>
-                      {(selectedState || editingOrder?.state) && districtsByState[selectedState || editingOrder?.state]?.map((district) => (
+                      {(selectedState || editingOrder?.state) && districtsByState[selectedState || editingOrder?.state || '']?.map((district: any) => (
                         <SelectItem key={district} value={district}>
                           {district}
                         </SelectItem>

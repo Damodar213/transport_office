@@ -190,7 +190,7 @@ export function SupplierOrderManagement() {
   const filteredOrders = orders.filter((order) => {
     if (filters.status !== "all" && order.status !== filters.status) return false
     if (filters.state !== "all" && order.state !== filters.state) return false
-    if (filters.supplier && !order.supplierCompany.toLowerCase().includes(filters.supplier.toLowerCase())) return false
+    if (filters.supplier && !order.supplier_company.toLowerCase().includes(filters.supplier.toLowerCase())) return false
     return true
   })
 

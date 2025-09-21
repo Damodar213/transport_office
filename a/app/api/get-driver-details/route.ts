@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     }
 
     const driver = driverResult.rows[0]
-    const references = {}
+    const references: any = {}
 
     // Get confirmed orders referencing this driver
     try {

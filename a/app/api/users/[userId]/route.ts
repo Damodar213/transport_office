@@ -23,7 +23,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
 
-    const userId = params.userId
+    const { userId } = await params
 
     if (!userId) {
       return NextResponse.json({ error: "User ID is required" }, { status: 400 })

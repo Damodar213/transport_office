@@ -297,11 +297,12 @@ export async function DELETE(request: Request) {
     console.error("Delete driver error:", error)
     
     // Check if it's a database connection error
+    const errorMessage = error instanceof Error ? error.message : "Unknown error"
     if (error instanceof Error && (
-      error instanceof Error ? error.message : "Unknown error".includes('connection') || 
-      error instanceof Error ? error.message : "Unknown error".includes('timeout') ||
-      error instanceof Error ? error.message : "Unknown error".includes('ECONNRESET') ||
-      error instanceof Error ? error.message : "Unknown error".includes('Connection terminated')
+      errorMessage.includes('connection') || 
+      errorMessage.includes('timeout') ||
+      errorMessage.includes('ECONNRESET') ||
+      errorMessage.includes('Connection terminated')
     )) {
       return NextResponse.json({ 
         error: "Database connection error. Please try again.",

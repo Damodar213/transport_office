@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
 
     console.log("Getting blocking orders for driver ID:", driverId)
 
-    const blockingOrders = {
+    const blockingOrders: any = {
       confirmedOrders: [],
       vehicleLocationOrders: []
     }

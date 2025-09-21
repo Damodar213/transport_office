@@ -44,7 +44,7 @@ export async function PUT(request: Request) {
     console.log(`${updatedCount} supplier notifications marked as read successfully`)
     return NextResponse.json({ 
       message: "All notifications marked as read successfully",
-      updatedCount: parseInt(updatedCount)
+      updatedCount: parseInt(updatedCount.toString())
     })
     
   } catch (error) {
