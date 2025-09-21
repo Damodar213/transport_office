@@ -37,7 +37,7 @@ export async function GET() {
             companyName: supplier.company_name || userDetails.companyName,
             gstNumber: supplier.gst_number,
             numberOfVehicles: supplier.number_of_vehicles
-          }
+          } as any
         }
       } catch (error) {
         console.error("Error fetching supplier details:", error)
