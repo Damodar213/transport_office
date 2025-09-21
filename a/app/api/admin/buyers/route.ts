@@ -40,7 +40,6 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       buyers: buyers
-  }
     })
 
   } catch (error) {

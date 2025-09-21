@@ -49,7 +49,6 @@ export async function GET() {
     const response = NextResponse.json({ 
       confirmedOrders,
       totalCount: countResult.rows[0].count
-  }
     })
     return addCorsHeaders(response)
     

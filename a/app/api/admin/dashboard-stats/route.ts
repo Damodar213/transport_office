@@ -179,7 +179,6 @@ export async function GET() {
         message: `Order ${order.id} ${order.status} for supplier ${order.supplier_id}`,
         timestamp: timeText,
         status: status
-  }
       })
     })
 

@@ -45,7 +45,6 @@ export async function GET() {
       gstNumber: row.gstNumber,
       totalVehicles: parseInt(row.numberOfVehicles) || 0,
       availableDrivers: 2 // Default value since we're not counting actual drivers
-    }
     }))
 
     const response = NextResponse.json({
