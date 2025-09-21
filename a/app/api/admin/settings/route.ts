@@ -58,9 +58,11 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to fetch settings",
       details: error instanceof Error ? error.message : "Unknown error"
-  })
+    }, { status: 500 })
     return addCorsHeaders(response)
   }
+}
+
 export async function PUT(request: Request) {
   try {
     const body = await request.json()

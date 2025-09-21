@@ -65,6 +65,9 @@ export async function POST(request: Request) {
       sentOrders: sentOrders,
       totalSent: supplierIds.length,
       whatsappMessage: message
+    })
+    return addCorsHeaders(response)
+
   } catch (error) {
     console.error("Error sending order to suppliers:", error)
     const response = NextResponse.json({ 

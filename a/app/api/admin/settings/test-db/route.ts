@@ -46,6 +46,9 @@ export async function GET() {
           queryTime: `${queryTime}ms`,
           version: version.split(' ')[0] + ' ' + version.split(' ')[1] // PostgreSQL 15.4
         }
+      })
+      return addCorsHeaders(response)
+
     } catch (error) {
       console.error("Database connection test failed:", error)
       const response = NextResponse.json({
