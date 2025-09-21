@@ -37,7 +37,7 @@ export async function POST() {
       WHERE status = 'submitted'
     `)
 
-    console.log(`Updated ${updateResult.rowCount} order submissions from 'submitted' to 'new'`)
+    console.log(`Updated ${updateResult.rows.length} order submissions from 'submitted' to 'new'`)
 
     // Check final status values
     const finalStatuses = await dbQuery(`
@@ -49,9 +49,9 @@ export async function POST() {
     console.log("Final status distribution:", finalStatuses.rows)
 
     return NextResponse.json({ 
-      message: `Migration completed successfully - Updated ${updateResult.rowCount} order submissions from 'submitted' to 'new' status`,
+      message: `Migration completed successfully - Updated ${updateResult.rows.length} order submissions from 'submitted' to 'new' status`,
       success: true,
-      updatedCount: updateResult.rowCount,
+      updatedCount: updateResult.rows.length,
       beforeStatuses: currentStatuses.rows,
       afterStatuses: finalStatuses.rows
     })

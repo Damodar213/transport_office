@@ -266,7 +266,7 @@ export async function DELETE(request: Request) {
         WHERE id = $1
       `, [requestId])
 
-      if (deleteResult.rowCount === 0) {
+      if (deleteResult.rows.length === 0) {
         return NextResponse.json({ error: "Manual order not found" }, { status: 404 })
       }
 
@@ -281,7 +281,7 @@ export async function DELETE(request: Request) {
         WHERE id = $1
       `, [requestId])
 
-      if (deleteResult.rowCount === 0) {
+      if (deleteResult.rows.length === 0) {
         return NextResponse.json({ error: "Buyer request not found" }, { status: 404 })
       }
 

@@ -179,7 +179,7 @@ export async function DELETE(request: NextRequest) {
       DELETE FROM districts WHERE id = $1
     `, [id])
 
-    if (result.rowCount === 0) {
+    if (result.rows.length === 0) {
       return NextResponse.json({ 
         error: "District not found" 
       }, { status: 404 })

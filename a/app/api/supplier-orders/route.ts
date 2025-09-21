@@ -381,7 +381,7 @@ export async function DELETE(request: NextRequest) {
     const deleteSql = `DELETE FROM suppliers_vehicle_location WHERE id = $1`
     const deleteResult = await dbQuery(deleteSql, [orderId])
 
-    if (deleteResult.rowCount === 0) {
+    if (deleteResult.rows.length === 0) {
       return NextResponse.json({ error: "Failed to delete order" }, { status: 500 })
     }
 

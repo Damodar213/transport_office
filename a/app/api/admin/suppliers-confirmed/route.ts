@@ -156,7 +156,7 @@ export async function DELETE(request: NextRequest) {
       [acceptedRequestId]
     )
 
-    if (deleteResult.rowCount === 0) {
+    if (deleteResult.rows.length === 0) {
       return NextResponse.json({ error: "Failed to delete accepted request" }, { status: 500 })
     }
 

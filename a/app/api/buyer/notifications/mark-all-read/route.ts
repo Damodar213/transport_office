@@ -32,12 +32,12 @@ export async function PUT(request: NextRequest) {
       [buyerId]
     )
 
-    console.log("Marked notifications as read:", result.rowCount)
+    console.log("Marked notifications as read:", result.rows.length)
 
     return NextResponse.json({
       success: true,
       message: "All notifications marked as read",
-      updatedCount: result.rowCount
+      updatedCount: result.rows.length
     })
 
   } catch (error) {

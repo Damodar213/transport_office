@@ -49,12 +49,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log("Update result:", updateResult.rowCount, "rows affected")
+    console.log("Update result:", updateResult.rows.length, "rows affected")
 
     return NextResponse.json({
       success: true,
       message: "Order notification status updated successfully",
-      updatedRows: updateResult.rowCount
+      updatedRows: updateResult.rows.length
     })
 
   } catch (error) {

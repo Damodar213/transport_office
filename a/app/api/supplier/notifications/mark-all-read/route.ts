@@ -39,7 +39,7 @@ export async function PUT(request: Request) {
       WHERE supplier_id = $1 AND is_read = FALSE
     `, [supplierId])
     
-    const updatedCount = result.rowCount || 0
+    const updatedCount = result.rows.length || 0
     
     console.log(`${updatedCount} supplier notifications marked as read successfully`)
     return NextResponse.json({ 
