@@ -446,7 +446,7 @@ export function TransportRequests({ onDataChange }: TransportRequestsProps) {
                         ) : (
                           districts.map((district) => (
                             <SelectItem key={district.id} value={district.name}>
-                              {district.name}, {district.state}
+                              {district.name}
                             </SelectItem>
                           ))
                         )}
@@ -510,7 +510,7 @@ export function TransportRequests({ onDataChange }: TransportRequestsProps) {
                         ) : (
                           districts.map((district) => (
                             <SelectItem key={district.id} value={district.name}>
-                              {district.name}, {district.state}
+                              {district.name}
                             </SelectItem>
                           ))
                         )}
