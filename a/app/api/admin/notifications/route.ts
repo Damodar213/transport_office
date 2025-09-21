@@ -217,6 +217,8 @@ export async function POST(request: Request) {
     if (!type || !title || !message || !category || !priority) {
       const response = NextResponse.json({ 
         error: "Missing required fields: type, title, message, category, priority" 
+      }, { status: 400 })
+      return addCorsHeaders(response)
     }
     
     console.log("POST /api/admin/notifications - creating notification:", { type, title, category, priority })

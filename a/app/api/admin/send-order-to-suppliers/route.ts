@@ -19,12 +19,16 @@ export async function POST(request: Request) {
     if (!orderId || !supplierIds || !Array.isArray(supplierIds) || supplierIds.length === 0) {
       const response = NextResponse.json({ 
         error: "Order ID and supplier IDs are required" 
+      }, { status: 400 })
+      return addCorsHeaders(response)
     }
 
     const pool = getPool()
     if (!pool) {
       const response = NextResponse.json({ 
         error: "Database not available" 
+      }, { status: 500 })
+      return addCorsHeaders(response)
     }
 
     // Create WhatsApp message

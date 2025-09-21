@@ -155,11 +155,16 @@ export async function POST(request: Request) {
         id: primarySupplier.id,
         name: primarySupplier.company_name
       } : null
+    })
+    return addCorsHeaders(response)
+    
   } catch (error) {
     console.error("Error sending manual order to suppliers:", error)
     const response = NextResponse.json({ 
       error: "Failed to send manual order to suppliers",
-      message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

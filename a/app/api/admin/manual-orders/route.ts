@@ -143,6 +143,8 @@ export async function POST(request: Request) {
         success: true,
         message: "Manual order assigned successfully",
         order: result.rows[0]
+      })
+      return addCorsHeaders(response)
     }
 
     if (action === "update_status") {
@@ -150,6 +152,8 @@ export async function POST(request: Request) {
       if (!status) {
         const response = NextResponse.json({ 
           error: "Status is required for status update" 
+        }, { status: 400 })
+        return addCorsHeaders(response)
       }
 
       const result = await dbQuery(`
