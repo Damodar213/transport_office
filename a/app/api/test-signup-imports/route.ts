@@ -17,55 +17,43 @@ export async function POST(request: NextRequest) {
     // Test each import one by one
     try {
       const bcrypt = await import("bcryptjs")
-      console.log("bcryptjs import successful")})
-    return addCorsHeaders(response)
-
-  } catch (error) {
+      console.log("Import successful")
+    } catch (error) {
       console.error("bcryptjs import error:", error)
     }
 
     try {
       const userStorage = await import("@/lib/user-storage")
-      console.log("user-storage import successful")})
-    return addCorsHeaders(response)
-
-  } catch (error) {
+      console.log("Import successful")
+    } catch (error) {
       console.error("user-storage import error:", error)
     }
 
     try {
       const documentStorage = await import("@/lib/document-storage")
-      console.log("document-storage import successful")})
-    return addCorsHeaders(response)
-
-  } catch (error) {
+      console.log("Import successful")
+    } catch (error) {
       console.error("document-storage import error:", error)
     }
 
     try {
       const adminStorage = await import("@/lib/admin-storage")
-      console.log("admin-storage import successful")})
-    return addCorsHeaders(response)
-
-  } catch (error) {
+      console.log("Import successful")
+    } catch (error) {
       console.error("admin-storage import error:", error)
     }
 
     try {
       const db = await import("@/lib/db")
-      console.log("db import successful")})
-    return addCorsHeaders(response)
-
-  } catch (error) {
+      console.log("Import successful")
+    } catch (error) {
       console.error("db import error:", error)
     }
 
     try {
       const cloudflare = await import("@/lib/cloudflare-r2")
-      console.log("cloudflare-r2 import successful")})
-    return addCorsHeaders(response)
-
-  } catch (error) {
+      console.log("Import successful")
+    } catch (error) {
       console.error("cloudflare-r2 import error:", error)
     }
 

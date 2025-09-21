@@ -5,9 +5,9 @@ import { dbQuery, getPool } from "@/lib/db"
 export async function GET() {
   try {
     const pool = getPool()
-    if (!pool) {})
-    return addCorsHeaders(response)
-  }
+    if (!pool) {
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+    }
     // Get counts for all document types
     const [supplierCount, vehicleCount, driverCount] = await Promise.all([
       dbQuery("SELECT COUNT(*) as count FROM supplier_documents"),

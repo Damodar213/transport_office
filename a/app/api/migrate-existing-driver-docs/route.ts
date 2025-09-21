@@ -16,9 +16,8 @@ export async function POST() {
   try {
     const pool = getPool()
     if (!pool) {
-      return createApiError("Database not available", null, 503)})
-    return addCorsHeaders(response)
-  }
+      return createApiError("Database not available", null, 503)
+    }
     console.log("Migrating existing driver documents...")
 
     // Get all drivers with license documents

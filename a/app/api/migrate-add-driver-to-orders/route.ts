@@ -30,10 +30,8 @@ export async function POST() {
     if (!existingColumns.includes('driver_id')) {
       try {
         await dbQuery(`ALTER TABLE transport_orders ADD COLUMN driver_id INTEGER REFERENCES drivers(id)`)
-        console.log("Added column: driver_id")})
-    return addCorsHeaders(response)
-
-  } catch (error) {
+        console.log("Import successful")
+    } catch (error) {
         console.error("Error adding column driver_id:", error)
         const response = NextResponse.json({ 
           error: "Failed to add driver_id column", 

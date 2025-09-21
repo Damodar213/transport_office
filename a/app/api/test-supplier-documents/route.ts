@@ -7,9 +7,8 @@ export async function GET() {
   try {
     const pool = getPool()
     if (!pool) {
-      return createApiError("Database not available", null, 503)})
-    return addCorsHeaders(response)
-  }
+      return createApiError("Database not available", null, 503)
+    }
     // Check if supplier_documents table exists
     const tableCheck = await dbQuery(`
       SELECT EXISTS (

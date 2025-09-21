@@ -36,10 +36,8 @@ export async function POST() {
       // Rename number_of_vehicles to number_of_wheels
       try {
         await dbQuery(`ALTER TABLE trucks RENAME COLUMN number_of_vehicles TO number_of_wheels`)
-        console.log("Renamed number_of_vehicles to number_of_wheels")})
-    return addCorsHeaders(response)
-
-  } catch (error) {
+        console.log("Import successful")
+    } catch (error) {
         console.error("Error renaming column:", error)
         const response = NextResponse.json({ 
           error: "Failed to rename column",
@@ -49,10 +47,8 @@ export async function POST() {
       // Add number_of_wheels column if neither exists
       try {
         await dbQuery(`ALTER TABLE trucks ADD COLUMN number_of_wheels INTEGER`)
-        console.log("Added number_of_wheels column")})
-    return addCorsHeaders(response)
-
-  } catch (error) {
+        console.log("Import successful")
+    } catch (error) {
         console.error("Error adding column:", error)
         const response = NextResponse.json({ 
           error: "Failed to add column",

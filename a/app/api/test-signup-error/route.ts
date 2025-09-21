@@ -18,9 +18,9 @@ export async function POST() {
     console.log("=== TESTING SIGNUP ERROR ===")
     
     const pool = getPool()
-    if (!pool) {})
-    return addCorsHeaders(response)
-  }
+    if (!pool) {
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+    }
     // Test data similar to what signup would send
     const testUserId = "test_signup_" + Date.now()
     const testPassword = "test123"

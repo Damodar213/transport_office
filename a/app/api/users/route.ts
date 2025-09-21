@@ -18,9 +18,9 @@ export async function PUT(request: Request) {
   try {
     // Check if user is authenticated and is admin
     const session = await getSession()
-    if (!session) {})
-    return addCorsHeaders(response)
-  }
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
     if (session.role !== 'admin') {
     }
 

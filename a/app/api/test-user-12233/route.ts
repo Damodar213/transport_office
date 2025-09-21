@@ -5,9 +5,9 @@ import { dbQuery, getPool } from "@/lib/db"
 export async function GET() {
   try {
     const pool = getPool()
-    if (!pool) {})
-    return addCorsHeaders(response)
-  }
+    if (!pool) {
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+    }
     // Check if user 12233 exists in database
     const userResult = await dbQuery(
       "SELECT user_id, role, email, name FROM users WHERE user_id = $1",

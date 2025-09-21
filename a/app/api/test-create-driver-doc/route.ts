@@ -14,9 +14,9 @@ export async function POST() {
 
   try {
     const pool = getPool()
-    if (!pool) {})
-    return addCorsHeaders(response)
-  }
+    if (!pool) {
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+    }
     // Get the first driver from the database
     const driverResult = await dbQuery(`
       SELECT d.id, d.supplier_id, d.driver_name, d.license_document_url

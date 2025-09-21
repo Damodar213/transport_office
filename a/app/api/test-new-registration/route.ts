@@ -5,9 +5,9 @@ import { getPool, dbQuery } from "@/lib/db"
 export async function GET() {
   try {
     const pool = getPool()
-    if (!pool) {})
-    return addCorsHeaders(response)
-  }
+    if (!pool) {
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+    }
     // Check recent users in database
     const recentUsers = await dbQuery(`
       SELECT u.user_id, u.role, u.name, u.created_at, s.company_name, s.gst_number

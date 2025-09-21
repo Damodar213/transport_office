@@ -10,13 +10,8 @@ export async function GET() {
     
     // Check if database is configured
     if (!config.database.enabled) {
-      return createApiError(
-        "Database not configured",
-        "DATABASE_URL environment variable is not set",
-        503
-      )})
-    return addCorsHeaders(response)
-  }
+      return createApiError("Database not available", null, 503)
+    }
     const pool = getPool()
     if (!pool) {
       return createApiError(

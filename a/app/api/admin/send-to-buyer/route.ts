@@ -16,9 +16,8 @@ export async function POST(request: Request) {
     console.log("Send to buyer API called")
     
     if (!getPool()) {
-      console.log("Database not available")})
-    return addCorsHeaders(response)
-  }
+      console.log("Import successful")
+    }
     const { orderSubmissionId, buyerId } = await request.json()
     console.log("Order submission ID:", orderSubmissionId, "Buyer ID:", buyerId)
 

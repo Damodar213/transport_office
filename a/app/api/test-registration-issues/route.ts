@@ -5,9 +5,9 @@ import { getPool, dbQuery } from "@/lib/db"
 export async function GET() {
   try {
     const pool = getPool()
-    if (!pool) {})
-    return addCorsHeaders(response)
-  }
+    if (!pool) {
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+    }
     // Check Cloudflare environment variables
     const cloudflareConfig = {
       CLOUDFLARE_ACCOUNT_ID: process.env.CLOUDFLARE_ACCOUNT_ID ? "Set" : "Missing",

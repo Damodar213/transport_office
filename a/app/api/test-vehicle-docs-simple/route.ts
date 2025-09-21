@@ -5,9 +5,9 @@ import { dbQuery, getPool } from "@/lib/db"
 export async function GET() {
   try {
     const pool = getPool()
-    if (!pool) {})
-    return addCorsHeaders(response)
-  }
+    if (!pool) {
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+    }
     // Check vehicle_documents table
     const docsResult = await dbQuery("SELECT COUNT(*) as count FROM vehicle_documents")
     const docCount = docsResult.rows[0].count

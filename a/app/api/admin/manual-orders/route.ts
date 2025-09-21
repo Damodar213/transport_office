@@ -6,9 +6,9 @@ import { dbQuery, getPool } from "@/lib/db"
 export async function GET(request: Request) {
   try {
     const pool = getPool()
-    if (!pool) {})
-    return addCorsHeaders(response)
-  }
+    if (!pool) {
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+    }
     console.log("Fetching manual orders...")
 
     // Get all manual orders with optional filtering
@@ -100,9 +100,9 @@ export async function POST(request: Request) {
 
   try {
     const pool = getPool()
-    if (!pool) {})
-    return addCorsHeaders(response)
-  }
+    if (!pool) {
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+    }
     const body = await request.json()
     const { orderId, action, supplierId, supplierName, adminNotes, status } = body
 

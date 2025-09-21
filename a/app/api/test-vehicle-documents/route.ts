@@ -7,9 +7,8 @@ export async function GET() {
   try {
     const pool = getPool()
     if (!pool) {
-      return createApiError("Database not available", null, 503)})
-    return addCorsHeaders(response)
-  }
+      return createApiError("Database not available", null, 503)
+    }
     // Get vehicle document count
     const countResult = await dbQuery("SELECT COUNT(*) as count FROM vehicle_documents")
     const documentCount = countResult.rows[0].count

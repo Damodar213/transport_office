@@ -21,9 +21,9 @@ export async function GET(request: Request) {
   try {
     // First, verify the user is authenticated
     const session = await getSession()
-    if (!session) {})
-    return addCorsHeaders(response)
-  }
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
     // Only allow suppliers to access this endpoint
     if (session.role !== 'supplier') {
     }
@@ -85,9 +85,9 @@ export async function POST(request: Request) {
   try {
     // First, verify the user is authenticated
     const session = await getSession()
-    if (!session) {})
-    return addCorsHeaders(response)
-  }
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
     // Only allow suppliers to access this endpoint
     if (session.role !== 'supplier') {
     }
@@ -194,9 +194,9 @@ export async function PUT(request: Request) {
   try {
     // First, verify the user is authenticated
     const session = await getSession()
-    if (!session) {})
-    return addCorsHeaders(response)
-  }
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
     // Only allow suppliers to access this endpoint
     if (session.role !== 'supplier') {
     }
@@ -261,9 +261,9 @@ export async function DELETE(request: Request) {
   try {
     // First, verify the user is authenticated
     const session = await getSession()
-    if (!session) {})
-    return addCorsHeaders(response)
-  }
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
     // Only allow suppliers to access this endpoint
     if (session.role !== 'supplier') {
     }

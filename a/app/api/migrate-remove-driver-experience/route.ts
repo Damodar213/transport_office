@@ -30,10 +30,8 @@ export async function POST() {
     if (existingColumns.includes('experience_years')) {
       try {
         await dbQuery(`ALTER TABLE drivers DROP COLUMN experience_years`)
-        console.log("Dropped column: experience_years")})
-    return addCorsHeaders(response)
-
-  } catch (error) {
+        console.log("Import successful")
+    } catch (error) {
         console.error("Error dropping column experience_years:", error)
         const response = NextResponse.json({ 
           error: "Failed to drop experience_years column", 

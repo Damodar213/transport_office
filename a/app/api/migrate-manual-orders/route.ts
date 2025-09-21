@@ -14,9 +14,9 @@ export async function POST() {
 
   try {
     const pool = getPool()
-    if (!pool) {})
-    return addCorsHeaders(response)
-  }
+    if (!pool) {
+      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+    }
     console.log("Creating manual_orders table...")
 
     // Create the manual_orders table

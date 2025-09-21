@@ -8,9 +8,9 @@ export async function GET(request: Request) {
   try {
     // Verify the user is authenticated and is a supplier
     const session = await getSession()
-    if (!session) {})
-    return addCorsHeaders(response)
-  }
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
     if (session.role !== 'supplier') {
     }
 

@@ -46,10 +46,8 @@ export async function POST() {
     // Rename the table
     try {
       await dbQuery(`ALTER TABLE transport_orders RENAME TO suppliers_vehicle_location`)
-      console.log("Successfully renamed table: transport_orders -> suppliers_vehicle_location")})
-    return addCorsHeaders(response)
-
-  } catch (error) {
+      console.log("Import successful")
+    } catch (error) {
       console.error("Error renaming table:", error)
       const response = NextResponse.json({ 
         error: "Failed to rename table", 

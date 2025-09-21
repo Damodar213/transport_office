@@ -323,10 +323,8 @@ export async function PUT(request: NextRequest) {
           updatedOrder.order_id || updatedOrder.id,
           updatedOrder.supplier_id
         ])
-        console.log("Updated order_submissions status to confirmed for order:", updatedOrder.id)})
-    return addCorsHeaders(response)
-
-  } catch (error) {
+        console.log("Import successful")
+    } catch (error) {
         console.error("Error creating confirmed order record:", error)
         // Don't fail the main update if confirmed order creation fails
       }
