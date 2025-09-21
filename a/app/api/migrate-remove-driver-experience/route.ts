@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST() {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     console.log("Starting drivers table migration to remove experience_years column...")
 
@@ -23,10 +33,11 @@ export async function POST() {
         console.log("Dropped column: experience_years")
       } catch (error) {
         console.error("Error dropping column experience_years:", error)
-        return NextResponse.json({ 
+        const response = NextResponse.json({ 
           error: "Failed to drop experience_years column", 
           details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
         }, { status: 500 })
+    return addCorsHeaders(response)
       }
     } else {
       console.log("Column experience_years does not exist, skipping...")
@@ -45,17 +56,19 @@ export async function POST() {
       console.log(`- ${row.column_name}: ${row.data_type} (${row.is_nullable === 'YES' ? 'nullable' : 'not null'})`)
     })
 
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       message: "Drivers table migration completed successfully",
-      droppedColumns: existingColumns.includes('experience_years') ? ['experience_years'] : [],
+      droppedColumns: existingColumns.includes('experience_years')
+    return addCorsHeaders(response) ? ['experience_years'] : [],
       finalStructure: finalStructure.rows
     })
 
   } catch (error) {
     console.error("Drivers migration error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Drivers migration failed", 
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

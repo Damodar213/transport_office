@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { getSession } from "@/lib/auth"
 import { dbQuery } from "@/lib/db"
 
@@ -9,12 +10,13 @@ export async function GET() {
     // Test 1: Check if user is authenticated
     const session = await getSession()
     if (!session) {
-      return NextResponse.json({
+      const response = NextResponse.json({
         success: false,
         test: "authentication",
         message: "No active session - user needs to log in",
         recommendation: "Log in with valid credentials first"
       })
+    return addCorsHeaders(response)
     }
 
     console.log("User session:", {
@@ -25,13 +27,14 @@ export async function GET() {
 
     // Test 2: Check if user is a supplier
     if (session.role !== 'supplier') {
-      return NextResponse.json({
+      const response = NextResponse.json({
         success: false,
         test: "role_check",
         message: "User is not a supplier",
         userRole: session.role,
         recommendation: "Log in as a supplier to test truck data isolation"
       })
+    return addCorsHeaders(response)
     }
 
     // Test 3: Check trucks for current supplier
@@ -57,7 +60,7 @@ export async function GET() {
 
     console.log("Other suppliers with trucks:", otherSuppliersTrucks.rows)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       test: "data_isolation",
       message: "Data isolation test completed",
@@ -75,15 +78,17 @@ export async function GET() {
       },
       securityStatus: "Data isolation is working correctly - each supplier can only see their own trucks"
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Data isolation test error:", error)
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: false,
       test: "error",
       message: "Test failed with error",
       error: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

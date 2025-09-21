@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 // Helper function to format timestamp (exact same as buyer notifications)
@@ -81,7 +82,8 @@ function formatTimestamp(timestamp: string | Date): string {
 export async function GET() {
   try {
     if (!getPool()) {
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     console.log("Fetching supplier vehicle location notifications...")
@@ -97,7 +99,8 @@ export async function GET() {
 
     if (!tableExists.rows[0].exists) {
       console.log("supplier_vehicle_location_notifications table does not exist")
-      return NextResponse.json({ notifications: [] })
+      const response = NextResponse.json({ notifications: [] })
+    return addCorsHeaders(response)
     }
 
     // Fetch notifications from the database
@@ -155,22 +158,34 @@ export async function GET() {
     }).filter(Boolean) // Remove any null entries
 
     console.log(`Returning ${notifications.length} notifications`)
-    return NextResponse.json({ notifications })
+    const response = NextResponse.json({ notifications })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error fetching supplier vehicle location notifications:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to fetch notifications",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
 // POST - Create a new supplier vehicle location notification
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST(request: Request) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     if (!getPool()) {
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     const body = await request.json()
@@ -192,9 +207,10 @@ export async function POST(request: Request) {
 
     // Validate required fields
     if (!vehicle_location_id || !supplier_id || !supplier_name || !state || !district || !place || !vehicle_number || !body_type) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Missing required fields" 
       }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     // Check if notification already exists for this vehicle location
@@ -204,9 +220,10 @@ export async function POST(request: Request) {
     `, [vehicle_location_id])
 
     if (existingNotification.rows.length > 0) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Notification already exists for this vehicle location" 
       }, { status: 409 })
+    return addCorsHeaders(response)
     }
 
     // Insert new notification
@@ -243,18 +260,20 @@ export async function POST(request: Request) {
 
     console.log("Created new supplier vehicle location notification:", newNotification.id)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "Notification created successfully",
       notification: newNotification
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error creating supplier vehicle location notification:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to create notification",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

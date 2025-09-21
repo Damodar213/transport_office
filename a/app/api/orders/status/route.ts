@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 
 // PUT - Update order status
 export async function PUT(request: NextRequest) {
@@ -7,7 +8,8 @@ export async function PUT(request: NextRequest) {
     const { orderId, status, notes, updatedBy } = body
 
     if (!orderId || !status) {
-      return NextResponse.json({ error: "Order ID and status are required" }, { status: 400 })
+      const response = NextResponse.json({ error: "Order ID and status are required" }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     const validStatuses = [
@@ -23,7 +25,8 @@ export async function PUT(request: NextRequest) {
     ]
 
     if (!validStatuses.includes(status)) {
-      return NextResponse.json({ error: "Invalid status" }, { status: 400 })
+      const response = NextResponse.json({ error: "Invalid status" }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     // Mock status update - replace with actual database update
@@ -40,12 +43,14 @@ export async function PUT(request: NextRequest) {
     // In real implementation, update the order status in database
     // await updateOrderStatus(orderId, statusUpdate)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       message: "Order status updated successfully",
       update: statusUpdate,
     })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error("Status update error:", error)
-    return NextResponse.json({ error: "Failed to update order status" }, { status: 500 })
+    const response = NextResponse.json({ error: "Failed to update order status" }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

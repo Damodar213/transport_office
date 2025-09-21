@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import bcrypt from "bcryptjs"
 import { createUser, createUserAsync, createBuyerAsync } from "@/lib/user-storage"
 import { bulkAddSupplierDocuments } from "@/lib/document-storage"
@@ -9,7 +10,16 @@ import { writeFile, mkdir } from "fs/promises"
 import { join } from "path"
 import { existsSync } from "fs"
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST(request: NextRequest) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     console.log("=== SIGNUP REQUEST START ===")
     
@@ -32,7 +42,8 @@ export async function POST(request: NextRequest) {
         formData = mockFormData
       } catch (jsonError) {
         console.error("JSON parsing also failed:", jsonError)
-        return NextResponse.json({ error: "Failed to parse request data" }, { status: 400 })
+        const response = NextResponse.json({ error: "Failed to parse request data" }, { status: 400 })
+    return addCorsHeaders(response)
       }
     }
 
@@ -44,7 +55,8 @@ export async function POST(request: NextRequest) {
 
     if (!userId || !password || !role) {
       console.log("Missing required fields")
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+      const response = NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     // Hash password
@@ -151,7 +163,8 @@ export async function POST(request: NextRequest) {
         }
       } catch (uploadError) {
         console.error("File upload error:", uploadError)
-        return NextResponse.json({ error: "File upload failed" }, { status: 500 })
+        const response = NextResponse.json({ error: "File upload failed" }, { status: 500 })
+    return addCorsHeaders(response)
       }
 
       // Save to database with document URLs
@@ -196,10 +209,11 @@ export async function POST(request: NextRequest) {
         }
       } catch (dbError) {
         console.error("Database save error:", dbError)
-        return NextResponse.json({ 
+        const response = NextResponse.json({ 
           error: "Failed to save user to database",
           details: dbError instanceof Error ? dbError.message : "Unknown error"
         }, { status: 500 })
+    return addCorsHeaders(response)
       }
     } else if (role === "buyer") {
       console.log("Processing buyer registration...")
@@ -222,10 +236,11 @@ export async function POST(request: NextRequest) {
         console.log("Buyer registered with ID:", newUser.id)
       } catch (dbError) {
         console.error("Database save error:", dbError)
-        return NextResponse.json({ 
+        const response = NextResponse.json({ 
           error: "Failed to save user to database",
           details: dbError instanceof Error ? dbError.message : "Unknown error"
         }, { status: 500 })
+    return addCorsHeaders(response)
       }
     } else if (role === "admin") {
       console.log("Processing admin registration...")
@@ -234,7 +249,8 @@ export async function POST(request: NextRequest) {
       // Validate admin authorization key
       if (adminKey !== "TRANSPORT_ADMIN_2024") {
         console.log("Invalid admin key provided")
-        return NextResponse.json({ error: "Invalid admin authorization key" }, { status: 403 })
+        const response = NextResponse.json({ error: "Invalid admin authorization key" }, { status: 403 })
+    return addCorsHeaders(response)
       }
 
       const adminData = {
@@ -264,24 +280,28 @@ export async function POST(request: NextRequest) {
         }
       } catch (dbError) {
         console.error("Admin database save error:", dbError)
-        return NextResponse.json({ 
+        const response = NextResponse.json({ 
           error: "Failed to save admin to database",
           details: dbError instanceof Error ? dbError.message : "Unknown error"
         }, { status: 500 })
+    return addCorsHeaders(response)
       }
     } else {
       console.log("Invalid role specified:", role)
-      return NextResponse.json({ error: "Invalid role specified" }, { status: 400 })
+      const response = NextResponse.json({ error: "Invalid role specified" }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     console.log("=== SIGNUP REQUEST SUCCESS ===")
-    return NextResponse.json({ message: "Account created successfully" }, { status: 201 })
+    const response = NextResponse.json({ message: "Account created successfully" }, { status: 201 })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error("=== SIGNUP REQUEST ERROR ===")
     console.error("Signup error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Internal server error",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

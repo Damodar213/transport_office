@@ -8,17 +8,20 @@ export async function GET(request: NextRequest) {
     
     if (!getPool()) {
       console.log("Database not available")
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     // Verify the user is authenticated and is a buyer
     const session = await getSession()
     if (!session) {
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+      const response = NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    return addCorsHeaders(response)
     }
 
     if (session.role !== 'buyer') {
-      return NextResponse.json({ error: "Access denied - buyer role required" }, { status: 403 })
+      const response = NextResponse.json({ error: "Access denied - buyer role required" }, { status: 403 })
+    return addCorsHeaders(response)
     }
 
     const buyerId = session.userIdString
@@ -58,17 +61,19 @@ export async function GET(request: NextRequest) {
 
     console.log("Found accepted requests:", acceptedRequests.rows.length)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       requests: acceptedRequests.rows
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error fetching accepted requests:", error)
-    return NextResponse.json(
+    const response = NextResponse.json(
       { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     )
+    return addCorsHeaders(response)
   }
 }
 
@@ -78,17 +83,20 @@ export async function DELETE(request: NextRequest) {
     
     if (!getPool()) {
       console.log("Database not available")
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     // Verify the user is authenticated and is a buyer
     const session = await getSession()
     if (!session) {
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+      const response = NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    return addCorsHeaders(response)
     }
 
     if (session.role !== 'buyer') {
-      return NextResponse.json({ error: "Access denied - buyer role required" }, { status: 403 })
+      const response = NextResponse.json({ error: "Access denied - buyer role required" }, { status: 403 })
+    return addCorsHeaders(response)
     }
 
     const buyerId = session.userIdString
@@ -96,7 +104,8 @@ export async function DELETE(request: NextRequest) {
     const requestId = searchParams.get('id')
 
     if (!requestId) {
-      return NextResponse.json({ error: "Request ID is required" }, { status: 400 })
+      const response = NextResponse.json({ error: "Request ID is required" }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     console.log("Deleting accepted request:", requestId, "for buyer:", buyerId)
@@ -108,7 +117,8 @@ export async function DELETE(request: NextRequest) {
     )
 
     if (requestCheck.rows.length === 0) {
-      return NextResponse.json({ error: "Accepted request not found or access denied" }, { status: 404 })
+      const response = NextResponse.json({ error: "Accepted request not found or access denied" }, { status: 404 })
+    return addCorsHeaders(response)
     }
 
     // Delete the accepted request
@@ -118,21 +128,24 @@ export async function DELETE(request: NextRequest) {
     )
 
     if (deleteResult.rows.length === 0) {
-      return NextResponse.json({ error: "Failed to delete accepted request" }, { status: 500 })
+      const response = NextResponse.json({ error: "Failed to delete accepted request" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     console.log("Successfully deleted accepted request:", requestId)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "Accepted request deleted successfully"
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error deleting accepted request:", error)
-    return NextResponse.json(
+    const response = NextResponse.json(
       { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     )
+    return addCorsHeaders(response)
   }
 }

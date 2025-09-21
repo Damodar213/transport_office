@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { findUserByCredentialsAsync } from "@/lib/user-storage"
 import bcrypt from "bcryptjs"
 
@@ -11,7 +12,8 @@ export async function GET() {
     console.log("Database admin found:", dbAdmin ? { id: dbAdmin.id, userId: dbAdmin.userId, role: dbAdmin.role, email: dbAdmin.email } : null)
     
     if (!dbAdmin) {
-      return NextResponse.json({ error: "Database admin not found" }, { status: 404 })
+      const response = NextResponse.json({ error: "Database admin not found" }, { status: 404 })
+    return addCorsHeaders(response)
     }
     
     // Test common passwords
@@ -24,7 +26,7 @@ export async function GET() {
       console.log(`Password "${testPassword}": ${isValid}`)
     }
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       adminUser: {
         id: dbAdmin.id,
         userId: dbAdmin.userId,
@@ -34,9 +36,11 @@ export async function GET() {
       passwordResults,
       message: "Database admin test completed"
     })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error("Test database admin error:", error)
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
+    const response = NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

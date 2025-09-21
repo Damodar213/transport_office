@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 function formatTimestamp(timestamp: string | Date): string {
@@ -80,7 +81,8 @@ function formatTimestamp(timestamp: string | Date): string {
 export async function GET() {
   try {
     if (!getPool()) {
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     console.log("Fetching transport request notifications...")
@@ -96,7 +98,8 @@ export async function GET() {
 
     if (!tableExists.rows[0].exists) {
       console.log("transport_request_notifications table does not exist")
-      return NextResponse.json({ notifications: [] })
+      const response = NextResponse.json({ notifications: [] })
+    return addCorsHeaders(response)
     }
 
     // Fetch notifications from the database
@@ -132,22 +135,34 @@ export async function GET() {
       status: "pending"
     }))
 
-    return NextResponse.json({ notifications })
+    const response = NextResponse.json({ notifications })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error fetching transport request notifications:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to fetch notifications",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
 // POST - Create a new transport request notification
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST(request: Request) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     if (!getPool()) {
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     const body = await request.json()
@@ -164,9 +179,10 @@ export async function POST(request: Request) {
 
     // Validate required fields
     if (!type || !title || !message || !category || !priority) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Missing required fields: type, title, message, category, priority" 
       }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     console.log("Creating transport request notification:", { type, title, category, priority })
@@ -299,18 +315,20 @@ export async function POST(request: Request) {
 
     console.log("✅ Transport request notification created successfully:", newNotification.id)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "Notification created successfully",
       notification: newNotification
     }, { status: 201 })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error creating transport request notification:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to create notification",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

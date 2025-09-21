@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { getAllUsers, getAllUsersAsync } from "@/lib/user-storage"
 
 export async function GET() {
@@ -13,14 +14,16 @@ export async function GET() {
     const dbUsers = await getAllUsersAsync()
     console.log("Database users:", dbUsers.map(u => ({ id: u.id, userId: u.userId, role: u.role })))
     
-    return NextResponse.json({
-      fileUsers: fileUsers.map(u => ({ id: u.id, userId: u.userId, role: u.role, email: u.email })),
+    const response = NextResponse.json({
+      fileUsers: fileUsers.map(u => ({ id: u.id, userId: u.userId, role: u.role, email: u.email })
+    return addCorsHeaders(response)),
       dbUsers: dbUsers.map(u => ({ id: u.id, userId: u.userId, role: u.role, email: u.email })),
       message: "Users listed successfully"
     })
   } catch (error) {
     console.error("List users error:", error)
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
+    const response = NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

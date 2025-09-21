@@ -1,15 +1,26 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { getPool, dbQuery } from "@/lib/db"
 import bcrypt from "bcryptjs"
 import { createUserAsync } from "@/lib/user-storage"
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST() {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     console.log("=== TESTING SIGNUP ERROR ===")
     
     const pool = getPool()
     if (!pool) {
-      return NextResponse.json({ error: "Database not available" }, { status: 503 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
+    return addCorsHeaders(response)
     }
 
     // Test data similar to what signup would send
@@ -50,7 +61,7 @@ export async function POST() {
     await dbQuery("DELETE FROM suppliers WHERE user_id = $1", [testUserId])
     await dbQuery("DELETE FROM users WHERE user_id = $1", [testUserId])
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "Signup test completed successfully",
       result: {
@@ -59,15 +70,17 @@ export async function POST() {
         role: result.role
       }
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Signup test error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       success: false,
       error: "Signup test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST(request: Request) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     console.log("Send manual order to suppliers API called")
     const body = await request.json()
@@ -10,17 +20,19 @@ export async function POST(request: Request) {
 
     if (!orderId || !supplierIds || !Array.isArray(supplierIds) || supplierIds.length === 0) {
       console.log("Validation failed: missing orderId or supplierIds")
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Order ID and supplier IDs are required" 
       }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     const pool = getPool()
     if (!pool) {
       console.log("Database pool not available")
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Database not available" 
       }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     console.log("Processing order:", orderId, "for suppliers:", supplierIds)
@@ -133,7 +145,7 @@ export async function POST(request: Request) {
     `, [orderId])
     console.log(`Updated manual order ${orderId} status to assigned`)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: `Manual order sent to ${supplierIds.length} suppliers`,
       sentOrders: sentOrders,
@@ -144,13 +156,15 @@ export async function POST(request: Request) {
         name: primarySupplier.company_name
       } : null
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error sending manual order to suppliers:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to send manual order to suppliers",
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

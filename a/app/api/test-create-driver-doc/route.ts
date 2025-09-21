@@ -1,11 +1,22 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST() {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     const pool = getPool()
     if (!pool) {
-      return NextResponse.json({ error: "Database not available" }, { status: 503 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
+    return addCorsHeaders(response)
     }
 
     // Get the first driver from the database
@@ -17,10 +28,11 @@ export async function POST() {
     `)
 
     if (driverResult.rows.length === 0) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "No drivers with documents found",
         message: "Please create a driver with a document first"
       }, { status: 404 })
+    return addCorsHeaders(response)
     }
 
     const driver = driverResult.rows[0]
@@ -35,18 +47,20 @@ export async function POST() {
       [driver.id, driver.supplier_id, driver.driver_name, 'license', driver.license_document_url, now]
     )
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "Driver document submission created successfully",
       document: result.rows[0]
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Create driver document test error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

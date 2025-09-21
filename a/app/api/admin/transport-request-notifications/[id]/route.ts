@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 // DELETE - Delete a transport request notification
@@ -8,7 +9,8 @@ export async function DELETE(
 ) {
   try {
     if (!getPool()) {
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     const { id } = await params
@@ -21,22 +23,25 @@ export async function DELETE(
     `, [id])
 
     if (result.rows.length === 0) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Notification not found" 
       }, { status: 404 })
+    return addCorsHeaders(response)
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "Notification deleted successfully"
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error deleting notification:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to delete notification",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

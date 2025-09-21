@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 
 // Mock database - replace with actual database implementation
 const orders = [
@@ -41,13 +42,16 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const order = orders.find((o) => o.id === orderId)
 
     if (!order) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 })
+      const response = NextResponse.json({ error: "Order not found" }, { status: 404 })
+    return addCorsHeaders(response)
     }
 
-    return NextResponse.json({ order })
+    const response = NextResponse.json({ order })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error("Get order error:", error)
-    return NextResponse.json({ error: "Failed to fetch order" }, { status: 500 })
+    const response = NextResponse.json({ error: "Failed to fetch order" }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
@@ -60,7 +64,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     const orderIndex = orders.findIndex((o) => o.id === orderId)
     if (orderIndex === -1) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 })
+      const response = NextResponse.json({ error: "Order not found" }, { status: 404 })
+    return addCorsHeaders(response)
     }
 
     orders[orderIndex] = {
@@ -69,10 +74,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       updatedAt: new Date().toISOString(),
     }
 
-    return NextResponse.json({ message: "Order updated successfully", order: orders[orderIndex] })
+    const response = NextResponse.json({ message: "Order updated successfully", order: orders[orderIndex] })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error("Update order error:", error)
-    return NextResponse.json({ error: "Failed to update order" }, { status: 500 })
+    const response = NextResponse.json({ error: "Failed to update order" }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
@@ -84,14 +91,17 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     const orderIndex = orders.findIndex((o) => o.id === orderId)
 
     if (orderIndex === -1) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 })
+      const response = NextResponse.json({ error: "Order not found" }, { status: 404 })
+    return addCorsHeaders(response)
     }
 
     orders.splice(orderIndex, 1)
 
-    return NextResponse.json({ message: "Order deleted successfully" })
+    const response = NextResponse.json({ message: "Order deleted successfully" })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error("Delete order error:", error)
-    return NextResponse.json({ error: "Failed to delete order" }, { status: 500 })
+    const response = NextResponse.json({ error: "Failed to delete order" }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

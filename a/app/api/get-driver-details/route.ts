@@ -7,7 +7,8 @@ export async function GET(request: NextRequest) {
     const driverId = searchParams.get("driverId")
 
     if (!driverId) {
-      return NextResponse.json({ error: "Driver ID is required" }, { status: 400 })
+      const response = NextResponse.json({ error: "Driver ID is required" }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     console.log("Getting details for driver ID:", driverId)
@@ -19,7 +20,8 @@ export async function GET(request: NextRequest) {
     )
 
     if (driverResult.rows.length === 0) {
-      return NextResponse.json({ error: "Driver not found" }, { status: 404 })
+      const response = NextResponse.json({ error: "Driver not found" }, { status: 404 })
+    return addCorsHeaders(response)
     }
 
     const driver = driverResult.rows[0]
@@ -85,7 +87,7 @@ export async function GET(request: NextRequest) {
       references.buyerRequests.length + 
       references.vehicleLocation.length
 
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       message: "Driver details retrieved successfully",
       driver: driver,
       references: references,
@@ -98,12 +100,14 @@ export async function GET(request: NextRequest) {
         vehicleLocation: references.vehicleLocation.length
       } : null
     })
+    return addCorsHeaders(response)
     
   } catch (error) {
     console.error("Get driver details failed:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to get driver details", 
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

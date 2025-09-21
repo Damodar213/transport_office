@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { getSession } from "@/lib/auth"
 import { dbQuery } from "@/lib/db"
 
@@ -8,9 +9,10 @@ export async function GET() {
     const session = await getSession()
     
     if (!session) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Not authenticated" 
       }, { status: 401 })
+    return addCorsHeaders(response)
     }
 
     // Get additional user details from database
@@ -67,16 +69,18 @@ export async function GET() {
       }
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       user: userDetails
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error getting current user:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to get current user",
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

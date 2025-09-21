@@ -1,22 +1,34 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST(request: Request) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     const body = await request.json()
     const { orderId, supplierIds, orderDetails } = body
 
     if (!orderId || !supplierIds || !Array.isArray(supplierIds) || supplierIds.length === 0) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Order ID and supplier IDs are required" 
       }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     const pool = getPool()
     if (!pool) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Database not available" 
       }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     // Create WhatsApp message
@@ -48,20 +60,22 @@ export async function POST(request: Request) {
       }
     })
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: `Order sent to ${supplierIds.length} suppliers`,
       sentOrders: sentOrders,
       totalSent: supplierIds.length,
       whatsappMessage: message
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error sending order to suppliers:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to send order to suppliers",
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

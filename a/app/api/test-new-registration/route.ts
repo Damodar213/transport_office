@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { getPool, dbQuery } from "@/lib/db"
 
 export async function GET() {
   try {
     const pool = getPool()
     if (!pool) {
-      return NextResponse.json({ error: "Database not available" }, { status: 503 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
+    return addCorsHeaders(response)
     }
 
     // Check recent users in database
@@ -34,19 +36,21 @@ export async function GET() {
       }))
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       databaseUsers: recentUsers.rows,
       fileUsers: fileUsers,
       message: "Registration test completed"
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Registration test error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Registration test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

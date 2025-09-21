@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function GET() {
@@ -6,7 +7,8 @@ export async function GET() {
     console.log("Checking database schema...")
     
     if (!getPool()) {
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
     
     // Check what tables exist
@@ -60,16 +62,18 @@ export async function GET() {
       }
     }
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       tables,
       confirmedOrdersExists: confirmedOrdersExists || true, // Will be true if we just created it
       tableStructures,
       message: "Schema check completed"
     })
+    return addCorsHeaders(response)
     
   } catch (error) {
     console.error("Check schema error:", error)
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
+    const response = NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from "next/server"
 import { dbQuery, getPool } from "@/lib/db"
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST(request: NextRequest) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     console.log("Manual order creation API called")
     
@@ -10,7 +19,8 @@ export async function POST(request: NextRequest) {
     
     if (!pool) {
       console.log("Database not available")
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     const body = await request.json()
@@ -53,8 +63,9 @@ export async function POST(request: NextRequest) {
 
     if (!loadType || (!estimatedTons && !numberOfGoods) || !deliveryPlace) {
       console.log("Missing required fields")
-      return NextResponse.json(
-        { error: "Missing required fields: loadType, (estimatedTons or numberOfGoods), deliveryPlace" },
+      const response = NextResponse.json(
+        { error: "Missing required fields: loadType, (estimatedTons or numberOfGoods)
+    return addCorsHeaders(response), deliveryPlace" },
         { status: 400 }
       )
     }
@@ -157,7 +168,7 @@ export async function POST(request: NextRequest) {
 
     console.log("Manual order creation completed successfully!")
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "Manual order created successfully",
       order: {
@@ -190,13 +201,15 @@ export async function POST(request: NextRequest) {
         message: whatsappMessage
       }
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Manual order creation error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to create manual order",
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

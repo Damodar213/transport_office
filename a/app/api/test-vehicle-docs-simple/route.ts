@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function GET() {
   try {
     const pool = getPool()
     if (!pool) {
-      return NextResponse.json({ error: "Database not available" }, { status: 503 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
+    return addCorsHeaders(response)
     }
 
     // Check vehicle_documents table
@@ -29,9 +31,10 @@ export async function GET() {
       LIMIT 5
     `)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
-      vehicleDocumentCount: parseInt(docCount),
+      vehicleDocumentCount: parseInt(docCount)
+    return addCorsHeaders(response),
       vehicleDocuments: sampleDocs.rows,
       trucksWithDocuments: trucksResult.rows,
       message: `Found ${docCount} vehicle documents in database`
@@ -39,10 +42,11 @@ export async function GET() {
 
   } catch (error) {
     console.error("Vehicle documents test error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

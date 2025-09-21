@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST() {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     console.log("Starting migration to create buyer_requests table...")
 
@@ -16,10 +26,11 @@ export async function POST() {
 
     if (tableExists.rows[0].exists) {
       console.log("Table buyer_requests already exists, skipping creation...")
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         message: "Table buyer_requests already exists, no migration needed",
         created: false
       })
+    return addCorsHeaders(response)
     }
 
     // Create the buyer_requests table
@@ -86,18 +97,20 @@ export async function POST() {
       console.log(`- ${row.column_name}: ${row.data_type} (${row.is_nullable === 'YES' ? 'nullable' : 'not null'}) ${row.column_default ? `default: ${row.column_default}` : ''}`)
     })
 
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       message: "buyer_requests table created successfully",
       created: true,
       tableStructure: tableStructure.rows
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Migration error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to create buyer_requests table", 
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

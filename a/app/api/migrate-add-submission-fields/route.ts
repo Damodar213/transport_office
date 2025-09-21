@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST() {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     console.log("Starting migration to add whatsapp_sent and notification_sent fields to order_submissions table...")
 
@@ -137,16 +147,18 @@ export async function POST() {
       }
     }
 
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       message: "Migration completed successfully - order_submissions table updated with whatsapp_sent, notification_sent, status, driver_id, and vehicle_id fields",
       success: true
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Migration error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Migration failed", 
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
 export interface Driver {
@@ -19,7 +20,8 @@ export async function GET(request: Request) {
     const supplierId = searchParams.get("supplierId")
 
     if (!supplierId) {
-      return NextResponse.json({ error: "Supplier ID is required" }, { status: 400 })
+      const response = NextResponse.json({ error: "Supplier ID is required" }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     // Get supplier user_id from suppliers table
@@ -29,7 +31,8 @@ export async function GET(request: Request) {
     )
 
     if (supplierResult.rows.length === 0) {
-      return NextResponse.json({ error: "Supplier not found" }, { status: 404 })
+      const response = NextResponse.json({ error: "Supplier not found" }, { status: 404 })
+    return addCorsHeaders(response)
     }
 
     const supplierDbId = supplierResult.rows[0].user_id
@@ -50,16 +53,27 @@ export async function GET(request: Request) {
     `
 
     const result = await dbQuery<Driver>(sql, [supplierDbId])
-    return NextResponse.json({ drivers: result.rows })
+    const response = NextResponse.json({ drivers: result.rows })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Get drivers error:", error)
-    return NextResponse.json({ error: "Failed to fetch drivers" }, { status: 500 })
+    const response = NextResponse.json({ error: "Failed to fetch drivers" }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
 // POST - Create new driver
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST(request: Request) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     const body = await request.json()
     console.log("Received driver data:", body)
@@ -71,7 +85,8 @@ export async function POST(request: Request) {
     )
 
     if (supplierResult.rows.length === 0) {
-      return NextResponse.json({ error: "Supplier not found" }, { status: 404 })
+      const response = NextResponse.json({ error: "Supplier not found" }, { status: 404 })
+    return addCorsHeaders(response)
     }
 
     const supplierId = supplierResult.rows[0].user_id
@@ -113,14 +128,16 @@ export async function POST(request: Request) {
       }
     }
     
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       message: "Driver created successfully", 
       driver: result.rows[0] 
     }, { status: 201 })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Create driver error:", error)
-    return NextResponse.json({ error: "Failed to create driver", details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" }, { status: 500 })
+    const response = NextResponse.json({ error: "Failed to create driver", details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
@@ -156,7 +173,8 @@ export async function PUT(request: Request) {
     const result = await dbQuery(sql, params)
 
     if (result.rows.length === 0) {
-      return NextResponse.json({ error: "Driver not found" }, { status: 404 })
+      const response = NextResponse.json({ error: "Driver not found" }, { status: 404 })
+    return addCorsHeaders(response)
     }
 
     console.log("Driver updated successfully:", result.rows[0])
@@ -177,14 +195,16 @@ export async function PUT(request: Request) {
       }
     }
     
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       message: "Driver updated successfully", 
       driver: result.rows[0] 
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Update driver error:", error)
-    return NextResponse.json({ error: "Failed to update driver", details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" }, { status: 500 })
+    const response = NextResponse.json({ error: "Failed to update driver", details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
@@ -195,7 +215,8 @@ export async function DELETE(request: Request) {
     const id = searchParams.get("id")
 
     if (!id) {
-      return NextResponse.json({ error: "Driver ID is required" }, { status: 400 })
+      const response = NextResponse.json({ error: "Driver ID is required" }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     console.log("Deleting driver with ID:", id)
@@ -206,7 +227,8 @@ export async function DELETE(request: Request) {
     
     if (checkResult.rows.length === 0) {
       console.log("Driver not found in database")
-      return NextResponse.json({ error: "Driver not found" }, { status: 404 })
+      const response = NextResponse.json({ error: "Driver not found" }, { status: 404 })
+    return addCorsHeaders(response)
     }
 
     console.log("Driver found:", checkResult.rows[0])
@@ -224,10 +246,11 @@ export async function DELETE(request: Request) {
         
         if (parseInt(confirmedOrdersCheck.rows[0].count) > 0) {
           console.log("Driver has confirmed orders, blocking deletion")
-          return NextResponse.json({ 
+          const response = NextResponse.json({ 
             error: "Cannot delete driver. Driver is assigned to confirmed orders. Please reassign or complete the orders first.",
             details: "Driver has active orders"
           }, { status: 400 })
+    return addCorsHeaders(response)
         }
       } catch (error) {
         console.log("confirmed_orders check skipped:", error)
@@ -244,10 +267,11 @@ export async function DELETE(request: Request) {
         
         if (parseInt(vehicleLocationCheck.rows[0].count) > 0) {
           console.log("Driver has vehicle location requests, blocking deletion")
-          return NextResponse.json({ 
+          const response = NextResponse.json({ 
             error: "Cannot delete driver. Driver is assigned to vehicle location requests. Please reassign or complete the requests first.",
             details: "Driver has active vehicle location requests"
           }, { status: 400 })
+    return addCorsHeaders(response)
         }
       } catch (error) {
         console.log("suppliers_vehicle_location check skipped:", error)
@@ -288,10 +312,11 @@ export async function DELETE(request: Request) {
 
     console.log("Driver deleted successfully:", checkResult.rows[0].driver_name)
     
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       message: "Driver deleted successfully",
       deletedDriver: checkResult.rows[0]
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Delete driver error:", error)
@@ -304,24 +329,27 @@ export async function DELETE(request: Request) {
       errorMessage.includes('ECONNRESET') ||
       errorMessage.includes('Connection terminated')
     )) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Database connection error. Please try again.",
         details: "Connection timeout or database unavailable"
       }, { status: 503 })
+    return addCorsHeaders(response)
     }
     
     // Check if it's a foreign key constraint violation
     if (error instanceof Error && error instanceof Error ? error.message : "Unknown error".includes('violates foreign key constraint')) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Cannot delete driver. Driver is referenced by other records in the system.",
         details: "Foreign key constraint violation"
       }, { status: 400 })
+    return addCorsHeaders(response)
     }
     
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to delete driver", 
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

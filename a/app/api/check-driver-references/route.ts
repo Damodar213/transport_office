@@ -7,7 +7,8 @@ export async function GET(request: NextRequest) {
     const driverId = searchParams.get("driverId")
 
     if (!driverId) {
-      return NextResponse.json({ error: "Driver ID is required" }, { status: 400 })
+      const response = NextResponse.json({ error: "Driver ID is required" }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     console.log("Checking references for driver ID:", driverId)
@@ -42,7 +43,7 @@ export async function GET(request: NextRequest) {
 
     references.totalReferences = references.confirmedOrders + references.vehicleLocation
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       driverId,
       references,
       canDelete: references.totalReferences === 0,
@@ -50,12 +51,14 @@ export async function GET(request: NextRequest) {
         ? "Driver can be deleted safely" 
         : `Driver has ${references.totalReferences} references and cannot be deleted`
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Check driver references error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to check driver references",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

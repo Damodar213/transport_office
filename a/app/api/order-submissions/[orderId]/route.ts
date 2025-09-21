@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 // GET - Get all submissions for a specific order
@@ -8,13 +9,15 @@ export async function GET(
 ) {
   try {
     if (!getPool()) {
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     const { orderId: orderIdStr } = await params
     const orderId = parseInt(orderIdStr)
     if (isNaN(orderId)) {
-      return NextResponse.json({ error: "Invalid order ID" }, { status: 400 })
+      const response = NextResponse.json({ error: "Invalid order ID" }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     const result = await dbQuery(`
@@ -30,16 +33,18 @@ export async function GET(
       ORDER BY os.submitted_at DESC
     `, [orderId])
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       submissions: result.rows
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error fetching order submissions:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to fetch order submissions",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST() {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     console.log("Starting transport_orders table migration to add driver_id column...")
 
@@ -23,10 +33,11 @@ export async function POST() {
         console.log("Added column: driver_id")
       } catch (error) {
         console.error("Error adding column driver_id:", error)
-        return NextResponse.json({ 
+        const response = NextResponse.json({ 
           error: "Failed to add driver_id column", 
           details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
         }, { status: 500 })
+    return addCorsHeaders(response)
       }
     } else {
       console.log("Column driver_id already exists, skipping...")
@@ -45,17 +56,19 @@ export async function POST() {
       console.log(`- ${row.column_name}: ${row.data_type} (${row.is_nullable === 'YES' ? 'nullable' : 'not null'})`)
     })
 
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       message: "Transport orders table migration completed successfully",
-      addedColumns: !existingColumns.includes('driver_id') ? ['driver_id'] : [],
+      addedColumns: !existingColumns.includes('driver_id')
+    return addCorsHeaders(response) ? ['driver_id'] : [],
       finalStructure: finalStructure.rows
     })
 
   } catch (error) {
     console.error("Transport orders migration error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Transport orders migration failed", 
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

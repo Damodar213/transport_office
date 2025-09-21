@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function GET() {
@@ -9,7 +10,8 @@ export async function GET() {
     let pool = getPool()
     if (!pool) {
       console.log("Database not available")
-      return NextResponse.json({ count: 0 })
+      const response = NextResponse.json({ count: 0 })
+    return addCorsHeaders(response)
     }
 
     // Test database connection first
@@ -17,7 +19,8 @@ export async function GET() {
       await pool.query('SELECT 1')
     } catch (dbError) {
       console.error("Database connection test failed:", dbError)
-      return NextResponse.json({ count: 0 })
+      const response = NextResponse.json({ count: 0 })
+    return addCorsHeaders(response)
     }
 
     // Check if notification tables exist
@@ -33,7 +36,8 @@ export async function GET() {
       transportRequestTableExists = tableCheckResult.rows[0].transport_request_exists
     } catch (tableCheckError) {
       console.error("Error checking table existence:", tableCheckError)
-      return NextResponse.json({ count: 0 })
+      const response = NextResponse.json({ count: 0 })
+    return addCorsHeaders(response)
     }
     
     // Count unread notifications from both tables
@@ -71,10 +75,12 @@ export async function GET() {
 
     console.log(`Total unread notifications: ${totalCount}`)
 
-    return NextResponse.json({ count: totalCount })
+    const response = NextResponse.json({ count: totalCount })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error fetching notification count:", error)
-    return NextResponse.json({ count: 0 })
+    const response = NextResponse.json({ count: 0 })
+    return addCorsHeaders(response)
   }
 }

@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST() {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     console.log("Starting migration to rename transport_orders table to suppliers_vehicle_location...")
 
@@ -21,18 +31,20 @@ export async function POST() {
 
     if (checkOldTable.rows.length === 0) {
       console.log("Table transport_orders does not exist, skipping migration...")
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         message: "Table transport_orders does not exist, no migration needed",
         renamed: false
       })
+    return addCorsHeaders(response)
     }
 
     if (checkNewTable.rows.length > 0) {
       console.log("Table suppliers_vehicle_location already exists, skipping migration...")
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         message: "Table suppliers_vehicle_location already exists, no migration needed",
         renamed: false
       })
+    return addCorsHeaders(response)
     }
 
     // Rename the table
@@ -41,10 +53,11 @@ export async function POST() {
       console.log("Successfully renamed table: transport_orders -> suppliers_vehicle_location")
     } catch (error) {
       console.error("Error renaming table:", error)
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Failed to rename table", 
         details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
       }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     // Verify the new table structure
@@ -60,19 +73,21 @@ export async function POST() {
       console.log(`- ${row.column_name}: ${row.data_type} (${row.is_nullable === 'YES' ? 'nullable' : 'not null'})`)
     })
 
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       message: "Table migration completed successfully",
       renamed: true,
       oldTableName: "transport_orders",
       newTableName: "suppliers_vehicle_location",
       finalStructure: finalStructure.rows
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Table migration error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Table migration failed", 
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

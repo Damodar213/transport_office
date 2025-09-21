@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function GET() {
   try {
     const pool = getPool()
     if (!pool) {
-      return NextResponse.json({ error: "Database not available" }, { status: 503 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
+    return addCorsHeaders(response)
     }
 
     console.log("Checking suppliers in database...")
@@ -29,20 +31,22 @@ export async function GET() {
 
     console.log(`Found ${suppliersResult.rows.length} suppliers and ${usersResult.rows.length} supplier users`)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       suppliers: suppliersResult.rows,
       supplierUsers: usersResult.rows,
       totalSuppliers: suppliersResult.rows.length,
       totalSupplierUsers: usersResult.rows.length
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error checking suppliers:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to check suppliers",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { checkDatabaseHealth } from "@/lib/db"
 
 export async function GET() {
@@ -16,14 +17,17 @@ export async function GET() {
     }
     
     if (!dbHealth.healthy) {
-      return NextResponse.json(health, { status: 503 })
+      const response = NextResponse.json(health, { status: 503 })
+    return addCorsHeaders(response)
     }
     
-    return NextResponse.json(health, { status: 200 })
+    const response = NextResponse.json(health, { status: 200 })
+    return addCorsHeaders(response)
   } catch (error) {
-    return NextResponse.json({
+    const response = NextResponse.json({
       status: "unhealthy",
-      timestamp: new Date().toISOString(),
+      timestamp: new Date()
+    return addCorsHeaders(response).toISOString(),
       error: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 503 })
   }

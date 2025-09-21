@@ -1,12 +1,23 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { getPool, dbQuery } from "@/lib/db"
 import bcrypt from "bcryptjs"
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST() {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     const pool = getPool()
     if (!pool) {
-      return NextResponse.json({ error: "Database not available" }, { status: 503 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
+    return addCorsHeaders(response)
     }
 
     console.log("Testing supplier registration...")
@@ -28,11 +39,12 @@ export async function POST() {
     )
 
     if (userResult.rows.length === 0) {
-      return NextResponse.json({
+      const response = NextResponse.json({
         success: false,
         step: "users_table_insert",
         message: "Failed to insert into users table"
       })
+    return addCorsHeaders(response)
     }
 
     const userId = userResult.rows[0].id
@@ -62,20 +74,22 @@ export async function POST() {
     await dbQuery("DELETE FROM suppliers WHERE user_id = $1", [testUserId])
     await dbQuery("DELETE FROM users WHERE user_id = $1", [testUserId])
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "Supplier registration test completed successfully",
       testUserId,
       insertedData: verifyResult.rows[0]
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Supplier registration test error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       success: false,
       error: "Supplier registration test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

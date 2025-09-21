@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function GET() {
   try {
     const pool = getPool()
     if (!pool) {
-      return NextResponse.json({ error: "Database not available" }, { status: 503 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
+    return addCorsHeaders(response)
     }
 
     // Simple test - just check if table exists
@@ -16,18 +18,20 @@ export async function GET() {
       AND table_name IN ('driver_documents', 'vehicle_documents')
     `)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
-      tables: result.rows.map(row => row.table_name),
+      tables: result.rows.map(row => row.table_name)
+    return addCorsHeaders(response),
       message: "Tables check completed"
     })
 
   } catch (error) {
     console.error("Simple test error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

@@ -1,6 +1,16 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
+
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
 
 export async function POST(request: NextRequest) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     console.log("=== TESTING REQUEST HANDLING ===")
     
@@ -22,7 +32,7 @@ export async function POST(request: NextRequest) {
       console.log("Failed to parse as JSON:", e)
     }
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "Request handling test completed successfully",
       requestInfo: {
@@ -32,14 +42,16 @@ export async function POST(request: NextRequest) {
         bodyLength: textBody.length
       }
     })
+    return addCorsHeaders(response)
     
   } catch (error) {
     console.error("=== REQUEST HANDLING ERROR ===", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Request handling test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

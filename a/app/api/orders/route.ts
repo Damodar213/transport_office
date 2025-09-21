@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
 export interface TransportOrder {
@@ -206,7 +207,8 @@ export async function GET(request: NextRequest) {
           updatedAt: row.updated_at,
         }))
 
-        return NextResponse.json({ orders: transformedOrders })
+        const response = NextResponse.json({ orders: transformedOrders })
+    return addCorsHeaders(response)
       }
     } catch (dbError) {
       console.log("Database query failed, falling back to mock data:", dbError)
@@ -247,10 +249,12 @@ export async function GET(request: NextRequest) {
     // Sort by creation date (newest first)
     filteredOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 
-    return NextResponse.json({ orders: filteredOrders })
+    const response = NextResponse.json({ orders: filteredOrders })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error("Get orders error:", error)
-    return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 })
+    const response = NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
@@ -271,7 +275,16 @@ function calculateProgress(status: string): number {
 }
 
 // POST - Create new order
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST(request: NextRequest) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     const body = await request.json()
 
@@ -286,9 +299,11 @@ export async function POST(request: NextRequest) {
 
     orders.push(newOrder)
 
-    return NextResponse.json({ message: "Order created successfully", order: newOrder }, { status: 201 })
+    const response = NextResponse.json({ message: "Order created successfully", order: newOrder }, { status: 201 })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error("Create order error:", error)
-    return NextResponse.json({ error: "Failed to create order" }, { status: 500 })
+    const response = NextResponse.json({ error: "Failed to create order" }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

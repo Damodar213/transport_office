@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 // PUT - Mark all transport request notifications as read
 export async function PUT() {
   try {
     if (!getPool()) {
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     console.log("PUT /api/admin/transport-request-notifications/mark-all-read - marking all as read")
@@ -21,18 +23,20 @@ export async function PUT() {
     const updatedCount = result.rows.length
     console.log(`${updatedCount} transport request notifications marked as read successfully`)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "All transport request notifications marked as read successfully",
       updatedCount
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error marking all transport request notifications as read:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to mark all notifications as read",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

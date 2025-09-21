@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 // GET - Fetch unique states from districts
@@ -9,11 +10,12 @@ export async function GET() {
     // Check if database is available
     const pool = getPool()
     if (!pool) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Database not available",
         states: [],
         message: "Database connection failed"
       }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     // Fetch unique states from districts
@@ -26,18 +28,20 @@ export async function GET() {
 
     const states = result.rows.map(row => row.state)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       states: states,
       total: states.length,
       message: "States fetched successfully"
     })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error("Error fetching states:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to fetch states",
       states: [],
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

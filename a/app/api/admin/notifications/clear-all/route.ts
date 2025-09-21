@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function DELETE() {
@@ -6,7 +7,8 @@ export async function DELETE() {
     console.log("DELETE /api/admin/notifications/clear-all - clearing all notifications")
     
     if (!getPool()) {
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
     
     // Check if notifications table exists
@@ -19,9 +21,10 @@ export async function DELETE() {
     `)
     
     if (!tableExists.rows[0].exists) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Notifications table not found",
-        message: "All notifications cleared (mock mode)"
+        message: "All notifications cleared (mock mode)
+    return addCorsHeaders(response)"
       })
     }
     
@@ -37,17 +40,19 @@ export async function DELETE() {
     `)
     
     console.log(`${totalCount} notifications cleared successfully`)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       message: "All notifications cleared successfully",
       clearedCount: parseInt(totalCount)
+    return addCorsHeaders(response)
     })
     
   } catch (error) {
     console.error("Error clearing all notifications:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to clear all notifications",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

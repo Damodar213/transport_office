@@ -131,7 +131,16 @@ export async function PATCH(request: NextRequest) {
 }
 
 // POST - Create document submission (for testing or manual entry)
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST(request: NextRequest) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   return withAuth(async (session) => {
     return withDatabase(async () => {
       const body = await request.json()

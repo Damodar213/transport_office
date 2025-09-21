@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { checkDatabaseHealth, getPool, dbQuery } from "@/lib/db"
 import { config } from "@/lib/config"
 import { createApiResponse, createApiError } from "@/lib/api-utils"

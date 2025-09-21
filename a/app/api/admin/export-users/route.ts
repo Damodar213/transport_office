@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { getAllUsersAsync } from "@/lib/user-storage"
 import { getPool } from "@/lib/db"
 
@@ -8,7 +9,8 @@ export async function GET(request: Request) {
     const format = searchParams.get('format') || 'excel'
     
     if (!getPool()) {
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     const users = await getAllUsersAsync()
@@ -17,27 +19,30 @@ export async function GET(request: Request) {
     const exportData = users.map(({ passwordHash, ...rest }) => rest)
 
     if (format === 'json') {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         users: exportData,
-        exportedAt: new Date().toISOString(),
+        exportedAt: new Date()
+    return addCorsHeaders(response).toISOString(),
         totalUsers: exportData.length
       })
     }
 
     // For other formats, return the data that can be processed on the client side
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       users: exportData,
       format,
-      exportedAt: new Date().toISOString(),
+      exportedAt: new Date()
+    return addCorsHeaders(response).toISOString(),
       totalUsers: exportData.length
     })
 
   } catch (error) {
     console.error("Error exporting users:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to export users",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

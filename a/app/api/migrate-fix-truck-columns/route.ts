@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST() {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     console.log("Starting trucks table migration to fix column names...")
 
@@ -29,10 +39,11 @@ export async function POST() {
         console.log("Renamed number_of_vehicles to number_of_wheels")
       } catch (error) {
         console.error("Error renaming column:", error)
-        return NextResponse.json({ 
+        const response = NextResponse.json({ 
           error: "Failed to rename column",
           details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
         }, { status: 500 })
+    return addCorsHeaders(response)
       }
     } else if (!hasNumberOfVehicles && !hasNumberOfWheels) {
       // Add number_of_wheels column if neither exists
@@ -41,10 +52,11 @@ export async function POST() {
         console.log("Added number_of_wheels column")
       } catch (error) {
         console.error("Error adding column:", error)
-        return NextResponse.json({ 
+        const response = NextResponse.json({ 
           error: "Failed to add column",
           details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
         }, { status: 500 })
+    return addCorsHeaders(response)
       }
     }
 
@@ -61,17 +73,19 @@ export async function POST() {
       console.log(`- ${row.column_name}: ${row.data_type} (${row.is_nullable === 'YES' ? 'nullable' : 'not null'})`)
     })
 
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       message: "Trucks table migration completed successfully",
       finalStructure: finalStructure.rows
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Trucks migration error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to migrate trucks table",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

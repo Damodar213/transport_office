@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 
 // GET - Get order statistics
 export async function GET(request: NextRequest) {
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     // Filter stats based on user role and ID
     if (role === "supplier" && userId) {
-      return NextResponse.json({
+      const response = NextResponse.json({
         ...mockStats,
         total: 45,
         pending: 8,
@@ -30,10 +31,11 @@ export async function GET(request: NextRequest) {
         inTransit: 5,
         delivered: 17,
       })
+    return addCorsHeaders(response)
     }
 
     if (role === "buyer" && userId) {
-      return NextResponse.json({
+      const response = NextResponse.json({
         ...mockStats,
         total: 32,
         pending: 5,
@@ -41,11 +43,14 @@ export async function GET(request: NextRequest) {
         inTransit: 3,
         delivered: 12,
       })
+    return addCorsHeaders(response)
     }
 
-    return NextResponse.json(mockStats)
+    const response = NextResponse.json(mockStats)
+    return addCorsHeaders(response)
   } catch (error) {
     console.error("Statistics error:", error)
-    return NextResponse.json({ error: "Failed to fetch statistics" }, { status: 500 })
+    const response = NextResponse.json({ error: "Failed to fetch statistics" }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

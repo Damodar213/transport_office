@@ -17,11 +17,12 @@ export async function GET() {
     // Check if database is available
     const pool = getPool()
     if (!pool) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Database not available",
         loadTypes: [],
         message: "Database connection failed"
       }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     // Simple approach: try to create table and insert data
@@ -73,38 +74,51 @@ export async function GET() {
       ORDER BY name
     `)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       loadTypes: result.rows,
       total: result.rows.length,
       message: "Load types fetched successfully"
     })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error("Error fetching load types:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to fetch load types",
       loadTypes: [],
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
 // POST - Create new load type
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST(request: Request) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     const body = await request.json()
     const { name, description } = body
 
     if (!name || !name.trim()) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Load type name is required" 
       }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     const pool = getPool()
     if (!pool) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Database not available" 
       }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     // Ensure table exists
@@ -130,23 +144,26 @@ export async function POST(request: Request) {
       RETURNING id::text as id, name, description, is_active as "isActive", created_at as "createdAt"
     `, [name.trim(), description?.trim() || null, true])
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       loadType: result.rows[0],
       message: "Load type created successfully"
     }, { status: 201 })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error("Error creating load type:", error)
     
     if (error instanceof Error && error instanceof Error ? error.message : "Unknown error".includes('duplicate key')) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Load type with this name already exists"
       }, { status: 409 })
+    return addCorsHeaders(response)
     }
     
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to create load type",
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
@@ -157,16 +174,18 @@ export async function PUT(request: Request) {
     const { id, name, description, isActive } = body
 
     if (!id || !name || !name.trim()) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Load type ID and name are required" 
       }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     const pool = getPool()
     if (!pool) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Database not available" 
       }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     const result = await dbQuery(`
@@ -177,28 +196,32 @@ export async function PUT(request: Request) {
     `, [name.trim(), description?.trim() || null, isActive !== undefined ? isActive : true, id])
 
     if (result.rows.length === 0) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Load type not found" 
       }, { status: 404 })
+    return addCorsHeaders(response)
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       loadType: result.rows[0],
       message: "Load type updated successfully"
     })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error("Error updating load type:", error)
     
     if (error instanceof Error && error instanceof Error ? error.message : "Unknown error".includes('duplicate key')) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Load type with this name already exists"
       }, { status: 409 })
+    return addCorsHeaders(response)
     }
     
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to update load type",
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
@@ -209,16 +232,18 @@ export async function DELETE(request: NextRequest) {
     const id = searchParams.get("id")
 
     if (!id) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Load type ID is required" 
       }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     const pool = getPool()
     if (!pool) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Database not available" 
       }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     const result = await dbQuery(`
@@ -226,19 +251,22 @@ export async function DELETE(request: NextRequest) {
     `, [id])
 
     if (result.rows.length === 0) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Load type not found" 
       }, { status: 404 })
+    return addCorsHeaders(response)
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       message: "Load type deleted successfully"
     })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error("Error deleting load type:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to delete load type",
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

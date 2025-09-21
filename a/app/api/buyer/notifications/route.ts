@@ -85,17 +85,20 @@ export async function GET(request: NextRequest) {
     
     if (!getPool()) {
       console.log("Database not available")
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     // Verify the user is authenticated and is a buyer
     const session = await getSession()
     if (!session) {
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+      const response = NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    return addCorsHeaders(response)
     }
 
     if (session.role !== 'buyer') {
-      return NextResponse.json({ error: "Access denied - buyer role required" }, { status: 403 })
+      const response = NextResponse.json({ error: "Access denied - buyer role required" }, { status: 403 })
+    return addCorsHeaders(response)
     }
 
     const buyerId = session.userIdString
@@ -136,16 +139,18 @@ export async function GET(request: NextRequest) {
       orderId: notification.order_id
     }))
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       notifications: formattedNotifications
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error fetching buyer notifications:", error)
-    return NextResponse.json(
+    const response = NextResponse.json(
       { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     )
+    return addCorsHeaders(response)
   }
 }

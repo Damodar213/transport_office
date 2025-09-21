@@ -1,25 +1,37 @@
 import { type NextRequest, NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import { findAdminByCredentials } from "@/lib/admin-storage"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
+
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
 
 export async function POST(request: NextRequest) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
   try {
     const { userId, password } = await request.json()
 
     if (!userId || !password) {
-      return NextResponse.json({ error: "Missing userId or password" }, { status: 400 })
+      const errorResponse = NextResponse.json({ error: "Missing userId or password" }, { status: 400 })
+      return addCorsHeaders(errorResponse)
     }
 
     // Find admin by userId
     const admin = await findAdminByCredentials(userId)
     if (!admin) {
-      return NextResponse.json({ error: "Invalid admin credentials" }, { status: 401 })
+      const errorResponse = NextResponse.json({ error: "Invalid admin credentials" }, { status: 401 })
+      return addCorsHeaders(errorResponse)
     }
 
     // Verify password
     const isValidPassword = await bcrypt.compare(password, admin.passwordHash)
     if (!isValidPassword) {
-      return NextResponse.json({ error: "Invalid admin credentials" }, { status: 401 })
+      const errorResponse = NextResponse.json({ error: "Invalid admin credentials" }, { status: 401 })
+      return addCorsHeaders(errorResponse)
     }
 
     // Return admin info (without password)
@@ -49,11 +61,13 @@ export async function POST(request: NextRequest) {
       path: "/", // Ensure cookie is available for all paths
     })
 
-    return response
+    // Add CORS headers
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Admin login error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    const errorResponse = NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return addCorsHeaders(errorResponse)
   }
 }
 

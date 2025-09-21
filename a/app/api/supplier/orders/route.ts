@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 import { getSession } from "@/lib/auth"
 
@@ -8,15 +9,18 @@ export async function GET(request: Request) {
     // Verify the user is authenticated and is a supplier
     const session = await getSession()
     if (!session) {
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+      const response = NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    return addCorsHeaders(response)
     }
 
     if (session.role !== 'supplier') {
-      return NextResponse.json({ error: "Access denied - supplier role required" }, { status: 403 })
+      const response = NextResponse.json({ error: "Access denied - supplier role required" }, { status: 403 })
+    return addCorsHeaders(response)
     }
 
     if (!getPool()) {
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     const supplierId = session.userIdString
@@ -171,16 +175,18 @@ export async function GET(request: Request) {
       order_status: row.order_status // Keep original order_status for reference
     }))
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       orders: transformedOrders
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error fetching supplier orders:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to fetch orders",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

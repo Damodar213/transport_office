@@ -1,11 +1,22 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST() {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     const pool = getPool()
     if (!pool) {
-      return NextResponse.json({ error: "Database not available" }, { status: 503 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
+    return addCorsHeaders(response)
     }
 
     console.log("Fixing missing supplier record for user 111111...")
@@ -18,7 +29,8 @@ export async function POST() {
     `)
 
     if (userResult.rows.length === 0) {
-      return NextResponse.json({ error: "User 111111 not found in users table" }, { status: 404 })
+      const response = NextResponse.json({ error: "User 111111 not found in users table" }, { status: 404 })
+    return addCorsHeaders(response)
     }
 
     const user = userResult.rows[0]
@@ -30,10 +42,11 @@ export async function POST() {
     `)
 
     if (existingSupplier.rows.length > 0) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         message: "Supplier record already exists for user 111111",
         supplier: existingSupplier.rows[0]
       })
+    return addCorsHeaders(response)
     }
 
     // Create supplier record
@@ -66,19 +79,21 @@ export async function POST() {
 
     console.log("Created supplier record:", supplierResult.rows[0])
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "Supplier record created successfully for user 111111",
       supplier: supplierResult.rows[0],
       user: user
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error creating supplier record:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to create supplier record",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 // Mock notifications data for suppliers
@@ -68,9 +69,10 @@ export async function GET(request: Request) {
     console.log("GET /api/supplier/notifications - fetching notifications for supplier:", supplierId)
     
     if (!supplierId) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Supplier ID is required" 
       }, { status: 400 })
+    return addCorsHeaders(response)
     }
     
     // In a real application, you would fetch notifications from the database
@@ -136,26 +138,38 @@ export async function GET(request: Request) {
     }
     
     console.log(`Returning ${notifications.length} notifications for supplier ${supplierId}`)
-    return NextResponse.json({ notifications })
+    const response = NextResponse.json({ notifications })
+    return addCorsHeaders(response)
     
   } catch (error) {
     console.error("Error in supplier notifications API:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to fetch notifications",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST(request: Request) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     const body = await request.json()
     const { type, title, message, category, priority, supplierId, orderId, driverId, vehicleId } = body
     
     if (!type || !title || !message || !category || !priority || !supplierId) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Missing required fields: type, title, message, category, priority, supplierId" 
       }, { status: 400 })
+    return addCorsHeaders(response)
     }
     
     console.log("POST /api/supplier/notifications - creating notification:", { type, title, category, priority, supplierId })
@@ -227,17 +241,19 @@ export async function POST(request: Request) {
         }
         
         console.log("Supplier notification created successfully:", newNotification.id)
-        return NextResponse.json({ 
+        const response = NextResponse.json({ 
           message: "Notification created successfully",
           notification: newNotification
         })
+    return addCorsHeaders(response)
         
       } catch (error) {
         console.error("Error creating notification in database:", error)
-        return NextResponse.json({ 
+        const response = NextResponse.json({ 
           error: "Failed to create notification in database",
           details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
         }, { status: 500 })
+    return addCorsHeaders(response)
       }
     }
     
@@ -252,8 +268,9 @@ export async function POST(request: Request) {
       hour12: true
     })
     
-    return NextResponse.json({ 
-      message: "Notification created successfully (mock mode)",
+    const response = NextResponse.json({ 
+      message: "Notification created successfully (mock mode)
+    return addCorsHeaders(response)",
       notification: {
         id: Date.now().toString(),
         type,
@@ -271,10 +288,11 @@ export async function POST(request: Request) {
     
   } catch (error) {
     console.error("Error creating supplier notification:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to create notification",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

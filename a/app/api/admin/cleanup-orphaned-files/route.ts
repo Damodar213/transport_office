@@ -63,7 +63,16 @@ export async function GET(request: NextRequest) {
 }
 
 // POST - Cleanup orphaned files
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST(request: NextRequest) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   return withAuth(async (session) => {
     return withDatabase(async () => {
       try {

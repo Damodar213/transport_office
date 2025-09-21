@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function DELETE(
@@ -10,7 +11,8 @@ export async function DELETE(
     console.log(`DELETE /api/admin/notifications/${id} - deleting notification`)
     
     if (!getPool()) {
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
     
     // Check if notifications table exists
@@ -23,9 +25,10 @@ export async function DELETE(
     `)
     
     if (!tableExists.rows[0].exists) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Notifications table not found",
-        message: "Notification deleted (mock mode)"
+        message: "Notification deleted (mock mode)
+    return addCorsHeaders(response)"
       })
     }
     
@@ -37,21 +40,24 @@ export async function DELETE(
     `, [id])
     
     if (result.rows.length === 0) {
-      return NextResponse.json({ error: "Notification not found" }, { status: 404 })
+      const response = NextResponse.json({ error: "Notification not found" }, { status: 404 })
+    return addCorsHeaders(response)
     }
     
     console.log(`Notification ${id} deleted successfully`)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       message: "Notification deleted successfully",
       notificationId: id
     })
+    return addCorsHeaders(response)
     
   } catch (error) {
     console.error("Error deleting notification:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to delete notification",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

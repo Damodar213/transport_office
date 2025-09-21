@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { uploadToR2, generateFileKey, deleteFromR2, extractKeyFromUrl, getSignedDownloadUrl } from "@/lib/cloudflare-r2"
 import { writeFile, mkdir } from "fs/promises"
 import { join } from "path"
@@ -20,7 +21,16 @@ async function uploadToLocal(file: Buffer, key: string, contentType: string): Pr
   }
 }
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST(request: NextRequest) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     const formData = await request.formData()
     const file = formData.get("file") as File
@@ -38,22 +48,25 @@ export async function POST(request: NextRequest) {
 
     if (!file) {
       console.log("No file provided in request")
-      return NextResponse.json({ error: "No file provided" }, { status: 400 })
+      const response = NextResponse.json({ error: "No file provided" }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     // Validate file size (5MB limit)
     const maxSize = 5 * 1024 * 1024
     if (file.size > maxSize) {
-      return NextResponse.json({ error: "File size too large. Maximum 5MB allowed." }, { status: 400 })
+      const response = NextResponse.json({ error: "File size too large. Maximum 5MB allowed." }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     // Validate file type
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "application/pdf"]
     if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: "Invalid file type. Only JPG, PNG, and PDF files are allowed." },
         { status: 400 },
       )
+    return addCorsHeaders(response)
     }
 
     // Convert file to buffer
@@ -132,7 +145,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       message: "File uploaded successfully",
       url: uploadResult.url,
       key: uploadResult.key,
@@ -140,12 +153,14 @@ export async function POST(request: NextRequest) {
       size: file.size,
       type: file.type,
     })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error("Upload error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Upload failed", 
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
@@ -157,27 +172,31 @@ export async function DELETE(request: NextRequest) {
     const url = searchParams.get("url")
 
     if (!key && !url) {
-      return NextResponse.json({ error: "File key or URL is required" }, { status: 400 })
+      const response = NextResponse.json({ error: "File key or URL is required" }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     const fileKey = key || (url ? extractKeyFromUrl(url) : null)
     
     if (!fileKey) {
-      return NextResponse.json({ error: "Invalid file key or URL" }, { status: 400 })
+      const response = NextResponse.json({ error: "Invalid file key or URL" }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     await deleteFromR2(fileKey)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       message: "File deleted successfully",
       key: fileKey,
     })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error("Delete error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Delete failed", 
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
@@ -189,28 +208,32 @@ export async function GET(request: NextRequest) {
     const url = searchParams.get("url")
 
     if (!key && !url) {
-      return NextResponse.json({ error: "File key or URL is required" }, { status: 400 })
+      const response = NextResponse.json({ error: "File key or URL is required" }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     const fileKey = key || (url ? extractKeyFromUrl(url) : null)
     
     if (!fileKey) {
-      return NextResponse.json({ error: "Invalid file key or URL" }, { status: 400 })
+      const response = NextResponse.json({ error: "Invalid file key or URL" }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     // Generate signed URL valid for 1 hour
     const signedUrl = await getSignedDownloadUrl(fileKey, 3600)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       signedUrl,
       key: fileKey,
       expiresIn: 3600
     })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error("Signed URL generation error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to generate signed URL", 
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

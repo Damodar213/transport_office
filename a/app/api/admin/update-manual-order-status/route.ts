@@ -1,22 +1,34 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST(request: Request) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     const body = await request.json()
     const { orderId, status } = body
 
     if (!orderId || !status) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Order ID and status are required" 
       }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     const pool = getPool()
     if (!pool) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Database not available" 
       }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     console.log(`Updating manual order ${orderId} status to ${status}`)
@@ -46,17 +58,19 @@ export async function POST(request: Request) {
       })
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: `Manual order status updated to ${status}`
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error updating manual order status:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to update manual order status",
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

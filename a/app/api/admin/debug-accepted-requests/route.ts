@@ -7,7 +7,8 @@ export async function GET(request: NextRequest) {
     
     if (!getPool()) {
       console.log("Database not available")
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     const { searchParams } = new URL(request.url)
@@ -56,7 +57,7 @@ export async function GET(request: NextRequest) {
       records: result.rows
     })
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       debug: {
         orderSubmissionId,
@@ -65,13 +66,15 @@ export async function GET(request: NextRequest) {
         records: result.rows
       }
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error in debug accepted requests:", error)
-    return NextResponse.json(
+    const response = NextResponse.json(
       { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     )
+    return addCorsHeaders(response)
   }
 }
 
@@ -81,7 +84,8 @@ export async function DELETE(request: NextRequest) {
     
     if (!getPool()) {
       console.log("Database not available")
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     const { searchParams } = new URL(request.url)
@@ -89,10 +93,11 @@ export async function DELETE(request: NextRequest) {
     const buyerId = searchParams.get('buyerId')
 
     if (!orderSubmissionId || !buyerId) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: "Both orderSubmissionId and buyerId are required" },
         { status: 400 }
       )
+    return addCorsHeaders(response)
     }
 
     // Delete orphaned records for this specific order and buyer
@@ -108,18 +113,20 @@ export async function DELETE(request: NextRequest) {
       deletedCount: deleteResult.rows.length
     })
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "Orphaned records cleaned up",
       deletedCount: deleteResult.rows.length
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error cleaning up orphaned records:", error)
-    return NextResponse.json(
+    const response = NextResponse.json(
       { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     )
+    return addCorsHeaders(response)
   }
 }
 

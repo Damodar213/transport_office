@@ -1,6 +1,16 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
+
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
 
 export async function POST(request: NextRequest) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     console.log("=== DEBUG SIGNUP START ===")
     
@@ -22,7 +32,8 @@ export async function POST(request: NextRequest) {
       console.log("✓ bcryptjs imported")
     } catch (e) {
       console.error("✗ bcryptjs import failed:", e)
-      return NextResponse.json({ error: "bcryptjs import failed" }, { status: 500 })
+      const response = NextResponse.json({ error: "bcryptjs import failed" }, { status: 500 })
+    return addCorsHeaders(response)
     }
     
     try {
@@ -30,7 +41,8 @@ export async function POST(request: NextRequest) {
       console.log("✓ user-storage imported")
     } catch (e) {
       console.error("✗ user-storage import failed:", e)
-      return NextResponse.json({ error: "user-storage import failed" }, { status: 500 })
+      const response = NextResponse.json({ error: "user-storage import failed" }, { status: 500 })
+    return addCorsHeaders(response)
     }
     
     try {
@@ -38,12 +50,13 @@ export async function POST(request: NextRequest) {
       console.log("✓ cloudflare-r2 imported")
     } catch (e) {
       console.error("✗ cloudflare-r2 import failed:", e)
-      return NextResponse.json({ error: "cloudflare-r2 import failed" }, { status: 500 })
+      const response = NextResponse.json({ error: "cloudflare-r2 import failed" }, { status: 500 })
+    return addCorsHeaders(response)
     }
     
     console.log("=== DEBUG SIGNUP SUCCESS ===")
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "Debug signup completed successfully",
       formData: {
@@ -52,14 +65,16 @@ export async function POST(request: NextRequest) {
         hasPassword: !!password
       }
     })
+    return addCorsHeaders(response)
     
   } catch (error) {
     console.error("=== DEBUG SIGNUP ERROR ===", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Debug signup failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

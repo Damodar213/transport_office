@@ -1,8 +1,18 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import bcrypt from "bcryptjs"
 import { findUserByCredentialsAsync } from "@/lib/user-storage"
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST() {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     const userId = "12233"
     const password = "12345"
@@ -17,11 +27,12 @@ export async function POST() {
     console.log("User found:", user ? "Yes" : "No")
     
     if (!user) {
-      return NextResponse.json({
+      const response = NextResponse.json({
         success: false,
         step: "user_lookup",
         message: "User not found"
       })
+    return addCorsHeaders(response)
     }
 
     console.log("User details:", {
@@ -38,13 +49,14 @@ export async function POST() {
     console.log("Password valid:", isValidPassword)
 
     if (!isValidPassword) {
-      return NextResponse.json({
+      const response = NextResponse.json({
         success: false,
         step: "password_verification",
         message: "Invalid password",
         userFound: true,
         passwordValid: false
       })
+    return addCorsHeaders(response)
     }
 
     // Step 3: Create session
@@ -61,7 +73,7 @@ export async function POST() {
     console.log("Session data:", sessionData)
     console.log("=== LOGIN FLOW COMPLETE ===")
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       step: "complete",
       message: "Login flow completed successfully",
@@ -69,15 +81,17 @@ export async function POST() {
       passwordValid: true,
       sessionData
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Login flow test error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       success: false,
       step: "error",
       error: "Login flow test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

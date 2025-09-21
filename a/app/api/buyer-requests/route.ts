@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 import { getSession } from "@/lib/auth"
 
@@ -8,16 +9,19 @@ export async function GET(request: Request) {
     // First, verify the user is authenticated
     const session = await getSession()
     if (!session) {
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+      const response = NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    return addCorsHeaders(response)
     }
 
     // Allow buyers and admins to access this endpoint
     if (session.role !== 'buyer' && session.role !== 'admin') {
-      return NextResponse.json({ error: "Access denied - buyer or admin role required" }, { status: 403 })
+      const response = NextResponse.json({ error: "Access denied - buyer or admin role required" }, { status: 403 })
+    return addCorsHeaders(response)
     }
 
     if (!getPool()) {
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     const { searchParams } = new URL(request.url)
@@ -75,39 +79,53 @@ export async function GET(request: Request) {
 
     const result = await dbQuery(query, params)
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data: result.rows,
       total: result.rows.length,
       limit,
       offset
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error fetching buyer requests:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to fetch buyer requests",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
 // POST - Create a new buyer request
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST(request: Request) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     // First, verify the user is authenticated
     const session = await getSession()
     if (!session) {
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+      const response = NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    return addCorsHeaders(response)
     }
 
     // Allow buyers and admins to access this endpoint
     if (session.role !== 'buyer' && session.role !== 'admin') {
-      return NextResponse.json({ error: "Access denied - buyer or admin role required" }, { status: 403 })
+      const response = NextResponse.json({ error: "Access denied - buyer or admin role required" }, { status: 403 })
+    return addCorsHeaders(response)
     }
 
     if (!getPool()) {
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     const body = await request.json()
@@ -134,9 +152,10 @@ export async function POST(request: Request) {
     // Validate required fields
     if (!buyer_id || !load_type || !from_state || !from_district || !from_place || 
         !to_state || !to_district || !to_place || !delivery_place) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Missing required fields" 
       }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     // Check if buyer exists in buyers table, if not create a basic entry
@@ -151,9 +170,10 @@ export async function POST(request: Request) {
       `, [buyer_id])
       
       if (userCheck.rows.length === 0) {
-        return NextResponse.json({ 
+        const response = NextResponse.json({ 
           error: "Buyer not found. Please register as a buyer first." 
         }, { status: 400 })
+    return addCorsHeaders(response)
       }
       
       // Create basic buyer entry
@@ -194,17 +214,19 @@ export async function POST(request: Request) {
 
     // Note: Notifications are now created only when the order is submitted, not when created as draft
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "Buyer request created successfully",
       data: newRequest
     }, { status: 201 })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error creating buyer request:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to create buyer request",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

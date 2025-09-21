@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function PUT(
@@ -10,7 +11,8 @@ export async function PUT(
     console.log(`PUT /api/admin/notifications/${id}/read - marking as read`)
     
     if (!getPool()) {
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
     
     // Check if notifications table exists
@@ -23,9 +25,10 @@ export async function PUT(
     `)
     
     if (!tableExists.rows[0].exists) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Notifications table not found",
-        message: "Notification marked as read (mock mode)"
+        message: "Notification marked as read (mock mode)
+    return addCorsHeaders(response)"
       })
     }
     
@@ -38,21 +41,24 @@ export async function PUT(
     `, [id])
     
     if (result.rows.length === 0) {
-      return NextResponse.json({ error: "Notification not found" }, { status: 404 })
+      const response = NextResponse.json({ error: "Notification not found" }, { status: 404 })
+    return addCorsHeaders(response)
     }
     
     console.log(`Notification ${id} marked as read successfully`)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       message: "Notification marked as read successfully",
       notificationId: id
     })
+    return addCorsHeaders(response)
     
   } catch (error) {
     console.error("Error marking notification as read:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to mark notification as read",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

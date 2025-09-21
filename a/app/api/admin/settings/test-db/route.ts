@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function GET() {
@@ -6,10 +7,11 @@ export async function GET() {
     console.log("GET /api/admin/settings/test-db - testing database connection...")
     
     if (!getPool()) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Database not available",
         status: "disconnected"
       }, { status: 500 })
+    return addCorsHeaders(response)
     }
     
     try {
@@ -37,32 +39,35 @@ export async function GET() {
       const version = versionResult.rows[0].version
       
       console.log("Database connection test successful")
-      return NextResponse.json({
+      const response = NextResponse.json({
         status: "connected",
         message: "Database connection test successful",
         details: {
           connection: "OK",
           tables: tableTest.rows.length,
           queryTime: `${queryTime}ms`,
-          version: version.split(' ')[0] + ' ' + version.split(' ')[1] // PostgreSQL 15.4
+          version: version.split(' ')
+    return addCorsHeaders(response)[0] + ' ' + version.split(' ')[1] // PostgreSQL 15.4
         }
       })
       
     } catch (error) {
       console.error("Database connection test failed:", error)
-      return NextResponse.json({
+      const response = NextResponse.json({
         status: "error",
         error: "Database connection test failed",
         details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
       }, { status: 500 })
+    return addCorsHeaders(response)
     }
     
   } catch (error) {
     console.error("Error in database test API:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to test database connection",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

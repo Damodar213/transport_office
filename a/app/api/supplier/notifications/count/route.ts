@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function GET(request: Request) {
@@ -7,16 +8,18 @@ export async function GET(request: Request) {
     const supplierId = searchParams.get("supplierId")
     
     if (!supplierId) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Supplier ID is required" 
       }, { status: 400 })
+    return addCorsHeaders(response)
     }
     
     if (!getPool()) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         unreadCount: 0,
         totalCount: 0
       })
+    return addCorsHeaders(response)
     }
     
     try {
@@ -30,10 +33,11 @@ export async function GET(request: Request) {
       `)
       
       if (!tableExists.rows[0].exists) {
-        return NextResponse.json({ 
+        const response = NextResponse.json({ 
           unreadCount: 0,
           totalCount: 0
         })
+    return addCorsHeaders(response)
       }
       
       // Get unread count
@@ -53,25 +57,28 @@ export async function GET(request: Request) {
       const unreadCount = parseInt(unreadResult.rows[0].unread_count)
       const totalCount = parseInt(totalResult.rows[0].total_count)
       
-      return NextResponse.json({
+      const response = NextResponse.json({
         unreadCount,
         totalCount
       })
+    return addCorsHeaders(response)
       
     } catch (error) {
       console.error("Error fetching notification count:", error)
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         unreadCount: 0,
         totalCount: 0
       })
+    return addCorsHeaders(response)
     }
     
   } catch (error) {
     console.error("Error in notification count API:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to fetch notification count",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

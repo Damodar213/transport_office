@@ -1,6 +1,16 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
+
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
 
 export async function POST(request: NextRequest) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     console.log("=== SIMPLE SIGNUP TEST ===")
     
@@ -15,7 +25,8 @@ export async function POST(request: NextRequest) {
 
     if (!userId || !password || !role) {
       console.log("Missing required fields")
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+      const response = NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     // Test Cloudflare import
@@ -24,10 +35,11 @@ export async function POST(request: NextRequest) {
       console.log("Cloudflare imports successful")
     } catch (importError) {
       console.error("Cloudflare import error:", importError)
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Cloudflare import failed",
         details: importError instanceof Error ? importError.message : "Unknown error"
       }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     // Test user storage import
@@ -36,13 +48,14 @@ export async function POST(request: NextRequest) {
       console.log("User storage imports successful")
     } catch (importError) {
       console.error("User storage import error:", importError)
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "User storage import failed",
         details: importError instanceof Error ? importError.message : "Unknown error"
       }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "Simple signup test completed successfully",
       formData: {
@@ -51,14 +64,16 @@ export async function POST(request: NextRequest) {
         hasPassword: !!password
       }
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Simple signup test error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Simple signup test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

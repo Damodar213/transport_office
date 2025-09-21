@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function DELETE(request: Request) {
@@ -9,11 +10,13 @@ export async function DELETE(request: Request) {
     console.log("DELETE /api/supplier/notifications/clear-all - clearing all notifications for supplier:", supplierId)
     
     if (!supplierId) {
-      return NextResponse.json({ error: "Supplier ID is required" }, { status: 400 })
+      const response = NextResponse.json({ error: "Supplier ID is required" }, { status: 400 })
+    return addCorsHeaders(response)
     }
     
     if (!getPool()) {
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
     
     // Check if supplier_notifications table exists
@@ -26,9 +29,10 @@ export async function DELETE(request: Request) {
     `)
     
     if (!tableExists.rows[0].exists) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Supplier notifications table not found",
-        message: "All notifications cleared (mock mode)"
+        message: "All notifications cleared (mock mode)
+    return addCorsHeaders(response)"
       })
     }
     
@@ -44,17 +48,19 @@ export async function DELETE(request: Request) {
     `, [supplierId])
     
     console.log(`${totalCount} supplier notifications cleared successfully`)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       message: "All notifications cleared successfully",
       clearedCount: parseInt(totalCount)
+    return addCorsHeaders(response)
     })
     
   } catch (error) {
     console.error("Error clearing all supplier notifications:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to clear all notifications",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

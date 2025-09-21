@@ -1,6 +1,16 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
+
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
 
 export async function POST(request: NextRequest) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     console.log("=== TESTING FORMDATA ALTERNATIVE ===")
     
@@ -34,7 +44,7 @@ export async function POST(request: NextRequest) {
       console.error("FormData error:", formDataError)
     }
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "Form data alternative test completed",
       results: {
@@ -44,14 +54,16 @@ export async function POST(request: NextRequest) {
         streamAvailable: !!stream
       }
     })
+    return addCorsHeaders(response)
     
   } catch (error) {
     console.error("=== FORMDATA ALTERNATIVE ERROR ===", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Form data alternative test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 // Format timestamp function (same as supplier notifications)
@@ -189,26 +190,38 @@ export async function GET() {
     }
     
     console.log(`Returning ${notifications.length} notifications`)
-    return NextResponse.json({ notifications })
+    const response = NextResponse.json({ notifications })
+    return addCorsHeaders(response)
     
   } catch (error) {
     console.error("Error in notifications API:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to fetch notifications",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST(request: Request) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     const body = await request.json()
     const { type, title, message, category, priority } = body
     
     if (!type || !title || !message || !category || !priority) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Missing required fields: type, title, message, category, priority" 
       }, { status: 400 })
+    return addCorsHeaders(response)
     }
     
     console.log("POST /api/admin/notifications - creating notification:", { type, title, category, priority })
@@ -261,23 +274,26 @@ export async function POST(request: Request) {
         }
         
         console.log("Notification created successfully:", newNotification.id)
-        return NextResponse.json({ 
+        const response = NextResponse.json({ 
           message: "Notification created successfully",
           notification: newNotification
         })
+    return addCorsHeaders(response)
         
       } catch (error) {
         console.error("Error creating notification in database:", error)
-        return NextResponse.json({ 
+        const response = NextResponse.json({ 
           error: "Failed to create notification in database",
           details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
         }, { status: 500 })
+    return addCorsHeaders(response)
       }
     }
     
     // Fallback response if database is not available
-    return NextResponse.json({ 
-      message: "Notification created successfully (mock mode)",
+    const response = NextResponse.json({ 
+      message: "Notification created successfully (mock mode)
+    return addCorsHeaders(response)",
       notification: {
         id: Date.now().toString(),
         type,
@@ -292,10 +308,11 @@ export async function POST(request: Request) {
     
   } catch (error) {
     console.error("Error creating notification:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to create notification",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

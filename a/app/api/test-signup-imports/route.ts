@@ -1,6 +1,16 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
+
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
 
 export async function POST(request: NextRequest) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     console.log("=== TESTING SIGNUP IMPORTS ===")
     
@@ -10,7 +20,8 @@ export async function POST(request: NextRequest) {
       console.log("bcryptjs import successful")
     } catch (error) {
       console.error("bcryptjs import error:", error)
-      return NextResponse.json({ error: "bcryptjs import failed" }, { status: 500 })
+      const response = NextResponse.json({ error: "bcryptjs import failed" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     try {
@@ -18,7 +29,8 @@ export async function POST(request: NextRequest) {
       console.log("user-storage import successful")
     } catch (error) {
       console.error("user-storage import error:", error)
-      return NextResponse.json({ error: "user-storage import failed" }, { status: 500 })
+      const response = NextResponse.json({ error: "user-storage import failed" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     try {
@@ -26,7 +38,8 @@ export async function POST(request: NextRequest) {
       console.log("document-storage import successful")
     } catch (error) {
       console.error("document-storage import error:", error)
-      return NextResponse.json({ error: "document-storage import failed" }, { status: 500 })
+      const response = NextResponse.json({ error: "document-storage import failed" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     try {
@@ -34,7 +47,8 @@ export async function POST(request: NextRequest) {
       console.log("admin-storage import successful")
     } catch (error) {
       console.error("admin-storage import error:", error)
-      return NextResponse.json({ error: "admin-storage import failed" }, { status: 500 })
+      const response = NextResponse.json({ error: "admin-storage import failed" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     try {
@@ -42,7 +56,8 @@ export async function POST(request: NextRequest) {
       console.log("db import successful")
     } catch (error) {
       console.error("db import error:", error)
-      return NextResponse.json({ error: "db import failed" }, { status: 500 })
+      const response = NextResponse.json({ error: "db import failed" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     try {
@@ -50,20 +65,23 @@ export async function POST(request: NextRequest) {
       console.log("cloudflare-r2 import successful")
     } catch (error) {
       console.error("cloudflare-r2 import error:", error)
-      return NextResponse.json({ error: "cloudflare-r2 import failed" }, { status: 500 })
+      const response = NextResponse.json({ error: "cloudflare-r2 import failed" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "All imports successful"
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Import test error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Import test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

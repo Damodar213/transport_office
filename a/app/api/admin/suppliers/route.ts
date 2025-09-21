@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export interface Supplier {
@@ -31,10 +32,11 @@ export async function GET(request: Request) {
     
     const pool = getPool()
     if (!pool) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Database not available",
         suppliers: []
       }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     let sql = `
@@ -68,26 +70,29 @@ export async function GET(request: Request) {
     // If userId was provided, return the single supplier or null
     if (userId) {
       const supplier = suppliers.length > 0 ? suppliers[0] : null
-      return NextResponse.json({
+      const response = NextResponse.json({
         success: true,
         data: supplier,
         message: supplier ? "Supplier found" : "Supplier not found"
       })
+    return addCorsHeaders(response)
     }
 
     // Return all suppliers
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       suppliers: suppliers,
       total: suppliers.length,
       message: "Real suppliers fetched successfully"
     })
+    return addCorsHeaders(response)
   } catch (error) {
     console.error("Error fetching suppliers:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to fetch suppliers",
       suppliers: [],
       message: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

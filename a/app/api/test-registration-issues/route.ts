@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { getPool, dbQuery } from "@/lib/db"
 
 export async function GET() {
   try {
     const pool = getPool()
     if (!pool) {
-      return NextResponse.json({ error: "Database not available" }, { status: 503 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
+    return addCorsHeaders(response)
     }
 
     // Check Cloudflare environment variables
@@ -41,7 +43,7 @@ export async function GET() {
       LIMIT 5
     `)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       cloudflareConfig,
       usersTableStructure: usersTableCheck.rows,
@@ -49,13 +51,15 @@ export async function GET() {
       recentUsers: recentUsers.rows,
       message: "Registration issues diagnostic completed"
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Registration issues test error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Registration issues test failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

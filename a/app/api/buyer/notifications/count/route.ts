@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function GET(request: Request) {
@@ -7,9 +8,10 @@ export async function GET(request: Request) {
     const buyerId = searchParams.get('buyerId')
     
     if (!buyerId) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Buyer ID is required" 
       }, { status: 400 })
+    return addCorsHeaders(response)
     }
     
     console.log(`GET /api/buyer/notifications/count - fetching count for buyer ${buyerId}`)
@@ -43,13 +45,15 @@ export async function GET(request: Request) {
     }
     
     console.log(`Returning unread count ${unreadCount} for buyer ${buyerId}`)
-    return NextResponse.json({ unreadCount })
+    const response = NextResponse.json({ unreadCount })
+    return addCorsHeaders(response)
     
   } catch (error) {
     console.error("Error fetching buyer notification count:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to fetch notification count",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

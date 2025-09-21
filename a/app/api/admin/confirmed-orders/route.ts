@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
 export async function GET() {
@@ -45,13 +46,15 @@ export async function GET() {
       supplier_company: "Loading..."
     }))
     
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       confirmedOrders,
       totalCount: countResult.rows[0].count
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Get admin confirmed orders error:", error)
-    return NextResponse.json({ error: "Failed to fetch confirmed orders", details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" }, { status: 500 })
+    const response = NextResponse.json({ error: "Failed to fetch confirmed orders", details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

@@ -1,8 +1,18 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 import bcrypt from "bcryptjs"
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST() {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     console.log("Creating user 111111 and supplier record...")
 
@@ -92,19 +102,21 @@ export async function POST() {
       SELECT user_id, company_name, contact_person, number_of_vehicles FROM suppliers WHERE user_id = '111111'
     `)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "User 111111 and supplier record created successfully",
       user: userResult.rows[0],
       supplier: supplierResult.rows[0]
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error creating user and supplier:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to create user and supplier",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

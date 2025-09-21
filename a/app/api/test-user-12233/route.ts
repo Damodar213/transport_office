@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function GET() {
   try {
     const pool = getPool()
     if (!pool) {
-      return NextResponse.json({ error: "Database not available" }, { status: 503 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
+    return addCorsHeaders(response)
     }
 
     // Check if user 12233 exists in database
@@ -20,7 +22,7 @@ export async function GET() {
       ["12233"]
     )
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       userInDatabase: userResult.rows.length > 0,
       userData: userResult.rows[0] || null,
@@ -28,13 +30,15 @@ export async function GET() {
       supplierData: supplierResult.rows[0] || null,
       message: "User 12233 check completed"
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("User check error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "User check failed",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

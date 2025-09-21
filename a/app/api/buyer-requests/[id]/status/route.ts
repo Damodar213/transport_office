@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function PUT(
@@ -11,23 +12,26 @@ export async function PUT(
     const { status } = body
 
     if (!status) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Status is required" 
       }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     // Validate status value
     const validStatuses = ['draft', 'submitted', 'pending', 'assigned', 'confirmed', 'picked_up', 'in_transit', 'delivered', 'cancelled', 'rejected']
     if (!validStatuses.includes(status)) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Invalid status value" 
       }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     if (!getPool()) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Database not available" 
       }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     // Update the order status
@@ -39,9 +43,10 @@ export async function PUT(
     `, [status, id])
 
     if (result.rows.length === 0) {
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: "Order not found" 
       }, { status: 404 })
+    return addCorsHeaders(response)
     }
 
     const updatedOrder = result.rows[0]
@@ -153,18 +158,20 @@ export async function PUT(
       }
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "Order status updated successfully",
       data: updatedOrder
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error updating order status:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to update order status",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

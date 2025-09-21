@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST() {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     console.log("Starting trucks table migration to remove unused columns...")
 
@@ -45,18 +55,20 @@ export async function POST() {
       console.log(`- ${row.column_name}: ${row.data_type} (${row.is_nullable === 'YES' ? 'nullable' : 'not null'})`)
     })
 
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       message: "Trucks table migration completed successfully",
-      droppedColumns: columnsToDrop.filter(col => existingColumns.includes(col)),
+      droppedColumns: columnsToDrop.filter(col => existingColumns.includes(col)
+    return addCorsHeaders(response)),
       finalStructure: finalStructure.rows
     })
 
   } catch (error) {
     console.error("Trucks migration error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Trucks migration failed", 
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" 
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

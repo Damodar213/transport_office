@@ -1,23 +1,35 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST(request: Request) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     console.log("Send to buyer API called")
     
     if (!getPool()) {
       console.log("Database not available")
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     const { orderSubmissionId, buyerId } = await request.json()
     console.log("Order submission ID:", orderSubmissionId, "Buyer ID:", buyerId)
 
     if (!orderSubmissionId || !buyerId) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: "Order submission ID and buyer ID are required" },
         { status: 400 }
       )
+    return addCorsHeaders(response)
     }
 
     // Get the order submission details from accepted_requests table
@@ -49,10 +61,11 @@ export async function POST(request: Request) {
     `, [orderSubmissionId])
 
     if (orderDetails.rows.length === 0) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: "Order submission not found" },
         { status: 404 }
       )
+    return addCorsHeaders(response)
     }
 
     const orderSubmission = orderDetails.rows[0]
@@ -70,10 +83,11 @@ export async function POST(request: Request) {
     `, [orderSubmissionId, buyerId])
 
     if (existingRequest.rows.length > 0) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: "This order has already been sent to the selected buyer" },
         { status: 409 }
       )
+    return addCorsHeaders(response)
     }
 
     // Create accepted request for the selected buyer
@@ -177,17 +191,19 @@ export async function POST(request: Request) {
       console.log("Buyer notification creation failed:", notificationError instanceof Error ? notificationError.message : "Unknown error")
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "Order sent to buyer successfully",
       request: acceptedRequest.rows[0]
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error sending order to buyer:", error)
-    return NextResponse.json(
+    const response = NextResponse.json(
       { error: "Internal server error", details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" },
       { status: 500 }
     )
+    return addCorsHeaders(response)
   }
 }

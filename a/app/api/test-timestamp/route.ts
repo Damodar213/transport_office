@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 
 export async function GET() {
   try {
     const now = new Date()
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       serverTime: {
-        iso: now.toISOString(),
+        iso: now.toISOString()
+    return addCorsHeaders(response),
         ist: now.toLocaleString('en-US', {
           year: 'numeric',
           month: 'short',
@@ -30,6 +32,7 @@ export async function GET() {
       }
     })
   } catch (error) {
-    return NextResponse.json({ error: "Failed to get time" }, { status: 500 })
+    const response = NextResponse.json({ error: "Failed to get time" }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }

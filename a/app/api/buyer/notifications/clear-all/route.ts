@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 export async function DELETE(request: Request) {
@@ -7,13 +8,15 @@ export async function DELETE(request: Request) {
     const buyerId = searchParams.get('buyerId')
     
     if (!buyerId) {
-      return NextResponse.json({ error: "Buyer ID is required" }, { status: 400 })
+      const response = NextResponse.json({ error: "Buyer ID is required" }, { status: 400 })
+    return addCorsHeaders(response)
     }
     
     console.log(`DELETE /api/buyer/notifications/clear-all - clearing all notifications for buyer ${buyerId}`)
     
     if (!getPool()) {
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 500 })
+    return addCorsHeaders(response)
     }
     
     // Check if buyer_notifications table exists
@@ -26,9 +29,10 @@ export async function DELETE(request: Request) {
     `)
     
     if (!tableExists.rows[0].exists) {
-      return NextResponse.json({
+      const response = NextResponse.json({
         error: "Buyer notifications table not found",
-        message: "All notifications cleared (mock mode)"
+        message: "All notifications cleared (mock mode)
+    return addCorsHeaders(response)"
       })
     }
     
@@ -42,18 +46,20 @@ export async function DELETE(request: Request) {
     const deletedCount = result.rows.length
     console.log(`${deletedCount} buyer notifications cleared for buyer ${buyerId}`)
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "All buyer notifications cleared successfully",
       deletedCount: deletedCount
     })
+    return addCorsHeaders(response)
     
   } catch (error) {
     console.error("Error clearing all buyer notifications:", error)
-    return NextResponse.json({
+    const response = NextResponse.json({
       error: "Failed to clear all buyer notifications",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

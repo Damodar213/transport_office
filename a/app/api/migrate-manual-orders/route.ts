@@ -1,11 +1,22 @@
 import { NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST() {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     const pool = getPool()
     if (!pool) {
-      return NextResponse.json({ error: "Database not available" }, { status: 503 })
+      const response = NextResponse.json({ error: "Database not available" }, { status: 503 })
+    return addCorsHeaders(response)
     }
 
     console.log("Creating manual_orders table...")
@@ -58,17 +69,19 @@ export async function POST() {
     await dbQuery(createDateIndexSQL)
     console.log("✅ Created date index created successfully")
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "Manual orders table created successfully with all indexes"
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Manual orders migration error:", error)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: "Failed to create manual orders table",
       details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
     }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

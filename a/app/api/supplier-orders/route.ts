@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery } from "@/lib/db"
 
 export interface SupplierVehicleLocation {
@@ -128,16 +129,27 @@ export async function GET(request: NextRequest) {
       }
     }
     
-    return NextResponse.json({ orders })
+    const response = NextResponse.json({ orders })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Get supplier orders error:", error)
-    return NextResponse.json({ error: "Failed to fetch supplier orders", details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" }, { status: 500 })
+    const response = NextResponse.json({ error: "Failed to fetch supplier orders", details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error" }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
 // POST - Create new supplier transport order
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
+
 export async function POST(request: NextRequest) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
+
   try {
     const body = await request.json()
 
@@ -148,7 +160,8 @@ export async function POST(request: NextRequest) {
     )
 
     if (supplierResult.rows.length === 0) {
-      return NextResponse.json({ error: "Supplier not found" }, { status: 404 })
+      const response = NextResponse.json({ error: "Supplier not found" }, { status: 404 })
+    return addCorsHeaders(response)
     }
 
     const supplierId = supplierResult.rows[0].user_id
@@ -240,14 +253,16 @@ export async function POST(request: NextRequest) {
       // Don't fail the main operation if notification creation fails
     }
 
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       message: "Supplier order created successfully", 
       order: orderWithSupplier 
     }, { status: 201 })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Create supplier order error:", error)
-    return NextResponse.json({ error: "Failed to create supplier order" }, { status: 500 })
+    const response = NextResponse.json({ error: "Failed to create supplier order" }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
@@ -279,7 +294,8 @@ export async function PUT(request: NextRequest) {
     const result = await dbQuery(sql, params)
 
     if (result.rows.length === 0) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 })
+      const response = NextResponse.json({ error: "Order not found" }, { status: 404 })
+    return addCorsHeaders(response)
     }
 
     const updatedOrder = result.rows[0]
@@ -338,14 +354,16 @@ export async function PUT(request: NextRequest) {
       supplier_company: supplierDetails.rows[0].company_name
     }
 
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       message: "Order updated successfully", 
       order: orderWithSupplier 
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Update supplier order error:", error)
-    return NextResponse.json({ error: "Failed to update supplier order" }, { status: 500 })
+    const response = NextResponse.json({ error: "Failed to update supplier order" }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 
@@ -356,7 +374,8 @@ export async function DELETE(request: NextRequest) {
     const orderId = searchParams.get("id")
 
     if (!orderId) {
-      return NextResponse.json({ error: "Order ID is required" }, { status: 400 })
+      const response = NextResponse.json({ error: "Order ID is required" }, { status: 400 })
+    return addCorsHeaders(response)
     }
 
     console.log("DELETE /api/supplier-orders - orderId:", orderId)
@@ -372,7 +391,8 @@ export async function DELETE(request: NextRequest) {
     const checkResult = await dbQuery(checkSql, [orderId])
     
     if (checkResult.rows.length === 0) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 })
+      const response = NextResponse.json({ error: "Order not found" }, { status: 404 })
+    return addCorsHeaders(response)
     }
 
     const order = checkResult.rows[0]
@@ -382,18 +402,21 @@ export async function DELETE(request: NextRequest) {
     const deleteResult = await dbQuery(deleteSql, [orderId])
 
     if (deleteResult.rows.length === 0) {
-      return NextResponse.json({ error: "Failed to delete order" }, { status: 500 })
+      const response = NextResponse.json({ error: "Failed to delete order" }, { status: 500 })
+    return addCorsHeaders(response)
     }
 
     console.log("Successfully deleted order:", orderId)
 
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       message: "Order deleted successfully",
       deletedOrderId: orderId
     })
+    return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Delete supplier order error:", error)
-    return NextResponse.json({ error: "Failed to delete supplier order" }, { status: 500 })
+    const response = NextResponse.json({ error: "Failed to delete supplier order" }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
