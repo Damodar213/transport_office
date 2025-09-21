@@ -141,7 +141,7 @@ export async function GET() {
        ORDER BY created_at DESC LIMIT 5`
     )
 
-    const activities = []
+    const activities: any[] = []
     
     // Add user registrations
     recentUsersResult.rows.forEach(user => {
