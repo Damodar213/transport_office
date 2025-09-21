@@ -9,9 +9,8 @@ export async function GET() {
   try {
     console.log("GET /api/admin/settings - fetching settings...")
     
-    let settings = { ...defaultSettings})
-    return addCorsHeaders(response)
-  }
+    let settings = { ...defaultSettings }
+    
     // If database is available, try to fetch settings
     if (getPool()) {
       try {
@@ -114,8 +113,9 @@ export async function PUT(request: Request) {
       console.log("Settings updated successfully")
       const response = NextResponse.json({ 
         message: "Settings updated successfully",
-        settings: {})
-    return addCorsHeaders(response)
+        settings: settings
+      })
+      return addCorsHeaders(response)
 
   } catch (error) {
       console.error("Error updating settings in database:", error)
