@@ -48,12 +48,10 @@ export async function GET(request: NextRequest) {
           missingFiles,
           databaseUrls: Array.from(allDbUrls),
           r2Files: r2Files.map(file => ({
-  }
             key: file.key,
             url: file.url,
             size: file.size,
             lastModified: file.lastModified
-  }
           }))
         })
       } catch (error) {
