@@ -36,11 +36,16 @@ export async function GET() {
       documents: result.rows,
       total: result.rows.length,
       message: "Driver documents retrieved successfully"
+    })
+    return addCorsHeaders(response)
+    
   } catch (error) {
     console.error("Driver documents error:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch driver documents",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

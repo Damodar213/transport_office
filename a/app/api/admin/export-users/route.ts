@@ -21,6 +21,8 @@ export async function GET(request: Request) {
         users: exportData,
         exportedAt: new Date().toISOString(),
         totalUsers: exportData.length
+      })
+      return addCorsHeaders(response)
     }
 
     // For other formats, return the data that can be processed on the client side
@@ -29,11 +31,16 @@ export async function GET(request: Request) {
       format,
       exportedAt: new Date().toISOString(),
       totalUsers: exportData.length
+    })
+    return addCorsHeaders(response)
+    
   } catch (error) {
     console.error("Error exporting users:", error)
     const response = NextResponse.json({ 
       error: "Failed to export users",
-      details: error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 })
+    return addCorsHeaders(response)
   }
 }
 

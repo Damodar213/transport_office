@@ -11,6 +11,8 @@ export async function GET() {
         error: "Database not available",
         suppliers: [],
         message: "Using fallback data"
+      })
+      return addCorsHeaders(response)
     }
 
     // Fetch verified suppliers with their vehicle and driver information
