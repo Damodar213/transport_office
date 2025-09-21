@@ -45,6 +45,28 @@ export async function GET() {
       }
     }
 
+    // If user is a buyer, get buyer-specific details
+    if (session.role === 'buyer') {
+      try {
+        const buyerResult = await dbQuery(
+          "SELECT company_name, gst_number FROM buyers WHERE user_id = $1",
+          [session.userIdString]
+        )
+        
+        if (buyerResult.rows.length > 0) {
+          const buyer = buyerResult.rows[0]
+          userDetails = {
+            ...userDetails,
+            companyName: buyer.company_name || userDetails.companyName,
+            gstNumber: buyer.gst_number
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching buyer details:", error)
+        // Continue with basic user details if buyer lookup fails
+      }
+    }
+
     return NextResponse.json({
       success: true,
       user: userDetails

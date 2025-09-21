@@ -54,6 +54,7 @@ interface SupplierVehicleLocationProps {
 export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) {
   const [orders, setOrders] = useState<SupplierVehicleLocation[]>([])
   const [drivers, setDrivers] = useState<Driver[]>([])
+  const [states, setStates] = useState<string[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingOrder, setEditingOrder] = useState<SupplierVehicleLocation | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -62,9 +63,23 @@ export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) 
   const [selectedState, setSelectedState] = useState<string>("")
 
   const bodyTypes = ["Half Body", "Full Body", "Container", "Open Body", "Closed Body"]
-  const [states, setStates] = useState<string[]>([])
   const [districtsByState, setDistrictsByState] = useState<Record<string, string[]>>({})
   const [isLoadingDistricts, setIsLoadingDistricts] = useState(false)
+
+  // Fetch states from API
+  const fetchStates = async () => {
+    try {
+      const response = await fetch("/api/admin/states")
+      if (response.ok) {
+        const data = await response.json()
+        setStates(data.states || [])
+      } else {
+        console.error("Failed to fetch states")
+      }
+    } catch (error) {
+      console.error("Error fetching states:", error)
+    }
+  }
 
   // Fetch orders from API
   const fetchOrders = async () => {
@@ -161,12 +176,19 @@ export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) 
     fetchOrders()
     fetchDrivers()
     fetchDistricts()
+    fetchStates()
   }, [])
 
   // Set selected state when editing an order
   useEffect(() => {
-    if (editingOrder?.state) {
-      setSelectedState(editingOrder.state)
+    if (editingOrder?.recommended_location) {
+      // Parse the recommended location to extract state if it contains " - "
+      const parts = editingOrder.recommended_location.split(" - ")
+      if (parts.length > 1) {
+        setSelectedState(parts[0])
+      } else {
+        setSelectedState("")
+      }
     } else {
       setSelectedState("")
     }
@@ -188,6 +210,13 @@ export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) 
       const userData = await userResponse.json()
       const supplierId = userData.user.id
 
+      // Combine selected state with location details for recommended location
+      const recommendedState = selectedState
+      const recommendedDetails = formData.get("recommendedLocation") as string
+      const recommendedLocation = recommendedState && recommendedDetails 
+        ? `${recommendedState} - ${recommendedDetails}`
+        : recommendedDetails || ""
+
       const orderData = {
         supplierId: supplierId,
         state: formData.get("state") as string,
@@ -197,7 +226,7 @@ export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) 
         vehicleNumber: formData.get("vehicleNumber") as string,
         bodyType: formData.get("bodyType") as string,
         driverId: formData.get("driverId") ? parseInt(formData.get("driverId") as string) : undefined,
-        recommendedLocation: formData.get("recommendedLocation") as string,
+        recommendedLocation: recommendedLocation,
       }
 
       const response = await fetch("/api/supplier-orders", {
@@ -437,15 +466,44 @@ export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) 
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="recommendedLocation">Recommended Location (Optional)</Label>
-                <Input
-                  id="recommendedLocation"
-                  name="recommendedLocation"
-                  type="text"
-                  defaultValue={editingOrder?.recommended_location || ""}
-                  placeholder="Enter recommended location details or leave empty"
-                />
+              <div className="space-y-4">
+                <Label>Recommended Location (Optional)</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="recommendedState">State</Label>
+                    <Select 
+                      value={selectedState} 
+                      onValueChange={setSelectedState}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select state" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {states.map((state) => (
+                          <SelectItem key={state} value={state}>
+                            {state}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="recommendedLocation">Location Details</Label>
+                    <Input
+                      id="recommendedLocation"
+                      name="recommendedLocation"
+                      type="text"
+                      defaultValue={
+                        editingOrder?.recommended_location 
+                          ? editingOrder.recommended_location.includes(" - ")
+                            ? editingOrder.recommended_location.split(" - ").slice(1).join(" - ")
+                            : editingOrder.recommended_location
+                          : ""
+                      }
+                      placeholder="Enter location details or leave empty"
+                    />
+                  </div>
+                </div>
                 <p className="text-xs text-muted-foreground">
                   Specify any recommended location details or special notes for this vehicle location
                 </p>

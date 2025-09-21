@@ -29,6 +29,31 @@ export default function BuyerDashboard() {
   const [previousNotificationCount, setPreviousNotificationCount] = useState(0)
   const [hasShownInitialPopup, setHasShownInitialPopup] = useState(false)
   const { notifications: notificationBars, showNotification, removeNotification } = useNotificationBar()
+  
+  // Company name state
+  const [companyName, setCompanyName] = useState("")
+  const [isLoadingCompany, setIsLoadingCompany] = useState(true)
+
+  // Fetch company name
+  const fetchCompanyName = async () => {
+    try {
+      setIsLoadingCompany(true)
+      const userResponse = await fetch("/api/auth/me", {
+        credentials: 'include'
+      })
+      if (userResponse.ok) {
+        const userData = await userResponse.json()
+        setCompanyName(userData.user.companyName || "Your Company")
+      } else {
+        setCompanyName("Your Company")
+      }
+    } catch (error) {
+      console.error("Failed to fetch company name:", error)
+      setCompanyName("Your Company")
+    } finally {
+      setIsLoadingCompany(false)
+    }
+  }
 
   // Fetch notification count
   const fetchNotificationCount = async () => {
@@ -142,6 +167,7 @@ export default function BuyerDashboard() {
       }
     }
 
+    fetchCompanyName()
     fetchDashboardStats()
     fetchNotificationCount()
   }, [])
@@ -193,8 +219,12 @@ export default function BuyerDashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Buyer Dashboard</h1>
-                <p className="text-sm text-muted-foreground">Welcome back to Mahalaxmi Transport Co.</p>
+                <h1 className="text-2xl font-bold text-foreground">
+                  {isLoadingCompany ? "Loading..." : companyName || "Your Company"}
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  {isLoadingCompany ? "Loading..." : `Welcome back to ${companyName || "Your Company"}`}
+                </p>
               </div>
             </div>
             <div className="flex items-center justify-start ml-8">
