@@ -132,9 +132,8 @@ export async function PATCH(request: NextRequest) {
 
 // POST - Create document submission (for testing or manual entry)
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request)})
-    return addCorsHeaders(response)
-  }
+  return handleCors(request)
+}
 export async function POST(request: NextRequest) {
   // Handle CORS preflight
   const corsResponse = handleCors(request)

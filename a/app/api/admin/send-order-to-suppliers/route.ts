@@ -91,4 +91,5 @@ function createWhatsAppMessage(orderDetails: any) {
 *MAHALAXMI TRANSPORT*
 📞 8217563933
 📞 80736 27241`
+  }
 }

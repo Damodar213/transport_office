@@ -63,6 +63,7 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to test database connection",
       details: error instanceof Error ? error.message : "Unknown error"
-  })
+    }, { status: 500 })
     return addCorsHeaders(response)
   }
+}

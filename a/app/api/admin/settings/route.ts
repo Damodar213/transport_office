@@ -132,6 +132,7 @@ export async function PUT(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to update settings",
       details: error instanceof Error ? error.message : "Unknown error"
-  })
+    }, { status: 500 })
     return addCorsHeaders(response)
   }
+}
