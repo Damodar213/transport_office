@@ -117,27 +117,11 @@ export async function GET() {
         loadType: row.load_type || 'General Cargo',
         fromLocation: row.orderType === 'manual_order' 
           ? row.from_place || 'Admin Specified Location'
-
-
-
-        }
-
-        }
-
-        }
-
+  }
           : `${row.from_place || 'Unknown'}, ${row.from_district || 'Unknown'}, ${row.from_state || 'Unknown'}`,
         toLocation: row.orderType === 'manual_order'
           ? row.to_place || 'Unknown'
-
-
-
-        }
-
-        }
-
-        }
-
+  }
           : `${row.to_place || 'Unknown'}, ${row.to_district || 'Unknown'}, ${row.to_state || 'Unknown'}`,
         fromState: row.from_state || undefined,
         fromDistrict: row.from_district || undefined,
@@ -160,40 +144,14 @@ export async function GET() {
         route: {
           from: row.orderType === 'manual_order' 
             ? row.from_place || 'Admin Specified Location'
-
-
-
-        }
-
-        }
-
-        }
-
+  }
             : `${row.from_place || 'Unknown'}, ${row.from_district || 'Unknown'}, ${row.from_state || 'Unknown'}`,
           to: row.orderType === 'manual_order'
             ? row.to_place || 'Unknown'
-
-
-
-          }
-
-          }
-
-          }
-
+  }
             : `${row.to_place || 'Unknown'}, ${row.to_district || 'Unknown'}, ${row.to_state || 'Unknown'}`,
           taluk: row.from_taluk
-
-
-
-          }
-
-          }
-
-          }
-
-        }
-
+  }
       }))
 
     const response = NextResponse.json({
@@ -208,15 +166,7 @@ export async function GET() {
       error: "Failed to fetch transport requests",
       requests: [],
       message: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }
@@ -252,15 +202,7 @@ export async function POST(request: Request) {
         const response = NextResponse.json({ 
           message: "Manual order assigned successfully",
           status: "assigned"
-
-
-
-          }
-
-          }
-
-          }
-
+  }
       } else {
         // Create order submission for the buyer request
         await dbQuery(`
@@ -278,15 +220,7 @@ export async function POST(request: Request) {
         const response = NextResponse.json({ 
           message: "Buyer request assigned successfully",
           status: "assigned"
-
-
-
-          }
-
-          }
-
-          }
-
+  }
       })
     return addCorsHeaders(response)
   }
@@ -303,15 +237,7 @@ export async function POST(request: Request) {
         const response = NextResponse.json({ 
           message: "Manual order rejected successfully",
           status: "cancelled"
-
-
-
-          }
-
-          }
-
-          }
-
+  }
       } else {
         // Update buyer request status to rejected
         await dbQuery(`
@@ -323,15 +249,7 @@ export async function POST(request: Request) {
         const response = NextResponse.json({ 
           message: "Buyer request rejected successfully",
           status: "rejected"
-
-
-
-          }
-
-          }
-
-          }
-
+  }
       })
     return addCorsHeaders(response)
   }
@@ -341,15 +259,7 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to update transport request",
       message: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }
@@ -378,15 +288,7 @@ export async function DELETE(request: Request) {
       const response = NextResponse.json({ 
         success: true,
         message: "Manual order deleted successfully"
-
-
-
-        }
-
-        }
-
-        }
-
+  }
     } else {
       // Delete buyer request
       const deleteResult = await dbQuery(`
@@ -400,15 +302,7 @@ export async function DELETE(request: Request) {
       const response = NextResponse.json({ 
         success: true,
         message: "Buyer request deleted successfully"
-
-
-
-        }
-
-        }
-
-        }
-
+  }
     })
     return addCorsHeaders(response)
 
@@ -417,15 +311,7 @@ export async function DELETE(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to delete transport request",
       message: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

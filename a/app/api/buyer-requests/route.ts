@@ -87,15 +87,7 @@ export async function GET(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to fetch buyer requests",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }
@@ -151,17 +143,7 @@ export async function POST(request: Request) {
         !to_state || !to_district || !to_place || !delivery_place) {
       const response = NextResponse.json({ 
         error: "Missing required fields" 
- 
- 
- 
-        }
-
-        }
-
-        }
-
-    }
-
+  }
     // Check if buyer exists in buyers table, if not create a basic entry
     const buyerCheck = await dbQuery(`
       SELECT user_id FROM buyers WHERE user_id = $1
@@ -176,17 +158,7 @@ export async function POST(request: Request) {
       if (userCheck.rows.length === 0) {
         const response = NextResponse.json({ 
           error: "Buyer not found. Please register as a buyer first." 
- 
- 
- 
-          }
-
-          }
-
-          }
-
-      }
-
+  }
       // Create basic buyer entry
       await dbQuery(`
         INSERT INTO buyers (user_id, company_name, gst_number)
@@ -236,15 +208,7 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to create buyer request",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

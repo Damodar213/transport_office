@@ -311,6 +311,3 @@ export async function POST() {
   } catch (error) {
     console.error("Migration error:", error)
   }
-}
-
-

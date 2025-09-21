@@ -72,4 +72,3 @@ export async function POST(request: NextRequest) {
     const errorResponse = NextResponse.json({ error: "Internal server error" }, { status: 500 })
     return addCorsHeaders(errorResponse)
   }
-}

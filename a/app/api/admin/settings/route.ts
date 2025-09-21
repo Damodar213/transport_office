@@ -54,30 +54,16 @@ export async function GET() {
       } catch (error) {
         console.error("Error fetching settings from database:", error)
         console.log("Falling back to default settings")
-      }
-
-    }
-
+  }
     console.log("Settings fetched successfully")
     console.error("Error in settings GET API:", error)
     const response = NextResponse.json({ 
       error: "Failed to fetch settings",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     }, { status: 500 })
     return addCorsHeaders(response)
   }
-
-}
-
 export async function PUT(request: Request) {
   try {
     const body = await request.json()
@@ -132,15 +118,7 @@ export async function PUT(request: Request) {
       const response = NextResponse.json({ 
         message: "Settings updated successfully",
         settings: settings
-
-
-
-        }
-
-        }
-
-        }
-
+  }
       })
       return addCorsHeaders(response)
 
@@ -149,15 +127,7 @@ export async function PUT(request: Request) {
       const response = NextResponse.json({ 
         error: "Failed to update settings in database",
         details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-        }
-
-        }
-
-        }
-
+  }
     })
     return addCorsHeaders(response)
 
@@ -166,17 +136,7 @@ export async function PUT(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to update settings",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     }, { status: 500 })
     return addCorsHeaders(response)
   }
-
-}

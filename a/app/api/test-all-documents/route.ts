@@ -32,52 +32,20 @@ export async function GET() {
         driverDocuments: parseInt(driverCount.rows[0].count)
       },
       samples: {
-
-
-
-      }
-
-      }
-
-      }
-
+  }
         supplierDocuments: supplierDocs.rows,
         vehicleDocuments: vehicleDocs.rows,
         driverDocuments: driverDocs.rows
-
-
-
-        }
-
-        }
-
-        }
-
+  }
       },
       message: "All document types checked successfully"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   } catch (error) {
     console.error("All documents test error:", error)
     const response = NextResponse.json({ 
       error: "Test failed",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

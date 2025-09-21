@@ -31,15 +31,7 @@ export async function POST(request: Request) {
       console.log("Database pool not available")
       const response = NextResponse.json({ 
         error: "Database not available" 
- 
- 
- 
-        }
-
-        }
-
-        }
-
+  }
       }, { status: 500 })
       return addCorsHeaders(response)
     }
@@ -78,17 +70,7 @@ export async function POST(request: Request) {
         whatsapp: phoneNumber,
         mobile: phoneNumber,
         message: message
-
-
-
-        }
-
-        }
-
-        }
-
-      }
-
+  }
     })
 
     // Create order submissions for each supplier
@@ -107,10 +89,7 @@ export async function POST(request: Request) {
         console.error(`Failed to create submission for supplier ${supplierId}:`, error)
         // Don't continue if order submission creation fails - this is critical
         throw new Error(`Failed to create order submission for supplier ${supplierId}: ${error instanceof Error ? error instanceof Error ? error.message : "Unknown error" : 'Unknown error'}`)
-      }
-
-    }
-
+  }
     // Create notifications for each supplier (separate from order submissions)
     console.log("Creating notifications...")
     for (const supplierId of supplierIds) {
@@ -139,10 +118,7 @@ export async function POST(request: Request) {
       } catch (notificationError) {
         console.error(`Failed to create notification for supplier ${supplierId}:`, notificationError)
         // Don't fail the whole operation if notification creation fails
-      }
-
-    }
-
+  }
     // Store the supplier information for later assignment when status is updated
     // We'll store the first supplier as the primary assigned supplier
     const primarySupplier = suppliers[0]
@@ -173,26 +149,10 @@ export async function POST(request: Request) {
       totalSent: supplierIds.length,
       whatsappMessage: message,
       primarySupplier: primarySupplier ? {
-
-
-
-      }
-
-      }
-
-      }
-
+  }
         id: primarySupplier.id,
         name: primarySupplier.company_name
-
-
-
-        }
-
-        }
-
-        }
-
+  }
       } : null
     })
     return addCorsHeaders(response)
@@ -202,21 +162,10 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to send manual order to suppliers",
       message: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     }, { status: 500 })
     return addCorsHeaders(response)
   }
-
-}
-
 function createManualOrderWhatsAppMessage(orderDetails: any) {
   const loadInfo = orderDetails.loadType || "Load"
   const weight = orderDetails.estimatedTons || "N/A"
@@ -256,12 +205,7 @@ function createManualOrderWhatsAppMessage(orderDetails: any) {
   return `🚛 *NEW TRANSPORT ORDER AVAILABLE*
 
 📋 *Order Details: *
- }
-
- }
-
- }
-
+  }
 • Load Type: ${loadInfo}
 • Weight: ${loadInfoStr || 'N/A'}
 • From: ${fromLocationStr}
@@ -269,12 +213,7 @@ function createManualOrderWhatsAppMessage(orderDetails: any) {
 • Required Date: ${requiredDate}
 
 📝 *Special Instructions: *
- }
-
- }
-
- }
-
+  }
 ${specialInstructions}
 
 Please review and respond if you can handle this transport order.
@@ -283,10 +222,4 @@ Please review and respond if you can handle this transport order.
 *MAHALAXMI TRANSPORT*
 📞 8217563933
 📞 80736 27241`
- }
-
- }
-
- }
-
-}
+  }

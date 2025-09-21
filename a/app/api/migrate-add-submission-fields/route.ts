@@ -144,10 +144,7 @@ export async function POST() {
         console.log("Added vehicle_id field to order_submissions table")
       } else {
         console.log("vehicle_id field already exists")
-      }
-
-    }
-
+  }
     const response = NextResponse.json({ 
       message: "Migration completed successfully - order_submissions table updated with whatsapp_sent, notification_sent, status, driver_id, and vehicle_id fields",
       success: true})
@@ -158,15 +155,7 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Migration failed", 
       details: error instanceof Error ? error.message : "Unknown error" 
- 
- 
- 
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

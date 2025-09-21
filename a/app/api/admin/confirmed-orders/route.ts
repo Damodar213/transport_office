@@ -36,55 +36,23 @@ export async function GET() {
       updated_at: row.updated_at,
       // For now, use placeholder data
       transport_order_details: {
-
-
-
-      }
-
-      }
-
-      }
-
+  }
         state: "Loading...",
         district: "Loading...",
         place: "Loading...",
         taluk: null,
         vehicle_number: "Loading...",
         body_type: "Loading..."
-
-
-
-        }
-
-        }
-
-        }
-
+  }
       },
       supplier_company: "Loading..."
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     }))
     
     const response = NextResponse.json({ 
       confirmedOrders,
       totalCount: countResult.rows[0].count
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
     return addCorsHeaders(response)
     
@@ -93,17 +61,7 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to fetch confirmed orders",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     }, { status: 500 })
     return addCorsHeaders(response)
   }
-
-}

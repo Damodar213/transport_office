@@ -13,25 +13,10 @@ export async function GET(request: NextRequest) {
     console.log("Getting blocking orders for driver ID:", driverId)
 
     const blockingOrders: any = {
- }
-
- }
-
- }
-
+  }
       confirmedOrders: [],
       vehicleLocationOrders: []
-
-
-
-      }
-
-      }
-
-      }
-
-    }
-
+  }
     // Get confirmed orders that reference this driver
     try {
       const confirmedOrdersResult = await dbQuery(`
@@ -89,15 +74,7 @@ export async function GET(request: NextRequest) {
       canDelete: totalBlockingOrders === 0,
       message: totalBlockingOrders === 0 
         ? "Driver can be deleted safely" 
-
-
-
-      }
-
-      }
-
-      }
-
+  }
         : `Driver has ${totalBlockingOrders} active orders that prevent deletion`
     })
 
@@ -106,16 +83,6 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({ 
       error: "Failed to get driver blocking orders",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     }, { status: 500 })
   }
-
-}

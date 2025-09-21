@@ -47,8 +47,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   } catch (error) {
     console.error("Get order error:", error)
   }
-}
-
 // PUT - Update order
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -69,8 +67,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   } catch (error) {
     console.error("Update order error:", error)
   }
-}
-
 // DELETE - Delete order
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -86,4 +82,3 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   } catch (error) {
     console.error("Delete order error:", error)
   }
-}

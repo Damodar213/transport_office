@@ -9,14 +9,3 @@ export async function GET() {
     const safe = admins.map(({ passwordHash, ...rest }) => rest)
   } catch (e) {
   }
-}
-
-
-
-
-
-
-
-
-
-

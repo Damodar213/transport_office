@@ -42,17 +42,7 @@ export async function POST() {
       const response = NextResponse.json({ 
         message: "Supplier record already exists for user 111111",
         supplier: existingSupplier.rows[0]
-
-
-
-        }
-
-        }
-
-        }
-
-    }
-
+  }
     // Create supplier record
     const supplierResult = await dbQuery(`
       INSERT INTO suppliers (
@@ -95,15 +85,7 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Failed to create supplier record",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

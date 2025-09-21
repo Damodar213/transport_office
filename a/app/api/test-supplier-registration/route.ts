@@ -42,17 +42,7 @@ export async function POST() {
         success: false,
         step: "users_table_insert",
         message: "Failed to insert into users table"
-
-
-
-        }
-
-        }
-
-        }
-
-    }
-
+  }
     const userId = userResult.rows[0].id
     console.log("User inserted with ID:", userId)
 
@@ -93,15 +83,7 @@ export async function POST() {
       success: false,
       error: "Supplier registration test failed",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

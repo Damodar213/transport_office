@@ -38,15 +38,7 @@ export async function PUT(request: NextRequest) {
       success: true,
       message: "All notifications marked as read",
       updatedCount: result.rows.length
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
 
   } catch (error) {
@@ -57,5 +49,3 @@ export async function PUT(request: NextRequest) {
 
     )
   }
-
-}

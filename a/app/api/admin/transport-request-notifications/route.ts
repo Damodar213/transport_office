@@ -29,15 +29,7 @@ function formatTimestamp(timestamp: string | Date): string {
       minute: '2-digit',
       hour12: true,
       timeZone: 'Asia/Kolkata'
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
     
     // Calculate relative time using current IST time
@@ -60,10 +52,7 @@ function formatTimestamp(timestamp: string | Date): string {
       } else {
         const timeText = diffMs > 0 ? `${diffHours} hour${diffHours === 1 ? '' : 's'} ago` : `in ${diffHours} hour${diffHours === 1 ? '' : 's'}`
         return `${timeText} (${formattedDate})`
-      }
-
-    }
-
+  }
     // For older notifications, show the full date and time
     return formattedDate
     
@@ -80,24 +69,11 @@ function formatTimestamp(timestamp: string | Date): string {
         minute: '2-digit',
         hour12: true,
         timeZone: 'Asia/Kolkata'
-
-
-
-        }
-
-        }
-
-        }
-
+  }
       })
     } catch {
       return "Time unavailable"
-    }
-
   }
-
-}
-
 // GET - Fetch all transport request notifications (buyer orders)
 export async function GET() {
   try {
@@ -151,15 +127,7 @@ export async function GET() {
       orderId: row.id,
       buyerId: row.buyer_id,
       status: "pending"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     }))
 
   } catch (error) {
@@ -167,15 +135,7 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to fetch notifications",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }
@@ -269,10 +229,7 @@ export async function POST(request: Request) {
         console.log("Updated transport_request_notifications table with missing columns")
       } catch (alterError) {
         console.log("Table already has required columns or alter failed:", alterError)
-      }
-
-    }
-
+  }
     // Extract order number from the message (it's already in the correct format)
     let orderNumber = "Unknown"
     if (message.includes("transport order")) {
@@ -356,15 +313,7 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to create notification",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

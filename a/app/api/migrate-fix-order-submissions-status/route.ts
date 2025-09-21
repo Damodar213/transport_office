@@ -64,29 +64,13 @@ export async function POST() {
       updatedCount: updateResult.rows.length,
       beforeStatuses: currentStatuses.rows,
       afterStatuses: finalStatuses.rows
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   } catch (error) {
     console.error("Migration error:", error)
     const response = NextResponse.json({ 
       error: "Failed to migrate order_submissions status",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

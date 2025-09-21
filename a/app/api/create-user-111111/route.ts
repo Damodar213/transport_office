@@ -114,15 +114,7 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Failed to create user and supplier",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

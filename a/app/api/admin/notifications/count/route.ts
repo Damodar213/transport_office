@@ -48,9 +48,7 @@ export async function GET() {
         console.log(`Found ${supplierResult.rows[0].count} unread supplier vehicle location notifications`)
       } catch (countError) {
         console.error("Error counting supplier notifications:", countError)
-      }
-    }
-
+  }
     // Count transport request notifications (buyer orders)
     if (transportRequestTableExists) {
       try {
@@ -63,12 +61,9 @@ export async function GET() {
         console.log(`Found ${transportResult.rows[0].count} unread transport request notifications`)
       } catch (countError) {
         console.error("Error counting transport request notifications:", countError)
-      }
-    }
-
+  }
     console.log(`Total unread notifications: ${totalCount}`)
 
   } catch (error) {
     console.error("Error fetching notification count:", error)
   }
-}

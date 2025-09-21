@@ -113,10 +113,7 @@ export async function POST() {
 
   } catch (error) {
           console.error(`Error migrating vehicle document ${truck.id}:`, error)
-        }
-
-      }
-
+  }
       console.log("Vehicle document migration completed")
     } catch (vehicleMigrationError) {
       console.warn("Could not migrate vehicle documents:", vehicleMigrationError)
@@ -151,10 +148,7 @@ export async function POST() {
 
   } catch (error) {
           console.error(`Error migrating driver document ${driver.id}:`, error)
-        }
-
-      }
-
+  }
       console.log("Driver document migration completed")
     } catch (driverMigrationError) {
       console.warn("Could not migrate driver documents:", driverMigrationError)
@@ -163,15 +157,7 @@ export async function POST() {
     return createApiResponse({
       message: "vehicle_documents and driver_documents tables created successfully",
       migrated: true
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
 
   } catch (error) {
@@ -182,5 +168,3 @@ export async function POST() {
       500
     )
   }
-
-}

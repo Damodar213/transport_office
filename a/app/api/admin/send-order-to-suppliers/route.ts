@@ -19,15 +19,7 @@ export async function POST(request: Request) {
     if (!orderId || !supplierIds || !Array.isArray(supplierIds) || supplierIds.length === 0) {
       const response = NextResponse.json({ 
         error: "Order ID and supplier IDs are required" 
- 
- 
- 
-        }
-
-        }
-
-        }
-
+  }
       }, { status: 400 })
       return addCorsHeaders(response)
     }
@@ -36,15 +28,7 @@ export async function POST(request: Request) {
     if (!pool) {
       const response = NextResponse.json({ 
         error: "Database not available" 
- 
- 
- 
-        }
-
-        }
-
-        }
-
+  }
       }, { status: 500 })
       return addCorsHeaders(response)
     }
@@ -75,17 +59,7 @@ export async function POST(request: Request) {
         whatsapp: "+91-9876543210",
         mobile: "+91-9876543210",
         message: message
-
-
-
-        }
-
-        }
-
-        }
-
-      }
-
+  }
     })
 
     const response = NextResponse.json({
@@ -94,15 +68,7 @@ export async function POST(request: Request) {
       sentOrders: sentOrders,
       totalSent: supplierIds.length,
       whatsappMessage: message
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
     return addCorsHeaders(response)
 
@@ -111,15 +77,7 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to send order to suppliers",
       message: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }
@@ -139,12 +97,5 @@ function createWhatsAppMessage(orderDetails: any) {
 *MAHALAXMI TRANSPORT*
 📞 8217563933
 📞 80736 27241`
- }
-
- }
-
- }
-
   }
-
 }

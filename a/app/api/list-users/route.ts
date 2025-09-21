@@ -18,17 +18,7 @@ export async function GET() {
 ),
       dbUsers: dbUsers.map(u => ({ id: u.id, userId: u.userId, role: u.role, email: u.email })),
       message: "Users listed successfully"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   } catch (error) {
     console.error("List users error:", error)
   }
-
-}

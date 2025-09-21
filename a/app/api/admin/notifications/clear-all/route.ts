@@ -50,17 +50,7 @@ export async function DELETE() {
     const response = NextResponse.json({ 
       error: "Failed to clear all notifications",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     }, { status: 500 })
     return addCorsHeaders(response)
   }
-
-}

@@ -37,17 +37,7 @@ export async function GET(
     if (result.rows.length === 0) {
       const response = NextResponse.json({ 
         error: "Buyer request not found" 
- 
- 
- 
-        }
-
-        }
-
-        }
-
-    }
-
+  }
     const response = NextResponse.json({
       success: true,
       data: result.rows[0]})
@@ -58,15 +48,7 @@ export async function GET(
     const response = NextResponse.json({ 
       error: "Failed to fetch buyer request",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }
@@ -189,17 +171,7 @@ export async function PUT(
     if (updateFields.length === 0) {
       const response = NextResponse.json({ 
         error: "No fields to update" 
- 
- 
- 
-        }
-
-        }
-
-        }
-
-    }
-
+  }
     // Add the ID parameter
     paramCount++
     updateValues.push(id)
@@ -216,17 +188,7 @@ export async function PUT(
     if (result.rows.length === 0) {
       const response = NextResponse.json({ 
         error: "Buyer request not found" 
- 
- 
- 
-        }
-
-        }
-
-        }
-
-    }
-
+  }
     const updatedRequest = result.rows[0]
 
     // Create notification for admin when buyer submits order (status changes to 'pending')
@@ -247,27 +209,11 @@ export async function PUT(
         const notificationResponse = await fetch(`${process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000'}/api/admin/transport-request-notifications`, {
           method: 'POST',
           headers: {
-
-
-
-          }
-
-          }
-
-          }
-
+  }
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-
-
-
-          }
-
-          }
-
-          }
-
+  }
             type: "info",
             title: "New Buyer Order Submitted",
             message: `New transport order ${updatedRequest.order_number} submitted by ${buyerDetails.company_name} (${buyerDetails.name}). Load: ${updatedRequest.load_type}, Route: ${updatedRequest.from_place} → ${updatedRequest.to_place}${updatedRequest.estimated_tons ? `, ${updatedRequest.estimated_tons} tons` : ''}${updatedRequest.number_of_goods ? `, ${updatedRequest.number_of_goods} goods` : ''}${updatedRequest.delivery_place ? `, Delivery: ${updatedRequest.delivery_place}` : ''}`,
@@ -276,15 +222,7 @@ export async function PUT(
             orderId: updatedRequest.id,
             buyerId: updatedRequest.buyer_id,
             status: status
-
-
-
-            }
-
-            }
-
-            }
-
+  }
           })
         })
 
@@ -297,10 +235,7 @@ export async function PUT(
       } catch (notificationError) {
         console.error("Error creating notification for buyer order submission:", notificationError)
         // Don't fail the main operation if notification creation fails
-      }
-
-    }
-
+  }
     const response = NextResponse.json({
       success: true,
       message: "Buyer request updated successfully",
@@ -312,15 +247,7 @@ export async function PUT(
     const response = NextResponse.json({ 
       error: "Failed to update buyer request",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }
@@ -346,17 +273,7 @@ export async function DELETE(
     if (result.rows.length === 0) {
       const response = NextResponse.json({ 
         error: "Buyer request not found" 
- 
- 
- 
-        }
-
-        }
-
-        }
-
-    }
-
+  }
     const response = NextResponse.json({
       success: true,
       message: "Buyer request deleted successfully"})
@@ -367,15 +284,7 @@ export async function DELETE(
     const response = NextResponse.json({ 
       error: "Failed to delete buyer request",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

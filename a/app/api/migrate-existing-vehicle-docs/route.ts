@@ -60,25 +60,14 @@ export async function POST() {
 
       } catch (error) {
         console.error(`Error migrating vehicle document ${truck.id}:`, error)
-      }
-
-    }
-
+  }
     console.log(`Migration completed. ${migratedCount} vehicle documents migrated.`)
 
     return createApiResponse({
       message: "Vehicle document migration completed",
       migratedCount,
       totalTrucks: trucksResult.rows.length
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
 
   } catch (error) {
@@ -89,5 +78,3 @@ export async function POST() {
       500
     )
   }
-
-}

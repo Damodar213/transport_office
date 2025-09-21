@@ -60,25 +60,14 @@ export async function POST() {
 
       } catch (error) {
         console.error(`Error migrating driver document ${driver.id}:`, error)
-      }
-
-    }
-
+  }
     console.log(`Migration completed. ${migratedCount} driver documents migrated.`)
 
     return createApiResponse({
       message: "Driver document migration completed",
       migratedCount,
       totalDrivers: driversResult.rows.length
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
 
   } catch (error) {
@@ -89,5 +78,3 @@ export async function POST() {
       500
     )
   }
-
-}

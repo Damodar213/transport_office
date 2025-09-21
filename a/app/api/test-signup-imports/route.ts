@@ -67,15 +67,7 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({ 
       error: "Import test failed",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

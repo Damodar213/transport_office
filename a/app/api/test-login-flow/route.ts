@@ -31,17 +31,7 @@ export async function POST() {
         success: false,
         step: "user_lookup",
         message: "User not found"
-
-
-
-        }
-
-        }
-
-        }
-
-    }
-
+  }
     console.log("User details:", {
       id: user.id,
       userId: user.userId,
@@ -62,17 +52,7 @@ export async function POST() {
         message: "Invalid password",
         userFound: true,
         passwordValid: false
-
-
-
-        }
-
-        }
-
-        }
-
-    }
-
+  }
     // Step 3: Create session
     console.log("Step 3: Creating session...")
     const sessionData = {
@@ -103,15 +83,7 @@ export async function POST() {
       step: "error",
       error: "Login flow test failed",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

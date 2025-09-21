@@ -26,15 +26,7 @@ export async function GET() {
       timestamp: new Date()    
     .toISOString(),
       error: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

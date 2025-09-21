@@ -17,17 +17,7 @@ export interface SupplierDocument {
   reviewed_at?: string
   email?: string
   mobile?: string
-
-
-
   }
-
-  }
-
-  }
-
-}
-
 // GET - Fetch all supplier documents
 export async function GET(request: NextRequest) {
   return withAuth(async (session) => {
@@ -81,17 +71,7 @@ export async function GET(request: NextRequest) {
             email: doc.email,
             mobile: doc.mobile,
             documents: []
-
-
-
-            }
-
-            }
-
-            }
-
-          }
-
+  }
         }
 
         acc[key].documents.push({
@@ -103,15 +83,7 @@ export async function GET(request: NextRequest) {
           reviewNotes: doc.review_notes,
           reviewedBy: doc.reviewed_by,
           reviewedAt: doc.reviewed_at
-
-
-
-          }
-
-          }
-
-          }
-
+  }
         })
         return acc
       }, {} as Record<string, any>)
@@ -230,10 +202,7 @@ export async function DELETE(request: NextRequest) {
         } catch (error) {
           console.error(`Failed to delete file from R2: ${error}`)
           // Don't fail the entire operation if R2 deletion fails
-        }
-
-      }
-
+  }
       return createApiResponse(result.rows[0], "Supplier document deleted successfully")
     })
   }, ["admin"])

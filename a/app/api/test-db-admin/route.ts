@@ -26,42 +26,16 @@ export async function GET() {
 
     const response = NextResponse.json({
       adminUser: {
-
-
-
-      }
-
-      }
-
-      }
-
+  }
         id: dbAdmin.id,
         userId: dbAdmin.userId,
         role: dbAdmin.role,
         email: dbAdmin.email
-
-
-
-        }
-
-        }
-
-        }
-
+  }
       },
       passwordResults,
       message: "Database admin test completed"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   } catch (error) {
     console.error("Test database admin error:", error)
   }
-
-}

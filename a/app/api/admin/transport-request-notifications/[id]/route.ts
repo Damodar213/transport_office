@@ -24,17 +24,7 @@ export async function DELETE(
     if (result.rows.length === 0) {
       const response = NextResponse.json({ 
         error: "Notification not found" 
- 
- 
- 
-        }
-
-        }
-
-        }
-
-    }
-
+  }
     const response = NextResponse.json({
       success: true,
       message: "Notification deleted successfully"})
@@ -45,15 +35,7 @@ export async function DELETE(
     const response = NextResponse.json({ 
       error: "Failed to delete notification",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

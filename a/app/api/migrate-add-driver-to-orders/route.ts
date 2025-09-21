@@ -36,17 +36,7 @@ export async function POST() {
         const response = NextResponse.json({ 
           error: "Failed to add driver_id column", 
           details: error instanceof Error ? error.message : "Unknown error" 
- 
- 
- 
-          }
-
-          }
-
-          }
-
-      }
-
+  }
     } else {
       console.log("Column driver_id already exists, skipping...")
     }
@@ -76,15 +66,7 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Transport orders migration failed", 
       details: error instanceof Error ? error.message : "Unknown error" 
- 
- 
- 
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

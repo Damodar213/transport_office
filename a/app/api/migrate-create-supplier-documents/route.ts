@@ -87,15 +87,9 @@ export async function POST() {
 
   } catch (error) {
               console.error(`Error migrating document ${submission.id}:`, error)
-            }
-
-          }
-
+  }
           console.log("Document migration completed")
-        }
-
-      }
-
+  }
     } catch (migrationError) {
       console.warn("Could not migrate existing documents:", migrationError)
     }
@@ -133,14 +127,7 @@ export async function POST() {
 
   } catch (error) {
               console.error(`Error migrating user document ${user.user_id}-${docType}:`, error)
-            }
-
-          }
-
-        }
-
-      }
-
+  }
       console.log("User document migration completed")
     } catch (userMigrationError) {
       console.warn("Could not migrate user documents:", userMigrationError)
@@ -149,15 +136,7 @@ export async function POST() {
     return createApiResponse({
       message: "supplier_documents table created successfully",
       migrated: true
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
 
   } catch (error) {
@@ -168,5 +147,3 @@ export async function POST() {
       500
     )
   }
-
-}

@@ -9,9 +9,6 @@ export async function GET() {
     console.error("GET /api/documents error:", error)
     const response = NextResponse.json({ error: "Failed to load documents" }, { status: 500 })
   }
-
-}
-
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json()
@@ -20,17 +17,7 @@ export async function PATCH(request: NextRequest) {
       status: "approved" | "rejected"
       reviewNotes?: string
       reviewer?: string
-
-
-
-      }
-
-      }
-
-      }
-
-    }
-
+  }
     if (!id || !status) {
       const response = NextResponse.json({ error: "id and status are required" }, { status: 400 })
     }
@@ -45,5 +32,3 @@ export async function PATCH(request: NextRequest) {
     console.error("PATCH /api/documents error:", error)
     const response = NextResponse.json({ error: "Failed to review document" }, { status: 500 })
   }
-
-}

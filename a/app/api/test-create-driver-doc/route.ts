@@ -30,17 +30,7 @@ export async function POST() {
       const response = NextResponse.json({ 
         error: "No drivers with documents found",
         message: "Please create a driver with a document first"
-
-
-
-        }
-
-        }
-
-        }
-
-    }
-
+  }
     const driver = driverResult.rows[0]
     console.log("Found driver:", driver)
 
@@ -64,15 +54,7 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Test failed",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

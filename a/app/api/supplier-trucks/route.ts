@@ -14,17 +14,7 @@ export interface Truck {
   is_active: boolean
   created_at: string
   updated_at: string
-
-
-
   }
-
-  }
-
-  }
-
-}
-
 // GET - Fetch trucks for a specific supplier
 export async function GET(request: Request) {
   try {
@@ -79,9 +69,6 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Get trucks error:", error)
   }
-
-}
-
 // POST - Create new truck
 export async function OPTIONS(request: NextRequest) {
   return handleCors(request)
@@ -183,10 +170,7 @@ export async function POST(request: Request) {
       } catch (docError) {
         console.error("Error creating vehicle document submission:", docError)
         // Don't fail the truck creation if document submission creation fails
-      }
-
-    }
-
+  }
     const response = NextResponse.json({ 
       message: "Truck created successfully", 
       truck: result.rows[0]})
@@ -197,28 +181,12 @@ export async function POST(request: Request) {
     console.error("Error details:", {
       message: error instanceof Error ? error.message : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
     const response = NextResponse.json({ 
       error: "Failed to create truck", 
       details: error instanceof Error ? error.message : "Unknown error" 
- 
- 
- 
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }
@@ -241,12 +209,7 @@ export async function PUT(request: Request) {
 
     // SECURITY CHECK: First verify the truck belongs to the logged-in supplier
     const truckCheck = await dbQuery(
- }
-
- }
-
- }
-
+  }
       "SELECT supplier_id FROM trucks WHERE id = $1",
       [id]
     )
@@ -295,9 +258,6 @@ export async function PUT(request: Request) {
   } catch (error) {
     console.error("Update truck error:", error)
   }
-
-}
-
 // DELETE - Delete truck (hard delete - completely remove from database)
 export async function DELETE(request: Request) {
   try {
@@ -344,5 +304,3 @@ export async function DELETE(request: Request) {
   } catch (error) {
     console.error("Delete truck error:", error)
   }
-
-}

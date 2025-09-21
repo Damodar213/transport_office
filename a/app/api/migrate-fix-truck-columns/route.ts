@@ -42,17 +42,7 @@ export async function POST() {
         const response = NextResponse.json({ 
           error: "Failed to rename column",
           details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-          }
-
-          }
-
-          }
-
-      }
-
+  }
     } else if (!hasNumberOfVehicles && !hasNumberOfWheels) {
       // Add number_of_wheels column if neither exists
       try {
@@ -63,15 +53,7 @@ export async function POST() {
         const response = NextResponse.json({ 
           error: "Failed to add column",
           details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-          }
-
-          }
-
-          }
-
+  }
       })
     return addCorsHeaders(response)
   }
@@ -99,15 +81,7 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Failed to migrate trucks table",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

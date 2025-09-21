@@ -47,26 +47,11 @@ export interface TransportOrder {
   vehicleNumber?: string
   currentLocation?: string
   progress?: number
-
-
-
   }
-
-  }
-
-  }
-
-}
-
 // Mock database - replace with actual database implementation
 const orders: TransportOrder[] = [
   {
- }
-
- }
-
- }
-
+  }
     id: 1,
     orderNumber: "ORD-2024-001",
     buyerId: "BUY001",
@@ -266,9 +251,6 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Get orders error:", error)
   }
-
-}
-
 // Helper function to calculate progress based on status
 function calculateProgress(status: string): number {
   const progressMap: { [key: string]: number } = {
@@ -301,12 +283,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
 
     const newOrder: TransportOrder = {
- }
-
- }
-
- }
-
+  }
       id: nextOrderId++,
       orderNumber: `ORD-${new Date().getFullYear()}-${String(nextOrderId - 1).padStart(3, "0")}`,
       status: "draft",
@@ -320,5 +297,3 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Create order error:", error)
   }
-
-}

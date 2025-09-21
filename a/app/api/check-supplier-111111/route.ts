@@ -41,15 +41,7 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to check supplier 111111",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

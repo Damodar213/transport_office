@@ -42,10 +42,7 @@ export async function POST(request: NextRequest) {
         formData = mockFormData
       } catch (jsonError) {
         console.error("JSON parsing also failed:", jsonError)
-      }
-
-    }
-
+  }
     const role = formData.get("role") as string
     const userId = formData.get("userId") as string
     const password = formData.get("password") as string
@@ -82,15 +79,7 @@ export async function POST(request: NextRequest) {
         mobile: supplierData.mobile,
         companyName: supplierData.companyName,
         numberOfVehicles: supplierData.numberOfVehicles
-
-
-
-        }
-
-        }
-
-        }
-
+  }
       })
 
       const documentUrls: Record<string, string> = {}
@@ -125,15 +114,7 @@ export async function POST(request: NextRequest) {
               uploadedAt: new Date().toISOString(),
               userId: userId,
               documentType: "pan"
-
-
-
-              }
-
-              }
-
-              }
-
+  }
             })
             documentUrls.pan = uploadResult.url
             console.log("PAN document uploaded to Cloudflare:", documentUrls.pan)
@@ -146,10 +127,7 @@ export async function POST(request: NextRequest) {
             await writeFile(filePath, buffer)
             documentUrls.pan = `/uploads/supplier-documents/${filename}`
             console.log("PAN document saved locally:", documentUrls.pan)
-          }
-
-        }
-
+  }
         if (gstCertificate && gstCertificate.size > 0) {
           console.log("Uploading GST document to Cloudflare...")
           const bytes = await gstCertificate.arrayBuffer()
@@ -162,15 +140,7 @@ export async function POST(request: NextRequest) {
               uploadedAt: new Date().toISOString(),
               userId: userId,
               documentType: "gst"
-
-
-
-              }
-
-              }
-
-              }
-
+  }
             })
             documentUrls.gstCertificate = uploadResult.url
             console.log("GST document uploaded to Cloudflare:", documentUrls.gstCertificate)
@@ -183,10 +153,7 @@ export async function POST(request: NextRequest) {
             await writeFile(filePath, buffer)
             documentUrls.gstCertificate = `/uploads/supplier-documents/${filename}`
             console.log("GST document saved locally:", documentUrls.gstCertificate)
-          }
-
-        }
-
+  }
       } catch (uploadError) {
         console.error("File upload error:", uploadError)
       }
@@ -218,10 +185,7 @@ export async function POST(request: NextRequest) {
               )
             } catch (docError) {
               console.error(`Error saving document ${entry.type}:`, docError)
-            }
-
-          }
-
+  }
         } else {
           // Fallback to file storage
           bulkAddSupplierDocuments({
@@ -229,15 +193,7 @@ export async function POST(request: NextRequest) {
             supplierName: supplierData.name,
             companyName: supplierData.companyName,
             documentUrls: {
-
-
-
-            }
-
-            }
-
-            }
-
+  }
               pan: documentUrls.pan,
               gst: (documentUrls as any).gstCertificate,
             },
@@ -249,17 +205,7 @@ export async function POST(request: NextRequest) {
         const response = NextResponse.json({ 
           error: "Failed to save user to database",
           details: dbError instanceof Error ? dbError.message : "Unknown error"
-
-
-
-          }
-
-          }
-
-          }
-
-      }
-
+  }
     } else if (role === "buyer") {
       console.log("Processing buyer registration...")
       const buyerData = {
@@ -273,15 +219,7 @@ export async function POST(request: NextRequest) {
       console.log("Buyer data prepared:", { 
         userId: buyerData.userId,
         companyName: buyerData.companyName
-
-
-
-        }
-
-        }
-
-        }
-
+  }
       })
 
       // Save to database
@@ -293,17 +231,7 @@ export async function POST(request: NextRequest) {
         const response = NextResponse.json({ 
           error: "Failed to save user to database",
           details: dbError instanceof Error ? dbError.message : "Unknown error"
-
-
-
-          }
-
-          }
-
-          }
-
-      }
-
+  }
     } else if (role === "admin") {
       console.log("Processing admin registration...")
       const adminKey = formData.get("adminKey") as string
@@ -321,30 +249,12 @@ export async function POST(request: NextRequest) {
         mobile: formData.get("mobile") as string,
         email: formData.get("email") as string,
         permissions: ["all"] // Default admin permissions
-
-
-
-        }
-
-        }
-
-        }
-
-      }
-
+  }
       console.log("Admin data prepared:", { 
         userId: adminData.userId,
         name: adminData.name,
         email: adminData.email
-
-
-
-        }
-
-        }
-
-        }
-
+  }
       })
 
       // Save to admin database
@@ -362,17 +272,7 @@ export async function POST(request: NextRequest) {
         const response = NextResponse.json({ 
           error: "Failed to save admin to database",
           details: dbError instanceof Error ? dbError.message : "Unknown error"
-
-
-
-          }
-
-          }
-
-          }
-
-      }
-
+  }
     } else {
       console.log("Invalid role specified:", role)
     }
@@ -384,15 +284,7 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({ 
       error: "Internal server error",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

@@ -35,15 +35,7 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "User check failed",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

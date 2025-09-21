@@ -28,41 +28,15 @@ export async function PUT(
     if (result.rows.length === 0) {
       const response = NextResponse.json({ 
         error: "Notification not found" 
- 
- 
- 
-        }
-
-        }
-
-        }
-
-    }
-
+  }
     const response = NextResponse.json({
       success: true,
       message: "Notification marked as read",
       notification: {
-
-
-
-      }
-
-      }
-
-      }
-
+  }
         id: result.rows[0].id,
         isRead: result.rows[0].is_read
-
-
-
-        }
-
-        }
-
-        }
-
+  }
       })
     return addCorsHeaders(response)
 
@@ -71,15 +45,7 @@ export async function PUT(
     const response = NextResponse.json({ 
       error: "Failed to mark notification as read",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

@@ -8,17 +8,7 @@ export interface District {
   description?: string
   isActive: boolean
   createdAt: string
-
-
-
   }
-
-  }
-
-  }
-
-}
-
 // GET - Fetch all districts
 export async function GET() {
   try {
@@ -31,15 +21,7 @@ export async function GET() {
         error: "Database not available",
         districts: [],
         message: "Database connection failed"
-
-
-
-        }
-
-        }
-
-        }
-
+  }
       }, { status: 500 })
     }
 
@@ -63,15 +45,7 @@ export async function GET() {
       districts: result.rows,
       total: result.rows.length,
       message: "Districts fetched successfully"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
   } catch (error) {
     console.error("Error fetching districts:", error)
@@ -79,20 +53,9 @@ export async function GET() {
       error: "Failed to fetch districts",
       districts: [],
       message: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     }, { status: 500 })
   }
-
-}
-
 // POST - Create new district
 export async function OPTIONS(request: NextRequest) {
   return handleCors(request)
@@ -111,15 +74,7 @@ export async function POST(request: Request) {
     if (!name || !name.trim() || !state || !state.trim()) {
       const response = NextResponse.json({ 
         error: "District name and state are required" 
- 
- 
- 
-        }
-
-        }
-
-        }
-
+  }
       }, { status: 400 })
     }
 
@@ -127,15 +82,7 @@ export async function POST(request: Request) {
     if (!pool) {
       const response = NextResponse.json({ 
         error: "Database not available" 
- 
- 
- 
-        }
-
-        }
-
-        }
-
+  }
       }, { status: 500 })
     }
 
@@ -151,15 +98,7 @@ export async function POST(request: Request) {
     const response = NextResponse.json({
       district: result.rows[0],
       message: "District created successfully"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     }, { status: 201 })
   } catch (error) {
     console.error("Error creating district:", error)
@@ -167,35 +106,16 @@ export async function POST(request: Request) {
     if (error instanceof Error && error instanceof Error ? error.message : "Unknown error".includes('duplicate key')) {
       const response = NextResponse.json({ 
         error: "District with this name and state already exists"
- 
- 
- 
-        }
-
-        }
-
-        }
-
+  }
       }, { status: 409 })
     }
 
     const response = NextResponse.json({ 
       error: "Failed to create district",
       message: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     }, { status: 500 })
   }
-
-}
-
 // PUT - Update district
 export async function PUT(request: Request) {
   try {
@@ -212,15 +132,7 @@ export async function PUT(request: Request) {
     if (!pool) {
       const response = NextResponse.json({ 
         error: "Database not available" 
- 
- 
- 
-        }
-
-        }
-
-        }
-
+  }
       }, { status: 500 })
     }
 
@@ -234,30 +146,14 @@ export async function PUT(request: Request) {
     if (result.rows.length === 0) {
       const response = NextResponse.json({ 
         error: "District not found" 
- 
- 
- 
-        }
-
-        }
-
-        }
-
+  }
       }, { status: 404 })
     }
 
     const response = NextResponse.json({
       district: result.rows[0],
       message: "District updated successfully"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
   } catch (error) {
     console.error("Error updating district:", error)
@@ -265,35 +161,16 @@ export async function PUT(request: Request) {
     if (error instanceof Error && error instanceof Error ? error.message : "Unknown error".includes('duplicate key')) {
       const response = NextResponse.json({ 
         error: "District with this name and state already exists"
- 
- 
- 
-        }
-
-        }
-
-        }
-
+  }
       }, { status: 409 })
     }
 
     const response = NextResponse.json({ 
       error: "Failed to update district",
       message: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     }, { status: 500 })
   }
-
-}
-
 // DELETE - Delete district
 export async function DELETE(request: NextRequest) {
   try {
@@ -303,15 +180,7 @@ export async function DELETE(request: NextRequest) {
     if (!id) {
       const response = NextResponse.json({ 
         error: "District ID is required" 
- 
- 
- 
-        }
-
-        }
-
-        }
-
+  }
       }, { status: 400 })
     }
 
@@ -319,15 +188,7 @@ export async function DELETE(request: NextRequest) {
     if (!pool) {
       const response = NextResponse.json({ 
         error: "Database not available" 
- 
- 
- 
-        }
-
-        }
-
-        }
-
+  }
       }, { status: 500 })
     }
 
@@ -338,45 +199,19 @@ export async function DELETE(request: NextRequest) {
     if (result.rows.length === 0) {
       const response = NextResponse.json({ 
         error: "District not found" 
- 
- 
- 
-        }
-
-        }
-
-        }
-
+  }
       }, { status: 404 })
     }
 
     const response = NextResponse.json({
       message: "District deleted successfully"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
   } catch (error) {
     console.error("Error deleting district:", error)
     const response = NextResponse.json({ 
       error: "Failed to delete district",
       message: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     }, { status: 500 })
   }
-
-}

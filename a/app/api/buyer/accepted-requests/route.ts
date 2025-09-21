@@ -61,15 +61,7 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       requests: acceptedRequests.rows
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
 
   } catch (error) {
@@ -80,9 +72,6 @@ export async function GET(request: NextRequest) {
 
     )
   }
-
-}
-
 export async function DELETE(request: NextRequest) {
   try {
     console.log("Delete accepted request API called")
@@ -137,15 +126,7 @@ export async function DELETE(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       message: "Accepted request deleted successfully"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
 
   } catch (error) {
@@ -156,5 +137,3 @@ export async function DELETE(request: NextRequest) {
 
     )
   }
-
-}

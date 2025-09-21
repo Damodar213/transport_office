@@ -21,17 +21,7 @@ export async function GET() {
       email: session.email,
       name: session.name,
       companyName: session.companyName
-
-
-
-      }
-
-      }
-
-      }
-
-    }
-
+  }
     // If user is a supplier, get supplier-specific details
     if (session.role === 'supplier') {
       try {
@@ -47,25 +37,14 @@ export async function GET() {
             companyName: supplier.company_name || userDetails.companyName,
             gstNumber: supplier.gst_number,
             numberOfVehicles: supplier.number_of_vehicles
-
-
-
-            }
-
-            }
-
-            }
-
+  }
           } as any
         }
 
       } catch (error) {
         console.error("Error fetching supplier details:", error)
         // Continue with basic user details if supplier lookup fails
-      }
-
-    }
-
+  }
     // If user is a buyer, get buyer-specific details
     if (session.role === 'buyer') {
       try {
@@ -80,25 +59,14 @@ export async function GET() {
             ...userDetails,
             companyName: buyer.company_name || userDetails.companyName,
             gstNumber: buyer.gst_number
-
-
-
-            }
-
-            }
-
-            }
-
+  }
           } as any
         }
 
       } catch (error) {
         console.error("Error fetching buyer details:", error)
         // Continue with basic user details if buyer lookup fails
-      }
-
-    }
-
+  }
     const response = NextResponse.json({
       success: true,
       user: userDetails})
@@ -109,15 +77,7 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to get current user",
       message: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

@@ -47,4 +47,3 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error("Status update error:", error)
   }
-}

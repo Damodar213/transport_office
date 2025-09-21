@@ -32,15 +32,7 @@ function formatTimestamp(timestamp: string | Date): string {
       minute: '2-digit',
       hour12: true,
       timeZone: 'Asia/Kolkata'
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
     
     // Calculate relative time using UTC timestamps (more reliable)
@@ -62,10 +54,7 @@ function formatTimestamp(timestamp: string | Date): string {
       } else {
         const timeText = diffMs > 0 ? `${diffHours} hour${diffHours === 1 ? '' : 's'} ago` : `in ${diffHours} hour${diffHours === 1 ? '' : 's'}`
         return `${timeText} (${formattedDate})`
-      }
-
-    }
-
+  }
     // For older notifications, show the full date and time
     return formattedDate
     
@@ -82,24 +71,11 @@ function formatTimestamp(timestamp: string | Date): string {
         minute: '2-digit',
         hour12: true,
         timeZone: 'Asia/Kolkata'
-
-
-
-        }
-
-        }
-
-        }
-
+  }
       })
     } catch (fallbackError) {
       return "Invalid time"
-    }
-
   }
-
-}
-
 export async function GET(request: NextRequest) {
   try {
     console.log("Buyer notifications API called")
@@ -155,29 +131,13 @@ export async function GET(request: NextRequest) {
       category: notification.category,
       priority: notification.priority,
       orderId: notification.order_id
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     }))
 
     const response = NextResponse.json({
       success: true,
       notifications: formattedNotifications
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
 
   } catch (error) {
@@ -188,5 +148,3 @@ export async function GET(request: NextRequest) {
 
     )
   }
-
-}

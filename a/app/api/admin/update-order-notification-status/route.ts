@@ -65,15 +65,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: "Order notification status updated successfully",
       updatedRows: updateResult.rows.length
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
 
   } catch (error) {
@@ -82,19 +74,9 @@ export async function POST(request: NextRequest) {
       { 
         error: "Internal server error", 
         details: error instanceof Error ? error.message : "Unknown error"
- 
- 
- 
-        }
-
-        }
-
-        }
-
+  }
       },
       { status: 500 }
 
     )
   }
-
-}

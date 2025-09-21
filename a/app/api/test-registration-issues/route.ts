@@ -16,17 +16,7 @@ export async function GET() {
       CLOUDFLARE_SECRET_ACCESS_KEY: process.env.CLOUDFLARE_SECRET_ACCESS_KEY ? "Set" : "Missing",
       CLOUDFLARE_R2_BUCKET_NAME: process.env.CLOUDFLARE_R2_BUCKET_NAME ? "Set" : "Missing",
       CLOUDFLARE_R2_PUBLIC_URL: process.env.CLOUDFLARE_R2_PUBLIC_URL ? "Set" : "Missing"
-
-
-
-      }
-
-      }
-
-      }
-
-    }
-
+  }
     // Check if users table exists and has the right structure
     const usersTableCheck = await dbQuery(`
       SELECT column_name, data_type, is_nullable
@@ -65,15 +55,7 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Registration issues test failed",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

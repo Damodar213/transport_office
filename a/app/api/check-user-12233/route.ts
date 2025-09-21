@@ -41,15 +41,7 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to check user 12233",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

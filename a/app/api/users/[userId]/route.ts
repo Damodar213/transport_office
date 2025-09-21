@@ -89,27 +89,11 @@ export async function DELETE(
         success: true,
         message: "User deleted successfully",
         deletedUser: {
-
-
-
-        }
-
-        }
-
-        }
-
+  }
           userId: user.user_id,
           name: user.name,
           role: user.role
-
-
-
-          }
-
-          }
-
-          }
-
+  }
         })
     return addCorsHeaders(response)
 
@@ -125,15 +109,7 @@ export async function DELETE(
     const response = NextResponse.json({ 
       error: "Failed to delete user",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

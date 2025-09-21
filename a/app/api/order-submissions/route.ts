@@ -47,29 +47,11 @@ export async function POST(request: Request) {
     if (error instanceof Error && error instanceof Error ? error.message : "Unknown error".includes('unique constraint')) {
       const response = NextResponse.json({ 
         error: "This order has already been sent to this supplier" 
- 
- 
- 
-        }
-
-        }
-
-        }
-
-    }
-
+  }
     const response = NextResponse.json({ 
       error: "Failed to record order submission",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }
@@ -103,15 +85,7 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to fetch order submissions",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

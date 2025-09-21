@@ -40,10 +40,7 @@ export async function POST() {
 
       } else {
         console.log(`Column ${column} does not exist, skipping...`)
-      }
-
-    }
-
+  }
     // Verify the final table structure
     const finalStructure = await dbQuery(`
       SELECT column_name, data_type, is_nullable
@@ -69,15 +66,7 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Trucks migration failed", 
       details: error instanceof Error ? error.message : "Unknown error" 
- 
- 
- 
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

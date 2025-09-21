@@ -36,28 +36,12 @@ export async function POST(request: NextRequest) {
       success: true,
       message: "Request handling test completed successfully",
       requestInfo: {
-
-
-
-      }
-
-      }
-
-      }
-
+  }
         method: request.method,
         url: request.url,
         hasBody: !!textBody,
         bodyLength: textBody.length
-
-
-
-        }
-
-        }
-
-        }
-
+  }
       })
     return addCorsHeaders(response)
 
@@ -67,15 +51,7 @@ export async function POST(request: NextRequest) {
       error: "Request handling test failed",
       details: error instanceof Error ? error.message : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

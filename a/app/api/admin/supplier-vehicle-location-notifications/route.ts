@@ -30,15 +30,7 @@ function formatTimestamp(timestamp: string | Date): string {
       minute: '2-digit',
       hour12: true,
       timeZone: 'Asia/Kolkata'
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
     
     // Calculate relative time using current IST time
@@ -61,10 +53,7 @@ function formatTimestamp(timestamp: string | Date): string {
       } else {
         const timeText = diffMs > 0 ? `${diffHours} hour${diffHours === 1 ? '' : 's'} ago` : `in ${diffHours} hour${diffHours === 1 ? '' : 's'}`
         return `${timeText} (${formattedDate})`
-      }
-
-    }
-
+  }
     // For older notifications, show the full date and time
     return formattedDate
     
@@ -81,24 +70,11 @@ function formatTimestamp(timestamp: string | Date): string {
         minute: '2-digit',
         hour12: true,
         timeZone: 'Asia/Kolkata'
-
-
-
-        }
-
-        }
-
-        }
-
+  }
       })
     } catch {
       return "Time unavailable"
-    }
-
   }
-
-}
-
 // GET - Fetch all supplier vehicle location notifications
 export async function GET() {
   try {
@@ -168,17 +144,7 @@ export async function GET() {
           driverName: row.driver_name,
           status: row.status,
           recommendedLocation: row.recommended_location
-
-
-
-          }
-
-          }
-
-          }
-
-        }
-
+  }
       } catch (mapError) {
         console.error("Error mapping notification row:", mapError, row)
         return null
@@ -192,21 +158,10 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to fetch notifications",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     }, { status: 500 })
     return addCorsHeaders(response)
   }
-
-}
-
 // POST - Create a new supplier vehicle location notification
 export async function OPTIONS(request: NextRequest) {
   return handleCors(request)
@@ -244,17 +199,7 @@ export async function POST(request: Request) {
     if (!vehicle_location_id || !supplier_id || !supplier_name || !state || !district || !place || !vehicle_number || !body_type) {
       const response = NextResponse.json({ 
         error: "Missing required fields" 
- 
- 
- 
-        }
-
-        }
-
-        }
-
-    }
-
+  }
     // Check if notification already exists for this vehicle location
     const existingNotification = await dbQuery(`
       SELECT id FROM supplier_vehicle_location_notifications 
@@ -264,17 +209,7 @@ export async function POST(request: Request) {
     if (existingNotification.rows.length > 0) {
       const response = NextResponse.json({ 
         error: "Notification already exists for this vehicle location" 
- 
- 
- 
-        }
-
-        }
-
-        }
-
-    }
-
+  }
     // Insert new notification
     const result = await dbQuery(`
       INSERT INTO supplier_vehicle_location_notifications (
@@ -305,17 +240,7 @@ export async function POST(request: Request) {
       bodyType: body_type,
       driverName: driver_name,
       status: status
-
-
-
-      }
-
-      }
-
-      }
-
-    }
-
+  }
     console.log("Created new supplier vehicle location notification:", newNotification.id)
 
     const response = NextResponse.json({
@@ -329,15 +254,7 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to create notification",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

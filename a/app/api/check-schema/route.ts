@@ -59,9 +59,7 @@ export async function GET() {
   } catch (error) {
         console.error(`Error getting structure for table ${table}:`, error)
         tableStructures[table] = []
-      }
-    }
-    
+  }
     const response = NextResponse.json({
       tables,
       confirmedOrdersExists: confirmedOrdersExists || true, // Will be true if we just created it
@@ -72,6 +70,3 @@ export async function GET() {
   } catch (error) {
     console.error("Check schema error:", error)
   }
-}
-
-

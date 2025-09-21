@@ -72,17 +72,7 @@ export async function POST(request: Request) {
     const order = {
       ...orderSubmission,
       buyer_request_id: orderSubmission.original_order_submission_id
-
-
-
-      }
-
-      }
-
-      }
-
-    }
-
+  }
     // Check if accepted request already exists for this buyer
     const existingRequest = await dbQuery(`
       SELECT id, sent_by_admin, status FROM accepted_requests 
@@ -210,5 +200,3 @@ export async function POST(request: Request) {
 
     )
   }
-
-}

@@ -42,15 +42,7 @@ export async function GET() {
         status: "connected",
         message: "Database connection test successful",
         details: {
-
-
-
-        }
-
-        }
-
-        }
-
+  }
           connection: "OK",
           tables: tableTest.rows.length,
           queryTime: `${queryTime}ms`,
@@ -66,15 +58,7 @@ export async function GET() {
         status: "error",
         error: "Database connection test failed",
         details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-        }
-
-        }
-
-        }
-
+  }
     })
     return addCorsHeaders(response)
 
@@ -83,17 +67,7 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to test database connection",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     }, { status: 500 })
     return addCorsHeaders(response)
   }
-
-}

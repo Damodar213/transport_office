@@ -84,17 +84,7 @@ export async function GET(request: NextRequest) {
     const responseData = {
       success: true,
       orders: confirmedOrders.rows
-
-
-
-      }
-
-      }
-
-      }
-
-    }
-
+  }
     // Cache the response
     cache = {
       data: responseData,
@@ -111,9 +101,6 @@ export async function GET(request: NextRequest) {
 
     )
   }
-
-}
-
 export async function DELETE(request: NextRequest) {
   try {
     console.log("Delete confirmed order API called")
@@ -179,15 +166,7 @@ export async function DELETE(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       message: "Accepted request deleted successfully"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
 
   } catch (error) {
@@ -198,5 +177,3 @@ export async function DELETE(request: NextRequest) {
 
     )
   }
-
-}

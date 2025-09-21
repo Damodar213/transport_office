@@ -39,6 +39,3 @@ export async function GET() {
       500
     )
   }
-}
-
-

@@ -78,15 +78,7 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Failed to create manual orders table",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

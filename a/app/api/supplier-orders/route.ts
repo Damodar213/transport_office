@@ -21,17 +21,7 @@ export interface SupplierVehicleLocation {
   admin_notes?: string
   admin_action_date?: string
   recommended_location?: string
-
-
-
   }
-
-  }
-
-  }
-
-}
-
 // GET - Fetch supplier transport orders with filtering
 export async function GET(request: NextRequest) {
   try {
@@ -110,15 +100,7 @@ export async function GET(request: NextRequest) {
         ...row,
         supplier_name: "John Transport Co.",
         supplier_company: "aaa"
-
-
-
-        }
-
-        }
-
-        }
-
+  }
       }))
     } else {
       // For admin view, get supplier details
@@ -135,15 +117,7 @@ export async function GET(request: NextRequest) {
             ...row,
             supplier_name: companyName,
             supplier_company: companyName
-
-
-
-            }
-
-            }
-
-            }
-
+  }
           })
         } catch (error) {
           console.error(`Error fetching supplier details for ${row.supplier_id}:`, error)
@@ -151,28 +125,12 @@ export async function GET(request: NextRequest) {
             ...row,
             supplier_name: "Unknown Supplier",
             supplier_company: "Unknown Company"
-
-
-
-            }
-
-            }
-
-            }
-
+  }
           })
-        }
-
-      }
-
-    }
-
+  }
   } catch (error) {
     console.error("Get supplier orders error:", error)
   }
-
-}
-
 // POST - Create new supplier transport order
 export async function OPTIONS(request: NextRequest) {
   return handleCors(request)
@@ -208,10 +166,7 @@ export async function POST(request: NextRequest) {
       )
       if (driverResult.rows.length > 0) {
         driverName = driverResult.rows[0].driver_name
-      }
-
-    }
-
+  }
     const sql = `
       INSERT INTO suppliers_vehicle_location (
         supplier_id, state, district, place, taluk, 
@@ -249,17 +204,7 @@ export async function POST(request: NextRequest) {
       ...newOrder,
       supplier_name: "John Transport Co.", // Use the company name from your existing data
       supplier_company: supplierDetails.rows[0].company_name
-
-
-
-      }
-
-      }
-
-      }
-
-    }
-
+  }
     // Create notification for admin
     try {
       console.log("Creating notification for new supplier vehicle location order...")
@@ -267,27 +212,11 @@ export async function POST(request: NextRequest) {
       const notificationResponse = await fetch(`${process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000'}/api/admin/supplier-vehicle-location-notifications`, {
         method: 'POST',
         headers: {
-
-
-
-        }
-
-        }
-
-        }
-
+  }
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-
-
-
-        }
-
-        }
-
-        }
-
+  }
           vehicle_location_id: newOrder.id,
           supplier_id: supplierId,
           supplier_name: "John Transport Co.", // You might want to get this from user data
@@ -301,15 +230,7 @@ export async function POST(request: NextRequest) {
           driver_name: driverName,
           status: "pending",
           recommended_location: body.recommendedLocation || null
-
-
-
-          }
-
-          }
-
-          }
-
+  }
         })
       })
 
@@ -332,9 +253,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Create supplier order error:", error)
   }
-
-}
-
 // PUT - Update supplier transport order (for admin actions)
 export async function PUT(request: NextRequest) {
   try {
@@ -406,10 +324,7 @@ export async function PUT(request: NextRequest) {
     } catch (error) {
         console.error("Error creating confirmed order record:", error)
         // Don't fail the main update if confirmed order creation fails
-      }
-
-    }
-
+  }
     // Get supplier details for the response
     const supplierDetails = await dbQuery(
       "SELECT s.company_name FROM suppliers s WHERE s.user_id = $1",
@@ -420,17 +335,7 @@ export async function PUT(request: NextRequest) {
       ...updatedOrder,
       supplier_name: supplierDetails.rows[0].company_name,
       supplier_company: supplierDetails.rows[0].company_name
-
-
-
-      }
-
-      }
-
-      }
-
-    }
-
+  }
     const response = NextResponse.json({ 
       message: "Order updated successfully", 
       order: orderWithSupplier})
@@ -439,9 +344,6 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error("Update supplier order error:", error)
   }
-
-}
-
 // DELETE - Delete supplier transport order
 export async function DELETE(request: NextRequest) {
   try {
@@ -485,5 +387,3 @@ export async function DELETE(request: NextRequest) {
   } catch (error) {
     console.error("Delete supplier order error:", error)
   }
-
-}

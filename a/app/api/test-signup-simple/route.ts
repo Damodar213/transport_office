@@ -36,17 +36,7 @@ export async function POST(request: NextRequest) {
       const response = NextResponse.json({ 
         error: "Cloudflare import failed",
         details: importError instanceof Error ? importError.message : "Unknown error"
-
-
-
-        }
-
-        }
-
-        }
-
-    }
-
+  }
     // Test user storage import
     try {
       const { createUserAsync } = await import("@/lib/user-storage")
@@ -56,42 +46,16 @@ export async function POST(request: NextRequest) {
       const response = NextResponse.json({ 
         error: "User storage import failed",
         details: importError instanceof Error ? importError.message : "Unknown error"
-
-
-
-        }
-
-        }
-
-        }
-
-    }
-
+  }
     const response = NextResponse.json({
       success: true,
       message: "Simple signup test completed successfully",
       formData: {
-
-
-
-      }
-
-      }
-
-      }
-
+  }
         role,
         userId,
         hasPassword: !!password
-
-
-
-        }
-
-        }
-
-        }
-
+  }
       })
     return addCorsHeaders(response)
 
@@ -101,15 +65,7 @@ export async function POST(request: NextRequest) {
       error: "Simple signup test failed",
       details: error instanceof Error ? error.message : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

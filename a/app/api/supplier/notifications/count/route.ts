@@ -10,32 +10,12 @@ export async function GET(request: Request) {
     if (!supplierId) {
       const response = NextResponse.json({ 
         error: "Supplier ID is required" 
- 
- 
- 
-        }
-
-        }
-
-        }
-
-    }
-
+  }
     if (!getPool()) {
       const response = NextResponse.json({ 
         unreadCount: 0,
         totalCount: 0
-
-
-
-        }
-
-        }
-
-        }
-
-    }
-
+  }
     try {
       // Check if supplier_notifications table exists
       const tableExists = await dbQuery(`
@@ -50,17 +30,7 @@ export async function GET(request: Request) {
         const response = NextResponse.json({ 
           unreadCount: 0,
           totalCount: 0
-
-
-
-          }
-
-          }
-
-          }
-
-      }
-
+  }
       // Get unread count
       const unreadResult = await dbQuery(`
         SELECT COUNT(*) as unread_count
@@ -88,15 +58,7 @@ export async function GET(request: Request) {
       const response = NextResponse.json({ 
         unreadCount: 0,
         totalCount: 0
-
-
-
-        }
-
-        }
-
-        }
-
+  }
     })
     return addCorsHeaders(response)
 
@@ -105,15 +67,7 @@ export async function GET(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to fetch notification count",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

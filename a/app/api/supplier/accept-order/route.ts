@@ -421,25 +421,14 @@ export async function POST(request: NextRequest) {
           [parsedOrderId, parsedDriverId, parsedVehicleId, supplierId]
         )
         console.log("Buyer request accepted request created successfully")
-        }
-
-      }
-
+  }
       console.log("Accepted request created successfully:", acceptedRequestResult.rows[0]?.id)
     } catch (acceptedRequestError) {
       console.error("Accepted request creation failed:", acceptedRequestError)
       console.error("Error details:", {
         message: acceptedRequestError instanceof Error ? acceptedRequestError.message : "Unknown error",
         stack: acceptedRequestError instanceof Error ? acceptedRequestError.stack : "No stack trace"
-
-
-
-        }
-
-        }
-
-        }
-
+  }
       })
       // Don't fail the whole operation if accepted request creation fails
     }
@@ -448,31 +437,13 @@ export async function POST(request: NextRequest) {
       success: true,
       message: "Order accepted successfully",
       confirmation: {
-
-
-
-      }
-
-      }
-
-      }
-
+  }
         orderId,
         driverName: driver.driver_name,
         driverMobile,
         vehicleNumber: vehicle.vehicle_number,
         vehicleType: vehicle.body_type
-
-
-
-        }
-
-        }
-
-        }
-
-      }
-
+  }
     })
 
   } catch (error) {
@@ -482,15 +453,7 @@ export async function POST(request: NextRequest) {
       message: error instanceof Error ? error.message : "Unknown error",
       name: error instanceof Error ? error.name : "Unknown",
       cause: error instanceof Error ? error.cause : undefined
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
     const response = NextResponse.json(
       { 
@@ -503,5 +466,3 @@ export async function POST(request: NextRequest) {
 
     )
   }
-
-}

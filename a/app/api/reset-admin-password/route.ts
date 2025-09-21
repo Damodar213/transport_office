@@ -47,10 +47,3 @@ export async function POST() {
   } catch (error) {
     console.error("Reset admin password error:", error)
   }
-}
-
-
-
-
-
-

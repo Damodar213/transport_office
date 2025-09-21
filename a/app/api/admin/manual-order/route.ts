@@ -172,15 +172,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: "Manual order created successfully",
       order: {
-
-
-
-      }
-
-      }
-
-      }
-
+  }
         id: newOrder.id,
         orderNumber: newOrder.order_number,
         loadType: newOrder.load_type,
@@ -201,51 +193,17 @@ export async function POST(request: NextRequest) {
         status: newOrder.status,
         createdBy: newOrder.created_by,
         createdAt: newOrder.created_at
-
-
-
-        }
-
-        }
-
-        }
-
+  }
       },
       notification: notificationResult ? {
-
-
-
-      }
-
-      }
-
-      }
-
+  }
         id: notificationResult.rows[0].id,
         message: notificationResult.rows[0].message
-
-
-
-        }
-
-        }
-
-        }
-
+  }
       } : null,
       whatsapp: {
         message: whatsappMessage
-
-
-
-      }
-
-      }
-
-      }
-
-      }
-
+  }
     })
 
   } catch (error) {
@@ -253,20 +211,9 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({ 
       error: "Failed to create manual order",
       message: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     }, { status: 500 })
   }
-
-}
-
 function createWhatsAppMessage(orderDetails: any) {
   const { 
     orderNumber, 
@@ -316,12 +263,7 @@ function createWhatsAppMessage(orderDetails: any) {
   return `🚛 *NEW TRANSPORT ORDER AVAILABLE*
 
 📋 *Order Details: *
- }
-
- }
-
- }
-
+  }
 • Load Type: ${loadType}
 • Weight: ${loadInfo}
 • From: ${fromLocationStr}
@@ -329,12 +271,7 @@ function createWhatsAppMessage(orderDetails: any) {
 ${requiredDate ? `• Required Date: ${requiredDate}` : ''}
 
 📝 *Special Instructions: *
- }
-
- }
-
- }
-
+  }
 ${specialInstructions || 'Manual order created by admin'}
 
 Please review and respond if you can handle this transport order.
@@ -343,10 +280,4 @@ Please review and respond if you can handle this transport order.
 *MAHALAXMI TRANSPORT*
 📞 8217563933
 📞 80736 27241`
- }
-
- }
-
- }
-
-}
+  }

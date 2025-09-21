@@ -11,9 +11,6 @@ export async function GET() {
     const safe = users.map(({ passwordHash, ...rest }) => rest)
   } catch (e) {
   }
-
-}
-
 // PUT - Update user status (admin only)
 export async function PUT(request: Request) {
   try {
@@ -120,15 +117,7 @@ export async function PUT(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to update user status",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

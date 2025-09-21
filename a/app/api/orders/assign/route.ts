@@ -46,4 +46,3 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Order assignment error:", error)
   }
-}

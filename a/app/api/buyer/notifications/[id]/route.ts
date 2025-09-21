@@ -57,15 +57,7 @@ export async function DELETE(
     const response = NextResponse.json({
       error: "Failed to delete notification",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

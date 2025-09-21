@@ -17,17 +17,7 @@ export interface DriverDocument {
   reviewed_at?: string
   supplier_name?: string
   company_name?: string
-
-
-
   }
-
-  }
-
-  }
-
-}
-
 // GET - Fetch all driver documents
 export async function GET(request: NextRequest) {
   return withAuth(async (session) => {
@@ -81,17 +71,7 @@ export async function GET(request: NextRequest) {
             supplierName: doc.supplier_name,
             companyName: doc.company_name,
             documents: []
-
-
-
-            }
-
-            }
-
-            }
-
-          }
-
+  }
         }
 
         acc[key].documents.push({
@@ -103,15 +83,7 @@ export async function GET(request: NextRequest) {
           reviewNotes: doc.review_notes,
           reviewedBy: doc.reviewed_by,
           reviewedAt: doc.reviewed_at
-
-
-
-          }
-
-          }
-
-          }
-
+  }
         })
         return acc
       }, {} as Record<string, any>)
@@ -197,10 +169,7 @@ export async function DELETE(request: NextRequest) {
         } catch (error) {
           console.error(`Failed to delete file from R2: ${error}`)
           // Don't fail the entire operation if R2 deletion fails
-        }
-
-      }
-
+  }
       return createApiResponse(result.rows[0], "Driver document deleted successfully")
     })
   }, ["admin"])

@@ -54,44 +54,18 @@ export async function GET(request: NextRequest) {
       buyerId,
       totalRecords: result.rows.length,
       records: result.rows
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
 
     const response = NextResponse.json({
       success: true,
       debug: {
-
-
-
-      }
-
-      }
-
-      }
-
+  }
         orderSubmissionId,
         buyerId,
         totalRecords: result.rows.length,
         records: result.rows
-
-
-
-        }
-
-        }
-
-        }
-
-      }
-
+  }
     })
 
   } catch (error) {
@@ -102,9 +76,6 @@ export async function GET(request: NextRequest) {
 
     )
   }
-
-}
-
 export async function DELETE(request: NextRequest) {
   try {
     console.log("Clean up orphaned accepted requests API called")
@@ -137,30 +108,14 @@ export async function DELETE(request: NextRequest) {
       orderSubmissionId,
       buyerId,
       deletedCount: deleteResult.rows.length
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
 
     const response = NextResponse.json({
       success: true,
       message: "Orphaned records cleaned up",
       deletedCount: deleteResult.rows.length
-
-
-
-      }
-
-      }
-
-      }
-
+  }
     })
 
   } catch (error) {
@@ -171,5 +126,3 @@ export async function DELETE(request: NextRequest) {
 
     )
   }
-
-}

@@ -40,29 +40,13 @@ export async function POST() {
         passwordHash: user.passwordHash,
         passwordValid: isValidPassword,
         message: "Password verification test completed"
-
-
-
-        }
-
-        }
-
-        }
-
+  }
     } else {
       const response = NextResponse.json({
         success: true,
         userFound: false,
         message: "User not found"
-
-
-
-        }
-
-        }
-
-        }
-
+  }
     })
     return addCorsHeaders(response)
 
@@ -71,15 +55,7 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Password verification test failed",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

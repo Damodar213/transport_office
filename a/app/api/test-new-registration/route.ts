@@ -32,15 +32,7 @@ export async function GET() {
         role: u.role,
         name: u.name,
         createdAt: u.createdAt
-
-
-
-        }
-
-        }
-
-        }
-
+  }
       }))
     }
 
@@ -56,15 +48,7 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Registration test failed",
       details: error instanceof Error ? error.message : "Unknown error"
-
-
-
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }

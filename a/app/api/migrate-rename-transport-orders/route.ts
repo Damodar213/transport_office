@@ -42,17 +42,7 @@ export async function POST() {
       const response = NextResponse.json({ 
         message: "Table suppliers_vehicle_location already exists, no migration needed",
         renamed: false
-
-
-
-        }
-
-        }
-
-        }
-
-    }
-
+  }
     // Rename the table
     try {
       await dbQuery(`ALTER TABLE transport_orders RENAME TO suppliers_vehicle_location`)
@@ -62,17 +52,7 @@ export async function POST() {
       const response = NextResponse.json({ 
         error: "Failed to rename table", 
         details: error instanceof Error ? error.message : "Unknown error" 
- 
- 
- 
-        }
-
-        }
-
-        }
-
-    }
-
+  }
     // Verify the new table structure
     const finalStructure = await dbQuery(`
       SELECT column_name, data_type, is_nullable
@@ -99,15 +79,7 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Table migration failed", 
       details: error instanceof Error ? error.message : "Unknown error" 
- 
- 
- 
-      }
-
-      }
-
-      }
-
+  }
   })
     return addCorsHeaders(response)
   }
