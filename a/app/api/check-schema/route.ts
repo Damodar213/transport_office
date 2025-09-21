@@ -43,7 +43,7 @@ export async function GET() {
     }
     
     // Get table structures
-    const tableStructures = {}
+    const tableStructures: any = {}
     for (const table of tables) {
       try {
         const columnsResult = await dbQuery(`
