@@ -20,15 +20,15 @@ export async function DELETE(request: Request) {
       SELECT EXISTS (
         SELECT FROM information_schema.tables
         WHERE table_schema = 'public'
-        AND table_name = 'buyer_notifications'
+        AND table_name = 'buyer_notifications')
       )
     `)
     
     if (!tableExists.rows[0].exists) {
       const response = NextResponse.json({
-        error: "Buyer notifications table not found",
+        error: "Buyer notifications table not found",)
         message: "All notifications cleared (mock mode)"
-      })
+})
       return addCorsHeaders(response)
     }
 
@@ -36,7 +36,7 @@ export async function DELETE(request: Request) {
     const result = await dbQuery(`
       DELETE FROM buyer_notifications
       WHERE buyer_id = $1
-      RETURNING id
+      RETURNING id)
     `, [buyerId])
     
     const deletedCount = result.rows.length
@@ -44,7 +44,7 @@ export async function DELETE(request: Request) {
     
     const response = NextResponse.json({
       success: true,
-      message: "All buyer notifications cleared successfully",
+      message: "All buyer notifications cleared successfully",)
       deletedCount: deletedCount})
     return addCorsHeaders(response)
 
@@ -53,7 +53,9 @@ export async function DELETE(request: Request) {
     const response = NextResponse.json({
       error: "Failed to clear all buyer notifications",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

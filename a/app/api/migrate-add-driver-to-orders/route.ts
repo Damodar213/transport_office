@@ -20,7 +20,7 @@ export async function POST() {
       SELECT column_name 
       FROM information_schema.columns 
       WHERE table_name = 'transport_orders' 
-      AND column_name = 'driver_id'
+      AND column_name = 'driver_id')
     `)
 
     const existingColumns = checkColumns.rows.map(row => row.column_name)
@@ -36,8 +36,10 @@ export async function POST() {
         const response = NextResponse.json({ 
           error: "Failed to add driver_id column", 
           details: error instanceof Error ? error.message : "Unknown error" 
-  }
-    } else {
+ 
+ 
+}
+    } else {)
       console.log("Column driver_id already exists, skipping...")
     }
 
@@ -46,16 +48,16 @@ export async function POST() {
       SELECT column_name, data_type, is_nullable
       FROM information_schema.columns 
       WHERE table_name = 'transport_orders' 
-      ORDER BY ordinal_position
+      ORDER BY ordinal_position)
     `)
 
     console.log("Final transport_orders table structure:")
-    finalStructure.rows.forEach(row => {
+    finalStructure.rows.forEach(row => {)
       console.log(`- ${row.column_name}: ${row.data_type} (${row.is_nullable === 'YES' ? 'nullable' : 'not null'})`)
     })
 
     const response = NextResponse.json({ 
-      message: "Transport orders table migration completed successfully",
+      message: "Transport orders table migration completed successfully",)
       addedColumns: !existingColumns.includes('driver_id')    
      ? ['driver_id'] : [],
       finalStructure: finalStructure.rows})
@@ -66,7 +68,9 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Transport orders migration failed", 
       details: error instanceof Error ? error.message : "Unknown error" 
-  }
+ 
+ 
+})
   })
     return addCorsHeaders(response)
   }

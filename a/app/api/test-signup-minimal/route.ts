@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     console.log("=== MINIMAL SIGNUP TEST ===")
     
     const response = NextResponse.json({
-      success: true,
+      success: true,)
       message: "Minimal signup test completed successfully"})
     return addCorsHeaders(response)
 
@@ -24,7 +24,9 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({ 
       error: "Minimal signup test failed",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

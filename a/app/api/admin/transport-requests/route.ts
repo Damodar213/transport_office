@@ -9,13 +9,13 @@ export async function GET() {
     if (!pool) {
       const response = NextResponse.json({ 
         error: "Database not available",
-        requests: [],
+        requests: [],)
         message: "Using fallback data"})
     return addCorsHeaders(response)
   }
 
     // Fetch buyer transport requests and manual orders
-    const result = await dbQuery(`
+    const result = await dbQuery(`)
       -- Buyer requests (only valid ones with proper buyer data)
       SELECT 
         br.id,
@@ -98,7 +98,7 @@ export async function GET() {
     // Transform the data to match the frontend interface and filter out invalid records
     const requests = result.rows
       .filter(row => {
-        // Filter out records with missing essential data
+        // Filter out records with missing essential data)
         if (row.orderType === 'buyer_request') {
           // For buyer requests, ensure we have valid buyer information
           return row.buyerId && row.buyerName && row.buyerName !== 'Unknown' && row.load_type;
@@ -117,11 +117,15 @@ export async function GET() {
         loadType: row.load_type || 'General Cargo',
         fromLocation: row.orderType === 'manual_order' 
           ? row.from_place || 'Admin Specified Location'
-  }
+
+
+}
           : `${row.from_place || 'Unknown'}, ${row.from_district || 'Unknown'}, ${row.from_state || 'Unknown'}`,
         toLocation: row.orderType === 'manual_order'
           ? row.to_place || 'Unknown'
-  }
+
+
+}
           : `${row.to_place || 'Unknown'}, ${row.to_district || 'Unknown'}, ${row.to_state || 'Unknown'}`,
         fromState: row.from_state || undefined,
         fromDistrict: row.from_district || undefined,
@@ -132,7 +136,7 @@ export async function GET() {
         toPlace: row.to_place || undefined,
         toTaluk: row.to_taluk || undefined,
         numberOfGoods: row.number_of_goods || undefined,
-        estimatedTons: row.estimated_tons || 0,
+        estimatedTons: row.estimated_tons || 0,)
         requiredDate: row.required_date ? new Date(row.required_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
         specialInstructions: row.special_instructions || '',
         status: row.status || 'pending',
@@ -144,19 +148,25 @@ export async function GET() {
         route: {
           from: row.orderType === 'manual_order' 
             ? row.from_place || 'Admin Specified Location'
-  }
+
+
+}
             : `${row.from_place || 'Unknown'}, ${row.from_district || 'Unknown'}, ${row.from_state || 'Unknown'}`,
           to: row.orderType === 'manual_order'
             ? row.to_place || 'Unknown'
-  }
+
+
+}
             : `${row.to_place || 'Unknown'}, ${row.to_district || 'Unknown'}, ${row.to_state || 'Unknown'}`,
           taluk: row.from_taluk
-  }
+
+
+}
       }))
 
     const response = NextResponse.json({
       requests,
-      total: requests.length,
+      total: requests.length,)
       message: "Transport requests fetched successfully"})
     return addCorsHeaders(response)
 
@@ -166,7 +176,9 @@ export async function GET() {
       error: "Failed to fetch transport requests",
       requests: [],
       message: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }
@@ -196,16 +208,18 @@ export async function POST(request: Request) {
             assigned_supplier_name = $2,
             admin_notes = $3,
             updated_at = CURRENT_TIMESTAMP
-          WHERE id = $4
+          WHERE id = $4)
         `, [supplierId, notes, notes, requestId])
 
         const response = NextResponse.json({ 
           message: "Manual order assigned successfully",
           status: "assigned"
-  }
+
+
+}
       } else {
         // Create order submission for the buyer request
-        await dbQuery(`
+        await dbQuery(`)
           INSERT INTO order_submissions (order_id, supplier_id, status, notes, created_at, updated_at)
           VALUES ($1, $2, 'assigned', $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
         `, [requestId, supplierId, notes])
@@ -214,13 +228,15 @@ export async function POST(request: Request) {
         await dbQuery(`
           UPDATE buyer_requests 
           SET status = 'assigned', updated_at = CURRENT_TIMESTAMP
-          WHERE id = $1
+          WHERE id = $1)
         `, [requestId])
 
         const response = NextResponse.json({ 
           message: "Buyer request assigned successfully",
           status: "assigned"
-  }
+
+
+})
       })
     return addCorsHeaders(response)
   }
@@ -231,25 +247,29 @@ export async function POST(request: Request) {
         await dbQuery(`
           UPDATE manual_orders 
           SET status = 'cancelled', admin_notes = $1, updated_at = CURRENT_TIMESTAMP
-          WHERE id = $2
+          WHERE id = $2)
         `, [notes, requestId])
 
         const response = NextResponse.json({ 
           message: "Manual order rejected successfully",
           status: "cancelled"
-  }
+
+
+}
       } else {
         // Update buyer request status to rejected
         await dbQuery(`
           UPDATE buyer_requests 
           SET status = 'rejected', updated_at = CURRENT_TIMESTAMP
-          WHERE id = $1
+          WHERE id = $1)
         `, [requestId])
 
         const response = NextResponse.json({ 
           message: "Buyer request rejected successfully",
           status: "rejected"
-  }
+
+
+})
       })
     return addCorsHeaders(response)
   }
@@ -259,7 +279,9 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to update transport request",
       message: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }
@@ -279,7 +301,7 @@ export async function DELETE(request: Request) {
       // Delete manual order
       const deleteResult = await dbQuery(`
         DELETE FROM manual_orders 
-        WHERE id = $1
+        WHERE id = $1)
       `, [requestId])
 
       if (deleteResult.rows.length === 0) {
@@ -288,12 +310,14 @@ export async function DELETE(request: Request) {
       const response = NextResponse.json({ 
         success: true,
         message: "Manual order deleted successfully"
-  }
+
+
+}
     } else {
       // Delete buyer request
       const deleteResult = await dbQuery(`
         DELETE FROM buyer_requests 
-        WHERE id = $1
+        WHERE id = $1)
       `, [requestId])
 
       if (deleteResult.rows.length === 0) {
@@ -302,7 +326,9 @@ export async function DELETE(request: Request) {
       const response = NextResponse.json({ 
         success: true,
         message: "Buyer request deleted successfully"
-  }
+
+
+})
     })
     return addCorsHeaders(response)
 
@@ -311,7 +337,9 @@ export async function DELETE(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to delete transport request",
       message: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

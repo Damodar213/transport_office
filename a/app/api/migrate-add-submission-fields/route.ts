@@ -20,7 +20,7 @@ export async function POST() {
       SELECT EXISTS (
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
-        AND table_name = 'order_submissions'
+        AND table_name = 'order_submissions')
       )
     `)
 
@@ -28,7 +28,7 @@ export async function POST() {
       // Create the order_submissions table if it doesn't exist
       await dbQuery(`
         CREATE TABLE order_submissions (
-          id SERIAL PRIMARY KEY,
+          id SERIAL PRIMARY KEY,)
           order_id INTEGER NOT NULL REFERENCES buyer_requests(id) ON DELETE CASCADE,
           supplier_id VARCHAR(50) NOT NULL REFERENCES suppliers(user_id) ON DELETE CASCADE,
           submitted_by VARCHAR(100) NOT NULL,
@@ -51,7 +51,7 @@ export async function POST() {
           SELECT FROM information_schema.columns 
           WHERE table_schema = 'public' 
           AND table_name = 'order_submissions' 
-          AND column_name = 'whatsapp_sent'
+          AND column_name = 'whatsapp_sent')
         )
       `)
 
@@ -60,7 +60,7 @@ export async function POST() {
           SELECT FROM information_schema.columns 
           WHERE table_schema = 'public' 
           AND table_name = 'order_submissions' 
-          AND column_name = 'notification_sent'
+          AND column_name = 'notification_sent')
         )
       `)
 
@@ -69,7 +69,7 @@ export async function POST() {
           SELECT FROM information_schema.columns 
           WHERE table_schema = 'public' 
           AND table_name = 'order_submissions' 
-          AND column_name = 'status'
+          AND column_name = 'status')
         )
       `)
 
@@ -78,7 +78,7 @@ export async function POST() {
           SELECT FROM information_schema.columns 
           WHERE table_schema = 'public' 
           AND table_name = 'order_submissions' 
-          AND column_name = 'driver_id'
+          AND column_name = 'driver_id')
         )
       `)
 
@@ -87,7 +87,7 @@ export async function POST() {
           SELECT FROM information_schema.columns 
           WHERE table_schema = 'public' 
           AND table_name = 'order_submissions' 
-          AND column_name = 'vehicle_id'
+          AND column_name = 'vehicle_id')
         )
       `)
 
@@ -95,7 +95,7 @@ export async function POST() {
       if (!whatsappFieldExists.rows[0].exists) {
         await dbQuery(`
           ALTER TABLE order_submissions 
-          ADD COLUMN whatsapp_sent BOOLEAN DEFAULT FALSE
+          ADD COLUMN whatsapp_sent BOOLEAN DEFAULT FALSE)
         `)
         console.log("Added whatsapp_sent field to order_submissions table")
       } else {
@@ -106,7 +106,7 @@ export async function POST() {
       if (!notificationFieldExists.rows[0].exists) {
         await dbQuery(`
           ALTER TABLE order_submissions 
-          ADD COLUMN notification_sent BOOLEAN DEFAULT FALSE
+          ADD COLUMN notification_sent BOOLEAN DEFAULT FALSE)
         `)
         console.log("Added notification_sent field to order_submissions table")
       } else {
@@ -116,7 +116,7 @@ export async function POST() {
       // Add status field if it doesn't exist
       if (!statusFieldExists.rows[0].exists) {
         await dbQuery(`
-          ALTER TABLE order_submissions 
+          ALTER TABLE order_submissions )
           ADD COLUMN status VARCHAR(20) DEFAULT 'new' CHECK (status IN ('new', 'viewed', 'responded', 'confirmed', 'rejected'))
         `)
         console.log("Added status field to order_submissions table")
@@ -127,7 +127,7 @@ export async function POST() {
       // Add driver_id field if it doesn't exist
       if (!driverIdFieldExists.rows[0].exists) {
         await dbQuery(`
-          ALTER TABLE order_submissions 
+          ALTER TABLE order_submissions )
           ADD COLUMN driver_id INTEGER REFERENCES drivers(id)
         `)
         console.log("Added driver_id field to order_submissions table")
@@ -138,7 +138,7 @@ export async function POST() {
       // Add vehicle_id field if it doesn't exist
       if (!vehicleIdFieldExists.rows[0].exists) {
         await dbQuery(`
-          ALTER TABLE order_submissions 
+          ALTER TABLE order_submissions )
           ADD COLUMN vehicle_id INTEGER REFERENCES trucks(id)
         `)
         console.log("Added vehicle_id field to order_submissions table")
@@ -146,7 +146,7 @@ export async function POST() {
         console.log("vehicle_id field already exists")
   }
     const response = NextResponse.json({ 
-      message: "Migration completed successfully - order_submissions table updated with whatsapp_sent, notification_sent, status, driver_id, and vehicle_id fields",
+      message: "Migration completed successfully - order_submissions table updated with whatsapp_sent, notification_sent, status, driver_id, and vehicle_id fields",)
       success: true})
     return addCorsHeaders(response)
 
@@ -155,7 +155,9 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Migration failed", 
       details: error instanceof Error ? error.message : "Unknown error" 
-  }
+ 
+ 
+})
   })
     return addCorsHeaders(response)
   }

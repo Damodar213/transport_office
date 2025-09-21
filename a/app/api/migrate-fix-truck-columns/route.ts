@@ -20,11 +20,11 @@ export async function POST() {
       SELECT column_name, data_type, is_nullable
       FROM information_schema.columns 
       WHERE table_name = 'trucks' 
-      ORDER BY ordinal_position
+      ORDER BY ordinal_position)
     `)
 
     console.log("Current trucks table structure:")
-    currentStructure.rows.forEach(row => {
+    currentStructure.rows.forEach(row => {)
       console.log(`- ${row.column_name}: ${row.data_type} (${row.is_nullable === 'YES' ? 'nullable' : 'not null'})`)
     })
 
@@ -42,7 +42,9 @@ export async function POST() {
         const response = NextResponse.json({ 
           error: "Failed to rename column",
           details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
     } else if (!hasNumberOfVehicles && !hasNumberOfWheels) {
       // Add number_of_wheels column if neither exists
       try {
@@ -53,7 +55,9 @@ export async function POST() {
         const response = NextResponse.json({ 
           error: "Failed to add column",
           details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
       })
     return addCorsHeaders(response)
   }
@@ -63,16 +67,16 @@ export async function POST() {
       SELECT column_name, data_type, is_nullable
       FROM information_schema.columns 
       WHERE table_name = 'trucks' 
-      ORDER BY ordinal_position
+      ORDER BY ordinal_position)
     `)
 
     console.log("Final trucks table structure:")
-    finalStructure.rows.forEach(row => {
+    finalStructure.rows.forEach(row => {)
       console.log(`- ${row.column_name}: ${row.data_type} (${row.is_nullable === 'YES' ? 'nullable' : 'not null'})`)
     })
 
     const response = NextResponse.json({ 
-      message: "Trucks table migration completed successfully",
+      message: "Trucks table migration completed successfully",)
       finalStructure: finalStructure.rows})
     return addCorsHeaders(response)
 
@@ -81,7 +85,9 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Failed to migrate trucks table",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

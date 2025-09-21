@@ -2,10 +2,9 @@ import { NextResponse } from "next/server"
 import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
-export async function PUT(
-  request: Request,
+export async function PUT(request: Request,
   { params }: { params: Promise<{ id: string }> }
-
+)
 ) {
   try {
     const { id } = await params
@@ -19,15 +18,15 @@ export async function PUT(
       SELECT EXISTS (
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
-        AND table_name = 'notifications'
+        AND table_name = 'notifications')
       )
     `)
     
     if (!tableExists.rows[0].exists) {
       const response = NextResponse.json({ 
-        error: "Notifications table not found",
+        error: "Notifications table not found",)
         message: "Notification marked as read (mock mode)"
-      })
+})
       return addCorsHeaders(response)
     }
 
@@ -36,7 +35,7 @@ export async function PUT(
       UPDATE notifications 
       SET is_read = TRUE, updated_at = CURRENT_TIMESTAMP
       WHERE id = $1
-      RETURNING id
+      RETURNING id)
     `, [id])
     
     if (result.rows.length === 0) {
@@ -46,7 +45,9 @@ export async function PUT(
     const response = NextResponse.json({ 
       message: "Notification marked as read successfully",
       notificationId: id
-  }
+
+
+})
     })
     return addCorsHeaders(response)
     
@@ -55,7 +56,9 @@ export async function PUT(
     const response = NextResponse.json({ 
       error: "Failed to mark notification as read",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
     }, { status: 500 })
     return addCorsHeaders(response)
   }

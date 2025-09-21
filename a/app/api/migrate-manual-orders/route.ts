@@ -22,8 +22,7 @@ export async function POST() {
 
     // Create the manual_orders table
     const createTableSQL = `
-      CREATE TABLE IF NOT EXISTS manual_orders (
-        id SERIAL PRIMARY KEY,
+      CREATE TABLE IF NOT EXISTS manual_orders(id SERIAL PRIMARY KEY,)
         order_number VARCHAR(50) UNIQUE NOT NULL,
         load_type VARCHAR(100) NOT NULL,
         estimated_tons DECIMAL(10,2) NOT NULL,
@@ -69,7 +68,7 @@ export async function POST() {
     console.log("✅ Created date index created successfully")
 
     const response = NextResponse.json({
-      success: true,
+      success: true,)
       message: "Manual orders table created successfully with all indexes"})
     return addCorsHeaders(response)
 
@@ -78,7 +77,9 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Failed to create manual orders table",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

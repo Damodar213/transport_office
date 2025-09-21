@@ -54,11 +54,15 @@ export async function POST(request: NextRequest) {
       success: true,
       message: "Debug signup completed successfully",
       formData: {
-  }
+
+
+}
         role,
         userId,
         hasPassword: !!password
-  }
+
+
+})
       })
     return addCorsHeaders(response)
 
@@ -68,7 +72,9 @@ export async function POST(request: NextRequest) {
       error: "Debug signup failed",
       details: error instanceof Error ? error.message : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

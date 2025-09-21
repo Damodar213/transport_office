@@ -54,8 +54,8 @@ export async function GET(request: NextRequest) {
           email: doc.email,
           mobile: doc.mobile,
           documents: []
-  }
-      }
+
+}
 
       acc[key].documents.push({
         id: doc.id,
@@ -66,18 +66,22 @@ export async function GET(request: NextRequest) {
         reviewNotes: doc.review_notes,
         reviewedBy: doc.reviewed_by,
         reviewedAt: doc.reviewed_at
-  }
+
+
+})
       })
       return acc
     }, {} as Record<string, any>)
 
-    return createApiResponse({
+    return createApiResponse({)
       documents: Object.values(groupedDocuments),
       total: result.rows.length,
       limit,
       offset,
       rawData: result.rows // Include raw data for debugging
-  }
+
+
+}
     })
   })
 }

@@ -14,7 +14,9 @@ const mockSupplierNotifications = [
     category: "order",
     priority: "high",
     orderId: "123"
-  }
+
+
+}
   },
   {
     id: "2",
@@ -26,7 +28,9 @@ const mockSupplierNotifications = [
     category: "driver",
     priority: "medium",
     driverId: "driver_001"
-  }
+
+
+}
   },
   {
     id: "3",
@@ -38,7 +42,9 @@ const mockSupplierNotifications = [
     category: "vehicle",
     priority: "low",
     vehicleId: "truck_001"
-  }
+
+
+}
   },
   {
     id: "4",
@@ -50,7 +56,9 @@ const mockSupplierNotifications = [
     category: "payment",
     priority: "medium",
     orderId: "120"
-  }
+
+
+}
   },
   {
     id: "5",
@@ -62,7 +70,9 @@ const mockSupplierNotifications = [
     category: "order",
     priority: "high",
     orderId: "125"
-  }
+
+
+}
 ]
 
 export async function GET(request: Request) {
@@ -75,12 +85,14 @@ export async function GET(request: Request) {
     if (!supplierId) {
       const response = NextResponse.json({ 
         error: "Supplier ID is required" 
-  }
+ 
+ 
+}
     // In a real application, you would fetch notifications from the database
     // For now, we'll return mock data
     let notifications = [...mockSupplierNotifications]
     
-    // If database is available, try to fetch real notifications
+    // If database is available, try to fetch real notifications)
     if (getPool()) {
       try {
         // Check if supplier_notifications table exists
@@ -88,7 +100,7 @@ export async function GET(request: Request) {
           SELECT EXISTS (
             SELECT FROM information_schema.tables 
             WHERE table_schema = 'public' 
-            AND table_name = 'supplier_notifications'
+            AND table_name = 'supplier_notifications')
           )
         `)
         
@@ -109,7 +121,7 @@ export async function GET(request: Request) {
             FROM supplier_notifications 
             WHERE supplier_id = $1
             ORDER BY created_at DESC 
-            LIMIT 50
+            LIMIT 50)
           `, [supplierId])
           
           if (result.rows.length > 0) {
@@ -118,7 +130,7 @@ export async function GET(request: Request) {
                 id: row.id,
                 type: row.type,
                 title: row.title,
-                message: row.message,
+                message: row.message,)
                 timestamp: formatTimestamp(row.created_at),
                 isRead: row.is_read,
                 category: row.category,
@@ -126,7 +138,9 @@ export async function GET(request: Request) {
                 orderId: row.order_id,
                 driverId: row.driver_id,
                 vehicleId: row.vehicle_id
-  }
+
+
+}
             })
           }
 
@@ -144,7 +158,9 @@ export async function GET(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to fetch notifications",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }
@@ -167,7 +183,7 @@ export async function POST(request: Request) {
       const response = NextResponse.json({ 
         error: "Missing required fields: type, title, message, category, priority, supplierId" 
     }
-
+)
     console.log("POST /api/supplier/notifications - creating notification:", { type, title, category, priority, supplierId })
     
     // In a real application, you would save to the database
@@ -178,14 +194,14 @@ export async function POST(request: Request) {
           SELECT EXISTS (
             SELECT FROM information_schema.tables 
             WHERE table_schema = 'public' 
-            AND table_name = 'supplier_notifications'
+            AND table_name = 'supplier_notifications')
           )
         `)
         
         if (!tableExists.rows[0].exists) {
           await dbQuery(`
             CREATE TABLE supplier_notifications (
-              id SERIAL PRIMARY KEY,
+              id SERIAL PRIMARY KEY,)
               supplier_id VARCHAR(50) NOT NULL,
               type VARCHAR(20) NOT NULL,
               title VARCHAR(255) NOT NULL,
@@ -204,7 +220,7 @@ export async function POST(request: Request) {
         }
 
         // Insert new notification
-        const result = await dbQuery(`
+        const result = await dbQuery(`)
           INSERT INTO supplier_notifications (supplier_id, type, title, message, category, priority, order_id, driver_id, vehicle_id, created_at, updated_at)
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW() AT TIME ZONE 'Asia/Kolkata', NOW() AT TIME ZONE 'Asia/Kolkata')
           RETURNING id, created_at
@@ -220,7 +236,9 @@ export async function POST(request: Request) {
           hour: '2-digit',
           minute: '2-digit',
           hour12: true
-  }
+
+
+})
         })
         
         const newNotification = {
@@ -239,7 +257,7 @@ export async function POST(request: Request) {
 
         console.log("Supplier notification created successfully:", newNotification.id)
         const response = NextResponse.json({ 
-          message: "Notification created successfully",
+          message: "Notification created successfully",)
           notification: newNotification})
     return addCorsHeaders(response)
 
@@ -248,7 +266,9 @@ export async function POST(request: Request) {
         const response = NextResponse.json({ 
           error: "Failed to create notification in database",
           details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
       })
     return addCorsHeaders(response)
   }
@@ -262,7 +282,9 @@ export async function POST(request: Request) {
       hour: '2-digit',
       minute: '2-digit',
       hour12: true
-  }
+
+
+})
     })
     
       message: "Notification created successfully (mock mode)"
@@ -287,7 +309,9 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to create notification",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }
@@ -319,7 +343,9 @@ function formatTimestamp(timestamp: string | Date): string {
       minute: '2-digit',
       hour12: true,
       timeZone: 'Asia/Kolkata'
-  }
+
+
+})
     })
     
     // Calculate relative time using current IST time
@@ -359,7 +385,9 @@ function formatTimestamp(timestamp: string | Date): string {
         minute: '2-digit',
         hour12: true,
         timeZone: 'Asia/Kolkata'
-  }
+
+
+})
       })
     } catch {
       return "Time unavailable"

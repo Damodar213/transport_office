@@ -28,11 +28,15 @@ export async function POST(request: NextRequest) {
       success: true,
       message: "Form data test completed successfully",
       formData: {
-  }
+
+
+}
         role,
         userId,
         hasPassword: !!password
-  }
+
+
+})
       })
     return addCorsHeaders(response)
 
@@ -42,7 +46,9 @@ export async function POST(request: NextRequest) {
       error: "Form data test failed",
       details: error instanceof Error ? error.message : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

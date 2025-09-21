@@ -47,11 +47,13 @@ export interface TransportOrder {
   vehicleNumber?: string
   currentLocation?: string
   progress?: number
-  }
+
+
+}
 // Mock database - replace with actual database implementation
 const orders: TransportOrder[] = [
   {
-  }
+}
     id: 1,
     orderNumber: "ORD-2024-001",
     buyerId: "BUY001",
@@ -152,13 +154,12 @@ export async function GET(request: NextRequest) {
 
       // Search functionality
       if (search) {
-        query += ` AND (
-          o.order_number ILIKE $${paramIndex} OR
+        query += ` AND(o.order_number ILIKE $${paramIndex} OR
           o.load_type ILIKE $${paramIndex} OR
           o.from_location ILIKE $${paramIndex} OR
           o.to_location ILIKE $${paramIndex} OR
           o.buyer_company ILIKE $${paramIndex} OR
-          s.name ILIKE $${paramIndex}
+          s.name ILIKE $${paramIndex})
         )`
         params.push(`%${search}%`)
         paramIndex++
@@ -234,21 +235,21 @@ export async function GET(request: NextRequest) {
     // Search functionality
     if (search) {
       const searchLower = search.toLowerCase()
-      filteredOrders = filteredOrders.filter(
+      filteredOrders = filteredOrders.filter()
         (order) =>
           order.orderNumber.toLowerCase().includes(searchLower) ||
           order.loadType.toLowerCase().includes(searchLower) ||
           order.fromLocation.toLowerCase().includes(searchLower) ||
           order.toLocation.toLowerCase().includes(searchLower) ||
           order.buyerCompany.toLowerCase().includes(searchLower) ||
-          order.supplierCompany?.toLowerCase().includes(searchLower),
+          order.supplierCompany ? .toLowerCase().includes(searchLower),
       )
     }
 
     // Sort by creation date (newest first)
     filteredOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 
-  } catch (error) {
+  } catch (error) { : ""
     console.error("Get orders error:", error)
   }
 // Helper function to calculate progress based on status
@@ -283,7 +284,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
 
     const newOrder: TransportOrder = {
-  }
+}
       id: nextOrderId++,
       orderNumber: `ORD-${new Date().getFullYear()}-${String(nextOrderId - 1).padStart(3, "0")}`,
       status: "draft",

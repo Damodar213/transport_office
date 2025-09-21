@@ -8,7 +8,9 @@ export interface District {
   description?: string
   isActive: boolean
   createdAt: string
-  }
+
+
+}
 // GET - Fetch all districts
 export async function GET() {
   try {
@@ -21,7 +23,9 @@ export async function GET() {
         error: "Database not available",
         districts: [],
         message: "Database connection failed"
-  }
+
+
+})
       }, { status: 500 })
     }
 
@@ -38,14 +42,16 @@ export async function GET() {
         created_at as "createdAt"
       FROM districts
       WHERE is_active = true
-      ORDER BY state, district
+      ORDER BY state, district)
     `)
 
     const response = NextResponse.json({
       districts: result.rows,
       total: result.rows.length,
       message: "Districts fetched successfully"
-  }
+
+
+})
     })
   } catch (error) {
     console.error("Error fetching districts:", error)
@@ -53,7 +59,9 @@ export async function GET() {
       error: "Failed to fetch districts",
       districts: [],
       message: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
     }, { status: 500 })
   }
 // POST - Create new district
@@ -74,7 +82,9 @@ export async function POST(request: Request) {
     if (!name || !name.trim() || !state || !state.trim()) {
       const response = NextResponse.json({ 
         error: "District name and state are required" 
-  }
+ 
+ 
+})
       }, { status: 400 })
     }
 
@@ -82,14 +92,16 @@ export async function POST(request: Request) {
     if (!pool) {
       const response = NextResponse.json({ 
         error: "Database not available" 
-  }
+ 
+ 
+})
       }, { status: 500 })
     }
 
     // Table already exists, no need to create it
 
     // Insert new district
-    const result = await dbQuery(`
+    const result = await dbQuery(`)
       INSERT INTO districts (district, state, is_active)
       VALUES ($1, $2, $3)
       RETURNING id::text as id, district as name, state, '' as description, is_active as "isActive", created_at as "createdAt"
@@ -98,7 +110,9 @@ export async function POST(request: Request) {
     const response = NextResponse.json({
       district: result.rows[0],
       message: "District created successfully"
-  }
+
+
+})
     }, { status: 201 })
   } catch (error) {
     console.error("Error creating district:", error)
@@ -106,14 +120,18 @@ export async function POST(request: Request) {
     if (error instanceof Error && error instanceof Error ? error.message : "Unknown error".includes('duplicate key')) {
       const response = NextResponse.json({ 
         error: "District with this name and state already exists"
-  }
+ 
+ 
+})
       }, { status: 409 })
     }
 
     const response = NextResponse.json({ 
       error: "Failed to create district",
       message: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
     }, { status: 500 })
   }
 // PUT - Update district
@@ -124,7 +142,7 @@ export async function PUT(request: Request) {
 
     if (!id || !name || !name.trim() || !state || !state.trim()) {
       const response = NextResponse.json({ 
-        error: "District ID, name and state are required" 
+        error: "District ID, name and state are required" )
       }, { status: 400 })
     }
 
@@ -132,12 +150,14 @@ export async function PUT(request: Request) {
     if (!pool) {
       const response = NextResponse.json({ 
         error: "Database not available" 
-  }
+ 
+ 
+})
       }, { status: 500 })
     }
 
     const result = await dbQuery(`
-      UPDATE districts 
+      UPDATE districts )
       SET district = $1, state = $2, is_active = $3, updated_at = NOW()
       WHERE id = $4
       RETURNING id::text as id, district as name, state, '' as description, is_active as "isActive", created_at as "createdAt"
@@ -146,14 +166,18 @@ export async function PUT(request: Request) {
     if (result.rows.length === 0) {
       const response = NextResponse.json({ 
         error: "District not found" 
-  }
+ 
+ 
+})
       }, { status: 404 })
     }
 
     const response = NextResponse.json({
       district: result.rows[0],
       message: "District updated successfully"
-  }
+
+
+})
     })
   } catch (error) {
     console.error("Error updating district:", error)
@@ -161,14 +185,18 @@ export async function PUT(request: Request) {
     if (error instanceof Error && error instanceof Error ? error.message : "Unknown error".includes('duplicate key')) {
       const response = NextResponse.json({ 
         error: "District with this name and state already exists"
-  }
+ 
+ 
+})
       }, { status: 409 })
     }
 
     const response = NextResponse.json({ 
       error: "Failed to update district",
       message: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
     }, { status: 500 })
   }
 // DELETE - Delete district
@@ -180,7 +208,9 @@ export async function DELETE(request: NextRequest) {
     if (!id) {
       const response = NextResponse.json({ 
         error: "District ID is required" 
-  }
+ 
+ 
+})
       }, { status: 400 })
     }
 
@@ -188,30 +218,38 @@ export async function DELETE(request: NextRequest) {
     if (!pool) {
       const response = NextResponse.json({ 
         error: "Database not available" 
-  }
+ 
+ 
+})
       }, { status: 500 })
     }
 
     const result = await dbQuery(`
-      DELETE FROM districts WHERE id = $1
+      DELETE FROM districts WHERE id = $1)
     `, [id])
 
     if (result.rows.length === 0) {
       const response = NextResponse.json({ 
         error: "District not found" 
-  }
+ 
+ 
+})
       }, { status: 404 })
     }
 
     const response = NextResponse.json({
       message: "District deleted successfully"
-  }
+
+
+})
     })
   } catch (error) {
     console.error("Error deleting district:", error)
     const response = NextResponse.json({ 
       error: "Failed to delete district",
       message: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
     }, { status: 500 })
   }

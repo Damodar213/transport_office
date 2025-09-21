@@ -30,7 +30,9 @@ function formatTimestamp(timestamp: string | Date): string {
       minute: '2-digit',
       hour12: true,
       timeZone: 'Asia/Kolkata'
-  }
+
+
+})
     })
     
     // Calculate relative time using current IST time
@@ -70,7 +72,9 @@ function formatTimestamp(timestamp: string | Date): string {
         minute: '2-digit',
         hour12: true,
         timeZone: 'Asia/Kolkata'
-  }
+
+
+})
       })
     } catch {
       return "Time unavailable"
@@ -86,7 +90,9 @@ const mockNotifications = [
     isRead: false,
     category: "order",
     priority: "medium"
-  }
+
+
+}
   },
   {
     id: "2",
@@ -97,7 +103,9 @@ const mockNotifications = [
     isRead: false,
     category: "order",
     priority: "medium"
-  }
+
+
+}
   },
   {
     id: "3",
@@ -108,7 +116,9 @@ const mockNotifications = [
     isRead: false,
     category: "order",
     priority: "medium"
-  }
+
+
+}
   },
   {
     id: "4",
@@ -119,7 +129,9 @@ const mockNotifications = [
     isRead: true,
     category: "user",
     priority: "low"
-  }
+
+
+}
   },
   {
     id: "5",
@@ -130,7 +142,9 @@ const mockNotifications = [
     isRead: false,
     category: "system",
     priority: "high"
-  }
+
+
+}
 ]
 
 export async function GET() {
@@ -149,7 +163,7 @@ export async function GET() {
           SELECT EXISTS (
             SELECT FROM information_schema.tables 
             WHERE table_schema = 'public' 
-            AND table_name = 'notifications'
+            AND table_name = 'notifications')
           )
         `)
         
@@ -166,7 +180,7 @@ export async function GET() {
               priority
             FROM notifications 
             ORDER BY created_at DESC 
-            LIMIT 50
+            LIMIT 50)
           `)
           
           if (result.rows.length > 0) {
@@ -174,12 +188,14 @@ export async function GET() {
               id: row.id,
               type: row.type,
               title: row.title,
-              message: row.message,
+              message: row.message,)
               timestamp: formatTimestamp(row.created_at),
               isRead: row.is_read,
               category: row.category,
               priority: row.priority
-  }
+
+
+}
             }))
           }
 
@@ -197,7 +213,9 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to fetch notifications",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
     }, { status: 500 })
     return addCorsHeaders(response)
   }
@@ -217,7 +235,7 @@ export async function POST(request: Request) {
     
     if (!type || !title || !message || !category || !priority) {
       const response = NextResponse.json({ 
-        error: "Missing required fields: type, title, message, category, priority" 
+        error: "Missing required fields: type, title, message, category, priority" )
       }, { status: 400 })
       return addCorsHeaders(response)
     }
@@ -232,14 +250,14 @@ export async function POST(request: Request) {
           SELECT EXISTS (
             SELECT FROM information_schema.tables 
             WHERE table_schema = 'public' 
-            AND table_name = 'notifications'
+            AND table_name = 'notifications')
           )
         `)
         
         if (!tableExists.rows[0].exists) {
           await dbQuery(`
             CREATE TABLE notifications (
-              id SERIAL PRIMARY KEY,
+              id SERIAL PRIMARY KEY,)
               type VARCHAR(20) NOT NULL,
               title VARCHAR(255) NOT NULL,
               message TEXT NOT NULL,
@@ -254,7 +272,7 @@ export async function POST(request: Request) {
         }
 
         // Insert new notification
-        const result = await dbQuery(`
+        const result = await dbQuery(`)
           INSERT INTO notifications (type, title, message, category, priority, created_at, updated_at)
           VALUES ($1, $2, $3, $4, $5, NOW() AT TIME ZONE 'Asia/Kolkata', NOW() AT TIME ZONE 'Asia/Kolkata')
           RETURNING id, created_at
@@ -273,7 +291,7 @@ export async function POST(request: Request) {
 
         console.log("Notification created successfully:", newNotification.id)
         const response = NextResponse.json({ 
-          message: "Notification created successfully",
+          message: "Notification created successfully",)
           notification: newNotification})
     return addCorsHeaders(response)
 
@@ -282,15 +300,19 @@ export async function POST(request: Request) {
         const response = NextResponse.json({ 
           error: "Failed to create notification in database",
           details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
         }, { status: 500 })
         return addCorsHeaders(response)
   }
     // Fallback response if database is not available
-    const response = NextResponse.json({ 
+    const response = NextResponse.json({ )
       message: "Notification created successfully (mock mode)",
       notification: {
-  }
+
+
+}
         id: Date.now().toString(),
         type,
         title,
@@ -309,7 +331,9 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to create notification",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
     }, { status: 500 })
     return addCorsHeaders(response)
   }

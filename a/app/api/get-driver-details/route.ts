@@ -13,9 +13,8 @@ export async function GET(request: NextRequest) {
     console.log("Getting details for driver ID:", driverId)
 
     // Get driver information
-    const driverResult = await dbQuery(
-      "SELECT * FROM drivers WHERE id = $1",
-      [driverId]
+    const driverResult = await dbQuery("SELECT * FROM drivers WHERE id = $1",
+      [driverId])
     )
 
     if (driverResult.rows.length === 0) {
@@ -27,14 +26,13 @@ export async function GET(request: NextRequest) {
 
     // Get confirmed orders referencing this driver
     try {
-      const confirmedOrders = await dbQuery(
-        `SELECT 
+      const confirmedOrders = await dbQuery(`SELECT 
           co.id, co.transport_order_id, co.status, co.created_at,
           to.state, to.district, to.place, to.vehicle_number
         FROM confirmed_orders co
         LEFT JOIN transport_orders to ON co.transport_order_id = to.id
         WHERE co.driver_id = $1`,
-        [driverId]
+        [driverId])
       )
       references.confirmedOrders = confirmedOrders.rows})
     return addCorsHeaders(response)
@@ -46,9 +44,8 @@ export async function GET(request: NextRequest) {
 
     // Get transport orders referencing this driver
     try {
-      const transportOrders = await dbQuery(
-        "SELECT id, state, district, place, status, created_at, vehicle_number FROM transport_orders WHERE driver_id = $1",
-        [driverId]
+      const transportOrders = await dbQuery("SELECT id, state, district, place, status, created_at, vehicle_number FROM transport_orders WHERE driver_id = $1",
+        [driverId])
       )
       references.transportOrders = transportOrders.rows})
     return addCorsHeaders(response)
@@ -60,9 +57,8 @@ export async function GET(request: NextRequest) {
 
     // Get buyer requests referencing this driver
     try {
-      const buyerRequests = await dbQuery(
-        "SELECT id, pickup_location, delivery_location, status, created_at FROM buyer_requests WHERE driver_id = $1",
-        [driverId]
+      const buyerRequests = await dbQuery("SELECT id, pickup_location, delivery_location, status, created_at FROM buyer_requests WHERE driver_id = $1",
+        [driverId])
       )
       references.buyerRequests = buyerRequests.rows})
     return addCorsHeaders(response)
@@ -74,9 +70,8 @@ export async function GET(request: NextRequest) {
 
     // Get vehicle location requests referencing this driver
     try {
-      const vehicleLocation = await dbQuery(
-        "SELECT id, place, district, state, status, created_at FROM suppliers_vehicle_location WHERE driver_id = $1",
-        [driverId]
+      const vehicleLocation = await dbQuery("SELECT id, place, district, state, status, created_at FROM suppliers_vehicle_location WHERE driver_id = $1",
+        [driverId])
       )
       references.vehicleLocation = vehicleLocation.rows})
     return addCorsHeaders(response)
@@ -100,13 +95,17 @@ export async function GET(request: NextRequest) {
       totalReferences: totalReferences,
       canDelete: totalReferences === 0,
       deletionBlockers: totalReferences > 0 ? {
-  }
+
+
+} : ""
         confirmedOrders: references.confirmedOrders.length,
         transportOrders: references.transportOrders.length,
         buyerRequests: references.buyerRequests.length,
         vehicleLocation: references.vehicleLocation.length
-  }
-      } : null
+
+
+}
+      } : null)
     })
     
   } catch (error) {
@@ -114,6 +113,8 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({ 
       error: "Failed to get driver details", 
       details: error instanceof Error ? error.message : "Unknown error" 
-  }
+ 
+ 
+})
     }, { status: 500 })
   }

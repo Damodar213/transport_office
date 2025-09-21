@@ -16,10 +16,12 @@ export async function GET(request: NextRequest) {
       confirmedOrders: 0,
       vehicleLocation: 0,
       totalReferences: 0
-  }
+
+
+}
     // Check confirmed_orders table
     try {
-      const confirmedOrdersResult = await dbQuery(
+      const confirmedOrdersResult = await dbQuery()
         "SELECT COUNT(*) as count FROM confirmed_orders WHERE driver_id = $1",
         [driverId]
       )
@@ -32,7 +34,7 @@ export async function GET(request: NextRequest) {
 
     // Check suppliers_vehicle_location table
     try {
-      const vehicleLocationResult = await dbQuery(
+      const vehicleLocationResult = await dbQuery()
         "SELECT COUNT(*) as count FROM suppliers_vehicle_location WHERE driver_id = $1",
         [driverId]
       )
@@ -49,10 +51,11 @@ export async function GET(request: NextRequest) {
       driverId,
       references,
       canDelete: references.totalReferences === 0,
-      message: references.totalReferences === 0 
-        ? "Driver can be deleted safely" 
-  }
-        : `Driver has ${references.totalReferences} references and cannot be deleted`
+      message: references.totalReferences === 0 ? "Driver can be deleted safely" 
+
+
+} : ""
+        : `Driver has ${references.totalReferences} references and cannot be deleted`)
     })
 
   } catch (error) {
@@ -60,6 +63,8 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({ 
       error: "Failed to check driver references",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
     }, { status: 500 })
   }

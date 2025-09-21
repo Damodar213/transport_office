@@ -19,20 +19,20 @@ export async function POST() {
     const checkOldTable = await dbQuery(`
       SELECT table_name 
       FROM information_schema.tables 
-      WHERE table_name = 'transport_orders'
+      WHERE table_name = 'transport_orders')
     `)
 
     // Check if the new table already exists
     const checkNewTable = await dbQuery(`
       SELECT table_name 
       FROM information_schema.tables 
-      WHERE table_name = 'suppliers_vehicle_location'
+      WHERE table_name = 'suppliers_vehicle_location')
     `)
 
     if (checkOldTable.rows.length === 0) {
       console.log("Table transport_orders does not exist, skipping migration...")
       const response = NextResponse.json({ 
-        message: "Table transport_orders does not exist, no migration needed",
+        message: "Table transport_orders does not exist, no migration needed",)
         renamed: false})
     return addCorsHeaders(response)
   }
@@ -42,9 +42,11 @@ export async function POST() {
       const response = NextResponse.json({ 
         message: "Table suppliers_vehicle_location already exists, no migration needed",
         renamed: false
-  }
+
+
+}
     // Rename the table
-    try {
+    try {)
       await dbQuery(`ALTER TABLE transport_orders RENAME TO suppliers_vehicle_location`)
       console.log("Import successful")
     } catch (error) {
@@ -52,17 +54,19 @@ export async function POST() {
       const response = NextResponse.json({ 
         error: "Failed to rename table", 
         details: error instanceof Error ? error.message : "Unknown error" 
-  }
+ 
+ 
+}
     // Verify the new table structure
     const finalStructure = await dbQuery(`
       SELECT column_name, data_type, is_nullable
       FROM information_schema.columns 
       WHERE table_name = 'suppliers_vehicle_location' 
-      ORDER BY ordinal_position
+      ORDER BY ordinal_position)
     `)
 
     console.log("Final suppliers_vehicle_location table structure:")
-    finalStructure.rows.forEach(row => {
+    finalStructure.rows.forEach(row => {)
       console.log(`- ${row.column_name}: ${row.data_type} (${row.is_nullable === 'YES' ? 'nullable' : 'not null'})`)
     })
 
@@ -70,7 +74,7 @@ export async function POST() {
       message: "Table migration completed successfully",
       renamed: true,
       oldTableName: "transport_orders",
-      newTableName: "suppliers_vehicle_location",
+      newTableName: "suppliers_vehicle_location",)
       finalStructure: finalStructure.rows})
     return addCorsHeaders(response)
 
@@ -79,7 +83,9 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Table migration failed", 
       details: error instanceof Error ? error.message : "Unknown error" 
-  }
+ 
+ 
+})
   })
     return addCorsHeaders(response)
   }

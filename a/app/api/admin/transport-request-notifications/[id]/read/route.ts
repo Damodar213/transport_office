@@ -3,10 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 // PUT - Mark a transport request notification as read
-export async function PUT(
-  request: Request,
+export async function PUT(request: Request,
   { params }: { params: Promise<{ id: string }> }
-
+)
 ) {
   try {
     if (!getPool()) {
@@ -17,7 +16,7 @@ export async function PUT(
 
     // Update the notification to mark it as read
     const result = await dbQuery(`
-      UPDATE transport_request_notifications 
+      UPDATE transport_request_notifications )
       SET is_read = true, updated_at = NOW() AT TIME ZONE 'Asia/Kolkata'
       WHERE id = $1 
       RETURNING id, is_read
@@ -28,16 +27,20 @@ export async function PUT(
     if (result.rows.length === 0) {
       const response = NextResponse.json({ 
         error: "Notification not found" 
-  }
+ 
+ 
+}
     const response = NextResponse.json({
       success: true,
       message: "Notification marked as read",
       notification: {
-  }
+
+
+}
         id: result.rows[0].id,
         isRead: result.rows[0].is_read
-  }
-      })
+)
+})
     return addCorsHeaders(response)
 
   } catch (error) {
@@ -45,7 +48,9 @@ export async function PUT(
     const response = NextResponse.json({ 
       error: "Failed to mark notification as read",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

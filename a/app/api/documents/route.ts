@@ -17,7 +17,9 @@ export async function PATCH(request: NextRequest) {
       status: "approved" | "rejected"
       reviewNotes?: string
       reviewer?: string
-  }
+
+
+}
     if (!id || !status) {
       const response = NextResponse.json({ error: "id and status are required" }, { status: 400 })
     }

@@ -13,7 +13,7 @@ export async function PUT() {
 
     // Update all unread notifications to mark as read
     const result = await dbQuery(`
-      UPDATE transport_request_notifications 
+      UPDATE transport_request_notifications )
       SET is_read = true, updated_at = NOW() AT TIME ZONE 'Asia/Kolkata'
       WHERE is_read = false
       RETURNING id
@@ -24,7 +24,7 @@ export async function PUT() {
 
     const response = NextResponse.json({
       success: true,
-      message: "All transport request notifications marked as read successfully",
+      message: "All transport request notifications marked as read successfully",)
       updatedCount})
     return addCorsHeaders(response)
 
@@ -33,7 +33,9 @@ export async function PUT() {
     const response = NextResponse.json({ 
       error: "Failed to mark all notifications as read",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

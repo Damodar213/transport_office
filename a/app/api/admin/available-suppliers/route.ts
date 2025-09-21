@@ -11,7 +11,9 @@ export async function GET() {
         error: "Database not available",
         suppliers: [],
         message: "Using fallback data"
-      }, { status: 500 })
+
+)
+}, { status: 500 })
       return addCorsHeaders(response)
     }
 
@@ -28,14 +30,14 @@ export async function GET() {
       FROM users u
       INNER JOIN suppliers s ON u.user_id = s.user_id
       WHERE u.role = 'supplier'
-      ORDER BY s.company_name
+      ORDER BY s.company_name)
     `)
 
     // Transform the data to match the frontend interface
     const suppliers = result.rows.map(row => ({
       id: row.id,
       name: row.name || 'Unknown',
-      companyName: row.companyName || 'Unknown Company',
+      companyName: row.companyName || 'Unknown Company',)
       availableVehicles: parseInt(row.numberOfVehicles) || 0,
       rating: 4.5, // Default rating since we're not calculating it
       location: 'Multiple Locations', // Can be enhanced with actual location data
@@ -45,13 +47,17 @@ export async function GET() {
       gstNumber: row.gstNumber,
       totalVehicles: parseInt(row.numberOfVehicles) || 0,
       availableDrivers: 2 // Default value since we're not counting actual drivers
-    }))
+
+
+}))
 
     const response = NextResponse.json({
       suppliers,
       total: suppliers.length,
       message: "Available suppliers fetched successfully"
-    })
+
+)
+})
     return addCorsHeaders(response)
     
   } catch (error) {
@@ -60,7 +66,9 @@ export async function GET() {
       error: "Failed to fetch available suppliers",
       suppliers: [],
       message: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
     }, { status: 500 })
     return addCorsHeaders(response)
   }

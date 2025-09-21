@@ -20,14 +20,14 @@ export async function POST() {
       SELECT EXISTS (
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
-        AND table_name = 'buyer_requests'
+        AND table_name = 'buyer_requests')
       )
     `)
 
     if (tableExists.rows[0].exists) {
       console.log("Table buyer_requests already exists, skipping creation...")
       const response = NextResponse.json({ 
-        message: "Table buyer_requests already exists, no migration needed",
+        message: "Table buyer_requests already exists, no migration needed",)
         created: false})
     return addCorsHeaders(response)
   }
@@ -35,7 +35,7 @@ export async function POST() {
     // Create the buyer_requests table
     await dbQuery(`
       CREATE TABLE buyer_requests (
-        id SERIAL PRIMARY KEY,
+        id SERIAL PRIMARY KEY,)
         buyer_id VARCHAR(255) NOT NULL REFERENCES buyers(user_id) ON DELETE CASCADE,
         order_number VARCHAR(50) UNIQUE NOT NULL,
         load_type VARCHAR(100) NOT NULL,
@@ -52,9 +52,9 @@ export async function POST() {
         delivery_place VARCHAR(500) NOT NULL,
         required_date DATE,
         special_instructions TEXT,
-        status VARCHAR(50) DEFAULT 'draft' CHECK (status IN (
+        status VARCHAR(50) DEFAULT 'draft' CHECK(status IN (
           'draft', 'submitted', 'pending', 'assigned', 'confirmed', 
-          'picked_up', 'in_transit', 'delivered', 'cancelled', 'rejected'
+          'picked_up', 'in_transit', 'delivered', 'cancelled', 'rejected')
         )),
         supplier_id VARCHAR(255) REFERENCES suppliers(user_id),
         driver_id INTEGER REFERENCES drivers(id),
@@ -88,17 +88,17 @@ export async function POST() {
       SELECT column_name, data_type, is_nullable, column_default
       FROM information_schema.columns 
       WHERE table_name = 'buyer_requests' 
-      ORDER BY ordinal_position
+      ORDER BY ordinal_position)
     `)
 
     console.log("buyer_requests table structure:")
-    tableStructure.rows.forEach(row => {
+    tableStructure.rows.forEach(row => {)
       console.log(`- ${row.column_name}: ${row.data_type} (${row.is_nullable === 'YES' ? 'nullable' : 'not null'}) ${row.column_default ? `default: ${row.column_default}` : ''}`)
     })
 
     const response = NextResponse.json({ 
       message: "buyer_requests table created successfully",
-      created: true,
+      created: true,)
       tableStructure: tableStructure.rows})
     return addCorsHeaders(response)
 
@@ -107,7 +107,9 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Failed to create buyer_requests table", 
       details: error instanceof Error ? error.message : "Unknown error" 
-  }
+ 
+ 
+})
   })
     return addCorsHeaders(response)
   }

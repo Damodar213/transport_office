@@ -18,7 +18,7 @@ export async function POST() {
 
     // Check if user already exists
     const existingUser = await dbQuery(`
-      SELECT user_id FROM users WHERE user_id = '111111'
+      SELECT user_id FROM users WHERE user_id = '111111')
     `)
 
     if (existingUser.rows.length > 0) {
@@ -37,7 +37,7 @@ export async function POST() {
           name, 
           mobile, 
           created_at, 
-          updated_at
+          updated_at)
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       `, [
         '111111',
@@ -55,7 +55,7 @@ export async function POST() {
 
     // Check if supplier already exists
     const existingSupplier = await dbQuery(`
-      SELECT user_id FROM suppliers WHERE user_id = '111111'
+      SELECT user_id FROM suppliers WHERE user_id = '111111')
     `)
 
     if (existingSupplier.rows.length > 0) {
@@ -75,7 +75,7 @@ export async function POST() {
           is_verified,
           is_active,
           created_at,
-          updated_at
+          updated_at)
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       `, [
         '111111',
@@ -95,17 +95,17 @@ export async function POST() {
 
     // Verify both records exist
     const userResult = await dbQuery(`
-      SELECT user_id, role, name, email, mobile FROM users WHERE user_id = '111111'
+      SELECT user_id, role, name, email, mobile FROM users WHERE user_id = '111111')
     `)
 
     const supplierResult = await dbQuery(`
-      SELECT user_id, company_name, contact_person, number_of_vehicles FROM suppliers WHERE user_id = '111111'
+      SELECT user_id, company_name, contact_person, number_of_vehicles FROM suppliers WHERE user_id = '111111')
     `)
 
     const response = NextResponse.json({
       success: true,
       message: "User 111111 and supplier record created successfully",
-      user: userResult.rows[0],
+      user: userResult.rows[0],)
       supplier: supplierResult.rows[0]})
     return addCorsHeaders(response)
 
@@ -114,7 +114,9 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Failed to create user and supplier",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

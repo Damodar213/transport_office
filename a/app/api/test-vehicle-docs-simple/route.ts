@@ -18,7 +18,7 @@ export async function GET() {
       SELECT vd.id, vd.vehicle_id, vd.supplier_id, vd.vehicle_number, vd.document_type, vd.document_url, vd.status
       FROM vehicle_documents vd 
       ORDER BY vd.submitted_at DESC 
-      LIMIT 5
+      LIMIT 5)
     `)
 
     // Also check trucks table to see if there are trucks with documents
@@ -27,11 +27,11 @@ export async function GET() {
       FROM trucks t 
       WHERE t.document_url IS NOT NULL AND t.document_url != ''
       ORDER BY t.created_at DESC
-      LIMIT 5
+      LIMIT 5)
     `)
 
     const response = NextResponse.json({
-      success: true,
+      success: true,)
       vehicleDocumentCount: parseInt(docCount)    
     ,
       vehicleDocuments: sampleDocs.rows,
@@ -42,7 +42,9 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Test failed",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

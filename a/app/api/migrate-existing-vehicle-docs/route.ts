@@ -25,7 +25,7 @@ export async function POST() {
     const trucksResult = await dbQuery(`
       SELECT t.id, t.supplier_id, t.vehicle_number, t.document_url, t.created_at
       FROM trucks t 
-      WHERE t.document_url IS NOT NULL AND t.document_url != ''
+      WHERE t.document_url IS NOT NULL AND t.document_url != '')
     `)
     
     console.log(`Found ${trucksResult.rows.length} trucks with documents to migrate`)
@@ -34,13 +34,12 @@ export async function POST() {
     for (const truck of trucksResult.rows) {
       try {
         // Check if document submission already exists
-        const existingDoc = await dbQuery(
-          `SELECT id FROM vehicle_documents WHERE vehicle_id = $1 AND document_type = 'rc'`,
-          [truck.id]
+        const existingDoc = await dbQuery(`SELECT id FROM vehicle_documents WHERE vehicle_id = $1 AND document_type = 'rc'`,
+          [truck.id])
         )
         
         if (existingDoc.rows.length === 0) {
-          await dbQuery(
+          await dbQuery()
             `INSERT INTO vehicle_documents (vehicle_id, supplier_id, vehicle_number, document_type, document_url, submitted_at, status)
              VALUES ($1, $2, $3, $4, $5, $6, 'pending')`,
             [
@@ -67,14 +66,15 @@ export async function POST() {
       message: "Vehicle document migration completed",
       migratedCount,
       totalTrucks: trucksResult.rows.length
-  }
+
+
+})
     })
 
   } catch (error) {
     console.error("Migration error:", error)
-    return createApiError(
-      "Failed to migrate vehicle documents",
+    return createApiError("Failed to migrate vehicle documents",
       error instanceof Error ? error.message : "Unknown error",
-      500
+      500)
     )
   }

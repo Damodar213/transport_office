@@ -9,14 +9,14 @@ export async function GET(request: NextRequest) {
     return withDatabase(async () => {
       try {
         // Get all document URLs from all document tables
-        const [supplierDocs, vehicleDocs, driverDocs] = await Promise.all([
+        const [supplierDocs, vehicleDocs, driverDocs] = await Promise.all([)
           dbQuery(`SELECT document_url FROM supplier_documents WHERE document_url IS NOT NULL`),
           dbQuery(`SELECT document_url FROM vehicle_documents WHERE document_url IS NOT NULL`),
           dbQuery(`SELECT document_url FROM driver_documents WHERE document_url IS NOT NULL`)
         ])
 
         // Combine all URLs from database
-        const allDbUrls = new Set([
+        const allDbUrls = new Set([)
           ...supplierDocs.rows.map(row => row.document_url),
           ...vehicleDocs.rows.map(row => row.document_url),
           ...driverDocs.rows.map(row => row.document_url)
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
         const orphanedFiles = r2Files.filter(file => !allDbUrls.has(file.url))
         
         // Find database URLs that don't exist in R2
-        const missingFiles = Array.from(allDbUrls).filter(url => 
+        const missingFiles = Array.from(allDbUrls).filter(url => )
           isR2Url(url) && !r2Files.some(file => file.url === url)
         )
 
@@ -40,19 +40,27 @@ export async function GET(request: NextRequest) {
           driverDocuments: driverDocs.rows.length,
           totalR2Files: r2Files.length,
           orphanedFiles: orphanedFiles.map(file => ({
+
+}
             key: file.key,
             url: file.url,
             size: file.size,
             lastModified: file.lastModified
-          })),
+
+)
+})),
           missingFiles,
           databaseUrls: Array.from(allDbUrls),
           r2Files: r2Files.map(file => ({
+
+}
             key: file.key,
             url: file.url,
             size: file.size,
             lastModified: file.lastModified
-          }))
+
+)
+}))
         })
       } catch (error) {
         console.error("Error listing documents:", error)
@@ -88,7 +96,7 @@ export async function POST(request: NextRequest) {
           successful: [] as string[],
           failed: [] as { url: string, error: string }[],
           skipped: [] as string[]
-  }
+}
         for (const url of urlsToDelete) {
           try {
             // Check if it's an R2 URL
@@ -106,17 +114,23 @@ export async function POST(request: NextRequest) {
             results.failed.push({
               url,
               error: error instanceof Error ? error.message : "Unknown error"
-            })
+
+)
+})
             console.error(`Failed to delete file ${url}:`, error)
   }
         return createApiResponse({
           ...results,
           summary: {
+
+}
             total: urlsToDelete.length,
             successful: results.successful.length,
             failed: results.failed.length,
             skipped: results.skipped.length
-          }
+
+
+})
         }, "Cleanup completed")
       } catch (error) {
         console.error("Error during cleanup:", error)

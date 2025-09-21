@@ -18,10 +18,9 @@ export async function POST(request: NextRequest) {
     console.log("Request data:", { orderSubmissionId, orderType, notificationSent, whatsappSent })
 
     if (!orderSubmissionId || !orderType) {
-      const response = NextResponse.json(
-        { error: "Missing required fields: orderSubmissionId, orderType" },
+      const response = NextResponse.json({ error: "Missing required fields: orderSubmissionId, orderType" },
         { status: 400 }
-
+)
       )
     }
 
@@ -44,15 +43,13 @@ export async function POST(request: NextRequest) {
     // Update the appropriate table based on order type
     let updateResult
     if (orderType === 'manual_order') {
-      updateResult = await dbQuery(
-        `UPDATE manual_order_submissions 
+      updateResult = await dbQuery(`UPDATE manual_order_submissions )
          SET notification_sent = $2, whatsapp_sent = $3, updated_at = NOW() AT TIME ZONE 'Asia/Kolkata' 
          WHERE id = $1`,
         [parsedOrderSubmissionId, notificationSent || false, whatsappSent || false]
       )
     } else {
-      updateResult = await dbQuery(
-        `UPDATE order_submissions 
+      updateResult = await dbQuery(`UPDATE order_submissions )
          SET notification_sent = $2, whatsapp_sent = $3, updated_at = NOW() AT TIME ZONE 'Asia/Kolkata' 
          WHERE id = $1`,
         [parsedOrderSubmissionId, notificationSent || false, whatsappSent || false]
@@ -65,18 +62,21 @@ export async function POST(request: NextRequest) {
       success: true,
       message: "Order notification status updated successfully",
       updatedRows: updateResult.rows.length
-  }
+
+
+})
     })
 
   } catch (error) {
     console.error("Error updating order notification status:", error)
-    const response = NextResponse.json(
-      { 
+    const response = NextResponse.json({ 
         error: "Internal server error", 
         details: error instanceof Error ? error.message : "Unknown error"
-  }
+ 
+ 
+}
       },
       { status: 500 }
-
+)
     )
   }

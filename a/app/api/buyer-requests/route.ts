@@ -78,7 +78,7 @@ export async function GET(request: Request) {
       success: true,
       data: result.rows,
       total: result.rows.length,
-      limit,
+      limit,)
       offset})
     return addCorsHeaders(response)
 
@@ -87,7 +87,9 @@ export async function GET(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to fetch buyer requests",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }
@@ -139,28 +141,32 @@ export async function POST(request: Request) {
     const buyer_id = session.userIdString
 
     // Validate required fields
-    if (!buyer_id || !load_type || !from_state || !from_district || !from_place || 
+    if(!buyer_id || !load_type || !from_state || !from_district || !from_place || )
         !to_state || !to_district || !to_place || !delivery_place) {
       const response = NextResponse.json({ 
         error: "Missing required fields" 
-  }
+ 
+ 
+}
     // Check if buyer exists in buyers table, if not create a basic entry
     const buyerCheck = await dbQuery(`
-      SELECT user_id FROM buyers WHERE user_id = $1
+      SELECT user_id FROM buyers WHERE user_id = $1)
     `, [buyer_id])
     
     if (buyerCheck.rows.length === 0) {
       // Check if user exists with buyer role
       const userCheck = await dbQuery(`
-        SELECT user_id FROM users WHERE user_id = $1 AND role = 'buyer'
+        SELECT user_id FROM users WHERE user_id = $1 AND role = 'buyer')
       `, [buyer_id])
       
       if (userCheck.rows.length === 0) {
         const response = NextResponse.json({ 
           error: "Buyer not found. Please register as a buyer first." 
-  }
+ 
+ 
+}
       // Create basic buyer entry
-      await dbQuery(`
+      await dbQuery(`)
         INSERT INTO buyers (user_id, company_name, gst_number)
         VALUES ($1, $2, $3)
       `, [buyer_id, "Unknown Company", "GST000000000"])
@@ -169,7 +175,7 @@ export async function POST(request: Request) {
     }
 
     // Generate unique order number in simple format (ORD-1, ORD-2, ORD-3, etc.)
-    const orderNumberResult = await dbQuery(`
+    const orderNumberResult = await dbQuery(`)
       SELECT COALESCE(MAX(CAST(SUBSTRING(order_number FROM 5) AS INTEGER)), 0) + 1 as next_number
       FROM buyer_requests
       WHERE order_number ~ '^ORD-[0-9]+$'
@@ -183,9 +189,8 @@ export async function POST(request: Request) {
       INSERT INTO buyer_requests (
         buyer_id, order_number, load_type, from_state, from_district, from_place, from_taluk,
         to_state, to_district, to_place, to_taluk, estimated_tons, number_of_goods,
-        delivery_place, required_date, special_instructions, status
-      ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, 'draft'
+        delivery_place, required_date, special_instructions, status)
+      ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, 'draft')
       ) RETURNING *
     `, [
       buyer_id, orderNumber, load_type, from_state, from_district, from_place, from_taluk,
@@ -199,7 +204,7 @@ export async function POST(request: Request) {
 
     const response = NextResponse.json({
       success: true,
-      message: "Buyer request created successfully",
+      message: "Buyer request created successfully",)
       data: newRequest})
     return addCorsHeaders(response)
 
@@ -208,7 +213,9 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to create buyer request",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

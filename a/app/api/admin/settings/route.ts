@@ -19,20 +19,20 @@ export async function GET() {
           SELECT EXISTS (
             SELECT FROM information_schema.tables 
             WHERE table_schema = 'public' 
-            AND table_name = 'admin_settings'
+            AND table_name = 'admin_settings')
           )
         `)
         
         if (tableExists.rows[0].exists) {
           const result = await dbQuery(`
             SELECT setting_key, setting_value, setting_type
-            FROM admin_settings
+            FROM admin_settings)
           `)
           
           if (result.rows.length > 0) {
             // Parse stored settings
             result.rows.forEach(row => {
-              try {
+              try {)
                 const value = JSON.parse(row.setting_value)
                 const [category, key] = row.setting_key.split('.')
                 
@@ -60,7 +60,9 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to fetch settings",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
     }, { status: 500 })
     return addCorsHeaders(response)
   }
@@ -80,14 +82,14 @@ export async function PUT(request: Request) {
         SELECT EXISTS (
           SELECT FROM information_schema.tables 
           WHERE table_schema = 'public' 
-          AND table_name = 'admin_settings'
+          AND table_name = 'admin_settings')
         )
       `)
       
       if (!tableExists.rows[0].exists) {
         await dbQuery(`
           CREATE TABLE admin_settings (
-            id SERIAL PRIMARY KEY,
+            id SERIAL PRIMARY KEY,)
             setting_key VARCHAR(100) UNIQUE NOT NULL,
             setting_value TEXT NOT NULL,
             setting_type VARCHAR(50) NOT NULL,
@@ -103,7 +105,7 @@ export async function PUT(request: Request) {
       
       // Store each setting
       for (const setting of settingsToStore) {
-        await dbQuery(`
+        await dbQuery(`)
           INSERT INTO admin_settings (setting_key, setting_value, setting_type)
           VALUES ($1, $2, $3)
           ON CONFLICT (setting_key) 
@@ -118,7 +120,9 @@ export async function PUT(request: Request) {
       const response = NextResponse.json({ 
         message: "Settings updated successfully",
         settings: settings
-  }
+
+
+})
       })
       return addCorsHeaders(response)
 
@@ -127,7 +131,9 @@ export async function PUT(request: Request) {
       const response = NextResponse.json({ 
         error: "Failed to update settings in database",
         details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
     })
     return addCorsHeaders(response)
 
@@ -136,7 +142,9 @@ export async function PUT(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to update settings",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
     }, { status: 500 })
     return addCorsHeaders(response)
   }

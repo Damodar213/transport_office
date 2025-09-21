@@ -3,10 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 // GET - Get all submissions for a specific order
-export async function GET(
-  request: Request,
+export async function GET(request: Request,
   { params }: { params: Promise<{ orderId: string }> }
-
+)
 ) {
   try {
     if (!getPool()) {
@@ -27,11 +26,11 @@ export async function GET(
       FROM order_submissions os
       LEFT JOIN suppliers s ON os.supplier_id = s.user_id
       WHERE os.order_id = $1
-      ORDER BY os.submitted_at DESC
+      ORDER BY os.submitted_at DESC)
     `, [orderId])
 
     const response = NextResponse.json({
-      success: true,
+      success: true,)
       submissions: result.rows})
     return addCorsHeaders(response)
 
@@ -40,7 +39,9 @@ export async function GET(
     const response = NextResponse.json({ 
       error: "Failed to fetch order submissions",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

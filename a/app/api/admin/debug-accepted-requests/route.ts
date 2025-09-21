@@ -54,26 +54,31 @@ export async function GET(request: NextRequest) {
       buyerId,
       totalRecords: result.rows.length,
       records: result.rows
-  }
+
+
+})
     })
 
     const response = NextResponse.json({
       success: true,
       debug: {
-  }
+
+
+}
         orderSubmissionId,
         buyerId,
         totalRecords: result.rows.length,
         records: result.rows
-  }
+
+
+})
     })
 
   } catch (error) {
     console.error("Error in debug accepted requests:", error)
-    const response = NextResponse.json(
-      { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
+    const response = NextResponse.json({ error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
-
+)
     )
   }
 export async function DELETE(request: NextRequest) {
@@ -90,39 +95,40 @@ export async function DELETE(request: NextRequest) {
     const buyerId = searchParams.get('buyerId')
 
     if (!orderSubmissionId || !buyerId) {
-      const response = NextResponse.json(
-        { error: "Both orderSubmissionId and buyerId are required" },
+      const response = NextResponse.json({ error: "Both orderSubmissionId and buyerId are required" },
         { status: 400 }
-
+)
       )
     }
 
     // Delete orphaned records for this specific order and buyer
-    const deleteResult = await dbQuery(
-      `DELETE FROM accepted_requests 
+    const deleteResult = await dbQuery(`DELETE FROM accepted_requests 
        WHERE order_submission_id = $1 AND buyer_id = $2 AND sent_by_admin = false`,
-      [orderSubmissionId, buyerId]
+      [orderSubmissionId, buyerId])
     )
 
     console.log("Cleaned up orphaned records:", {
       orderSubmissionId,
       buyerId,
       deletedCount: deleteResult.rows.length
-  }
+
+
+})
     })
 
     const response = NextResponse.json({
       success: true,
       message: "Orphaned records cleaned up",
       deletedCount: deleteResult.rows.length
-  }
+
+
+})
     })
 
   } catch (error) {
     console.error("Error cleaning up orphaned records:", error)
-    const response = NextResponse.json(
-      { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
+    const response = NextResponse.json({ error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
-
+)
     )
   }

@@ -57,13 +57,13 @@ export async function POST(request: NextRequest) {
       toPlace,
       toTaluk,
       requiredDate,
-      specialInstructions
+      specialInstructions)
     })
 
 
     if (!loadType || (!estimatedTons && !numberOfGoods) || !deliveryPlace) {
       console.log("Missing required fields")
-      const response = NextResponse.json(
+      const response = NextResponse.json()
         { error: "Missing required fields: loadType, (estimatedTons or numberOfGoods), deliveryPlace" },
         { status: 400 }
 
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
 
     // Generate unique order number for manual orders
     console.log("Generating manual order number...")
-    const orderNumberResult = await dbQuery(`
+    const orderNumberResult = await dbQuery(`)
       SELECT COALESCE(MAX(CAST(SUBSTRING(order_number FROM 4) AS INTEGER)), 0) + 1 as next_number
       FROM manual_orders
       WHERE order_number ~ '^MO-[0-9]+$'
@@ -93,9 +93,8 @@ export async function POST(request: NextRequest) {
         order_number, load_type, estimated_tons, number_of_goods, delivery_place, 
         from_location, from_state, from_district, from_place, from_taluk,
         to_state, to_district, to_place, to_taluk,
-        status, created_by, special_instructions, required_date
-      ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
+        status, created_by, special_instructions, required_date)
+      ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
       ) RETURNING *
     `, [
       orderNumber, 
@@ -127,7 +126,7 @@ export async function POST(request: NextRequest) {
     try {
       notificationResult = await dbQuery(`
         INSERT INTO notifications (
-          type, title, message, category, priority, is_read
+          type, title, message, category, priority, is_read)
         ) VALUES ($1, $2, $3, $4, $5, false)
         RETURNING *
       `, [
@@ -160,7 +159,7 @@ export async function POST(request: NextRequest) {
       toPlace,
       toTaluk,
       requiredDate,
-      specialInstructions
+      specialInstructions)
     })
 
     // Manual order created without specific supplier assignment
@@ -172,7 +171,9 @@ export async function POST(request: NextRequest) {
       success: true,
       message: "Manual order created successfully",
       order: {
-  }
+
+
+}
         id: newOrder.id,
         orderNumber: newOrder.order_number,
         loadType: newOrder.load_type,
@@ -193,17 +194,23 @@ export async function POST(request: NextRequest) {
         status: newOrder.status,
         createdBy: newOrder.created_by,
         createdAt: newOrder.created_at
-  }
+
+
+}
       },
       notification: notificationResult ? {
-  }
+
+
+} : ""
         id: notificationResult.rows[0].id,
         message: notificationResult.rows[0].message
-  }
-      } : null,
+
+} : null,
       whatsapp: {
         message: whatsappMessage
-  }
+
+
+})
     })
 
   } catch (error) {
@@ -211,7 +218,9 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({ 
       error: "Failed to create manual order",
       message: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
     }, { status: 500 })
   }
 function createWhatsAppMessage(orderDetails: any) {
@@ -263,7 +272,7 @@ function createWhatsAppMessage(orderDetails: any) {
   return `🚛 *NEW TRANSPORT ORDER AVAILABLE*
 
 📋 *Order Details: *
-  }
+}
 • Load Type: ${loadType}
 • Weight: ${loadInfo}
 • From: ${fromLocationStr}
@@ -271,7 +280,7 @@ function createWhatsAppMessage(orderDetails: any) {
 ${requiredDate ? `• Required Date: ${requiredDate}` : ''}
 
 📝 *Special Instructions: *
-  }
+}
 ${specialInstructions || 'Manual order created by admin'}
 
 Please review and respond if you can handle this transport order.
@@ -280,4 +289,4 @@ Please review and respond if you can handle this transport order.
 *MAHALAXMI TRANSPORT*
 📞 8217563933
 📞 80736 27241`
-  }
+}

@@ -124,7 +124,7 @@ export async function GET(request: Request) {
         svl.status as submission_status,
         svl.submitted_at,
         svl.created_at as submission_created_at,
-        svl.updated_at as submission_updated_at,
+        svl.updated_at as submission_updated_at,)
         CONCAT('TR-', svl.id) as order_number,
         svl.body_type as load_type,
         svl.state as from_state,
@@ -168,11 +168,13 @@ export async function GET(request: Request) {
       id: row.submission_id, // Map submission_id to id for frontend compatibility
       status: row.submission_status, // Use submission_status for filtering pending orders
       order_status: row.order_status // Keep original order_status for reference
-  }
+
+
+}
     }))
 
     const response = NextResponse.json({
-      success: true,
+      success: true,)
       orders: transformedOrders})
     return addCorsHeaders(response)
 
@@ -181,7 +183,9 @@ export async function GET(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to fetch orders",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

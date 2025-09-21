@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
       FROM users u
       LEFT JOIN buyers b ON u.user_id = b.user_id
       WHERE u.role = 'buyer'
-      ORDER BY u.user_id ASC
+      ORDER BY u.user_id ASC)
     `)
 
     // Process the buyers to handle null values
@@ -33,20 +33,23 @@ export async function GET(request: NextRequest) {
       phone: buyer.mobile || 'No phone',
       company_name: buyer.company_name || buyer.name || buyer.user_id,
       created_at: buyer.created_at
-    }))
+
+)
+}))
 
     console.log("Found buyers:", buyers.length)
 
     const response = NextResponse.json({
       success: true,
       buyers: buyers
-    })
+
+)
+})
 
   } catch (error) {
     console.error("Error fetching buyers:", error)
-    const response = NextResponse.json(
-      { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 }
+    const response = NextResponse.json({ error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
+      { status: 500 })
     )
     return addCorsHeaders(response)
   }

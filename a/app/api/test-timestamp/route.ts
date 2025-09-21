@@ -6,7 +6,7 @@ export async function GET() {
     const now = new Date()
     
     const response = NextResponse.json({
-      serverTime: {
+      serverTime: {)
         iso: now.toISOString()    
     ,
         ist: now.toLocaleString('en-US', {
@@ -18,21 +18,26 @@ export async function GET() {
           second: '2-digit',
           hour12: true,
           timeZone: 'Asia/Kolkata'
-  }
+
+
+})
         }),
         utc: now.toUTCString(),
         timestamp: now.getTime()
-      },
+},
       timezone: {
-  }
+
+
+}
         offset: now.getTimezoneOffset(),
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         istOffset: '+05:30'
-  }
+
+
+}
       },
       database: {
         nowQuery: 'SELECT NOW() AT TIME ZONE \'Asia/Kolkata\' as ist_time'
-      }
 
-  } catch (error) {
+} catch (error) {
   }

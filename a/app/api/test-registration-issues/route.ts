@@ -16,13 +16,15 @@ export async function GET() {
       CLOUDFLARE_SECRET_ACCESS_KEY: process.env.CLOUDFLARE_SECRET_ACCESS_KEY ? "Set" : "Missing",
       CLOUDFLARE_R2_BUCKET_NAME: process.env.CLOUDFLARE_R2_BUCKET_NAME ? "Set" : "Missing",
       CLOUDFLARE_R2_PUBLIC_URL: process.env.CLOUDFLARE_R2_PUBLIC_URL ? "Set" : "Missing"
-  }
+
+
+}
     // Check if users table exists and has the right structure
     const usersTableCheck = await dbQuery(`
       SELECT column_name, data_type, is_nullable
       FROM information_schema.columns 
       WHERE table_name = 'users' 
-      ORDER BY ordinal_position
+      ORDER BY ordinal_position)
     `)
 
     // Check if suppliers table exists and has the right structure
@@ -30,7 +32,7 @@ export async function GET() {
       SELECT column_name, data_type, is_nullable
       FROM information_schema.columns 
       WHERE table_name = 'suppliers' 
-      ORDER BY ordinal_position
+      ORDER BY ordinal_position)
     `)
 
     // Check recent users in database
@@ -38,7 +40,7 @@ export async function GET() {
       SELECT user_id, role, name, created_at
       FROM users 
       ORDER BY created_at DESC 
-      LIMIT 5
+      LIMIT 5)
     `)
 
     const response = NextResponse.json({
@@ -46,7 +48,7 @@ export async function GET() {
       cloudflareConfig,
       usersTableStructure: usersTableCheck.rows,
       suppliersTableStructure: suppliersTableCheck.rows,
-      recentUsers: recentUsers.rows,
+      recentUsers: recentUsers.rows,)
       message: "Registration issues diagnostic completed"})
     return addCorsHeaders(response)
 
@@ -55,7 +57,9 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Registration issues test failed",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

@@ -17,16 +17,15 @@ export async function POST(request: Request) {
     
     if (!getPool()) {
       console.log("Import successful")
-    }
+}
 
     const { orderSubmissionId, buyerId } = await request.json()
     console.log("Order submission ID:", orderSubmissionId, "Buyer ID:", buyerId)
 
     if (!orderSubmissionId || !buyerId) {
-      const response = NextResponse.json(
-        { error: "Order submission ID and buyer ID are required" },
+      const response = NextResponse.json({ error: "Order submission ID and buyer ID are required" },
         { status: 400 }
-
+)
       )
       return addCorsHeaders(response)
     }
@@ -56,13 +55,12 @@ export async function POST(request: Request) {
         ar.supplier_company,
         ar.buyer_id as original_buyer_id
       FROM accepted_requests ar
-      WHERE ar.id = $1
+      WHERE ar.id = $1)
     `, [orderSubmissionId])
 
     if (orderDetails.rows.length === 0) {
-      const response = NextResponse.json(
-        { status: 404 }
-
+      const response = NextResponse.json({ status: 404 }
+)
       )
     }
 
@@ -72,17 +70,18 @@ export async function POST(request: Request) {
     const order = {
       ...orderSubmission,
       buyer_request_id: orderSubmission.original_order_submission_id
-  }
+
+
+}
     // Check if accepted request already exists for this buyer
     const existingRequest = await dbQuery(`
       SELECT id, sent_by_admin, status FROM accepted_requests 
-      WHERE order_submission_id = $1 AND buyer_id = $2 AND sent_by_admin = true
+      WHERE order_submission_id = $1 AND buyer_id = $2 AND sent_by_admin = true)
     `, [orderSubmissionId, buyerId])
 
     if (existingRequest.rows.length > 0) {
-      const response = NextResponse.json(
-        { status: 409 }
-
+      const response = NextResponse.json({ status: 409 }
+)
       )
     }
 
@@ -112,7 +111,7 @@ export async function POST(request: Request) {
         accepted_at,
         sent_by_admin,
         created_at,
-        updated_at
+        updated_at)
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)
       RETURNING *
     `, [
@@ -146,8 +145,7 @@ export async function POST(request: Request) {
 
     // Update notification and WhatsApp status in the original order submission
     try {
-      await dbQuery(
-        `UPDATE order_submissions 
+      await dbQuery(`UPDATE order_submissions )
          SET notification_sent = true, whatsapp_sent = true, updated_at = NOW() AT TIME ZONE 'Asia/Kolkata' 
          WHERE id = $1`,
         [orderSubmissionId]
@@ -159,8 +157,7 @@ export async function POST(request: Request) {
 
     // Create notification for the buyer
     try {
-      await dbQuery(
-        `INSERT INTO buyer_notifications (
+      await dbQuery(`INSERT INTO buyer_notifications (
           buyer_id,
           type,
           title,
@@ -170,7 +167,7 @@ export async function POST(request: Request) {
           is_read,
           order_id,
           created_at,
-          updated_at
+          updated_at)
         ) VALUES ($1, $2, $3, $4, $5, $6, false, $7, NOW() AT TIME ZONE 'Asia/Kolkata', NOW() AT TIME ZONE 'Asia/Kolkata')`,
         [
           buyerId,
@@ -189,14 +186,13 @@ export async function POST(request: Request) {
 
     const response = NextResponse.json({
       success: true,
-      message: "Order sent to buyer successfully",
+      message: "Order sent to buyer successfully",)
       request: acceptedRequest.rows[0]})
     return addCorsHeaders(response)
 
   } catch (error) {
     console.error("Error sending order to buyer:", error)
-    const response = NextResponse.json(
-      { status: 500 }
-
+    const response = NextResponse.json({ status: 500 }
+)
     )
   }

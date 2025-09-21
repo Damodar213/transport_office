@@ -17,7 +17,7 @@ export async function GET() {
              u.name, u.email, u.mobile
       FROM suppliers s
       LEFT JOIN users u ON s.user_id = u.user_id
-      ORDER BY s.created_at DESC
+      ORDER BY s.created_at DESC)
     `)
 
     // Get all users with supplier role
@@ -25,7 +25,7 @@ export async function GET() {
       SELECT user_id, name, email, mobile, created_at
       FROM users 
       WHERE role = 'supplier'
-      ORDER BY created_at DESC
+      ORDER BY created_at DESC)
     `)
 
     console.log(`Found ${suppliersResult.rows.length} suppliers and ${usersResult.rows.length} supplier users`)
@@ -34,7 +34,7 @@ export async function GET() {
       success: true,
       suppliers: suppliersResult.rows,
       supplierUsers: usersResult.rows,
-      totalSuppliers: suppliersResult.rows.length,
+      totalSuppliers: suppliersResult.rows.length,)
       totalSupplierUsers: usersResult.rows.length})
     return addCorsHeaders(response)
 
@@ -43,7 +43,9 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to check suppliers",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

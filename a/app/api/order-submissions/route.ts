@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     }
 
     // Insert the order submission record
-    const result = await dbQuery(
+    const result = await dbQuery()
       `INSERT INTO order_submissions (order_id, supplier_id, submitted_by, submitted_at, whatsapp_sent, notification_sent, status, created_at, updated_at)
        VALUES ($1, $2, $3, NOW() AT TIME ZONE 'Asia/Kolkata', $4, $5, 'new', NOW() AT TIME ZONE 'Asia/Kolkata', NOW() AT TIME ZONE 'Asia/Kolkata')
        RETURNING *`,
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
 
     const response = NextResponse.json({
       success: true,
-      message: "Order submission recorded successfully",
+      message: "Order submission recorded successfully",)
       submission: result.rows[0]})
     return addCorsHeaders(response)
 
@@ -47,11 +47,15 @@ export async function POST(request: Request) {
     if (error instanceof Error && error instanceof Error ? error.message : "Unknown error".includes('unique constraint')) {
       const response = NextResponse.json({ 
         error: "This order has already been sent to this supplier" 
-  }
+ 
+ 
+}
     const response = NextResponse.json({ 
       error: "Failed to record order submission",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }
@@ -72,11 +76,11 @@ export async function GET() {
       FROM order_submissions os
       LEFT JOIN buyer_requests br ON os.order_id = br.id
       LEFT JOIN suppliers s ON os.supplier_id = s.user_id
-      ORDER BY os.submitted_at DESC
+      ORDER BY os.submitted_at DESC)
     `)
 
     const response = NextResponse.json({
-      success: true,
+      success: true,)
       submissions: result.rows})
     return addCorsHeaders(response)
 
@@ -85,7 +89,9 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to fetch order submissions",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

@@ -14,7 +14,9 @@ export interface Truck {
   is_active: boolean
   created_at: string
   updated_at: string
-  }
+
+
+}
 // GET - Fetch trucks for a specific supplier
 export async function GET(request: Request) {
   try {
@@ -40,9 +42,8 @@ export async function GET(request: Request) {
     }
 
     // Verify supplier exists
-    const supplierResult = await dbQuery(
-      "SELECT user_id FROM suppliers WHERE user_id = $1",
-      [supplierId]
+    const supplierResult = await dbQuery("SELECT user_id FROM suppliers WHERE user_id = $1",
+      [supplierId])
     )
 
     if (supplierResult.rows.length === 0) {
@@ -110,9 +111,8 @@ export async function POST(request: Request) {
     }
 
     // Verify supplier exists
-    const supplierResult = await dbQuery(
-      "SELECT user_id FROM suppliers WHERE user_id = $1",
-      [body.supplierId]
+    const supplierResult = await dbQuery("SELECT user_id FROM suppliers WHERE user_id = $1",
+      [body.supplierId])
     )
 
     if (supplierResult.rows.length === 0) {
@@ -123,9 +123,8 @@ export async function POST(request: Request) {
     console.log("Found supplier ID:", supplierId)
 
     // Check if vehicle number already exists
-    const existingVehicle = await dbQuery(
-      "SELECT id FROM trucks WHERE vehicle_number = $1",
-      [body.vehicleNumber]
+    const existingVehicle = await dbQuery("SELECT id FROM trucks WHERE vehicle_number = $1",
+      [body.vehicleNumber])
     )
 
     if (existingVehicle.rows.length > 0) {
@@ -133,8 +132,7 @@ export async function POST(request: Request) {
     }
 
     const sql = `
-      INSERT INTO trucks (
-        supplier_id, vehicle_number, body_type, capacity_tons, number_of_wheels, document_url
+      INSERT INTO trucks(supplier_id, vehicle_number, body_type, capacity_tons, number_of_wheels, document_url)
       ) VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *
     `
@@ -161,7 +159,7 @@ export async function POST(request: Request) {
     if (body.documentUrl) {
       try {
         const now = new Date().toISOString()
-        await dbQuery(
+        await dbQuery()
           `INSERT INTO vehicle_documents (vehicle_id, supplier_id, vehicle_number, document_type, document_url, submitted_at, status)
            VALUES ($1, $2, $3, $4, $5, $6, 'pending')`,
           [result.rows[0].id, supplierId, body.vehicleNumber, 'rc', body.documentUrl, now]
@@ -172,7 +170,7 @@ export async function POST(request: Request) {
         // Don't fail the truck creation if document submission creation fails
   }
     const response = NextResponse.json({ 
-      message: "Truck created successfully", 
+      message: "Truck created successfully", )
       truck: result.rows[0]})
     return addCorsHeaders(response)
 
@@ -181,12 +179,16 @@ export async function POST(request: Request) {
     console.error("Error details:", {
       message: error instanceof Error ? error.message : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
-  }
+
+
+})
     })
     const response = NextResponse.json({ 
       error: "Failed to create truck", 
       details: error instanceof Error ? error.message : "Unknown error" 
-  }
+ 
+ 
+})
   })
     return addCorsHeaders(response)
   }
@@ -208,10 +210,9 @@ export async function PUT(request: Request) {
     const { id, ...updateData } = body
 
     // SECURITY CHECK: First verify the truck belongs to the logged-in supplier
-    const truckCheck = await dbQuery(
-  }
+    const truckCheck = await dbQuery(}
       "SELECT supplier_id FROM trucks WHERE id = $1",
-      [id]
+      [id])
     )
 
     if (truckCheck.rows.length === 0) {
@@ -251,7 +252,7 @@ export async function PUT(request: Request) {
     }
 
     const response = NextResponse.json({ 
-      message: "Truck updated successfully", 
+      message: "Truck updated successfully", )
       truck: result.rows[0]})
     return addCorsHeaders(response)
 
@@ -297,7 +298,7 @@ export async function DELETE(request: Request) {
     console.log("Truck deleted successfully:", checkResult.rows[0].vehicle_number)
     
     const response = NextResponse.json({ 
-      message: "Truck deleted successfully",
+      message: "Truck deleted successfully",)
       deletedTruck: checkResult.rows[0]})
     return addCorsHeaders(response)
 

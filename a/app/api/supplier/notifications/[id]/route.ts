@@ -2,10 +2,9 @@ import { NextResponse } from "next/server"
 import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
-export async function DELETE(
-  request: Request,
+export async function DELETE(request: Request,
   { params }: { params: Promise<{ id: string }> }
-
+)
 ) {
   try {
     const { id } = await params
@@ -19,21 +18,21 @@ export async function DELETE(
       SELECT EXISTS (
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
-        AND table_name = 'supplier_notifications'
+        AND table_name = 'supplier_notifications')
       )
     `)
     
     if (!tableExists.rows[0].exists) {
         error: "Supplier notifications table not found",
         message: "Notification deleted (mock mode)"
-      })
+})
     }
 
     // Delete notification
     const result = await dbQuery(`
       DELETE FROM supplier_notifications 
       WHERE id = $1
-      RETURNING id
+      RETURNING id)
     `, [id])
     
     if (result.rows.length === 0) {
@@ -41,7 +40,7 @@ export async function DELETE(
 
     console.log(`Supplier notification ${id} deleted successfully`)
     const response = NextResponse.json({ 
-      message: "Notification deleted successfully",
+      message: "Notification deleted successfully",)
       notificationId: id})
     return addCorsHeaders(response)
 
@@ -50,7 +49,9 @@ export async function DELETE(
     const response = NextResponse.json({ 
       error: "Failed to delete notification",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

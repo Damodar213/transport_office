@@ -11,7 +11,9 @@ export interface Driver {
   is_active: boolean
   created_at: string
   updated_at: string
-  }
+
+
+}
 // GET - Fetch drivers for a specific supplier
 export async function GET(request: Request) {
   try {
@@ -22,9 +24,8 @@ export async function GET(request: Request) {
     }
 
     // Get supplier user_id from suppliers table
-    const supplierResult = await dbQuery(
-      "SELECT user_id FROM suppliers WHERE user_id = $1",
-      [supplierId]
+    const supplierResult = await dbQuery("SELECT user_id FROM suppliers WHERE user_id = $1",
+      [supplierId])
     )
 
     if (supplierResult.rows.length === 0) {
@@ -67,9 +68,8 @@ export async function POST(request: Request) {
     console.log("Received driver data:", body)
 
     // Get supplier user_id from suppliers table
-    const supplierResult = await dbQuery(
-      "SELECT user_id FROM suppliers WHERE user_id = $1",
-      [body.supplierId]
+    const supplierResult = await dbQuery("SELECT user_id FROM suppliers WHERE user_id = $1",
+      [body.supplierId])
     )
 
     if (supplierResult.rows.length === 0) {})
@@ -80,9 +80,8 @@ export async function POST(request: Request) {
     console.log("Found supplier ID:", supplierId)
 
     const sql = `
-      INSERT INTO drivers (
-        supplier_id, driver_name, mobile, 
-        license_document_url
+      INSERT INTO drivers(supplier_id, driver_name, mobile, 
+        license_document_url)
       ) VALUES ($1, $2, $3, $4)
       RETURNING *
     `
@@ -103,7 +102,7 @@ export async function POST(request: Request) {
     if (body.licenseDocumentUrl) {
       try {
         const now = new Date().toISOString()
-        await dbQuery(
+        await dbQuery()
           `INSERT INTO driver_documents (driver_id, supplier_id, driver_name, document_type, document_url, submitted_at, status)
            VALUES ($1, $2, $3, $4, $5, $6, 'pending')`,
           [result.rows[0].id, supplierId, body.driverName, 'license', body.licenseDocumentUrl, now]
@@ -114,7 +113,7 @@ export async function POST(request: Request) {
         // Don't fail the driver creation if document submission creation fails
   }
     const response = NextResponse.json({ 
-      message: "Driver created successfully", 
+      message: "Driver created successfully", )
       driver: result.rows[0]})
     return addCorsHeaders(response)
 
@@ -161,7 +160,7 @@ export async function PUT(request: Request) {
     if (updateData.licenseDocumentUrl && updateData.licenseDocumentUrl !== result.rows[0].license_document_url) {
       try {
         const now = new Date().toISOString()
-        await dbQuery(
+        await dbQuery()
           `INSERT INTO driver_documents (driver_id, supplier_id, driver_name, document_type, document_url, submitted_at, status)
            VALUES ($1, $2, $3, $4, $5, $6, 'pending')`,
           [id, result.rows[0].supplier_id, updateData.driverName, 'license', updateData.licenseDocumentUrl, now]
@@ -172,7 +171,7 @@ export async function PUT(request: Request) {
         // Don't fail the driver update if document submission creation fails
   }
     const response = NextResponse.json({ 
-      message: "Driver updated successfully", 
+      message: "Driver updated successfully", )
       driver: result.rows[0]})
     return addCorsHeaders(response)
 
@@ -205,7 +204,7 @@ export async function DELETE(request: Request) {
       // Check if driver is referenced in confirmed_orders table (this table has driver_id)
       try {
         console.log("Checking confirmed_orders for driver_id:", id)
-        const confirmedOrdersCheck = await dbQuery(
+        const confirmedOrdersCheck = await dbQuery()
           "SELECT COUNT(*) as count FROM confirmed_orders WHERE driver_id = $1",
           [id]
         )
@@ -216,7 +215,9 @@ export async function DELETE(request: Request) {
           const response = NextResponse.json({ 
             error: "Cannot delete driver. Driver is assigned to confirmed orders. Please reassign or complete the orders first.",
             details: "Driver has active orders"
-  }
+
+
+})
         })
     return addCorsHeaders(response)
 
@@ -227,7 +228,7 @@ export async function DELETE(request: Request) {
       // Check if driver is referenced in suppliers_vehicle_location table (this table has driver_id)
       try {
         console.log("Checking suppliers_vehicle_location for driver_id:", id)
-        const vehicleLocationCheck = await dbQuery(
+        const vehicleLocationCheck = await dbQuery()
           "SELECT COUNT(*) as count FROM suppliers_vehicle_location WHERE driver_id = $1",
           [id]
         )
@@ -238,7 +239,9 @@ export async function DELETE(request: Request) {
           const response = NextResponse.json({ 
             error: "Cannot delete driver. Driver is assigned to vehicle location requests. Please reassign or complete the requests first.",
             details: "Driver has active vehicle location requests"
-  }
+
+
+})
         })
     return addCorsHeaders(response)
 
@@ -280,7 +283,7 @@ export async function DELETE(request: Request) {
     console.log("Driver deleted successfully:", checkResult.rows[0].driver_name)
     
     const response = NextResponse.json({ 
-      message: "Driver deleted successfully",
+      message: "Driver deleted successfully",)
       deletedDriver: checkResult.rows[0]})
     return addCorsHeaders(response)
 
@@ -289,7 +292,7 @@ export async function DELETE(request: Request) {
     
     // Check if it's a database connection error
     const errorMessage = error instanceof Error ? error.message : "Unknown error"
-    if (error instanceof Error && (
+    if(error instanceof Error && ()
       errorMessage.includes('connection') || 
       errorMessage.includes('timeout') ||
       errorMessage.includes('ECONNRESET') ||
@@ -298,17 +301,23 @@ export async function DELETE(request: Request) {
       const response = NextResponse.json({ 
         error: "Database connection error. Please try again.",
         details: "Connection timeout or database unavailable"
-  }
-    // Check if it's a foreign key constraint violation
+
+
+}
+    // Check if it's a foreign key constraint violation)
     if (error instanceof Error && error instanceof Error ? error.message : "Unknown error".includes('violates foreign key constraint')) {
       const response = NextResponse.json({ 
         error: "Cannot delete driver. Driver is referenced by other records in the system.",
         details: "Foreign key constraint violation"
-  }
+
+
+}
     const response = NextResponse.json({ 
       error: "Failed to delete driver", 
       details: error instanceof Error ? error.message : "Unknown error" 
-  }
+ 
+ 
+})
   })
     return addCorsHeaders(response)
   }

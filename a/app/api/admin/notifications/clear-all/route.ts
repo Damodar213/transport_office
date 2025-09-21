@@ -15,34 +15,34 @@ export async function DELETE() {
       SELECT EXISTS (
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
-        AND table_name = 'notifications'
+        AND table_name = 'notifications')
       )
     `)
     
     if (!tableExists.rows[0].exists) {
       const response = NextResponse.json({ 
-        error: "Notifications table not found",
+        error: "Notifications table not found",)
         message: "All notifications cleared (mock mode)"
-      })
+})
       return addCorsHeaders(response)
     }
 
     // Get count before deletion
-    const countResult = await dbQuery(`
+    const countResult = await dbQuery(`)
       SELECT COUNT(*) as total_count FROM notifications
     `)
     const totalCount = countResult.rows[0].total_count
     
     // Delete all notifications
     await dbQuery(`
-      DELETE FROM notifications
+      DELETE FROM notifications)
     `)
     
     console.log(`${totalCount} notifications cleared successfully`)
     const response = NextResponse.json({ 
-      message: "All notifications cleared successfully",
+      message: "All notifications cleared successfully",)
       clearedCount: parseInt(totalCount)
-    })
+})
     return addCorsHeaders(response)
     
   } catch (error) {
@@ -50,7 +50,9 @@ export async function DELETE() {
     const response = NextResponse.json({ 
       error: "Failed to clear all notifications",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
     }, { status: 500 })
     return addCorsHeaders(response)
   }

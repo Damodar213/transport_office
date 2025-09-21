@@ -15,10 +15,9 @@ export async function GET() {
 
     const pool = getPool()
     if (!pool) {
-      return createApiError(
-        "Database pool not available",
+      return createApiError("Database pool not available",
         "Failed to create database connection pool",
-        503
+        503)
       )
     }
 
@@ -32,35 +31,37 @@ export async function GET() {
         SELECT table_name 
         FROM information_schema.tables 
         WHERE table_schema = 'public' 
-        LIMIT 10
+        LIMIT 10)
       `)
       
       return createApiResponse({
         connected: true,
         message: "Database connection successful",
-        health: health.message,
-        version: versionResult.rows[0]?.version?.split(' ')[0] + ' ' + versionResult.rows[0]?.version?.split(' ')[1],
+        health: health.message,)
+        version: versionResult.rows[0]?.version ? .split(' ')[0] + ' ' + versionResult.rows[0]?.version?.split(' ')[1], : ""
         tables: tablesResult.rows.length,
         config: {
-  }
+
+
+}
           databaseEnabled: config.database.enabled,
           nodeEnv: config.app.nodeEnv,
           websiteUrl: config.app.websiteUrl
-  }
+
+
+}
       }, "Database connection test successful")
     } else {
-      return createApiError(
-        "Database health check failed",
+      return createApiError("Database health check failed",
         health.message,
-        503
+        503)
       )
     }
 
   } catch (error) {
     console.error("Database connection test failed:", error)
-    return createApiError(
-      "Database connection failed",
+    return createApiError("Database connection failed",
       error instanceof Error ? error.message : "Unknown error",
-      503
+      503)
     )
   }

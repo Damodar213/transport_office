@@ -24,7 +24,7 @@ export async function POST() {
     const userResult = await dbQuery(`
       SELECT user_id, role, name, email, mobile, created_at 
       FROM users 
-      WHERE user_id = '111111'
+      WHERE user_id = '111111')
     `)
 
     if (userResult.rows.length === 0) {
@@ -35,14 +35,14 @@ export async function POST() {
 
     // Check if supplier record already exists
     const existingSupplier = await dbQuery(`
-      SELECT user_id FROM suppliers WHERE user_id = '111111'
+      SELECT user_id FROM suppliers WHERE user_id = '111111')
     `)
 
     if (existingSupplier.rows.length > 0) {
       const response = NextResponse.json({ 
         message: "Supplier record already exists for user 111111",
         supplier: existingSupplier.rows[0]
-  }
+}
     // Create supplier record
     const supplierResult = await dbQuery(`
       INSERT INTO suppliers (
@@ -55,7 +55,7 @@ export async function POST() {
         is_verified,
         is_active,
         created_at,
-        updated_at
+        updated_at)
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *
     `, [
@@ -76,7 +76,7 @@ export async function POST() {
     const response = NextResponse.json({
       success: true,
       message: "Supplier record created successfully for user 111111",
-      supplier: supplierResult.rows[0],
+      supplier: supplierResult.rows[0],)
       user: user})
     return addCorsHeaders(response)
 
@@ -85,7 +85,9 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Failed to create supplier record",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

@@ -13,14 +13,14 @@ export async function GET() {
     const driverDocs = await dbQuery(`
       SELECT dd.supplier_id, dd.driver_name
       FROM driver_documents dd
-      LIMIT 3
+      LIMIT 3)
     `)
 
     const users = await dbQuery(`
       SELECT u.user_id, u.name, u.company_name
       FROM users u
       WHERE u.role = 'supplier'
-      LIMIT 3
+      LIMIT 3)
     `)
 
     // Test the JOIN
@@ -32,14 +32,14 @@ export async function GET() {
         u.company_name
       FROM driver_documents dd
       LEFT JOIN users u ON dd.supplier_id = u.user_id
-      LIMIT 3
+      LIMIT 3)
     `)
 
     const response = NextResponse.json({
       success: true,
       driverDocs: driverDocs.rows,
       users: users.rows,
-      joinTest: joinTest.rows,
+      joinTest: joinTest.rows,)
       message: "Join test completed"})
     return addCorsHeaders(response)
 
@@ -48,7 +48,9 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Join test failed",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

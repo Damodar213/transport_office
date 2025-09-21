@@ -24,7 +24,7 @@ export async function POST() {
     // Create supplier_documents table
     await dbQuery(`
       CREATE TABLE IF NOT EXISTS supplier_documents (
-        id SERIAL PRIMARY KEY,
+        id SERIAL PRIMARY KEY,)
         user_id VARCHAR(255) NOT NULL,
         supplier_name VARCHAR(255),
         company_name VARCHAR(255),
@@ -41,15 +41,15 @@ export async function POST() {
     `)
 
     // Create indexes for better performance
-    await dbQuery(`
+    await dbQuery(`)
       CREATE INDEX IF NOT EXISTS idx_supplier_documents_user_id ON supplier_documents(user_id)
     `)
     
-    await dbQuery(`
+    await dbQuery(`)
       CREATE INDEX IF NOT EXISTS idx_supplier_documents_status ON supplier_documents(status)
     `)
     
-    await dbQuery(`
+    await dbQuery(`)
       CREATE INDEX IF NOT EXISTS idx_supplier_documents_submitted_at ON supplier_documents(submitted_at)
     `)
 
@@ -61,12 +61,12 @@ export async function POST() {
       
       if (fs.existsSync(documentsPath)) {
         const documentsData = JSON.parse(fs.readFileSync(documentsPath, 'utf8'))
-        console.log(`Found ${documentsData.submissions?.length || 0} existing document submissions to migrate`)
+        console.log(`Found ${documentsData.submissions ? .length || 0} existing document submissions to migrate`)
         
         if (documentsData.submissions && documentsData.submissions.length > 0) {
           for (const submission of documentsData.submissions) {
             try {
-              await dbQuery(
+              await dbQuery()
                 `INSERT INTO supplier_documents (user_id, supplier_name, company_name, document_type, document_url, submitted_at, status, review_notes, reviewed_by, reviewed_at)
                  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
                  ON CONFLICT DO NOTHING`,
@@ -75,7 +75,7 @@ export async function POST() {
                   submission.supplierName,
                   submission.companyName,
                   submission.documentType,
-                  submission.documentUrl,
+                  submission.documentUrl, : ""
                   submission.submittedAt ? new Date(submission.submittedAt).toISOString() : new Date().toISOString(),
                   submission.status || 'pending',
                   submission.reviewNotes || null,
@@ -99,7 +99,7 @@ export async function POST() {
       const usersResult = await dbQuery(`
         SELECT user_id, name, company_name, documents, email, mobile
         FROM users 
-        WHERE role = 'supplier' AND documents IS NOT NULL AND documents != '{}'
+        WHERE role = 'supplier' AND documents IS NOT NULL AND documents != '{}')
       `)
       
       console.log(`Found ${usersResult.rows.length} suppliers with documents to migrate`)
@@ -110,7 +110,7 @@ export async function POST() {
         for (const [docType, docUrl] of Object.entries(documents)) {
           if (docUrl && typeof docUrl === 'string') {
             try {
-              await dbQuery(
+              await dbQuery()
                 `INSERT INTO supplier_documents (user_id, supplier_name, company_name, document_type, document_url, submitted_at, status)
                  VALUES ($1, $2, $3, $4, $5, $6, 'pending')
                  ON CONFLICT DO NOTHING`,
@@ -136,14 +136,15 @@ export async function POST() {
     return createApiResponse({
       message: "supplier_documents table created successfully",
       migrated: true
-  }
+
+
+})
     })
 
   } catch (error) {
     console.error("Migration error:", error)
-    return createApiError(
-      "Failed to create supplier_documents table",
+    return createApiError("Failed to create supplier_documents table",
       error instanceof Error ? error.message : "Unknown error",
-      500
+      500)
     )
   }

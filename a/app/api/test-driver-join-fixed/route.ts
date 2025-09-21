@@ -25,12 +25,12 @@ export async function GET() {
       FROM driver_documents dd
       LEFT JOIN users u ON dd.supplier_id::text = u.user_id
       ORDER BY dd.submitted_at DESC
-      LIMIT 5
+      LIMIT 5)
     `)
 
     const response = NextResponse.json({
       success: true,
-      documents: joinTest.rows,
+      documents: joinTest.rows,)
       message: "Join test with casting completed"})
     return addCorsHeaders(response)
 
@@ -39,7 +39,9 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Join test failed",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

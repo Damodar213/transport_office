@@ -22,7 +22,7 @@ export async function GET() {
         dd.status
       FROM driver_documents dd
       ORDER BY dd.submitted_at DESC 
-      LIMIT 5
+      LIMIT 5)
     `)
 
     // Get users table structure
@@ -30,13 +30,13 @@ export async function GET() {
       SELECT column_name, data_type 
       FROM information_schema.columns 
       WHERE table_name = 'users' 
-      ORDER BY ordinal_position
+      ORDER BY ordinal_position)
     `)
 
     const response = NextResponse.json({
       success: true,
       driverDocuments: docsResult.rows,
-      usersTableStructure: usersResult.rows,
+      usersTableStructure: usersResult.rows,)
       message: "Debug info retrieved"})
     return addCorsHeaders(response)
 
@@ -45,7 +45,9 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Debug failed",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

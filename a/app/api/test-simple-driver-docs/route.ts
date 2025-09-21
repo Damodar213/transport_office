@@ -13,12 +13,12 @@ export async function GET() {
     const result = await dbQuery(`
       SELECT table_name 
       FROM information_schema.tables 
-      WHERE table_schema = 'public' 
+      WHERE table_schema = 'public' )
       AND table_name IN ('driver_documents', 'vehicle_documents')
     `)
 
     const response = NextResponse.json({
-      success: true,
+      success: true,)
       tables: result.rows.map(row => row.table_name)    
     ,
       message: "Tables check completed"})
@@ -29,7 +29,9 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Test failed",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

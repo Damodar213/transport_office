@@ -29,7 +29,9 @@ function formatTimestamp(timestamp: string | Date): string {
       minute: '2-digit',
       hour12: true,
       timeZone: 'Asia/Kolkata'
-  }
+
+
+})
     })
     
     // Calculate relative time using current IST time
@@ -69,7 +71,9 @@ function formatTimestamp(timestamp: string | Date): string {
         minute: '2-digit',
         hour12: true,
         timeZone: 'Asia/Kolkata'
-  }
+
+
+})
       })
     } catch {
       return "Time unavailable"
@@ -88,7 +92,7 @@ export async function GET() {
       SELECT EXISTS (
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
-        AND table_name = 'transport_request_notifications'
+        AND table_name = 'transport_request_notifications')
       )
     `)
 
@@ -110,12 +114,12 @@ export async function GET() {
         is_read,
         created_at
       FROM transport_request_notifications
-      ORDER BY id DESC
+      ORDER BY id DESC)
     `)
 
     console.log(`Found ${result.rows.length} transport request notifications`)
 
-    const notifications = result.rows.map(row => ({
+    const notifications = result.rows.map(row => ({)
       id: row.id.toString(),
       type: "info",
       title: "New Buyer Order Submitted",
@@ -127,7 +131,9 @@ export async function GET() {
       orderId: row.id,
       buyerId: row.buyer_id,
       status: "pending"
-  }
+
+
+}
     }))
 
   } catch (error) {
@@ -135,7 +141,9 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to fetch notifications",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }
@@ -173,7 +181,7 @@ export async function POST(request: Request) {
       const response = NextResponse.json({ 
         error: "Missing required fields: type, title, message, category, priority" 
     }
-
+)
     console.log("Creating transport request notification:", { type, title, category, priority })
 
     // Check if table exists, create if not
@@ -181,14 +189,14 @@ export async function POST(request: Request) {
       SELECT EXISTS (
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
-        AND table_name = 'transport_request_notifications'
+        AND table_name = 'transport_request_notifications')
       )
     `)
     
     if (!tableExists.rows[0].exists) {
       await dbQuery(`
         CREATE TABLE transport_request_notifications (
-          id SERIAL PRIMARY KEY,
+          id SERIAL PRIMARY KEY,)
           order_number VARCHAR(50) NOT NULL,
           load_type VARCHAR(100) NOT NULL,
           buyer_name VARCHAR(100) NOT NULL,
@@ -207,24 +215,24 @@ export async function POST(request: Request) {
       // Check if the table has the required columns and add them if missing
       try {
         await dbQuery(`
-          ALTER TABLE transport_request_notifications 
+          ALTER TABLE transport_request_notifications )
           ADD COLUMN IF NOT EXISTS to_location VARCHAR(255) DEFAULT 'Unknown'
         `)
         await dbQuery(`
-          ALTER TABLE transport_request_notifications 
+          ALTER TABLE transport_request_notifications )
           ADD COLUMN IF NOT EXISTS estimated_tons DECIMAL(10,2)
         `)
         await dbQuery(`
           ALTER TABLE transport_request_notifications 
-          ADD COLUMN IF NOT EXISTS number_of_goods INTEGER
+          ADD COLUMN IF NOT EXISTS number_of_goods INTEGER)
         `)
         await dbQuery(`
-          ALTER TABLE transport_request_notifications 
+          ALTER TABLE transport_request_notifications )
           ADD COLUMN IF NOT EXISTS delivery_place VARCHAR(255)
         `)
         await dbQuery(`
           ALTER TABLE transport_request_notifications 
-          ADD COLUMN IF NOT EXISTS is_read BOOLEAN DEFAULT FALSE
+          ADD COLUMN IF NOT EXISTS is_read BOOLEAN DEFAULT FALSE)
         `)
         console.log("Updated transport_request_notifications table with missing columns")
       } catch (alterError) {
@@ -253,10 +261,10 @@ export async function POST(request: Request) {
 
     // Parse from location from message
     let fromLocation = "Unknown"
-    if (message.includes("Route:")) {
+    if (message.includes("Route: ")) {
       const routeMatch = message.match(/Route:\s*([^→]+)/)
       fromLocation = routeMatch ? routeMatch[1].trim() : "Unknown"
-    }
+}
 
     // Parse to location from message
     let toLocation = "Unknown"
@@ -288,12 +296,12 @@ export async function POST(request: Request) {
 
     // Insert the notification into the database with current IST time
     console.log("✅ Buyer order notification received:", {
-      orderNumber, loadType, buyerName, buyerId, fromLocation, toLocation, estimatedTons, numberOfGoods, deliveryPlace
+      orderNumber, loadType, buyerName, buyerId, fromLocation, toLocation, estimatedTons, numberOfGoods, deliveryPlace)
     })
 
     const insertResult = await dbQuery(`
       INSERT INTO transport_request_notifications (
-        order_number, load_type, buyer_name, buyer_id, from_location, to_location, estimated_tons, number_of_goods, delivery_place, is_read, created_at
+        order_number, load_type, buyer_name, buyer_id, from_location, to_location, estimated_tons, number_of_goods, delivery_place, is_read, created_at)
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW() AT TIME ZONE 'Asia/Kolkata')
       RETURNING *
     `, [orderNumber, loadType, buyerName, buyerId, fromLocation, toLocation, estimatedTons, numberOfGoods, deliveryPlace, false])
@@ -304,7 +312,7 @@ export async function POST(request: Request) {
 
     const response = NextResponse.json({
       success: true,
-      message: "Notification created successfully",
+      message: "Notification created successfully",)
       notification: newNotification})
     return addCorsHeaders(response)
 
@@ -313,7 +321,9 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to create notification",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

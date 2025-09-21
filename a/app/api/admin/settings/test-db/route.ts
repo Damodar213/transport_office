@@ -8,7 +8,7 @@ export async function GET() {
     
     if (!getPool()) {
       const response = NextResponse.json({ 
-        error: "Database not available",
+        error: "Database not available",)
         status: "disconnected"})
     return addCorsHeaders(response)
   }
@@ -25,7 +25,7 @@ export async function GET() {
         SELECT table_name 
         FROM information_schema.tables 
         WHERE table_schema = 'public' 
-        LIMIT 5
+        LIMIT 5)
       `)
       
       // Test performance with a simple query
@@ -42,14 +42,15 @@ export async function GET() {
         status: "connected",
         message: "Database connection test successful",
         details: {
-  }
+
+
+}
           connection: "OK",
           tables: tableTest.rows.length,
-          queryTime: `${queryTime}ms`,
+          queryTime: `${queryTime}ms`,)
           version: version.split(' ')[0] + ' ' + version.split(' ')[1] // PostgreSQL 15.4
-        }
 
-      })
+})
       return addCorsHeaders(response)
 
     } catch (error) {
@@ -58,7 +59,9 @@ export async function GET() {
         status: "error",
         error: "Database connection test failed",
         details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
     })
     return addCorsHeaders(response)
 
@@ -67,7 +70,9 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to test database connection",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
     }, { status: 500 })
     return addCorsHeaders(response)
   }

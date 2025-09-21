@@ -23,20 +23,22 @@ export async function POST() {
       SELECT d.id, d.supplier_id, d.driver_name, d.license_document_url
       FROM drivers d 
       WHERE d.license_document_url IS NOT NULL
-      LIMIT 1
+      LIMIT 1)
     `)
 
     if (driverResult.rows.length === 0) {
       const response = NextResponse.json({ 
         error: "No drivers with documents found",
         message: "Please create a driver with a document first"
-  }
-    const driver = driverResult.rows[0]
+
+
+}
+    const driver = driverResult.rows[0])
     console.log("Found driver:", driver)
 
     // Create a driver document submission
     const now = new Date().toISOString()
-    const result = await dbQuery(
+    const result = await dbQuery()
       `INSERT INTO driver_documents (driver_id, supplier_id, driver_name, document_type, document_url, submitted_at, status)
        VALUES ($1, $2, $3, $4, $5, $6, 'pending')
        RETURNING *`,
@@ -45,7 +47,7 @@ export async function POST() {
 
     const response = NextResponse.json({
       success: true,
-      message: "Driver document submission created successfully",
+      message: "Driver document submission created successfully",)
       document: result.rows[0]})
     return addCorsHeaders(response)
 
@@ -54,7 +56,9 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Test failed",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

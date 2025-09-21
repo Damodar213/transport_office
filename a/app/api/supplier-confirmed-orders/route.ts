@@ -19,7 +19,9 @@ export interface SupplierConfirmedOrder {
   body_type: string
   admin_notes?: string
   admin_action_date?: string
-  }
+
+
+}
 // GET - Fetch confirmed orders for a specific supplier
 export async function GET(request: NextRequest) {
   try {
@@ -79,7 +81,7 @@ export async function GET(request: NextRequest) {
 
     // Transform the result to match the interface
     const confirmedOrders: SupplierConfirmedOrder[] = result.rows.map(row => ({
-  }
+}
       id: row.id,
       transport_order_id: row.transport_order_id,
       supplier_id: row.supplier_id,
@@ -95,7 +97,9 @@ export async function GET(request: NextRequest) {
       body_type: row.body_type,
       admin_notes: row.admin_notes,
       admin_action_date: row.admin_action_date
-  }
+
+
+})
     }))
 
     console.log("Returning confirmed orders:", confirmedOrders.length)
@@ -108,7 +112,9 @@ export async function GET(request: NextRequest) {
       confirmedOrders: [],
       error: "Failed to fetch confirmed orders, using fallback",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }
@@ -132,8 +138,7 @@ export async function POST(request: NextRequest) {
     }
 
     const sql = `
-      INSERT INTO confirmed_orders (
-        transport_order_id, supplier_id, status, notes, created_at, updated_at
+      INSERT INTO confirmed_orders(transport_order_id, supplier_id, status, notes, created_at, updated_at)
       ) VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *
     `
@@ -155,33 +160,33 @@ export async function POST(request: NextRequest) {
       console.log("Creating notification for supplier confirmed order...")
       
       // Get supplier details for the notification
-      const supplierResult = await dbQuery(
-        "SELECT company_name FROM suppliers WHERE user_id = $1",
-        [supplier_id]
+      const supplierResult = await dbQuery("SELECT company_name FROM suppliers WHERE user_id = $1",
+        [supplier_id])
       )
       
-      const supplierCompany = supplierResult.rows.length > 0 
-        ? supplierResult.rows[0].company_name 
+      const supplierCompany = supplierResult.rows.length > 0 ? supplierResult.rows[0].company_name  : ""
         : `Supplier ${supplier_id}`
 
       // Get transport order details for the notification
-      const transportOrderResult = await dbQuery(
-        "SELECT order_number, load_type, from_place, to_place FROM transport_requests WHERE id = $1",
-        [transport_order_id]
+      const transportOrderResult = await dbQuery("SELECT order_number, load_type, from_place, to_place FROM transport_requests WHERE id = $1",
+        [transport_order_id])
       )
       
-      const orderDetails = transportOrderResult.rows.length > 0 
-        ? transportOrderResult.rows[0]
+      const orderDetails = transportOrderResult.rows.length > 0 ? transportOrderResult.rows[0] : ""
         : { order_number: `Order ${transport_order_id}`, load_type: "Unknown", from_place: "Unknown", to_place: "Unknown" }
 
       const notificationResponse = await fetch(`${process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000'}/api/admin/notifications`, {
         method: 'POST',
         headers: {
-  }
+
+
+}
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-  }
+
+
+}
           type: "success",
           title: "Supplier Confirmed Order",
           message: `Supplier ${supplierCompany} has confirmed order ${orderDetails.order_number} for ${orderDetails.load_type} transport from ${orderDetails.from_place} to ${orderDetails.to_place}`,
@@ -190,7 +195,9 @@ export async function POST(request: NextRequest) {
           orderId: transport_order_id,
           supplierId: supplier_id,
           status: status
-  }
+
+
+})
         })
       })
 
@@ -206,7 +213,7 @@ export async function POST(request: NextRequest) {
     }
 
     const response = NextResponse.json({ 
-      message: "Confirmed order created successfully", 
+      message: "Confirmed order created successfully", )
       confirmedOrder: newConfirmedOrder})
     return addCorsHeaders(response)
 
@@ -247,7 +254,7 @@ export async function PUT(request: NextRequest) {
     const updatedOrder = result.rows[0]
 
     const response = NextResponse.json({ 
-      message: "Confirmed order updated successfully", 
+      message: "Confirmed order updated successfully", )
       confirmedOrder: updatedOrder})
     return addCorsHeaders(response)
 

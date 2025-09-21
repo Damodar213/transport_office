@@ -21,8 +21,8 @@ export async function POST(request: Request) {
     if (!orderId || !supplierIds || !Array.isArray(supplierIds) || supplierIds.length === 0) {
       console.log("Validation failed: missing orderId or supplierIds")
       const response = NextResponse.json({ 
-        error: "Order ID and supplier IDs are required" 
-      }, { status: 400 })
+        error: "Order ID and supplier IDs are required" )
+}, { status: 400 })
       return addCorsHeaders(response)
     }
 
@@ -31,7 +31,9 @@ export async function POST(request: Request) {
       console.log("Database pool not available")
       const response = NextResponse.json({ 
         error: "Database not available" 
-  }
+ 
+ 
+})
       }, { status: 500 })
       return addCorsHeaders(response)
     }
@@ -52,7 +54,7 @@ export async function POST(request: Request) {
         u.name as contact_person,
         u.mobile as contact_mobile
       FROM suppliers s
-      LEFT JOIN users u ON s.user_id = u.user_id
+      LEFT JOIN users u ON s.user_id = u.user_id)
       WHERE s.user_id = ANY($1)
     `, [supplierIds])
 
@@ -70,7 +72,9 @@ export async function POST(request: Request) {
         whatsapp: phoneNumber,
         mobile: phoneNumber,
         message: message
-  }
+
+
+}
     })
 
     // Create order submissions for each supplier
@@ -79,7 +83,7 @@ export async function POST(request: Request) {
       console.log(`Creating submission for supplier: ${supplierId}`)
       try {
         // Try to insert manual order submission
-        const submissionResult = await dbQuery(`
+        const submissionResult = await dbQuery(`)
           INSERT INTO manual_order_submissions (order_id, supplier_id, submitted_by, status, notes, created_at, updated_at)
           VALUES ($1, $2, 'ADMIN', 'pending', $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
           RETURNING id
@@ -102,7 +106,7 @@ export async function POST(request: Request) {
         console.log(`Creating notification for supplier ${supplierId} with order ${orderId}`)
         const notificationResult = await dbQuery(`
           INSERT INTO supplier_notifications (
-            supplier_id, type, title, message, category, priority, order_id, is_read, created_at, updated_at
+            supplier_id, type, title, message, category, priority, order_id, is_read, created_at, updated_at)
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, false, NOW() AT TIME ZONE 'Asia/Kolkata', NOW() AT TIME ZONE 'Asia/Kolkata')
           RETURNING id
         `, [
@@ -129,7 +133,7 @@ export async function POST(request: Request) {
           assigned_supplier_id = $1,
           assigned_supplier_name = $2,
           updated_at = CURRENT_TIMESTAMP
-        WHERE id = $3
+        WHERE id = $3)
       `, [primarySupplier.id, primarySupplier.company_name, orderId])
       console.log(`Updated manual order ${orderId} with primary supplier: ${primarySupplier.company_name}`)
     }
@@ -138,7 +142,7 @@ export async function POST(request: Request) {
     await dbQuery(`
       UPDATE manual_orders 
       SET status = 'assigned', updated_at = CURRENT_TIMESTAMP
-      WHERE id = $1
+      WHERE id = $1)
     `, [orderId])
     console.log(`Updated manual order ${orderId} status to assigned`)
 
@@ -149,11 +153,15 @@ export async function POST(request: Request) {
       totalSent: supplierIds.length,
       whatsappMessage: message,
       primarySupplier: primarySupplier ? {
-  }
+
+
+} : ""
         id: primarySupplier.id,
         name: primarySupplier.company_name
-  }
-      } : null
+
+
+}
+      } : null)
     })
     return addCorsHeaders(response)
     
@@ -162,7 +170,9 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to send manual order to suppliers",
       message: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
     }, { status: 500 })
     return addCorsHeaders(response)
   }
@@ -205,7 +215,7 @@ function createManualOrderWhatsAppMessage(orderDetails: any) {
   return `🚛 *NEW TRANSPORT ORDER AVAILABLE*
 
 📋 *Order Details: *
-  }
+}
 • Load Type: ${loadInfo}
 • Weight: ${loadInfoStr || 'N/A'}
 • From: ${fromLocationStr}
@@ -213,7 +223,7 @@ function createManualOrderWhatsAppMessage(orderDetails: any) {
 • Required Date: ${requiredDate}
 
 📝 *Special Instructions: *
-  }
+}
 ${specialInstructions}
 
 Please review and respond if you can handle this transport order.
@@ -222,4 +232,4 @@ Please review and respond if you can handle this transport order.
 *MAHALAXMI TRANSPORT*
 📞 8217563933
 📞 80736 27241`
-  }
+}

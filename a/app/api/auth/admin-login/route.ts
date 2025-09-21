@@ -51,7 +51,9 @@ export async function POST(request: NextRequest) {
       message: "Admin login successful",
       admin: adminInfo
     // Set session cookie
-  }
+
+
+})
     response.cookies.set("session", JSON.stringify(sessionData), {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

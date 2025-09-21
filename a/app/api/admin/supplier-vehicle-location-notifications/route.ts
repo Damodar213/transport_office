@@ -30,7 +30,9 @@ function formatTimestamp(timestamp: string | Date): string {
       minute: '2-digit',
       hour12: true,
       timeZone: 'Asia/Kolkata'
-  }
+
+
+})
     })
     
     // Calculate relative time using current IST time
@@ -70,7 +72,9 @@ function formatTimestamp(timestamp: string | Date): string {
         minute: '2-digit',
         hour12: true,
         timeZone: 'Asia/Kolkata'
-  }
+
+
+})
       })
     } catch {
       return "Time unavailable"
@@ -89,7 +93,7 @@ export async function GET() {
       SELECT EXISTS (
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
-        AND table_name = 'supplier_vehicle_location_notifications'
+        AND table_name = 'supplier_vehicle_location_notifications')
       )
     `)
 
@@ -118,14 +122,14 @@ export async function GET() {
         updated_at,
         recommended_location
       FROM supplier_vehicle_location_notifications
-      ORDER BY created_at DESC
+      ORDER BY created_at DESC)
     `)
 
     console.log(`Found ${result.rows.length} supplier vehicle location notifications`)
 
     const notifications = result.rows.map(row => {
       try {
-        return {
+        return {)
           id: row.id.toString(),
           type: "info",
           title: "New Vehicle Location Request",
@@ -144,7 +148,9 @@ export async function GET() {
           driverName: row.driver_name,
           status: row.status,
           recommendedLocation: row.recommended_location
-  }
+
+
+}
       } catch (mapError) {
         console.error("Error mapping notification row:", mapError, row)
         return null
@@ -158,7 +164,9 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to fetch notifications",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
     }, { status: 500 })
     return addCorsHeaders(response)
   }
@@ -199,22 +207,26 @@ export async function POST(request: Request) {
     if (!vehicle_location_id || !supplier_id || !supplier_name || !state || !district || !place || !vehicle_number || !body_type) {
       const response = NextResponse.json({ 
         error: "Missing required fields" 
-  }
+ 
+ 
+}
     // Check if notification already exists for this vehicle location
     const existingNotification = await dbQuery(`
       SELECT id FROM supplier_vehicle_location_notifications 
-      WHERE vehicle_location_id = $1
+      WHERE vehicle_location_id = $1)
     `, [vehicle_location_id])
 
     if (existingNotification.rows.length > 0) {
       const response = NextResponse.json({ 
         error: "Notification already exists for this vehicle location" 
-  }
+ 
+ 
+}
     // Insert new notification
     const result = await dbQuery(`
       INSERT INTO supplier_vehicle_location_notifications (
         vehicle_location_id, supplier_id, supplier_name, supplier_company, state, district, place, taluk,
-        vehicle_number, body_type, driver_name, status, is_read, created_at, updated_at, recommended_location
+        vehicle_number, body_type, driver_name, status, is_read, created_at, updated_at, recommended_location)
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW() AT TIME ZONE 'Asia/Kolkata', NOW() AT TIME ZONE 'Asia/Kolkata', $14)
       RETURNING id, created_at
     `, [
@@ -240,12 +252,14 @@ export async function POST(request: Request) {
       bodyType: body_type,
       driverName: driver_name,
       status: status
-  }
+
+
+}
     console.log("Created new supplier vehicle location notification:", newNotification.id)
 
     const response = NextResponse.json({
       success: true,
-      message: "Notification created successfully",
+      message: "Notification created successfully",)
       notification: newNotification})
     return addCorsHeaders(response)
 
@@ -254,7 +268,9 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to create notification",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

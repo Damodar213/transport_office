@@ -29,7 +29,7 @@ export async function GET() {
       FROM driver_documents dd
       LEFT JOIN users u ON dd.supplier_id = u.user_id
       LEFT JOIN suppliers s ON dd.supplier_id = s.user_id
-      ORDER BY dd.submitted_at DESC
+      ORDER BY dd.submitted_at DESC)
     `)
 
     const response = NextResponse.json({
@@ -37,7 +37,9 @@ export async function GET() {
       documents: result.rows,
       total: result.rows.length,
       message: "Driver documents retrieved successfully"
-  }
+
+
+})
     })
     return addCorsHeaders(response)
     
@@ -46,7 +48,9 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to fetch driver documents",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
     }, { status: 500 })
     return addCorsHeaders(response)
   }

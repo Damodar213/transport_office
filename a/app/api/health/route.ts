@@ -22,11 +22,13 @@ export async function GET() {
 
   } catch (error) {
     const response = NextResponse.json({
-      status: "unhealthy",
+      status: "unhealthy",)
       timestamp: new Date()    
     .toISOString(),
       error: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+}
   })
     return addCorsHeaders(response)
   }

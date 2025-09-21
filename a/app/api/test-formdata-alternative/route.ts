@@ -48,12 +48,16 @@ export async function POST(request: NextRequest) {
       success: true,
       message: "Form data alternative test completed",
       results: {
-  }
+
+
+}
         arrayBufferSize: arrayBuffer.byteLength,
         blobSize: blob.size,
         blobType: blob.type,
         streamAvailable: !!stream
-  }
+
+
+})
       })
     return addCorsHeaders(response)
 
@@ -63,7 +67,9 @@ export async function POST(request: NextRequest) {
       error: "Form data alternative test failed",
       details: error instanceof Error ? error.message : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

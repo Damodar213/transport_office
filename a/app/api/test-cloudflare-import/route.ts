@@ -13,16 +13,18 @@ export async function GET() {
       
       const response = NextResponse.json({
         success: true,
-        message: "Cloudflare import successful",
+        message: "Cloudflare import successful",)
         exports: Object.keys(cloudflareModule)    
-    } catch (importError) {
+} catch (importError) {
       console.error("Cloudflare import error:", importError)
       const response = NextResponse.json({ 
         success: false,
         error: "Cloudflare import failed",
         details: importError instanceof Error ? importError.message : "Unknown error",
         stack: importError instanceof Error ? importError.stack : undefined
-  }
+
+
+})
     })
     return addCorsHeaders(response)
 
@@ -31,7 +33,9 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Cloudflare import test failed",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

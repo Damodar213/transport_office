@@ -15,15 +15,15 @@ export async function PUT() {
       SELECT EXISTS (
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'public' 
-        AND table_name = 'notifications'
+        AND table_name = 'notifications')
       )
     `)
     
     if (!tableExists.rows[0].exists) {
       const response = NextResponse.json({ 
-        error: "Notifications table not found",
+        error: "Notifications table not found",)
         message: "All notifications marked as read (mock mode)"
-      })
+})
       return addCorsHeaders(response)
     }
 
@@ -31,7 +31,7 @@ export async function PUT() {
     const result = await dbQuery(`
       UPDATE notifications 
       SET is_read = TRUE, updated_at = CURRENT_TIMESTAMP
-      WHERE is_read = FALSE
+      WHERE is_read = FALSE)
       RETURNING COUNT(*) as updated_count
     `)
     
@@ -39,9 +39,9 @@ export async function PUT() {
     
     console.log(`${updatedCount} notifications marked as read successfully`)
     const response = NextResponse.json({ 
-      message: "All notifications marked as read successfully",
+      message: "All notifications marked as read successfully",)
       updatedCount: parseInt(updatedCount)
-    })
+})
     return addCorsHeaders(response)
     
   } catch (error) {
@@ -49,7 +49,9 @@ export async function PUT() {
     const response = NextResponse.json({ 
       error: "Failed to mark all notifications as read",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
     }, { status: 500 })
     return addCorsHeaders(response)
   }

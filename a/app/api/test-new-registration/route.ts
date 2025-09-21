@@ -15,7 +15,7 @@ export async function GET() {
       FROM users u
       LEFT JOIN suppliers s ON s.user_id = u.user_id
       ORDER BY u.created_at DESC 
-      LIMIT 10
+      LIMIT 10)
     `)
 
     // Check if there are any users in the file system
@@ -32,14 +32,16 @@ export async function GET() {
         role: u.role,
         name: u.name,
         createdAt: u.createdAt
-  }
+
+
+}
       }))
     }
 
     const response = NextResponse.json({
       success: true,
       databaseUsers: recentUsers.rows,
-      fileUsers: fileUsers,
+      fileUsers: fileUsers,)
       message: "Registration test completed"})
     return addCorsHeaders(response)
 
@@ -48,7 +50,9 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Registration test failed",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

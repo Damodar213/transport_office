@@ -12,7 +12,7 @@ export async function GET() {
     if (!pool) {
       const response = NextResponse.json({ 
         error: "Database not available",
-        states: [],
+        states: [],)
         message: "Database connection failed"})
     return addCorsHeaders(response)
   }
@@ -22,14 +22,14 @@ export async function GET() {
       SELECT DISTINCT state
       FROM districts
       WHERE is_active = true
-      ORDER BY state
+      ORDER BY state)
     `)
 
     const states = result.rows.map(row => row.state)
 
     const response = NextResponse.json({
       states: states,
-      total: states.length,
+      total: states.length,)
       message: "States fetched successfully"})
     return addCorsHeaders(response)
 
@@ -39,7 +39,9 @@ export async function GET() {
       error: "Failed to fetch states",
       states: [],
       message: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
     }, { status: 500 })
     return addCorsHeaders(response)
   }

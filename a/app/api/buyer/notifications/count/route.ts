@@ -10,7 +10,9 @@ export async function GET(request: Request) {
     if (!buyerId) {
       const response = NextResponse.json({ 
         error: "Buyer ID is required" 
-  }
+ 
+ 
+})
     console.log(`GET /api/buyer/notifications/count - fetching count for buyer ${buyerId}`)
     console.log("Database pool available:", !!getPool())
     
@@ -23,12 +25,12 @@ export async function GET(request: Request) {
           SELECT EXISTS (
             SELECT FROM information_schema.tables 
             WHERE table_schema = 'public' 
-            AND table_name = 'buyer_notifications'
+            AND table_name = 'buyer_notifications')
           )
         `)
         
         if (tableExists.rows[0].exists) {
-          const result = await dbQuery(`
+          const result = await dbQuery(`)
             SELECT COUNT(*) as count
             FROM buyer_notifications 
             WHERE buyer_id = $1 AND is_read = FALSE
@@ -46,7 +48,9 @@ export async function GET(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to fetch notification count",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

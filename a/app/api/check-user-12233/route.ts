@@ -15,14 +15,14 @@ export async function GET() {
     const userResult = await dbQuery(`
       SELECT user_id, role, name, email, mobile, created_at 
       FROM users 
-      WHERE user_id = '12233'
+      WHERE user_id = '12233')
     `)
 
     // Check if supplier 12233 exists
     const supplierResult = await dbQuery(`
       SELECT user_id, company_name, gst_number 
       FROM suppliers 
-      WHERE user_id = '12233'
+      WHERE user_id = '12233')
     `)
 
     console.log(`User 12233 exists: ${userResult.rows.length > 0}`)
@@ -32,7 +32,7 @@ export async function GET() {
       success: true,
       userExists: userResult.rows.length > 0,
       supplierExists: supplierResult.rows.length > 0,
-      userData: userResult.rows[0] || null,
+      userData: userResult.rows[0] || null,)
       supplierData: supplierResult.rows[0] || null})
     return addCorsHeaders(response)
 
@@ -41,7 +41,9 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to check user 12233",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
         ar.sent_by_admin
       FROM accepted_requests ar
       WHERE ar.buyer_id = $1 AND ar.sent_by_admin = true
-      ORDER BY ar.accepted_at DESC
+      ORDER BY ar.accepted_at DESC)
     `, [buyerId])
 
     console.log("Found accepted requests:", acceptedRequests.rows.length)
@@ -61,15 +61,16 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       requests: acceptedRequests.rows
-  }
+
+
+})
     })
 
   } catch (error) {
     console.error("Error fetching accepted requests:", error)
-    const response = NextResponse.json(
-      { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
+    const response = NextResponse.json({ error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
-
+)
     )
   }
 export async function DELETE(request: NextRequest) {
@@ -102,9 +103,8 @@ export async function DELETE(request: NextRequest) {
     console.log("Deleting accepted request:", requestId, "for buyer:", buyerId)
 
     // Verify the accepted request belongs to this buyer
-    const requestCheck = await dbQuery(
-      "SELECT * FROM accepted_requests WHERE id = $1 AND buyer_id = $2",
-      [requestId, buyerId]
+    const requestCheck = await dbQuery("SELECT * FROM accepted_requests WHERE id = $1 AND buyer_id = $2",
+      [requestId, buyerId])
     )
 
     if (requestCheck.rows.length === 0) {
@@ -112,9 +112,8 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete the accepted request
-    const deleteResult = await dbQuery(
-      "DELETE FROM accepted_requests WHERE id = $1 AND buyer_id = $2",
-      [requestId, buyerId]
+    const deleteResult = await dbQuery("DELETE FROM accepted_requests WHERE id = $1 AND buyer_id = $2",
+      [requestId, buyerId])
     )
 
     if (deleteResult.rows.length === 0) {
@@ -126,14 +125,15 @@ export async function DELETE(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       message: "Accepted request deleted successfully"
-  }
+
+
+})
     })
 
   } catch (error) {
     console.error("Error deleting accepted request:", error)
-    const response = NextResponse.json(
-      { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
+    const response = NextResponse.json({ error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
-
+)
     )
   }

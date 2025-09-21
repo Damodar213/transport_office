@@ -14,11 +14,13 @@ export async function GET() {
     const dbUsers = await getAllUsersAsync()
     console.log("Database users:", dbUsers.map(u => ({ id: u.id, userId: u.userId, role: u.role })))
     
-    const response = NextResponse.json({
+    const response = NextResponse.json({)
 ),
       dbUsers: dbUsers.map(u => ({ id: u.id, userId: u.userId, role: u.role, email: u.email })),
       message: "Users listed successfully"
-  }
+
+
+}
   } catch (error) {
     console.error("List users error:", error)
   }

@@ -10,7 +10,7 @@ function formatTimestamp(timestamp: string | Date): string {
     
     if (typeof timestamp === 'string') {
       created = new Date(timestamp)
-    } else {
+} else {
       created = timestamp
     }
 
@@ -32,7 +32,9 @@ function formatTimestamp(timestamp: string | Date): string {
       minute: '2-digit',
       hour12: true,
       timeZone: 'Asia/Kolkata'
-  }
+
+
+})
     })
     
     // Calculate relative time using UTC timestamps (more reliable)
@@ -71,7 +73,9 @@ function formatTimestamp(timestamp: string | Date): string {
         minute: '2-digit',
         hour12: true,
         timeZone: 'Asia/Kolkata'
-  }
+
+
+})
       })
     } catch (fallbackError) {
       return "Invalid time"
@@ -115,13 +119,13 @@ export async function GET(request: NextRequest) {
       FROM buyer_notifications
       WHERE buyer_id = $1
       ORDER BY created_at DESC
-      LIMIT 50
+      LIMIT 50)
     `, [buyerId])
 
     console.log("Found buyer notifications:", notifications.rows.length)
 
     // Format the notifications with timestamp
-    const formattedNotifications = notifications.rows.map(notification => ({
+    const formattedNotifications = notifications.rows.map(notification => ({)
       id: notification.id.toString(),
       type: notification.type,
       title: notification.title,
@@ -131,20 +135,23 @@ export async function GET(request: NextRequest) {
       category: notification.category,
       priority: notification.priority,
       orderId: notification.order_id
-  }
+
+
+}
     }))
 
     const response = NextResponse.json({
       success: true,
       notifications: formattedNotifications
-  }
+
+
+})
     })
 
   } catch (error) {
     console.error("Error fetching buyer notifications:", error)
-    const response = NextResponse.json(
-      { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
+    const response = NextResponse.json({ error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
-
+)
     )
   }

@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     try {
       const bcrypt = await import("bcryptjs")
       console.log("Import successful")
-    } catch (error) {
+} catch (error) {
       console.error("bcryptjs import error:", error)
     }
 
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     }
 
     const response = NextResponse.json({
-      success: true,
+      success: true,)
       message: "All imports successful"})
     return addCorsHeaders(response)
 
@@ -67,7 +67,9 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({ 
       error: "Import test failed",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

@@ -3,10 +3,9 @@ import { handleCors, addCorsHeaders } from "@/lib/cors"
 import { dbQuery, getPool } from "@/lib/db"
 
 // DELETE - Delete a transport request notification
-export async function DELETE(
-  request: Request,
+export async function DELETE(request: Request,
   { params }: { params: Promise<{ id: string }> }
-
+)
 ) {
   try {
     if (!getPool()) {
@@ -18,15 +17,17 @@ export async function DELETE(
     const result = await dbQuery(`
       DELETE FROM transport_request_notifications 
       WHERE id = $1 
-      RETURNING id
+      RETURNING id)
     `, [id])
 
     if (result.rows.length === 0) {
       const response = NextResponse.json({ 
         error: "Notification not found" 
-  }
+ 
+ 
+}
     const response = NextResponse.json({
-      success: true,
+      success: true,)
       message: "Notification deleted successfully"})
     return addCorsHeaders(response)
 
@@ -35,7 +36,9 @@ export async function DELETE(
     const response = NextResponse.json({ 
       error: "Failed to delete notification",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

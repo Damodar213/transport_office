@@ -45,7 +45,9 @@ export async function POST() {
       role: supplierData.role,
       name: supplierData.name,
       companyName: supplierData.companyName
-  }
+
+
+})
     })
 
     // Test the createUserAsync function
@@ -55,7 +57,9 @@ export async function POST() {
       id: result.id,
       userId: result.userId,
       role: result.role
-  }
+
+
+})
     })
 
     // Clean up test data
@@ -66,11 +70,15 @@ export async function POST() {
       success: true,
       message: "Signup test completed successfully",
       result: {
-  }
+
+
+}
         id: result.id,
         userId: result.userId,
         role: result.role
-  }
+
+
+})
       })
     return addCorsHeaders(response)
 
@@ -81,7 +89,9 @@ export async function POST() {
       error: "Signup test failed",
       details: error instanceof Error ? error.message : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

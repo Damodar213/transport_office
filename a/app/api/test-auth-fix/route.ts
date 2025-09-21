@@ -13,13 +13,15 @@ export async function GET() {
       success: true,
       userFound: user ? true : false,
       message: user ? "SECURITY ISSUE: User still found!" : "SECURITY FIXED: User not found",
-      user: user ? { id: user.id, userId: user.userId, role: user.role } : null
+      user: user ? { id: user.id, userId: user.userId, role: user.role } : null)
   } catch (error) {
     console.error("Auth fix test error:", error)
     const response = NextResponse.json({ 
       error: "Auth fix test failed",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

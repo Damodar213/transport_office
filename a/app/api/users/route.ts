@@ -108,7 +108,7 @@ export async function PUT(request: Request) {
 
     const response = NextResponse.json({
       success: true,
-      message: "User status updated successfully",
+      message: "User status updated successfully",)
       user: updateResult.rows[0]})
     return addCorsHeaders(response)
 
@@ -117,7 +117,9 @@ export async function PUT(request: Request) {
     const response = NextResponse.json({ 
       error: "Failed to update user status",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

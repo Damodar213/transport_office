@@ -17,18 +17,19 @@ export async function GET(request: NextRequest) {
       success: true,
       message: "Database connection working",
       result: result.rows[0]
-  }
-    })
+)
+})
 
   } catch (error) {
     console.error("Test DB error:", error)
-    const response = NextResponse.json(
-      { 
+    const response = NextResponse.json({ 
         error: "Database test failed", 
         details: error instanceof Error ? error.message : "Unknown error" 
-  }
+ 
+ 
+}
       },
       { status: 500 }
-
+)
     )
   }

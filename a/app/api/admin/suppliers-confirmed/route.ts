@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
         ar.to_district,
         ar.to_place,
         CASE 
-          WHEN mos.id IS NOT NULL THEN 'Manual Order'
+          WHEN mos.id IS NOT NULL THEN 'Manual Order')
           WHEN os.id IS NOT NULL THEN COALESCE(b.company_name, u.name, br.buyer_id, 'Unknown Buyer')
           ELSE 'Unknown'
         END as buyer_name,
@@ -84,21 +84,22 @@ export async function GET(request: NextRequest) {
     const responseData = {
       success: true,
       orders: confirmedOrders.rows
-  }
+
+
+}
     // Cache the response
     cache = {
       data: responseData,
       timestamp: Date.now()
-    }
+}
 
     const response = NextResponse.json(responseData)
 
   } catch (error) {
     console.error("Error fetching confirmed orders:", error)
-    const response = NextResponse.json(
-      { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
+    const response = NextResponse.json({ error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
-
+)
     )
   }
 export async function DELETE(request: NextRequest) {
@@ -139,9 +140,8 @@ export async function DELETE(request: NextRequest) {
     console.log("Deleting accepted request:", acceptedRequestId)
 
     // Verify the accepted request exists
-    const orderCheck = await dbQuery(
-      "SELECT * FROM accepted_requests WHERE id = $1",
-      [acceptedRequestId]
+    const orderCheck = await dbQuery("SELECT * FROM accepted_requests WHERE id = $1",
+      [acceptedRequestId])
     )
 
     if (orderCheck.rows.length === 0) {
@@ -149,9 +149,8 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete the accepted request
-    const deleteResult = await dbQuery(
-      "DELETE FROM accepted_requests WHERE id = $1",
-      [acceptedRequestId]
+    const deleteResult = await dbQuery("DELETE FROM accepted_requests WHERE id = $1",
+      [acceptedRequestId])
     )
 
     if (deleteResult.rows.length === 0) {
@@ -166,14 +165,15 @@ export async function DELETE(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       message: "Accepted request deleted successfully"
-  }
+
+
+})
     })
 
   } catch (error) {
     console.error("Error deleting accepted request:", error)
-    const response = NextResponse.json(
-      { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
+    const response = NextResponse.json({ error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
-
+)
     )
   }

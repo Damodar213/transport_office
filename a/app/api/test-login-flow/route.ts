@@ -31,12 +31,14 @@ export async function POST() {
         success: false,
         step: "user_lookup",
         message: "User not found"
-  }
+
+
+}
     console.log("User details:", {
       id: user.id,
       userId: user.userId,
       role: user.role,
-      name: user.name,
+      name: user.name,)
       passwordHash: user.passwordHash.substring(0, 20) + "..."
     })
 
@@ -52,8 +54,10 @@ export async function POST() {
         message: "Invalid password",
         userFound: true,
         passwordValid: false
-  }
-    // Step 3: Create session
+
+
+}
+    // Step 3: Create session)
     console.log("Step 3: Creating session...")
     const sessionData = {
       userId: user.id,
@@ -72,7 +76,7 @@ export async function POST() {
       step: "complete",
       message: "Login flow completed successfully",
       userFound: true,
-      passwordValid: true,
+      passwordValid: true,)
       sessionData})
     return addCorsHeaders(response)
 
@@ -83,7 +87,9 @@ export async function POST() {
       step: "error",
       error: "Login flow test failed",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

@@ -17,7 +17,9 @@ export interface SupplierDocument {
   reviewed_at?: string
   email?: string
   mobile?: string
-  }
+
+
+}
 // GET - Fetch all supplier documents
 export async function GET(request: NextRequest) {
   return withAuth(async (session) => {
@@ -71,8 +73,8 @@ export async function GET(request: NextRequest) {
             email: doc.email,
             mobile: doc.mobile,
             documents: []
-  }
-        }
+
+}
 
         acc[key].documents.push({
           id: doc.id,
@@ -83,12 +85,14 @@ export async function GET(request: NextRequest) {
           reviewNotes: doc.review_notes,
           reviewedBy: doc.reviewed_by,
           reviewedAt: doc.reviewed_at
-  }
+
+
+})
         })
         return acc
       }, {} as Record<string, any>)
 
-      return createApiResponse({
+      return createApiResponse({)
         documents: Object.values(groupedDocuments),
         total: result.rows.length,
         limit,
@@ -114,12 +118,11 @@ export async function PATCH(request: NextRequest) {
       }
 
       const now = new Date().toISOString()
-      const result = await dbQuery(
-        `UPDATE supplier_documents 
+      const result = await dbQuery(`UPDATE supplier_documents 
          SET status = $1, review_notes = $2, reviewed_by = $3, reviewed_at = $4
          WHERE id = $5
          RETURNING *`,
-        [status, reviewNotes || null, reviewer || session.name || "Admin", now, id]
+        [status, reviewNotes || null, reviewer || session.name || "Admin", now, id])
       )
 
       if (result.rows.length === 0) {
@@ -152,7 +155,7 @@ export async function POST(request: NextRequest) {
       }
 
       const now = new Date().toISOString()
-      const result = await dbQuery(
+      const result = await dbQuery()
         `INSERT INTO supplier_documents (user_id, supplier_name, company_name, document_type, document_url, submitted_at, status)
          VALUES ($1, $2, $3, $4, $5, $6, 'pending')
          RETURNING *`,
@@ -176,9 +179,8 @@ export async function DELETE(request: NextRequest) {
       }
 
       // First, get the document to retrieve the file URL before deleting
-      const getResult = await dbQuery(
-        `SELECT document_url FROM supplier_documents WHERE id = $1`,
-        [id]
+      const getResult = await dbQuery(`SELECT document_url FROM supplier_documents WHERE id = $1`,
+        [id])
       )
 
       if (getResult.rows.length === 0) {
@@ -188,9 +190,8 @@ export async function DELETE(request: NextRequest) {
       const documentUrl = getResult.rows[0].document_url
 
       // Delete from database
-      const result = await dbQuery(
-        `DELETE FROM supplier_documents WHERE id = $1 RETURNING *`,
-        [id]
+      const result = await dbQuery(`DELETE FROM supplier_documents WHERE id = $1 RETURNING *`,
+        [id])
       )
 
       // Delete from Cloudflare R2 if the URL is an R2 URL

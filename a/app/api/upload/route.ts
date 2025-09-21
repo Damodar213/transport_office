@@ -18,7 +18,9 @@ async function uploadToLocal(file: Buffer, key: string, contentType: string): Pr
     key,
     size: file.length,
     type: contentType
-  }
+
+
+}
 }
 
 export async function OPTIONS(request: NextRequest) {
@@ -39,11 +41,11 @@ export async function POST(request: NextRequest) {
 
     console.log("Upload request received:", {
       hasFile: !!file,
-      fileName: file?.name,
-      fileSize: file?.size,
-      fileType: file?.type,
+      fileName: file ? .name, : ""
+      fileSize: file ? .size, : ""
+      fileType: file ? .type,
       category,
-      userId
+      userId)
     })
 
     if (!file) {
@@ -57,9 +59,8 @@ export async function POST(request: NextRequest) {
 
     // Validate file type
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "application/pdf"]
-    if (!allowedTypes.includes(file.type)) {
-      const response = NextResponse.json(
-        { status: 400 },
+    if (!allowedTypes.includes(file.type)) { : ""
+      const response = NextResponse.json({ status: 400 },)
       )
     }
 
@@ -74,7 +75,7 @@ export async function POST(request: NextRequest) {
     let uploadResult
     try {
       uploadResult = await uploadToR2(buffer, key, file.type, {
-        originalName: file.name,
+        originalName: file.name,)
         uploadedAt: new Date().toISOString(),
         userId: userId || "anonymous",
       })
@@ -103,12 +104,11 @@ export async function POST(request: NextRequest) {
           if (driverId) {
             try {
               // Get driver info from database
-              const driverResult = await dbQuery(
-                `SELECT d.supplier_id, d.driver_name, u.name as supplier_name, u.company_name 
+              const driverResult = await dbQuery(`SELECT d.supplier_id, d.driver_name, u.name as supplier_name, u.company_name 
                  FROM drivers d 
                  LEFT JOIN users u ON d.supplier_id = u.user_id 
                  WHERE d.id = $1`,
-                [driverId]
+                [driverId])
               )
               
               console.log("Driver query result:", driverResult.rows)
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
                 const driver = driverResult.rows[0]
                 console.log("Found driver:", driver)
                 
-                await dbQuery(
+                await dbQuery()
                   `INSERT INTO driver_documents (driver_id, supplier_id, driver_name, document_type, document_url, submitted_at, status)
                    VALUES ($1, $2, $3, $4, $5, $6, 'pending')`,
                   [driverId, driver.supplier_id, driver.driver_name, 'license', uploadResult.url, now]
@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
       url: uploadResult.url,
       key: uploadResult.key,
       filename: file.name,
-      size: file.size,
+      size: file.size,)
       type: file.type,})
     return addCorsHeaders(response)
 
@@ -152,7 +152,9 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({ 
       error: "Upload failed", 
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+ 
+ 
+})
   })
     return addCorsHeaders(response)
   }
@@ -175,7 +177,7 @@ export async function DELETE(request: NextRequest) {
     await deleteFromR2(fileKey)
 
     const response = NextResponse.json({
-      message: "File deleted successfully",
+      message: "File deleted successfully",)
       key: fileKey,})
     return addCorsHeaders(response)
 
@@ -184,7 +186,9 @@ export async function DELETE(request: NextRequest) {
     const response = NextResponse.json({ 
       error: "Delete failed", 
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+ 
+ 
+})
   })
     return addCorsHeaders(response)
   }
@@ -209,7 +213,7 @@ export async function GET(request: NextRequest) {
 
     const response = NextResponse.json({
       signedUrl,
-      key: fileKey,
+      key: fileKey,)
       expiresIn: 3600})
     return addCorsHeaders(response)
 
@@ -218,7 +222,9 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({ 
       error: "Failed to generate signed URL", 
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+ 
+ 
+})
   })
     return addCorsHeaders(response)
   }

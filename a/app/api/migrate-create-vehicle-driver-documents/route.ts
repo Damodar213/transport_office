@@ -25,7 +25,7 @@ export async function POST() {
     await dbQuery(`
       CREATE TABLE IF NOT EXISTS vehicle_documents (
         id SERIAL PRIMARY KEY,
-        vehicle_id INTEGER NOT NULL,
+        vehicle_id INTEGER NOT NULL,)
         supplier_id VARCHAR(255) NOT NULL,
         vehicle_number VARCHAR(255),
         document_type VARCHAR(50) NOT NULL,
@@ -44,7 +44,7 @@ export async function POST() {
     await dbQuery(`
       CREATE TABLE IF NOT EXISTS driver_documents (
         id SERIAL PRIMARY KEY,
-        driver_id INTEGER NOT NULL,
+        driver_id INTEGER NOT NULL,)
         supplier_id VARCHAR(255) NOT NULL,
         driver_name VARCHAR(255),
         document_type VARCHAR(50) NOT NULL,
@@ -60,27 +60,27 @@ export async function POST() {
     `)
 
     // Create indexes for better performance
-    await dbQuery(`
+    await dbQuery(`)
       CREATE INDEX IF NOT EXISTS idx_vehicle_documents_vehicle_id ON vehicle_documents(vehicle_id)
     `)
     
-    await dbQuery(`
+    await dbQuery(`)
       CREATE INDEX IF NOT EXISTS idx_vehicle_documents_supplier_id ON vehicle_documents(supplier_id)
     `)
     
-    await dbQuery(`
+    await dbQuery(`)
       CREATE INDEX IF NOT EXISTS idx_vehicle_documents_status ON vehicle_documents(status)
     `)
 
-    await dbQuery(`
+    await dbQuery(`)
       CREATE INDEX IF NOT EXISTS idx_driver_documents_driver_id ON driver_documents(driver_id)
     `)
     
-    await dbQuery(`
+    await dbQuery(`)
       CREATE INDEX IF NOT EXISTS idx_driver_documents_supplier_id ON driver_documents(supplier_id)
     `)
     
-    await dbQuery(`
+    await dbQuery(`)
       CREATE INDEX IF NOT EXISTS idx_driver_documents_status ON driver_documents(status)
     `)
 
@@ -89,14 +89,14 @@ export async function POST() {
       const trucksResult = await dbQuery(`
         SELECT t.id, t.supplier_id, t.vehicle_number, t.document_url, t.created_at
         FROM trucks t 
-        WHERE t.document_url IS NOT NULL AND t.document_url != ''
+        WHERE t.document_url IS NOT NULL AND t.document_url != '')
       `)
       
       console.log(`Found ${trucksResult.rows.length} trucks with documents to migrate`)
       
       for (const truck of trucksResult.rows) {
         try {
-          await dbQuery(
+          await dbQuery()
             `INSERT INTO vehicle_documents (vehicle_id, supplier_id, vehicle_number, document_type, document_url, submitted_at, status)
              VALUES ($1, $2, $3, $4, $5, $6, 'pending')
              ON CONFLICT DO NOTHING`,
@@ -124,14 +124,14 @@ export async function POST() {
       const driversResult = await dbQuery(`
         SELECT d.id, d.supplier_id, d.driver_name, d.document_url, d.created_at
         FROM drivers d 
-        WHERE d.document_url IS NOT NULL AND d.document_url != ''
+        WHERE d.document_url IS NOT NULL AND d.document_url != '')
       `)
       
       console.log(`Found ${driversResult.rows.length} drivers with documents to migrate`)
       
       for (const driver of driversResult.rows) {
         try {
-          await dbQuery(
+          await dbQuery()
             `INSERT INTO driver_documents (driver_id, supplier_id, driver_name, document_type, document_url, submitted_at, status)
              VALUES ($1, $2, $3, $4, $5, $6, 'pending')
              ON CONFLICT DO NOTHING`,
@@ -157,14 +157,15 @@ export async function POST() {
     return createApiResponse({
       message: "vehicle_documents and driver_documents tables created successfully",
       migrated: true
-  }
+
+
+})
     })
 
   } catch (error) {
     console.error("Migration error:", error)
-    return createApiError(
-      "Failed to create vehicle and driver document tables",
+    return createApiError("Failed to create vehicle and driver document tables",
       error instanceof Error ? error.message : "Unknown error",
-      500
+      500)
     )
   }

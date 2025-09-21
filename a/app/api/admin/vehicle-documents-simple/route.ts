@@ -29,13 +29,13 @@ export async function GET() {
       FROM vehicle_documents vd
       LEFT JOIN users u ON vd.supplier_id = u.user_id
       LEFT JOIN suppliers s ON vd.supplier_id = s.user_id
-      ORDER BY vd.submitted_at DESC
+      ORDER BY vd.submitted_at DESC)
     `)
 
     const response = NextResponse.json({
       success: true,
       documents: result.rows,
-      total: result.rows.length,
+      total: result.rows.length,)
       message: "Vehicle documents retrieved successfully"})
     return addCorsHeaders(response)
 
@@ -44,7 +44,9 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Failed to fetch vehicle documents",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

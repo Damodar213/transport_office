@@ -18,11 +18,11 @@ export async function GET() {
       SELECT dd.id, dd.driver_id, dd.supplier_id, dd.driver_name, dd.document_type, dd.document_url, dd.status
       FROM driver_documents dd 
       ORDER BY dd.submitted_at DESC 
-      LIMIT 5
+      LIMIT 5)
     `)
 
     const response = NextResponse.json({
-      success: true,
+      success: true,)
       documentCount: parseInt(docCount)    
     ,
       sampleDocuments: sampleDocs.rows,
@@ -32,7 +32,9 @@ export async function GET() {
     const response = NextResponse.json({ 
       error: "Test failed",
       details: error instanceof Error ? error.message : "Unknown error"
-  }
+
+
+})
   })
     return addCorsHeaders(response)
   }

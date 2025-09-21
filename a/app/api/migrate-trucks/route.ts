@@ -19,7 +19,7 @@ export async function POST() {
     const checkColumns = await dbQuery(`
       SELECT column_name 
       FROM information_schema.columns 
-      WHERE table_name = 'trucks' 
+      WHERE table_name = 'trucks' )
       AND column_name IN ('fuel_type', 'registration_number', 'insurance_expiry', 'fitness_expiry', 'permit_expiry')
     `)
 
@@ -46,16 +46,16 @@ export async function POST() {
       SELECT column_name, data_type, is_nullable
       FROM information_schema.columns 
       WHERE table_name = 'trucks' 
-      ORDER BY ordinal_position
+      ORDER BY ordinal_position)
     `)
 
     console.log("Final trucks table structure:")
-    finalStructure.rows.forEach(row => {
+    finalStructure.rows.forEach(row => {)
       console.log(`- ${row.column_name}: ${row.data_type} (${row.is_nullable === 'YES' ? 'nullable' : 'not null'})`)
     })
 
     const response = NextResponse.json({ 
-      message: "Trucks table migration completed successfully",
+      message: "Trucks table migration completed successfully",)
       droppedColumns: columnsToDrop.filter(col => existingColumns.includes(col)    
     ),
       finalStructure: finalStructure.rows})
@@ -66,7 +66,9 @@ export async function POST() {
     const response = NextResponse.json({ 
       error: "Trucks migration failed", 
       details: error instanceof Error ? error.message : "Unknown error" 
-  }
+ 
+ 
+})
   })
     return addCorsHeaders(response)
   }
