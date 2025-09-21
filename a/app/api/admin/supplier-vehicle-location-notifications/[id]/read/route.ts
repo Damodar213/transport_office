@@ -11,7 +11,7 @@ export async function PUT(
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
 
-    const id = params.id
+    const { id } = await params
 
     // Update the notification to mark as read
     const result = await dbQuery(`
