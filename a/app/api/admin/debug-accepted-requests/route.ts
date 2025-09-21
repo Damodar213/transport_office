@@ -105,13 +105,13 @@ export async function DELETE(request: NextRequest) {
     console.log("Cleaned up orphaned records:", {
       orderSubmissionId,
       buyerId,
-      deletedCount: deleteResult.rowCount
+      deletedCount: deleteResult.rows.length
     })
 
     return NextResponse.json({
       success: true,
       message: "Orphaned records cleaned up",
-      deletedCount: deleteResult.rowCount
+      deletedCount: deleteResult.rows.length
     })
 
   } catch (error) {
