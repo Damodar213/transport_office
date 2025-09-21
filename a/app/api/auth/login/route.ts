@@ -2,8 +2,17 @@ import { type NextRequest, NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import { findUserByCredentials, findUserByCredentialsAsync } from "@/lib/user-storage"
 import { logResourceUsage } from "@/lib/resource-monitor"
+import { handleCors, addCorsHeaders } from "@/lib/cors"
+
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request)
+}
 
 export async function POST(request: NextRequest) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request)
+  if (corsResponse) return corsResponse
+
   try {
     logResourceUsage("Login request start")
     
@@ -62,9 +71,11 @@ export async function POST(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 7, // 7 days
     })
 
-    return response
+    // Add CORS headers
+    return addCorsHeaders(response)
   } catch (error) {
     console.error("Login error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    const errorResponse = NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return addCorsHeaders(errorResponse)
   }
 }
