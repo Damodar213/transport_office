@@ -99,7 +99,7 @@ export async function PUT(request: Request) {
       }
       
       // Prepare settings for storage
-      const settingsToStore = []
+      const settingsToStore: any[] = []
       
       // Store each setting
       for (const setting of settingsToStore) {
