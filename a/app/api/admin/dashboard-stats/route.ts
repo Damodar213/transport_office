@@ -26,9 +26,9 @@ export async function GET() {
     const activeSuppliersResult = await dbQuery("SELECT COUNT(*) as count FROM suppliers")
     const activeSuppliers = activeSuppliersResult.rows[0].count
 
-    // Get verified suppliers count (suppliers with documents)
+    // Get verified suppliers count (use suppliers.is_verified to avoid missing documents table)
     const verifiedSuppliersResult = await dbQuery(
-      "SELECT COUNT(DISTINCT s.user_id) as count FROM suppliers s JOIN documents d ON s.user_id = d.user_id"
+      "SELECT COUNT(*) as count FROM suppliers WHERE is_verified = true"
     )
     const verifiedSuppliers = verifiedSuppliersResult.rows[0].count
 
@@ -278,9 +278,9 @@ export async function GET() {
     )
     const pendingOrderAssignments = pendingOrderAssignmentsResult.rows[0].count
 
-    // Get pending user verifications (users without complete documents)
+    // Get pending user verifications (suppliers not verified)
     const pendingUserVerificationsResult = await dbQuery(
-      "SELECT COUNT(*) as count FROM users u LEFT JOIN documents d ON u.user_id = d.user_id WHERE d.user_id IS NULL"
+      "SELECT COUNT(*) as count FROM suppliers WHERE is_verified = false"
     )
     const pendingUserVerifications = pendingUserVerificationsResult.rows[0].count
 

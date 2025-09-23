@@ -42,6 +42,26 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Access denied - you can only access your own data" }, { status: 403 })
     }
 
+    // Ensure trucks table exists (idempotent)
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS trucks (
+        id SERIAL PRIMARY KEY,
+        supplier_id VARCHAR(50) NOT NULL,
+        vehicle_number VARCHAR(20) UNIQUE NOT NULL,
+        body_type VARCHAR(50) NOT NULL,
+        capacity_tons DECIMAL(8,2),
+        number_of_wheels INTEGER,
+        document_url TEXT,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
+    // Bring schema up-to-date (idempotent columns)
+    await dbQuery("ALTER TABLE trucks ADD COLUMN IF NOT EXISTS number_of_wheels INTEGER")
+    await dbQuery("ALTER TABLE trucks ADD COLUMN IF NOT EXISTS document_url TEXT")
+
     // Verify supplier exists
     const supplierResult = await dbQuery(
       "SELECT user_id FROM suppliers WHERE user_id = $1",
@@ -111,6 +131,26 @@ export async function POST(request: Request) {
       console.warn(`Security violation: User ${session.userIdString} attempted to create truck for supplier ${body.supplierId}`)
       return NextResponse.json({ error: "Access denied - you can only create trucks for yourself" }, { status: 403 })
     }
+
+    // Ensure trucks table exists (idempotent)
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS trucks (
+        id SERIAL PRIMARY KEY,
+        supplier_id VARCHAR(50) NOT NULL,
+        vehicle_number VARCHAR(20) UNIQUE NOT NULL,
+        body_type VARCHAR(50) NOT NULL,
+        capacity_tons DECIMAL(8,2),
+        number_of_wheels INTEGER,
+        document_url TEXT,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
+    // Bring schema up-to-date (idempotent columns)
+    await dbQuery("ALTER TABLE trucks ADD COLUMN IF NOT EXISTS number_of_wheels INTEGER")
+    await dbQuery("ALTER TABLE trucks ADD COLUMN IF NOT EXISTS document_url TEXT")
 
     // Verify supplier exists
     const supplierResult = await dbQuery(
@@ -283,6 +323,22 @@ export async function DELETE(request: Request) {
     if (session.role !== 'supplier') {
       return NextResponse.json({ error: "Access denied - supplier role required" }, { status: 403 })
     }
+
+    // Ensure trucks table exists (idempotent)
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS trucks (
+        id SERIAL PRIMARY KEY,
+        supplier_id VARCHAR(50) NOT NULL,
+        vehicle_number VARCHAR(20) UNIQUE NOT NULL,
+        body_type VARCHAR(50) NOT NULL,
+        capacity_tons DECIMAL(8,2),
+        number_of_wheels INTEGER,
+        document_url TEXT,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
 
     const { searchParams } = new URL(request.url)
     const id = searchParams.get("id")

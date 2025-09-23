@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { uploadToR2, generateFileKey, deleteFromR2, extractKeyFromUrl, getSignedDownloadUrl } from "@/lib/cloudflare-r2"
 import { writeFile, mkdir } from "fs/promises"
-import { join } from "path"
+import { join, dirname } from "path"
 
 // Fallback function for local file storage when Cloudflare R2 is not configured
 async function uploadToLocal(file: Buffer, key: string, contentType: string): Promise<{ url: string; key: string; size: number; type: string }> {
@@ -9,6 +9,8 @@ async function uploadToLocal(file: Buffer, key: string, contentType: string): Pr
   await mkdir(uploadDir, { recursive: true })
   
   const filePath = join(uploadDir, key)
+  // Ensure nested category folders exist for keys like "drivers/xyz.png"
+  await mkdir(dirname(filePath), { recursive: true })
   await writeFile(filePath, file)
   
   const url = `/uploads/${key}`

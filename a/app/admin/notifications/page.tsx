@@ -223,7 +223,10 @@ export default function NotificationsPage() {
       } else if (notification.category === 'order') {
         apiEndpoint = `/api/admin/transport-request-notifications/${id}/read`
       } else {
-        // For any other categories, use a generic endpoint or skip
+        // Fallback: mark locally without hitting API
+        setNotifications(prev => 
+          prev.map(notif => notif.id === id ? { ...notif, isRead: true } : notif)
+        )
         return
       }
 

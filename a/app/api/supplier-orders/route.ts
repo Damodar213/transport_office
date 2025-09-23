@@ -25,6 +25,28 @@ export interface SupplierVehicleLocation {
 // GET - Fetch supplier transport orders with filtering
 export async function GET(request: NextRequest) {
   try {
+    // Ensure required tables exist (idempotent)
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS suppliers_vehicle_location (
+        id SERIAL PRIMARY KEY,
+        supplier_id VARCHAR(50) NOT NULL,
+        state VARCHAR(100) NOT NULL,
+        district VARCHAR(100) NOT NULL,
+        place VARCHAR(200) NOT NULL,
+        taluk VARCHAR(100),
+        vehicle_number VARCHAR(20) NOT NULL,
+        body_type VARCHAR(50) NOT NULL,
+        driver_id INTEGER,
+        driver_name VARCHAR(100),
+        status VARCHAR(20) DEFAULT 'pending',
+        admin_notes TEXT,
+        admin_action_date TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        recommended_location VARCHAR(255)
+      )
+    `)
     const { searchParams } = new URL(request.url)
     const supplierId = searchParams.get("supplierId")
 
@@ -139,6 +161,28 @@ export async function GET(request: NextRequest) {
 // POST - Create new supplier transport order
 export async function POST(request: NextRequest) {
   try {
+    // Ensure table exists before insert
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS suppliers_vehicle_location (
+        id SERIAL PRIMARY KEY,
+        supplier_id VARCHAR(50) NOT NULL,
+        state VARCHAR(100) NOT NULL,
+        district VARCHAR(100) NOT NULL,
+        place VARCHAR(200) NOT NULL,
+        taluk VARCHAR(100),
+        vehicle_number VARCHAR(20) NOT NULL,
+        body_type VARCHAR(50) NOT NULL,
+        driver_id INTEGER,
+        driver_name VARCHAR(100),
+        status VARCHAR(20) DEFAULT 'pending',
+        admin_notes TEXT,
+        admin_action_date TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        recommended_location VARCHAR(255)
+      )
+    `)
     const body = await request.json()
 
     // First, get the supplier user_id from suppliers table

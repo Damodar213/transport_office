@@ -5,6 +5,35 @@ import { withDatabase, createApiResponse, createApiError } from "@/lib/api-utils
 // GET - Fetch all supplier documents (TEST VERSION - NO AUTH)
 export async function GET(request: NextRequest) {
   return withDatabase(async () => {
+    // Ensure required tables exist
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS supplier_documents (
+        id SERIAL PRIMARY KEY,
+        user_id VARCHAR(50),
+        supplier_name VARCHAR(200),
+        company_name VARCHAR(200),
+        document_type VARCHAR(50),
+        document_url TEXT,
+        submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        status VARCHAR(50) DEFAULT 'pending',
+        review_notes TEXT,
+        reviewed_by VARCHAR(100),
+        reviewed_at TIMESTAMP
+      )
+    `)
+
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS users (
+        user_id VARCHAR(50) PRIMARY KEY,
+        name VARCHAR(200),
+        email VARCHAR(200),
+        mobile VARCHAR(20),
+        role VARCHAR(50),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
     const limit = parseInt(searchParams.get('limit') || '100')

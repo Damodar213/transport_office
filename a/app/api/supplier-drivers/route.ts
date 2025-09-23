@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server"
 import { dbQuery } from "@/lib/db"
+import { getSession } from "@/lib/auth"
 
 export interface Driver {
   id: number
   supplier_id: number
   driver_name: string
   mobile: string
+  license_number: string
   license_document_url?: string
   is_active: boolean
   created_at: string
@@ -15,6 +17,20 @@ export interface Driver {
 // GET - Fetch drivers for a specific supplier
 export async function GET(request: Request) {
   try {
+    // Ensure drivers table exists (idempotent)
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS drivers (
+        id SERIAL PRIMARY KEY,
+        supplier_id VARCHAR(50) NOT NULL,
+        driver_name VARCHAR(100) NOT NULL,
+        mobile VARCHAR(20) NOT NULL,
+        license_number VARCHAR(50) UNIQUE NOT NULL,
+        license_document_url TEXT,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
     const { searchParams } = new URL(request.url)
     const supplierId = searchParams.get("supplierId")
 
@@ -61,13 +77,32 @@ export async function GET(request: Request) {
 // POST - Create new driver
 export async function POST(request: Request) {
   try {
+    // Verify auth and supplier role
+    const session = await getSession()
+    if (!session || session.role !== 'supplier') {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+    // Ensure drivers table exists (idempotent)
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS drivers (
+        id SERIAL PRIMARY KEY,
+        supplier_id VARCHAR(50) NOT NULL,
+        driver_name VARCHAR(100) NOT NULL,
+        mobile VARCHAR(20) NOT NULL,
+        license_number VARCHAR(50) UNIQUE NOT NULL,
+        license_document_url TEXT,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
     const body = await request.json()
     console.log("Received driver data:", body)
 
     // Get supplier user_id from suppliers table
     const supplierResult = await dbQuery(
       "SELECT user_id FROM suppliers WHERE user_id = $1",
-      [body.supplierId]
+      [body.supplierId || session.userIdString]
     )
 
     if (supplierResult.rows.length === 0) {
@@ -77,11 +112,16 @@ export async function POST(request: Request) {
     const supplierId = supplierResult.rows[0].user_id
     console.log("Found supplier ID:", supplierId)
 
+    // License number is required by schema; if not provided, generate a unique placeholder
+    const licenseNumber = body.licenseNumber && String(body.licenseNumber).trim()
+      ? String(body.licenseNumber).trim()
+      : `LIC-${Date.now()}`
+
     const sql = `
       INSERT INTO drivers (
-        supplier_id, driver_name, mobile, 
+        supplier_id, driver_name, mobile, license_number, 
         license_document_url
-      ) VALUES ($1, $2, $3, $4)
+      ) VALUES ($1, $2, $3, $4, $5)
       RETURNING *
     `
 
@@ -89,6 +129,7 @@ export async function POST(request: Request) {
       supplierId,
       body.driverName,
       body.mobile,
+      licenseNumber,
       body.licenseDocumentUrl || null
     ]
 
@@ -127,29 +168,73 @@ export async function POST(request: Request) {
 // PUT - Update driver
 export async function PUT(request: Request) {
   try {
+    // Ensure drivers table exists (idempotent)
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS drivers (
+        id SERIAL PRIMARY KEY,
+        supplier_id VARCHAR(50) NOT NULL,
+        driver_name VARCHAR(100) NOT NULL,
+        mobile VARCHAR(20) NOT NULL,
+        license_number VARCHAR(50) UNIQUE NOT NULL,
+        license_document_url TEXT,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
     const body = await request.json()
     console.log("Received update data:", body)
     
     const { id, ...updateData } = body
 
+    // Build dynamic SQL for partial updates
+    const updateFields = []
+    const params = []
+    let paramCount = 0
+
+    if (updateData.driverName !== undefined) {
+      paramCount++
+      updateFields.push(`driver_name = $${paramCount}`)
+      params.push(updateData.driverName)
+    }
+
+    if (updateData.mobile !== undefined) {
+      paramCount++
+      updateFields.push(`mobile = $${paramCount}`)
+      params.push(updateData.mobile)
+    }
+
+    if (updateData.licenseNumber !== undefined) {
+      paramCount++
+      updateFields.push(`license_number = $${paramCount}`)
+      params.push((updateData.licenseNumber && String(updateData.licenseNumber).trim()) || `LIC-${Date.now()}`)
+    }
+
+    if (updateData.licenseDocumentUrl !== undefined) {
+      paramCount++
+      updateFields.push(`license_document_url = $${paramCount}`)
+      params.push(updateData.licenseDocumentUrl || null)
+    }
+
+    // Always update the updated_at field
+    paramCount++
+    updateFields.push(`updated_at = $${paramCount}`)
+    params.push(new Date().toISOString())
+
+    // Add the WHERE clause parameter
+    paramCount++
+    params.push(id)
+
+    if (updateFields.length === 1) { // Only updated_at
+      return NextResponse.json({ error: "No fields to update" }, { status: 400 })
+    }
+
     const sql = `
       UPDATE drivers 
-      SET 
-        driver_name = $1,
-        mobile = $2,
-        license_document_url = $3,
-        updated_at = $4
-      WHERE id = $5
+      SET ${updateFields.join(', ')}
+      WHERE id = $${paramCount}
       RETURNING *
     `
-
-    const params = [
-      updateData.driverName,
-      updateData.mobile,
-      updateData.licenseDocumentUrl || null,
-      new Date().toISOString(),
-      id
-    ]
 
     console.log("Update SQL params:", params)
 

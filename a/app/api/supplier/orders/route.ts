@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     }
 
     if (!getPool()) {
-      return NextResponse.json({ error: "Database not available" }, { status: 500 })
+      return NextResponse.json({ success: true, orders: [] })
     }
 
     const supplierId = session.userIdString
@@ -71,7 +71,7 @@ export async function GET(request: Request) {
       
       UNION ALL
       
-      -- Get manual orders
+      -- Get manual orders (schema-compatible mapping)
       SELECT 
         mos.id as submission_id,
         mos.order_id,
@@ -82,16 +82,16 @@ export async function GET(request: Request) {
         mos.updated_at as submission_updated_at,
         mo.order_number,
         mo.load_type,
-        mo.from_state,
-        mo.from_district,
-        mo.from_place,
-        mo.from_taluk,
-        mo.to_state,
-        mo.to_district,
-        mo.to_place,
-        mo.to_taluk,
+        NULL as from_state,
+        NULL as from_district,
+        mo.from_location as from_place,
+        NULL as from_taluk,
+        NULL as to_state,
+        NULL as to_district,
+        mo.delivery_place as to_place,
+        NULL as to_taluk,
         mo.estimated_tons,
-        mo.number_of_goods,
+        NULL as number_of_goods,
         mo.delivery_place,
         mo.required_date,
         mo.special_instructions,

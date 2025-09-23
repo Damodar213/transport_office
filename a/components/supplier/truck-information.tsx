@@ -276,7 +276,16 @@ export function TruckInformation({ onDataChange }: TruckInformationProps) {
               <DialogTitle>{editingVehicle ? "Edit Vehicle" : "Add New Vehicle"}</DialogTitle>
               <DialogDescription>Enter vehicle details and upload required documents</DialogDescription>
             </DialogHeader>
-            <form action={handleSubmit} className="space-y-4">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                const form = e.currentTarget
+                const data = new FormData(form)
+                // avoid React/Next form actions bug by manually passing FormData
+                handleSubmit(data)
+              }}
+              className="space-y-4"
+            >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="vehicleNumber">Vehicle Number *</Label>

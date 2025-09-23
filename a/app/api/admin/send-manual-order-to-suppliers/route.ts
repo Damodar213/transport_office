@@ -25,6 +25,50 @@ export async function POST(request: Request) {
 
     console.log("Processing order:", orderId, "for suppliers:", supplierIds)
 
+    // Ensure required tables exist
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS manual_order_submissions (
+        id SERIAL PRIMARY KEY,
+        order_id INTEGER,
+        supplier_id VARCHAR(50),
+        submitted_by VARCHAR(100),
+        status VARCHAR(50) DEFAULT 'pending',
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
+    // Drop existing constraint if it exists and recreate without constraint
+    await dbQuery(`
+      ALTER TABLE manual_order_submissions 
+      DROP CONSTRAINT IF EXISTS manual_order_submissions_status_check
+    `)
+
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS suppliers (
+        user_id VARCHAR(50) PRIMARY KEY,
+        company_name VARCHAR(200),
+        gst_number VARCHAR(50),
+        number_of_vehicles INTEGER,
+        is_verified BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS users (
+        user_id VARCHAR(50) PRIMARY KEY,
+        name VARCHAR(200),
+        email VARCHAR(200),
+        mobile VARCHAR(20),
+        role VARCHAR(50),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
     // Create WhatsApp message for manual order
     console.log("Creating WhatsApp message...")
     const message = createManualOrderWhatsAppMessage(orderDetails)

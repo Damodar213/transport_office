@@ -9,6 +9,47 @@ export async function GET() {
       return NextResponse.json({ error: "Database not available" }, { status: 503 })
     }
 
+    // Ensure required tables exist
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS vehicle_documents (
+        id SERIAL PRIMARY KEY,
+        vehicle_id VARCHAR(50),
+        supplier_id VARCHAR(50),
+        vehicle_number VARCHAR(50),
+        document_type VARCHAR(50),
+        document_url TEXT,
+        submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        status VARCHAR(50) DEFAULT 'pending',
+        review_notes TEXT,
+        reviewed_by VARCHAR(100),
+        reviewed_at TIMESTAMP
+      )
+    `)
+
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS users (
+        user_id VARCHAR(50) PRIMARY KEY,
+        name VARCHAR(200),
+        email VARCHAR(200),
+        mobile VARCHAR(20),
+        role VARCHAR(50),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS suppliers (
+        user_id VARCHAR(50) PRIMARY KEY,
+        company_name VARCHAR(200),
+        gst_number VARCHAR(50),
+        number_of_vehicles INTEGER,
+        is_verified BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
     // Query with JOIN to get supplier information
     const result = await dbQuery(`
       SELECT 

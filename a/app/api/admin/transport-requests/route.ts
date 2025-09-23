@@ -13,6 +13,68 @@ export async function GET() {
       }, { status: 503 })
     }
 
+    // Ensure required tables exist
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS buyer_requests (
+        id SERIAL PRIMARY KEY,
+        buyer_id VARCHAR(50),
+        order_number VARCHAR(100),
+        load_type VARCHAR(100),
+        from_state VARCHAR(100),
+        from_district VARCHAR(100),
+        from_place VARCHAR(200),
+        from_taluk VARCHAR(100),
+        to_state VARCHAR(100),
+        to_district VARCHAR(100),
+        to_place VARCHAR(200),
+        to_taluk VARCHAR(100),
+        estimated_tons DECIMAL(10,2),
+        number_of_goods INTEGER,
+        delivery_place VARCHAR(200),
+        required_date DATE,
+        special_instructions TEXT,
+        status VARCHAR(50) DEFAULT 'pending',
+        rate DECIMAL(10,2),
+        distance_km DECIMAL(10,2),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS manual_orders (
+        id SERIAL PRIMARY KEY,
+        order_number VARCHAR(100),
+        load_type VARCHAR(100),
+        from_place VARCHAR(200),
+        to_place VARCHAR(200),
+        estimated_tons DECIMAL(10,2),
+        number_of_goods INTEGER,
+        delivery_place VARCHAR(200),
+        required_date DATE,
+        special_instructions TEXT,
+        status VARCHAR(50) DEFAULT 'pending',
+        created_by VARCHAR(100),
+        assigned_supplier_id VARCHAR(50),
+        assigned_supplier_name VARCHAR(100),
+        admin_notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS order_submissions (
+        id SERIAL PRIMARY KEY,
+        order_id INTEGER,
+        supplier_id VARCHAR(50),
+        status VARCHAR(50) DEFAULT 'pending',
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
     // Fetch buyer transport requests and manual orders
     const result = await dbQuery(`
       -- Buyer requests (only valid ones with proper buyer data)
@@ -61,14 +123,14 @@ export async function GET() {
         NULL as "buyerId",
         mo.order_number,
         mo.load_type,
-        mo.from_state,
-        mo.from_district,
+        NULL as "from_state",
+        NULL as "from_district",
         mo.from_place,
-        mo.from_taluk,
-        mo.to_state,
-        mo.to_district,
+        NULL as "from_taluk",
+        NULL as "to_state",
+        NULL as "to_district",
         mo.to_place,
-        mo.to_taluk,
+        NULL as "to_taluk",
         mo.estimated_tons,
         mo.number_of_goods,
         mo.delivery_place,
@@ -156,10 +218,12 @@ export async function GET() {
 
   } catch (error) {
     console.error("Error fetching transport requests:", error)
+    console.error("Error stack:", error instanceof Error ? error.stack : "No stack")
     return NextResponse.json({ 
       error: "Failed to fetch transport requests",
       requests: [],
-      message: error instanceof Error ? error.message : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error",
+      details: error instanceof Error ? error.stack : "No details"
     }, { status: 500 })
   }
 }

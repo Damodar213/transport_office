@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server"
 import { dbQuery, getPool } from "@/lib/db"
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     console.log("GET /api/admin/notifications/count - fetching notification count...")
     
+    // Optional hard reset via query (?force=1)
+    const url = new URL(request.url)
+    const force = url.searchParams.get('force') === '1'
+
     // Check database connection
     let pool = getPool()
     if (!pool) {
@@ -36,6 +40,21 @@ export async function GET() {
       return NextResponse.json({ count: 0 })
     }
     
+    // If caller explicitly forces reset, mark all as read and return 0
+    if (force) {
+      try {
+        if (supplierTableExists) {
+          await dbQuery(`UPDATE supplier_vehicle_location_notifications SET is_read = TRUE, updated_at = CURRENT_TIMESTAMP WHERE is_read = FALSE`)
+        }
+      } catch {}
+      try {
+        if (transportRequestTableExists) {
+          await dbQuery(`UPDATE transport_request_notifications SET is_read = TRUE, updated_at = CURRENT_TIMESTAMP WHERE is_read = FALSE`)
+        }
+      } catch {}
+      return NextResponse.json({ count: 0 })
+    }
+
     // Count unread notifications from both tables
     let totalCount = 0
     

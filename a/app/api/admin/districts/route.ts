@@ -25,7 +25,18 @@ export async function GET() {
       }, { status: 500 })
     }
 
-    // Table already exists, no need to create it
+    // Ensure table exists (idempotent)
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS districts (
+        id SERIAL PRIMARY KEY,
+        district VARCHAR(255) NOT NULL,
+        state VARCHAR(255) NOT NULL,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(district, state)
+      )
+    `)
 
     // Fetch districts
     const result = await dbQuery(`

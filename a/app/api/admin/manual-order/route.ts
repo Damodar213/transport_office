@@ -75,16 +75,52 @@ export async function POST(request: NextRequest) {
     const orderNumber = `MO-${nextNumber}`
     console.log("Generated manual order number:", orderNumber)
 
+    // Ensure manual_orders table exists with correct structure
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS manual_orders (
+        id SERIAL PRIMARY KEY,
+        order_number VARCHAR(100),
+        load_type VARCHAR(100),
+        from_place VARCHAR(200),
+        to_place VARCHAR(200),
+        estimated_tons DECIMAL(10,2),
+        delivery_place VARCHAR(200),
+        required_date DATE,
+        special_instructions TEXT,
+        status VARCHAR(50) DEFAULT 'pending',
+        created_by VARCHAR(100),
+        assigned_supplier_id VARCHAR(50),
+        assigned_supplier_name VARCHAR(100),
+        admin_notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
+    // Add missing columns if they don't exist
+    await dbQuery(`
+      ALTER TABLE manual_orders 
+      ADD COLUMN IF NOT EXISTS number_of_goods INTEGER
+    `)
+    
+    await dbQuery(`
+      ALTER TABLE manual_orders 
+      ADD COLUMN IF NOT EXISTS from_place VARCHAR(200)
+    `)
+    
+    await dbQuery(`
+      ALTER TABLE manual_orders 
+      ADD COLUMN IF NOT EXISTS to_place VARCHAR(200)
+    `)
+
     // Create manual order in manual_orders table
     console.log("Creating manual order in manual_orders table...")
     const orderResult = await dbQuery(`
       INSERT INTO manual_orders (
         order_number, load_type, estimated_tons, number_of_goods, delivery_place, 
-        from_location, from_state, from_district, from_place, from_taluk,
-        to_state, to_district, to_place, to_taluk,
-        status, created_by, special_instructions, required_date
+        from_place, to_place, status, created_by, special_instructions, required_date
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
       ) RETURNING *
     `, [
       orderNumber, 
@@ -93,14 +129,7 @@ export async function POST(request: NextRequest) {
       numberOfGoods ? parseInt(numberOfGoods) : null,
       deliveryPlace,
       fromPlace || 'Admin Specified Location',
-      fromState !== undefined ? fromState : 'Admin Specified',
-      fromDistrict !== undefined ? fromDistrict : 'Location',
-      fromPlace || 'Admin Specified Location',
-      fromTaluk || null,
-      toState !== undefined ? toState : 'Not Specified',
-      toDistrict !== undefined ? toDistrict : 'Not Specified',
       toPlace || deliveryPlace,
-      toTaluk || null,
       'pending', 
       'ADMIN', 
       specialInstructions || 'Manual order created by admin',
@@ -167,15 +196,8 @@ export async function POST(request: NextRequest) {
         estimatedTons: newOrder.estimated_tons,
         numberOfGoods: newOrder.number_of_goods,
         deliveryPlace: newOrder.delivery_place,
-        fromLocation: newOrder.from_location,
-        fromState: newOrder.from_state,
-        fromDistrict: newOrder.from_district,
         fromPlace: newOrder.from_place,
-        fromTaluk: newOrder.from_taluk,
-        toState: newOrder.to_state,
-        toDistrict: newOrder.to_district,
         toPlace: newOrder.to_place,
-        toTaluk: newOrder.to_taluk,
         requiredDate: newOrder.required_date,
         specialInstructions: newOrder.special_instructions,
         status: newOrder.status,
