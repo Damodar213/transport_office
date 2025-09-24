@@ -69,7 +69,14 @@ export default function LoginPage() {
         // Force a hard redirect to ensure fresh data loading
         window.location.replace(`/${role}/dashboard`)
       } else {
-        setError(data.error || "Login failed")
+        // Provide more specific error messages
+        if (response.status === 401) {
+          setError("Invalid credentials. Please check your User ID and password.")
+        } else if (response.status === 400) {
+          setError("Please fill in all required fields.")
+        } else {
+          setError(data.error || "Login failed. Please try again.")
+        }
       }
     } catch (err) {
       console.error("Login error:", err)
@@ -275,6 +282,16 @@ export default function LoginPage() {
               Admin Access
             </button>
           )}
+          
+          {/* Test Credentials Help */}
+          <div className="mt-4 p-3 bg-muted rounded-lg text-left">
+            <p className="text-xs font-medium text-muted-foreground mb-2">Test Credentials:</p>
+            <div className="text-xs text-muted-foreground space-y-1">
+              <p><strong>Supplier:</strong> arun / 12345</p>
+              <p><strong>Buyer:</strong> 11111 / 12345</p>
+              <p><strong>Admin:</strong> admin / admin123</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

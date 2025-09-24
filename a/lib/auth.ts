@@ -1,5 +1,5 @@
 import { cookies } from "next/headers"
-import { dbQuery } from "./db"
+import { dbQuery, getPool } from "./db"
 
 export interface User {
   userId: number
@@ -24,6 +24,13 @@ export async function getSession(): Promise<User | null> {
     // Validate session against database if available
     if (session.userIdString && session.role) {
       try {
+        // Check if database is available
+        const pool = getPool()
+        if (!pool) {
+          console.log("No database connection available, using session without validation")
+          return session
+        }
+
         let result
         
         // Check users table first

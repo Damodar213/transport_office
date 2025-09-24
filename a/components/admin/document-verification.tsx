@@ -274,8 +274,19 @@ export function DocumentVerification() {
       
       setSelectedDocument(null)
       setReviewNotes("")
+      
+      // Show success toast
+      toast({
+        title: "Document Updated",
+        description: `Document ${status === "approved" ? "approved" : "rejected"} successfully`,
+      })
     } catch (error) {
       console.error("Review error:", error)
+      toast({
+        title: "Error",
+        description: "Failed to update document status",
+        variant: "destructive",
+      })
     } finally {
       setIsReviewing(false)
     }
@@ -549,7 +560,12 @@ export function DocumentVerification() {
                     </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <Dialog>
+                    <Dialog open={selectedDocument?.id === document.id} onOpenChange={(open) => {
+                      if (!open) {
+                        setSelectedDocument(null)
+                        setReviewNotes("")
+                      }
+                    }}>
                       <DialogTrigger asChild>
                         <Button variant="outline" size="sm" onClick={() => setSelectedDocument(document)}>
                           <Eye className="h-4 w-4 mr-1" />

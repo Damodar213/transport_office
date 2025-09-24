@@ -15,7 +15,9 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Access denied - supplier role required" }, { status: 403 })
     }
 
+    // Check if database is available
     if (!getPool()) {
+      console.log("No database connection available, returning empty orders list")
       return NextResponse.json({ success: true, orders: [] })
     }
 

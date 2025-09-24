@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     // Generate unique key for file storage
     const key = generateFileKey(category || "general", file.name, userId)
 
-    // Try to upload to Cloudflare R2, fallback to local storage if not configured
+    // Upload to Cloudflare R2 (no fallback to local storage)
     let uploadResult
     try {
       uploadResult = await uploadToR2(buffer, key, file.type, {
@@ -75,9 +75,11 @@ export async function POST(request: NextRequest) {
       })
       console.log("File uploaded to Cloudflare R2 successfully")
     } catch (r2Error) {
-      console.log("Cloudflare R2 not configured, falling back to local storage:", r2Error)
-      uploadResult = await uploadToLocal(buffer, key, file.type)
-      console.log("File uploaded to local storage successfully")
+      console.error("Failed to upload to Cloudflare R2:", r2Error)
+      return NextResponse.json({ 
+        error: "Failed to upload file to Cloudflare R2. Please check your configuration.", 
+        details: r2Error instanceof Error ? r2Error.message : "Unknown error"
+      }, { status: 500 })
     }
 
     // If this is a vehicle or driver document, create a document submission for admin review

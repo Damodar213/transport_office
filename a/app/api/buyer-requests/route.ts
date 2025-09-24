@@ -20,6 +20,37 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 })
     }
 
+    // Ensure buyer_requests table exists
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS buyer_requests (
+        id SERIAL PRIMARY KEY,
+        buyer_id VARCHAR(50) NOT NULL,
+        supplier_id VARCHAR(50),
+        driver_id INTEGER,
+        vehicle_id INTEGER,
+        order_number VARCHAR(100),
+        load_type VARCHAR(100),
+        from_state VARCHAR(100),
+        from_district VARCHAR(100),
+        from_place VARCHAR(200),
+        from_taluk VARCHAR(100),
+        to_state VARCHAR(100),
+        to_district VARCHAR(100),
+        to_place VARCHAR(200),
+        to_taluk VARCHAR(100),
+        estimated_tons DECIMAL(8,2),
+        number_of_goods INTEGER,
+        delivery_place VARCHAR(200),
+        required_date DATE,
+        special_instructions TEXT,
+        rate DECIMAL(10,2),
+        distance_km DECIMAL(8,2),
+        status VARCHAR(50) DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
     const limit = parseInt(searchParams.get('limit') || '100')

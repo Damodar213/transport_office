@@ -103,12 +103,21 @@ export async function dbQuery<T = any>(sql: string, params: any[] = []): Promise
 }
 
 function getSslOption(url: string) {
-  // Neon, Railway, Render often require SSL in production; allow local without
   try {
     const u = new URL(url)
     const host = u.hostname.toLowerCase()
     const likelyCloud = /(neon|railway|render|amazonaws|gcp|azure|supabase|planetscale)/.test(host)
-    return likelyCloud ? { rejectUnauthorized: false } : undefined
+    
+    if (likelyCloud) {
+      if (host.includes('supabase')) {
+        return { 
+          rejectUnauthorized: false,
+          ssl: { rejectUnauthorized: false }
+        }
+      }
+      return { rejectUnauthorized: false }
+    }
+    return undefined
   } catch {
     return undefined
   }

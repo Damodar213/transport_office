@@ -112,14 +112,8 @@ export async function POST(request: NextRequest) {
             documentUrls.pan = uploadResult.url
             console.log("PAN document uploaded to Cloudflare:", documentUrls.pan)
           } catch (r2Error) {
-            console.log("Cloudflare upload failed, using local storage:", r2Error)
-            // Fallback to local storage
-            const timestamp = Date.now()
-            const filename = `pan_${timestamp}_${pan.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`
-            const filePath = join(uploadDir, filename)
-            await writeFile(filePath, buffer)
-            documentUrls.pan = `/uploads/supplier-documents/${filename}`
-            console.log("PAN document saved locally:", documentUrls.pan)
+            console.error("Failed to upload PAN document to Cloudflare:", r2Error)
+            throw new Error(`Failed to upload PAN document: ${r2Error instanceof Error ? r2Error.message : "Unknown error"}`)
           }
         }
 
@@ -139,14 +133,8 @@ export async function POST(request: NextRequest) {
             documentUrls.gstCertificate = uploadResult.url
             console.log("GST document uploaded to Cloudflare:", documentUrls.gstCertificate)
           } catch (r2Error) {
-            console.log("Cloudflare upload failed, using local storage:", r2Error)
-            // Fallback to local storage
-            const timestamp = Date.now()
-            const filename = `gst_${timestamp}_${gstCertificate.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`
-            const filePath = join(uploadDir, filename)
-            await writeFile(filePath, buffer)
-            documentUrls.gstCertificate = `/uploads/supplier-documents/${filename}`
-            console.log("GST document saved locally:", documentUrls.gstCertificate)
+            console.error("Failed to upload GST document to Cloudflare:", r2Error)
+            throw new Error(`Failed to upload GST document: ${r2Error instanceof Error ? r2Error.message : "Unknown error"}`)
           }
         }
       } catch (uploadError) {

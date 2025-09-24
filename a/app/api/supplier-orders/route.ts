@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { dbQuery } from "@/lib/db"
+import { dbQuery, getPool } from "@/lib/db"
 
 export interface SupplierVehicleLocation {
   id: number
@@ -25,6 +25,12 @@ export interface SupplierVehicleLocation {
 // GET - Fetch supplier transport orders with filtering
 export async function GET(request: NextRequest) {
   try {
+    // Check if database is available
+    if (!getPool()) {
+      console.log("No database connection available, returning empty orders list")
+      return NextResponse.json({ orders: [] })
+    }
+
     // Ensure required tables exist (idempotent)
     await dbQuery(`
       CREATE TABLE IF NOT EXISTS suppliers_vehicle_location (
@@ -161,6 +167,12 @@ export async function GET(request: NextRequest) {
 // POST - Create new supplier transport order
 export async function POST(request: NextRequest) {
   try {
+    // Check if database is available
+    if (!getPool()) {
+      console.log("No database connection available, cannot create order")
+      return NextResponse.json({ error: "Database not available. Please try again later." }, { status: 503 })
+    }
+
     // Ensure table exists before insert
     await dbQuery(`
       CREATE TABLE IF NOT EXISTS suppliers_vehicle_location (

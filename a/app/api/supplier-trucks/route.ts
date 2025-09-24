@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { dbQuery } from "@/lib/db"
+import { dbQuery, getPool } from "@/lib/db"
 import { getSession } from "@/lib/auth"
 
 export interface Truck {
@@ -40,6 +40,12 @@ export async function GET(request: Request) {
     if (session.userIdString !== supplierId) {
       console.warn(`Security violation: User ${session.userIdString} attempted to access supplier ${supplierId} data`)
       return NextResponse.json({ error: "Access denied - you can only access your own data" }, { status: 403 })
+    }
+
+    // Check if database is available
+    if (!getPool()) {
+      console.log("No database connection available, returning empty trucks list")
+      return NextResponse.json({ trucks: [] })
     }
 
     // Ensure trucks table exists (idempotent)
@@ -110,6 +116,12 @@ export async function POST(request: Request) {
     // Only allow suppliers to access this endpoint
     if (session.role !== 'supplier') {
       return NextResponse.json({ error: "Access denied - supplier role required" }, { status: 403 })
+    }
+
+    // Check if database is available
+    if (!getPool()) {
+      console.log("No database connection available, cannot create truck")
+      return NextResponse.json({ error: "Database not available. Please try again later." }, { status: 503 })
     }
 
     const body = await request.json()
