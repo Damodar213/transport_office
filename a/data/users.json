@@ -1,0 +1,56 @@
+[
+  {
+    "id": 1,
+    "userId": "admin",
+    "passwordHash": "$2b$10$JlLmMt6Ie/3mMtqUWSZ41Oj.vojUHN1w15hKHn7eKN9RgffAfw52.",
+    "role": "admin",
+    "email": "admin@transportoffice.com",
+    "name": "System Admin",
+    "createdAt": "2025-08-21T08:54:19.439Z"
+  },
+  {
+    "userId": "11111",
+    "passwordHash": "$2b$10$vA9wdQkDVbL0kY1SM0RwYOJLDbZDyC87bj1cyVgcFeqsnqYpzBa12",
+    "role": "buyer",
+    "companyName": "sdds",
+    "gstNumber": "123456",
+    "id": 3,
+    "createdAt": "2025-08-22T07:17:55.049Z"
+  },
+  {
+    "id": 1757315326266,
+    "userId": "arunk",
+    "passwordHash": "$2b$10$GB/aDB2mUWP.XyNv2hRGHO7Fw7uwDUD2mNaY9fciT45SjoOxSXuhi",
+    "role": "supplier",
+    "email": "",
+    "name": "arunk",
+    "mobile": "8618699559",
+    "companyName": "qqqqqq",
+    "gstNumber": "12561",
+    "numberOfVehicles": 2,
+    "documents": {
+      "aadhaar": "/uploads/supplier-documents/aadhaar_1757315324929_mee.jpg",
+      "pan": "/uploads/supplier-documents/pan_1757315324932_arun.jpg",
+      "gstCertificate": "/uploads/supplier-documents/gst_1757315324932_ak.jpg"
+    },
+    "createdAt": "2025-09-08T07:08:46.266Z"
+  },
+  {
+    "id": 1757341101479,
+    "userId": "arun",
+    "passwordHash": "$2b$10$9YH3sEfAClrab3pvvBPBxu6SLm.MNmq8m5E/.Z7PhxbQI68v4h7O6",
+    "role": "supplier",
+    "email": "",
+    "name": "arun",
+    "mobile": "8618699559",
+    "companyName": "a company",
+    "gstNumber": "12561",
+    "numberOfVehicles": 4,
+    "documents": {
+      "aadhaar": "/uploads/supplier-documents/aadhaar_1757341097904_mee.jpg",
+      "pan": "/uploads/supplier-documents/pan_1757341097913_arun.jpg",
+      "gstCertificate": "/uploads/supplier-documents/gst_1757341097917_m.jpg"
+    },
+    "createdAt": "2025-09-08T14:18:21.479Z"
+  }
+]

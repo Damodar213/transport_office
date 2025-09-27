@@ -1,0 +1,434 @@
+import { NextResponse } from "next/server"
+import { dbQuery } from "@/lib/db"
+import { getSession } from "@/lib/auth"
+
+export interface Driver {
+  id: number
+  supplier_id: number
+  driver_name: string
+  mobile: string
+  license_number: string
+  license_document_url?: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+// GET - Fetch drivers for a specific supplier
+export async function GET(request: Request) {
+  try {
+    // Ensure drivers table exists (idempotent)
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS drivers (
+        id SERIAL PRIMARY KEY,
+        supplier_id VARCHAR(50) NOT NULL,
+        driver_name VARCHAR(100) NOT NULL,
+        mobile VARCHAR(20) NOT NULL,
+        license_number VARCHAR(50) UNIQUE NOT NULL,
+        license_document_url TEXT,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+    const { searchParams } = new URL(request.url)
+    const supplierId = searchParams.get("supplierId")
+
+    if (!supplierId) {
+      return NextResponse.json({ error: "Supplier ID is required" }, { status: 400 })
+    }
+
+    // Get supplier user_id from suppliers table
+    const supplierResult = await dbQuery(
+      "SELECT user_id FROM suppliers WHERE user_id = $1",
+      [supplierId]
+    )
+
+    if (supplierResult.rows.length === 0) {
+      return NextResponse.json({ error: "Supplier not found" }, { status: 404 })
+    }
+
+    const supplierDbId = supplierResult.rows[0].user_id
+
+    const sql = `
+      SELECT 
+        d.id,
+        d.supplier_id,
+        d.driver_name,
+        d.mobile,
+        d.license_document_url,
+        d.is_active,
+        d.created_at,
+        d.updated_at
+      FROM drivers d
+      WHERE d.supplier_id = $1
+      ORDER BY d.created_at DESC
+    `
+
+    const result = await dbQuery<Driver>(sql, [supplierDbId])
+    return NextResponse.json({ drivers: result.rows })
+
+  } catch (error) {
+    console.error("Get drivers error:", error)
+    return NextResponse.json({ error: "Failed to fetch drivers" }, { status: 500 })
+  }
+}
+
+// POST - Create new driver
+export async function POST(request: Request) {
+  try {
+    // Verify auth and supplier role
+    const session = await getSession()
+    if (!session || session.role !== 'supplier') {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+    // Ensure drivers table exists (idempotent)
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS drivers (
+        id SERIAL PRIMARY KEY,
+        supplier_id VARCHAR(50) NOT NULL,
+        driver_name VARCHAR(100) NOT NULL,
+        mobile VARCHAR(20) NOT NULL,
+        license_number VARCHAR(50) UNIQUE NOT NULL,
+        license_document_url TEXT,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+    const body = await request.json()
+    console.log("Received driver data:", body)
+
+    // Validate mobile number format
+    if (!body.mobile || typeof body.mobile !== 'string') {
+      return NextResponse.json({ error: "Mobile number is required" }, { status: 400 })
+    }
+    
+    const mobileDigits = body.mobile.replace(/\D/g, '')
+    if (mobileDigits.length !== 10) {
+      return NextResponse.json({ error: "Mobile number must be exactly 10 digits" }, { status: 400 })
+    }
+
+    // Get supplier user_id from suppliers table
+    const supplierResult = await dbQuery(
+      "SELECT user_id FROM suppliers WHERE user_id = $1",
+      [body.supplierId || session.userIdString]
+    )
+
+    if (supplierResult.rows.length === 0) {
+      return NextResponse.json({ error: "Supplier not found" }, { status: 404 })
+    }
+
+    const supplierId = supplierResult.rows[0].user_id
+    console.log("Found supplier ID:", supplierId)
+
+    // License number is required by schema; if not provided, generate a unique placeholder
+    const licenseNumber = body.licenseNumber && String(body.licenseNumber).trim()
+      ? String(body.licenseNumber).trim()
+      : `LIC-${Date.now()}`
+
+    const sql = `
+      INSERT INTO drivers (
+        supplier_id, driver_name, mobile, license_number, 
+        license_document_url
+      ) VALUES ($1, $2, $3, $4, $5)
+      RETURNING *
+    `
+
+    const params = [
+      supplierId,
+      body.driverName,
+      mobileDigits,
+      licenseNumber,
+      body.licenseDocumentUrl || null
+    ]
+
+    console.log("SQL params:", params)
+
+    const result = await dbQuery(sql, params)
+    console.log("Driver created successfully:", result.rows[0])
+    
+    // If there's a license document URL, create a driver document submission for admin review
+    if (body.licenseDocumentUrl) {
+      try {
+        const now = new Date().toISOString()
+        await dbQuery(
+          `INSERT INTO driver_documents (driver_id, supplier_id, driver_name, document_type, document_url, submitted_at, status)
+           VALUES ($1, $2, $3, $4, $5, $6, 'pending')`,
+          [result.rows[0].id, supplierId, body.driverName, 'license', body.licenseDocumentUrl, now]
+        )
+        console.log("Driver document submission created for admin review")
+      } catch (docError) {
+        console.error("Error creating driver document submission:", docError)
+        // Don't fail the driver creation if document submission creation fails
+      }
+    }
+    
+    return NextResponse.json({ 
+      message: "Driver created successfully", 
+      driver: result.rows[0] 
+    }, { status: 201 })
+
+  } catch (error) {
+    console.error("Create driver error:", error)
+    return NextResponse.json({ error: "Failed to create driver", details: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
+  }
+}
+
+// PUT - Update driver
+export async function PUT(request: Request) {
+  try {
+    // Ensure drivers table exists (idempotent)
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS drivers (
+        id SERIAL PRIMARY KEY,
+        supplier_id VARCHAR(50) NOT NULL,
+        driver_name VARCHAR(100) NOT NULL,
+        mobile VARCHAR(20) NOT NULL,
+        license_number VARCHAR(50) UNIQUE NOT NULL,
+        license_document_url TEXT,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+    const body = await request.json()
+    console.log("Received update data:", body)
+    
+    const { id, ...updateData } = body
+
+    // Validate mobile number format if provided
+    if (updateData.mobile !== undefined) {
+      if (!updateData.mobile || typeof updateData.mobile !== 'string') {
+        return NextResponse.json({ error: "Mobile number is required" }, { status: 400 })
+      }
+      
+      const mobileDigits = updateData.mobile.replace(/\D/g, '')
+      if (mobileDigits.length !== 10) {
+        return NextResponse.json({ error: "Mobile number must be exactly 10 digits" }, { status: 400 })
+      }
+      updateData.mobile = mobileDigits // Use cleaned mobile number
+    }
+
+    // Build dynamic SQL for partial updates
+    const updateFields = []
+    const params = []
+    let paramCount = 0
+
+    if (updateData.driverName !== undefined) {
+      paramCount++
+      updateFields.push(`driver_name = $${paramCount}`)
+      params.push(updateData.driverName)
+    }
+
+    if (updateData.mobile !== undefined) {
+      paramCount++
+      updateFields.push(`mobile = $${paramCount}`)
+      params.push(updateData.mobile)
+    }
+
+    if (updateData.licenseNumber !== undefined) {
+      paramCount++
+      updateFields.push(`license_number = $${paramCount}`)
+      params.push((updateData.licenseNumber && String(updateData.licenseNumber).trim()) || `LIC-${Date.now()}`)
+    }
+
+    if (updateData.licenseDocumentUrl !== undefined) {
+      paramCount++
+      updateFields.push(`license_document_url = $${paramCount}`)
+      params.push(updateData.licenseDocumentUrl || null)
+    }
+
+    // Always update the updated_at field
+    paramCount++
+    updateFields.push(`updated_at = $${paramCount}`)
+    params.push(new Date().toISOString())
+
+    // Add the WHERE clause parameter
+    paramCount++
+    params.push(id)
+
+    if (updateFields.length === 1) { // Only updated_at
+      return NextResponse.json({ error: "No fields to update" }, { status: 400 })
+    }
+
+    const sql = `
+      UPDATE drivers 
+      SET ${updateFields.join(', ')}
+      WHERE id = $${paramCount}
+      RETURNING *
+    `
+
+    console.log("Update SQL params:", params)
+
+    const result = await dbQuery(sql, params)
+
+    if (result.rows.length === 0) {
+      return NextResponse.json({ error: "Driver not found" }, { status: 404 })
+    }
+
+    console.log("Driver updated successfully:", result.rows[0])
+    
+    // If there's a new license document URL, create a driver document submission for admin review
+    if (updateData.licenseDocumentUrl && updateData.licenseDocumentUrl !== result.rows[0].license_document_url) {
+      try {
+        const now = new Date().toISOString()
+        await dbQuery(
+          `INSERT INTO driver_documents (driver_id, supplier_id, driver_name, document_type, document_url, submitted_at, status)
+           VALUES ($1, $2, $3, $4, $5, $6, 'pending')`,
+          [id, result.rows[0].supplier_id, updateData.driverName, 'license', updateData.licenseDocumentUrl, now]
+        )
+        console.log("Driver document submission created for admin review")
+      } catch (docError) {
+        console.error("Error creating driver document submission:", docError)
+        // Don't fail the driver update if document submission creation fails
+      }
+    }
+    
+    return NextResponse.json({ 
+      message: "Driver updated successfully", 
+      driver: result.rows[0] 
+    })
+
+  } catch (error) {
+    console.error("Update driver error:", error)
+    return NextResponse.json({ error: "Failed to update driver", details: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
+  }
+}
+
+// DELETE - Delete driver (hard delete - completely remove from database)
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get("id")
+
+    if (!id) {
+      return NextResponse.json({ error: "Driver ID is required" }, { status: 400 })
+    }
+
+    console.log("Deleting driver with ID:", id)
+
+    // First check if driver exists
+    const checkResult = await dbQuery("SELECT id, driver_name FROM drivers WHERE id = $1", [id])
+    console.log("Driver check result:", checkResult.rows)
+    
+    if (checkResult.rows.length === 0) {
+      console.log("Driver not found in database")
+      return NextResponse.json({ error: "Driver not found" }, { status: 404 })
+    }
+
+    console.log("Driver found:", checkResult.rows[0])
+
+    // Check for foreign key references before deleting
+    try {
+      // Check if driver is referenced in confirmed_orders table (this table has driver_id)
+      try {
+        console.log("Checking confirmed_orders for driver_id:", id)
+        const confirmedOrdersCheck = await dbQuery(
+          "SELECT COUNT(*) as count FROM confirmed_orders WHERE driver_id = $1",
+          [id]
+        )
+        console.log("Confirmed orders check result:", confirmedOrdersCheck.rows[0])
+        
+        if (parseInt(confirmedOrdersCheck.rows[0].count) > 0) {
+          console.log("Driver has confirmed orders, blocking deletion")
+          return NextResponse.json({ 
+            error: "Cannot delete driver. Driver is assigned to confirmed orders. Please reassign or complete the orders first.",
+            details: "Driver has active orders"
+          }, { status: 400 })
+        }
+      } catch (error) {
+        console.log("confirmed_orders check skipped:", error)
+      }
+
+      // Check if driver is referenced in suppliers_vehicle_location table (this table has driver_id)
+      try {
+        console.log("Checking suppliers_vehicle_location for driver_id:", id)
+        const vehicleLocationCheck = await dbQuery(
+          "SELECT COUNT(*) as count FROM suppliers_vehicle_location WHERE driver_id = $1",
+          [id]
+        )
+        console.log("Vehicle location check result:", vehicleLocationCheck.rows[0])
+        
+        if (parseInt(vehicleLocationCheck.rows[0].count) > 0) {
+          console.log("Driver has vehicle location requests, blocking deletion")
+          return NextResponse.json({ 
+            error: "Cannot delete driver. Driver is assigned to vehicle location requests. Please reassign or complete the requests first.",
+            details: "Driver has active vehicle location requests"
+          }, { status: 400 })
+        }
+      } catch (error) {
+        console.log("suppliers_vehicle_location check skipped:", error)
+      }
+
+    } catch (constraintError) {
+      console.log("Foreign key constraint check failed:", constraintError)
+      // Continue with deletion if constraint check fails
+    }
+
+    // Perform hard delete with retry mechanism
+    const sql = `DELETE FROM drivers WHERE id = $1`
+    console.log("Attempting to delete driver with SQL:", sql, "and ID:", id)
+    let result
+    let retryCount = 0
+    const maxRetries = 3
+
+    while (retryCount < maxRetries) {
+      try {
+        console.log(`Delete attempt ${retryCount + 1} for driver ID: ${id}`)
+        result = await dbQuery(sql, [id])
+        console.log("Delete query result:", result)
+        break // Success, exit retry loop
+      } catch (error) {
+        retryCount++
+        console.log(`Delete attempt ${retryCount} failed:`, error)
+        
+        if (retryCount >= maxRetries) {
+          console.log("All delete attempts failed, throwing error")
+          throw error // Re-throw if all retries failed
+        }
+        
+        // Wait before retry (exponential backoff)
+        console.log(`Waiting ${1000 * retryCount}ms before retry...`)
+        await new Promise(resolve => setTimeout(resolve, 1000 * retryCount))
+      }
+    }
+
+    console.log("Driver deleted successfully:", checkResult.rows[0].driver_name)
+    
+    return NextResponse.json({ 
+      message: "Driver deleted successfully",
+      deletedDriver: checkResult.rows[0]
+    })
+
+  } catch (error) {
+    console.error("Delete driver error:", error)
+    
+    // Check if it's a database connection error
+    if (error instanceof Error && (
+      error.message.includes('connection') || 
+      error.message.includes('timeout') ||
+      error.message.includes('ECONNRESET') ||
+      error.message.includes('Connection terminated')
+    )) {
+      return NextResponse.json({ 
+        error: "Database connection error. Please try again.",
+        details: "Connection timeout or database unavailable"
+      }, { status: 503 })
+    }
+    
+    // Check if it's a foreign key constraint violation
+    if (error instanceof Error && error.message.includes('violates foreign key constraint')) {
+      return NextResponse.json({ 
+        error: "Cannot delete driver. Driver is referenced by other records in the system.",
+        details: "Foreign key constraint violation"
+      }, { status: 400 })
+    }
+    
+    return NextResponse.json({ 
+      error: "Failed to delete driver", 
+      details: error instanceof Error ? error.message : "Unknown error" 
+    }, { status: 500 })
+  }
+}
+

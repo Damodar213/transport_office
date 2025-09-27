@@ -1,0 +1,35 @@
+{
+  "nextId": 4,
+  "submissions": [
+    {
+      "id": 1,
+      "userId": "arunk",
+      "supplierName": "arunk",
+      "companyName": "qqqqqq",
+      "documentType": "aadhaar",
+      "documentUrl": "/uploads/supplier-documents/aadhaar_1757315324929_mee.jpg",
+      "submittedAt": "2025-09-08 07:08",
+      "status": "pending"
+    },
+    {
+      "id": 2,
+      "userId": "arunk",
+      "supplierName": "arunk",
+      "companyName": "qqqqqq",
+      "documentType": "pan",
+      "documentUrl": "/uploads/supplier-documents/pan_1757315324932_arun.jpg",
+      "submittedAt": "2025-09-08 07:08",
+      "status": "pending"
+    },
+    {
+      "id": 3,
+      "userId": "arunk",
+      "supplierName": "arunk",
+      "companyName": "qqqqqq",
+      "documentType": "gst",
+      "documentUrl": "/uploads/supplier-documents/gst_1757315324932_ak.jpg",
+      "submittedAt": "2025-09-08 07:08",
+      "status": "pending"
+    }
+  ]
+}

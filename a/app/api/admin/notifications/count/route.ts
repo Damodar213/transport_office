@@ -1,0 +1,121 @@
+import { NextResponse } from "next/server"
+import { dbQuery, getPool } from "@/lib/db"
+
+export async function GET(request: Request) {
+  try {
+    console.log("GET /api/admin/notifications/count - fetching notification count...")
+    
+    // Optional hard reset via query (?force=1)
+    const url = new URL(request.url)
+    const force = url.searchParams.get('force') === '1'
+
+    // Check database connection
+    let pool = getPool()
+    if (!pool) {
+      console.log("Database not available")
+      return NextResponse.json({ count: 0 })
+    }
+
+    // Test database connection first
+    try {
+      await pool.query('SELECT 1')
+    } catch (dbError) {
+      console.error("Database connection test failed:", dbError)
+      return NextResponse.json({ count: 0 })
+    }
+
+    // Check if notification tables exist
+    let supplierTableExists, transportRequestTableExists, mainTableExists
+    try {
+      const tableCheckResult = await dbQuery(`
+        SELECT 
+          EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'supplier_vehicle_location_notifications') as supplier_exists,
+          EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'transport_request_notifications') as transport_request_exists,
+          EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'notifications') as main_exists
+      `)
+      
+      supplierTableExists = tableCheckResult.rows[0].supplier_exists
+      transportRequestTableExists = tableCheckResult.rows[0].transport_request_exists
+      mainTableExists = tableCheckResult.rows[0].main_exists
+    } catch (tableCheckError) {
+      console.error("Error checking table existence:", tableCheckError)
+      return NextResponse.json({ count: 0 })
+    }
+    
+    // If caller explicitly forces reset, mark all as read and return 0
+    if (force) {
+      try {
+        if (supplierTableExists) {
+          await dbQuery(`UPDATE supplier_vehicle_location_notifications SET is_read = TRUE, updated_at = CURRENT_TIMESTAMP WHERE is_read = FALSE`)
+        }
+      } catch {}
+      try {
+        if (transportRequestTableExists) {
+          await dbQuery(`UPDATE transport_request_notifications SET is_read = TRUE, updated_at = CURRENT_TIMESTAMP WHERE is_read = FALSE`)
+        }
+      } catch {}
+      try {
+        if (mainTableExists) {
+          await dbQuery(`UPDATE notifications SET is_read = TRUE, updated_at = CURRENT_TIMESTAMP WHERE is_read = FALSE`)
+        }
+      } catch {}
+      return NextResponse.json({ count: 0 })
+    }
+
+    // Count unread notifications from both tables
+    let totalCount = 0
+    
+    // Count supplier vehicle location notifications
+    if (supplierTableExists) {
+      try {
+        const supplierResult = await dbQuery(`
+          SELECT COUNT(*) as count 
+          FROM supplier_vehicle_location_notifications 
+          WHERE is_read = FALSE
+        `)
+        totalCount += parseInt(supplierResult.rows[0].count) || 0
+        console.log(`Found ${supplierResult.rows[0].count} unread supplier vehicle location notifications`)
+      } catch (countError) {
+        console.error("Error counting supplier notifications:", countError)
+      }
+    }
+
+    // Count transport request notifications (buyer orders)
+    if (transportRequestTableExists) {
+      try {
+        const transportResult = await dbQuery(`
+          SELECT COUNT(*) as count 
+          FROM transport_request_notifications 
+          WHERE is_read = FALSE
+        `)
+        totalCount += parseInt(transportResult.rows[0].count) || 0
+        console.log(`Found ${transportResult.rows[0].count} unread transport request notifications`)
+      } catch (countError) {
+        console.error("Error counting transport request notifications:", countError)
+      }
+    }
+
+    // Count main notifications (manual order confirmations, etc.)
+    if (mainTableExists) {
+      try {
+        const mainResult = await dbQuery(`
+          SELECT COUNT(*) as count 
+          FROM notifications 
+          WHERE is_read = FALSE
+        `)
+        totalCount += parseInt(mainResult.rows[0].count) || 0
+        console.log(`Found ${mainResult.rows[0].count} unread main notifications`)
+      } catch (countError) {
+        console.error("Error counting main notifications:", countError)
+      }
+    }
+
+    console.log(`Total unread notifications: ${totalCount}`)
+
+    return NextResponse.json({ count: totalCount })
+
+  } catch (error) {
+    console.error("Error fetching notification count:", error)
+    return NextResponse.json({ count: 0 })
+  }
+}
