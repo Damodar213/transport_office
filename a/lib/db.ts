@@ -17,13 +17,13 @@ export function getPool(): Pool | null {
     pool = new Pool({ 
       connectionString: url, 
       ssl: getSslOption(url),
-      max: 3, // Reduced for free tier resource limits
-      min: 1, // Minimum connections to maintain
-      idleTimeoutMillis: 10000, // Reduced for faster cleanup
-      connectionTimeoutMillis: 10000, // Reduced timeout
-      maxUses: 100, // Reduced to free connections faster
-      statement_timeout: 10000, // Reduced statement timeout
-      query_timeout: 10000, // Reduced query timeout
+      max: 1, // Single connection to avoid conflicts with multiple deployments
+      min: 0, // No minimum connections to maintain
+      idleTimeoutMillis: 5000, // Faster cleanup
+      connectionTimeoutMillis: 5000, // Faster timeout
+      maxUses: 50, // Reduced to free connections faster
+      statement_timeout: 5000, // Reduced statement timeout
+      query_timeout: 5000, // Reduced query timeout
       allowExitOnIdle: true, // Allow connections to close when idle
     })
     
@@ -169,10 +169,24 @@ export async function getConnectionCount(): Promise<number> {
 export async function closeIdleConnections(): Promise<void> {
   if (pool) {
     try {
-      await pool.query("SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE state = 'idle' AND state_change < now() - interval '5 minutes'")
+      await pool.query("SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE state = 'idle' AND state_change < now() - interval '2 minutes'")
       console.log("Closed idle connections")
     } catch (error) {
       console.error("Error closing idle connections:", error)
+    }
+  }
+}
+
+// Add function to force close all connections (for deployment cleanup)
+export async function forceCloseAllConnections(): Promise<void> {
+  if (pool) {
+    try {
+      await pool.end()
+      console.log("Force closed all database connections")
+    } catch (error) {
+      console.error("Error force closing connections:", error)
+    } finally {
+      pool = null
     }
   }
 }

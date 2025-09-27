@@ -31,30 +31,7 @@ function formatTimestamp(timestamp: string | Date): string {
       timeZone: 'Asia/Kolkata'
     })
     
-    // Calculate relative time using current IST time
-    const now = new Date()
-    const diffMs = now.getTime() - created.getTime()
-    
-    // If it's very recent (within 1 minute), show "Just now"
-    if (Math.abs(diffMs) < 60000) {
-      return "Just now"
-    }
-    
-    // If it's within 24 hours (past or future), show relative time + actual time
-    if (Math.abs(diffMs) < 24 * 60 * 60 * 1000) {
-      const diffMins = Math.floor(Math.abs(diffMs) / (1000 * 60))
-      const diffHours = Math.floor(Math.abs(diffMs) / (1000 * 60 * 60))
-      
-      if (diffMins < 60) {
-        const timeText = diffMs > 0 ? `${diffMins} minute${diffMins === 1 ? '' : 's'} ago` : `in ${diffMins} minute${diffMins === 1 ? '' : 's'}`
-        return `${timeText} (${formattedDate})`
-      } else {
-        const timeText = diffMs > 0 ? `${diffHours} hour${diffHours === 1 ? '' : 's'} ago` : `in ${diffHours} hour${diffHours === 1 ? '' : 's'}`
-        return `${timeText} (${formattedDate})`
-      }
-    }
-    
-    // For older notifications, show the full date and time
+    // For admin panel, always show only the formatted date and time (no relative time)
     return formattedDate
     
   } catch (error) {

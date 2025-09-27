@@ -147,6 +147,19 @@ export async function POST(request: Request) {
       console.log("Failed to update notification status:", statusUpdateError instanceof Error ? statusUpdateError.message : "Unknown error")
     }
 
+    // Mark the original accepted request as sent to buyer
+    try {
+      await dbQuery(
+        `UPDATE accepted_requests 
+         SET sent_by_admin = true, updated_at = NOW() AT TIME ZONE 'Asia/Kolkata' 
+         WHERE id = $1`,
+        [orderSubmissionId]
+      )
+      console.log("Updated accepted request as sent to buyer")
+    } catch (statusUpdateError) {
+      console.log("Failed to update accepted request status:", statusUpdateError instanceof Error ? statusUpdateError.message : "Unknown error")
+    }
+
     // Create notification for the buyer
     try {
       await dbQuery(

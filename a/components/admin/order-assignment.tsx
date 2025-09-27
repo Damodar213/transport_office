@@ -924,7 +924,13 @@ export function OrderAssignment() {
                         id="manual-fromPlace"
                         type="text"
                         value={manualOrder.fromPlace}
-                        onChange={(e) => setManualOrder((prev) => ({ ...prev, fromPlace: e.target.value }))}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          if (value.length > 0) {
+                            e.target.value = value.charAt(0).toUpperCase() + value.slice(1)
+                          }
+                          setManualOrder((prev) => ({ ...prev, fromPlace: e.target.value }))
+                        }}
                         placeholder="Enter place"
                       />
                     </div>
@@ -934,7 +940,13 @@ export function OrderAssignment() {
                         id="manual-fromTaluk"
                         type="text"
                         value={manualOrder.fromTaluk}
-                        onChange={(e) => setManualOrder((prev) => ({ ...prev, fromTaluk: e.target.value }))}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          if (value.length > 0) {
+                            e.target.value = value.charAt(0).toUpperCase() + value.slice(1)
+                          }
+                          setManualOrder((prev) => ({ ...prev, fromTaluk: e.target.value }))
+                        }}
                         placeholder="Enter taluk"
                       />
                     </div>
@@ -995,7 +1007,13 @@ export function OrderAssignment() {
                         id="manual-toPlace"
                         type="text"
                         value={manualOrder.toPlace}
-                        onChange={(e) => setManualOrder((prev) => ({ ...prev, toPlace: e.target.value }))}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          if (value.length > 0) {
+                            e.target.value = value.charAt(0).toUpperCase() + value.slice(1)
+                          }
+                          setManualOrder((prev) => ({ ...prev, toPlace: e.target.value }))
+                        }}
                         placeholder="Enter place"
                       />
                     </div>
@@ -1005,7 +1023,13 @@ export function OrderAssignment() {
                         id="manual-toTaluk"
                         type="text"
                         value={manualOrder.toTaluk}
-                        onChange={(e) => setManualOrder((prev) => ({ ...prev, toTaluk: e.target.value }))}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          if (value.length > 0) {
+                            e.target.value = value.charAt(0).toUpperCase() + value.slice(1)
+                          }
+                          setManualOrder((prev) => ({ ...prev, toTaluk: e.target.value }))
+                        }}
                         placeholder="Enter taluk"
                       />
                     </div>
@@ -1022,7 +1046,13 @@ export function OrderAssignment() {
                     id="manual-delivery"
                         type="text"
                     value={manualOrder.deliveryPlace}
-                    onChange={(e) => setManualOrder((prev) => ({ ...prev, deliveryPlace: e.target.value }))}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      if (value.length > 0) {
+                        e.target.value = value.charAt(0).toUpperCase() + value.slice(1)
+                      }
+                      setManualOrder((prev) => ({ ...prev, deliveryPlace: e.target.value }))
+                    }}
                         placeholder="Enter delivery place"
                   />
                 </div>
@@ -1041,7 +1071,13 @@ export function OrderAssignment() {
                     <Textarea
                       id="manual-specialInstructions"
                       value={manualOrder.specialInstructions}
-                      onChange={(e) => setManualOrder((prev) => ({ ...prev, specialInstructions: e.target.value }))}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        if (value.length > 0) {
+                          e.target.value = value.charAt(0).toUpperCase() + value.slice(1)
+                        }
+                        setManualOrder((prev) => ({ ...prev, specialInstructions: e.target.value }))
+                      }}
                       placeholder="Any special handling requirements or instructions"
                       rows={3}
                     />

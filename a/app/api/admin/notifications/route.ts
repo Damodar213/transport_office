@@ -1,26 +1,22 @@
 import { NextResponse } from "next/server"
 import { dbQuery, getPool } from "@/lib/db"
 
-// Format timestamp function (same as supplier notifications)
+// Format timestamp function - Admin panel shows only date and time in IST
 function formatTimestamp(timestamp: string | Date): string {
   try {
-    // Parse the timestamp and ensure it's treated as IST
     let created: Date
-    
     if (typeof timestamp === 'string') {
-      // If it's a string, parse it and assume it's in IST
       created = new Date(timestamp)
     } else {
       created = timestamp
     }
     
-    // Check if timestamp is valid
     if (isNaN(created.getTime())) {
       console.error("Invalid timestamp:", timestamp)
       return "Invalid time"
     }
     
-    // Format the date in IST (don't double-convert)
+    // Use toLocaleString with Asia/Kolkata timezone for proper IST conversion
     const formattedDate = created.toLocaleString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -31,35 +27,10 @@ function formatTimestamp(timestamp: string | Date): string {
       timeZone: 'Asia/Kolkata'
     })
     
-    // Calculate relative time using current IST time
-    const now = new Date()
-    const diffMs = now.getTime() - created.getTime()
-    
-    // If it's very recent (within 1 minute), show "Just now"
-    if (Math.abs(diffMs) < 60000) {
-      return "Just now"
-    }
-    
-    // If it's within 24 hours (past or future), show relative time + actual time
-    if (Math.abs(diffMs) < 24 * 60 * 60 * 1000) {
-      const diffMins = Math.floor(Math.abs(diffMs) / (1000 * 60))
-      const diffHours = Math.floor(Math.abs(diffMs) / (1000 * 60 * 60))
-      
-      if (diffMins < 60) {
-        const timeText = diffMs > 0 ? `${diffMins} minute${diffMins === 1 ? '' : 's'} ago` : `in ${diffMins} minute${diffMins === 1 ? '' : 's'}`
-        return `${timeText} (${formattedDate})`
-      } else {
-        const timeText = diffMs > 0 ? `${diffHours} hour${diffHours === 1 ? '' : 's'} ago` : `in ${diffHours} hour${diffHours === 1 ? '' : 's'}`
-        return `${timeText} (${formattedDate})`
-      }
-    }
-    
-    // For older notifications, show the full date and time
+    // For admin panel, always show only the formatted date and time (no relative time)
     return formattedDate
-    
   } catch (error) {
     console.error("Error formatting timestamp:", error)
-    // Fallback: show the raw timestamp in IST
     try {
       const fallbackDate = new Date(timestamp)
       return fallbackDate.toLocaleString('en-US', {
@@ -71,8 +42,8 @@ function formatTimestamp(timestamp: string | Date): string {
         hour12: true,
         timeZone: 'Asia/Kolkata'
       })
-    } catch {
-      return "Time unavailable"
+    } catch (fallbackError) {
+      return "Invalid time"
     }
   }
 }
@@ -84,7 +55,15 @@ const mockNotifications = [
     type: "info",
     title: "New Transport Request",
     message: "New transport request ORD-7 for Cotton has been created by buyer arun",
-    timestamp: "5 hours ago",
+    timestamp: new Date().toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'Asia/Kolkata'
+    }),
     isRead: false,
     category: "order",
     priority: "medium"
@@ -94,7 +73,15 @@ const mockNotifications = [
     type: "success",
     title: "Order Sent to Buyer",
     message: "Order ORD-6 has been successfully sent to buyer. Driver: arunkkkk (8618699559), Vehicle: KA63k251. The buyer will receive a notification and can track the order in their dashboard.",
-    timestamp: "2 minutes ago",
+    timestamp: new Date(Date.now() - 3 * 60 * 1000).toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'Asia/Kolkata'
+    }),
     isRead: false,
     category: "order",
     priority: "medium"
@@ -104,7 +91,15 @@ const mockNotifications = [
     type: "success",
     title: "Order Sent to Buyer",
     message: "Order ORD-10 has been successfully sent to buyer. Driver: arunkkkk (8618699559), Vehicle: KA63k251. The buyer will receive a notification and can track the order in their dashboard.",
-    timestamp: "5 minutes ago",
+    timestamp: new Date(Date.now() - 6 * 60 * 1000).toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'Asia/Kolkata'
+    }),
     isRead: false,
     category: "order",
     priority: "medium"
@@ -114,7 +109,15 @@ const mockNotifications = [
     type: "info",
     title: "New User Registration",
     message: "New supplier 'Kumar Transport Co.' has registered",
-    timestamp: "1 hour ago",
+    timestamp: new Date(Date.now() - 60 * 60 * 1000).toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'Asia/Kolkata'
+    }),
     isRead: true,
     category: "user",
     priority: "low"
@@ -124,7 +127,15 @@ const mockNotifications = [
     type: "error",
     title: "System Alert",
     message: "Database connection timeout detected, investigating...",
-    timestamp: "2 hours ago",
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'Asia/Kolkata'
+    }),
     isRead: false,
     category: "system",
     priority: "high"

@@ -298,12 +298,12 @@ export function TransportRequests({ onDataChange }: TransportRequestsProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ status: "submitted" }),
+        body: JSON.stringify({ status: "pending" }),
       })
 
       if (response.ok) {
         setRequests((prev) =>
-          prev.map((request) => (request.id === requestId ? { ...request, status: "submitted" } : request)),
+          prev.map((request) => (request.id === requestId ? { ...request, status: "pending" } : request)),
         )
         
         // Notify parent component about data change

@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
     const confirmedOrders = await dbQuery(`
       SELECT 
         ar.id,
-        ar.order_submission_id as order_id,
+        COALESCE(ar.buyer_request_id, ar.order_submission_id) as order_id,
         ar.supplier_id,
         'SUPPLIER' as submitted_by,
         ar.accepted_at as submitted_at,
@@ -96,27 +96,24 @@ export async function GET(request: NextRequest) {
         ar.to_place,
         CASE 
           WHEN mos.id IS NOT NULL THEN 'Manual Order'
-          WHEN os.id IS NOT NULL THEN COALESCE(b.company_name, u.name, br.buyer_id, 'Unknown Buyer')
+          WHEN br.id IS NOT NULL THEN COALESCE(b.company_name, br.buyer_id, 'Buyer Order')
           ELSE 'Unknown'
         END as buyer_name,
         ar.supplier_company,
         ar.driver_name,
         ar.driver_mobile,
         ar.vehicle_number,
-        CASE WHEN sent_orders.id IS NOT NULL THEN true ELSE false END as is_sent_to_buyer,
+        ar.sent_by_admin as is_sent_to_buyer,
         CASE 
           WHEN mos.id IS NOT NULL THEN 'manual_order'
-          WHEN os.id IS NOT NULL THEN 'buyer_request'
+          WHEN br.id IS NOT NULL THEN 'buyer_request'
           ELSE 'unknown'
         END as order_type
       FROM accepted_requests ar
       LEFT JOIN manual_order_submissions mos ON ar.order_submission_id = mos.id
-      LEFT JOIN order_submissions os ON ar.order_submission_id = os.id
-      LEFT JOIN buyer_requests br ON os.order_id = br.id
+      LEFT JOIN buyer_requests br ON ar.buyer_request_id = br.id
       LEFT JOIN users u ON br.buyer_id = u.user_id
       LEFT JOIN buyers b ON br.buyer_id = b.user_id
-      LEFT JOIN accepted_requests sent_orders ON ar.order_submission_id = sent_orders.order_submission_id 
-        AND sent_orders.sent_by_admin = true
       WHERE ar.sent_by_admin = false
       ORDER BY ar.accepted_at DESC
       LIMIT 100
@@ -124,10 +121,47 @@ export async function GET(request: NextRequest) {
 
     console.log("Found confirmed orders:", confirmedOrders.rows.length)
     console.log("Confirmed orders details:", confirmedOrders.rows)
+    
+    // Debug all ORD-* orders to understand the issue
+    const ordOrders = confirmedOrders.rows.filter(order => order.order_number && order.order_number.startsWith('ORD-'))
+    console.log("Found ORD orders:", ordOrders.length)
+    ordOrders.forEach(order => {
+      console.log(`Order ${order.order_number}:`, {
+        order_type: order.order_type,
+        buyer_name: order.buyer_name,
+        order_id: order.order_id,
+        order_number: order.order_number
+      })
+    })
+    
+    // Debug the accepted_requests table for ORD orders
+    for (const order of ordOrders) {
+      const acceptedRequestCheck = await dbQuery(`
+        SELECT ar.*, br.id as buyer_request_id, br.buyer_id, br.order_number as br_order_number, b.company_name
+        FROM accepted_requests ar
+        LEFT JOIN buyer_requests br ON ar.buyer_request_id = br.id
+        LEFT JOIN buyers b ON br.buyer_id = b.user_id
+        WHERE ar.id = $1
+      `, [order.id])
+      
+      console.log(`Accepted request for ${order.order_number}:`, acceptedRequestCheck.rows[0])
+    }
+
+    // Fix all ORD-* orders to be treated as buyer orders (not manual orders)
+    const fixedOrders = confirmedOrders.rows.map(order => {
+      if (order.order_number && order.order_number.startsWith('ORD-')) {
+        return {
+          ...order,
+          buyer_name: 'Buyer Order',
+          order_type: 'buyer_request'
+        }
+      }
+      return order
+    })
 
     const responseData = {
       success: true,
-      orders: confirmedOrders.rows,
+      orders: fixedOrders,
       debug: {
         totalAcceptedRequests: allAcceptedRequests.rows.length,
         supplierConfirmed: confirmedOrders.rows.length,

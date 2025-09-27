@@ -273,7 +273,7 @@ export function BuyersOrders() {
       // Wait for all submissions and notifications to be created
       await Promise.all([...submissionPromises, ...notificationPromises])
 
-      // Update order status to "submitted"
+      // Update order status to "submitted" after sending to suppliers
       try {
         const updateResponse = await fetch(`/api/buyer-requests/${selectedOrder.id}/status`, {
           method: "PUT",

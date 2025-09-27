@@ -115,12 +115,12 @@ export default function SupplierDashboard() {
       const trucksData = await trucksResponse.json()
       const totalVehicles = trucksData.trucks?.length || 0
 
-      // Fetch pending orders count (from suppliers_vehicle_location table)
+      // Fetch pending orders count (from suppliers_vehicle_location table - vehicle location requests)
       const ordersResponse = await fetch(`/api/supplier-orders?supplierId=${supplierId}`, {
         credentials: 'include'
       })
       const ordersData = await ordersResponse.json()
-      const pendingOrders = ordersData.orders?.length || 0 // Now only returns pending orders
+      const pendingOrders = ordersData.orders?.filter((order: any) => order.status === "pending")?.length || 0
 
       // Fetch confirmed orders count
       const confirmedResponse = await fetch(`/api/supplier-confirmed-orders?supplierId=${supplierId}`, {
@@ -134,10 +134,14 @@ export default function SupplierDashboard() {
         credentials: 'include'
       })
       const newOrdersData = newOrdersResponse.ok ? await newOrdersResponse.json() : { orders: [] }
-      // Only count orders that are still pending (not confirmed yet)
-      const newOrders = newOrdersData.orders?.filter((order: any) => 
-        order.status === "submitted" || order.status === "pending" || order.status === "assigned"
-      ).length || 0
+      console.log("New orders data:", newOrdersData)
+      console.log("All orders:", newOrdersData.orders)
+      // Only count orders that are still new/pending (not confirmed yet)
+      const newOrders = newOrdersData.orders?.filter((order: any) => {
+        console.log("Order status:", order.status, "Order:", order)
+        return order.status === "new" || order.status === "pending" || order.status === "assigned"
+      }).length || 0
+      console.log("New orders count:", newOrders)
 
       setStats({
         totalDrivers,

@@ -666,6 +666,16 @@ export function SuppliersConfirmed() {
                         Send to Buyer
                       </Button>
                     )}
+                    {order.order_type === 'buyer_request' && order.is_sent_to_buyer && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Sent to Buyer
+                      </Button>
+                    )}
                     {order.order_type === 'manual_order' && order.status !== 'completed' && (
                       <>
                         <Button

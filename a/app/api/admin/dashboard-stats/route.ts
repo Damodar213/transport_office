@@ -193,10 +193,15 @@ export async function GET() {
     
     // Add user registrations
     recentUsersResult.rows.forEach(user => {
-      const timeDiff = Math.floor((new Date().getTime() - new Date(user.created_at).getTime()) / (1000 * 60))
-      const timeText = timeDiff < 60 ? `${timeDiff} minutes ago` : 
-                      timeDiff < 1440 ? `${Math.floor(timeDiff / 60)} hours ago` : 
-                      `${Math.floor(timeDiff / 1440)} days ago`
+      const timeText = new Date(user.created_at).toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+        timeZone: 'Asia/Kolkata'
+      })
       
       activities.push({
         id: `user-${user.id}`,
@@ -209,10 +214,15 @@ export async function GET() {
 
     // Add order updates
     recentOrdersResult.rows.forEach(order => {
-      const timeDiff = Math.floor((new Date().getTime() - new Date(order.created_at).getTime()) / (1000 * 60))
-      const timeText = timeDiff < 60 ? `${timeDiff} minutes ago` : 
-                      timeDiff < 1440 ? `${Math.floor(timeDiff / 60)} hours ago` : 
-                      `${Math.floor(timeDiff / 1440)} days ago`
+      const timeText = new Date(order.created_at).toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+        timeZone: 'Asia/Kolkata'
+      })
       
       let status = "info"
       if (order.status === "confirmed") status = "success"
@@ -228,15 +238,11 @@ export async function GET() {
       })
     })
 
-    // Sort activities by time in descending order
+    // Sort activities by time in descending order (newest first)
     activities.sort((a, b) => {
-      const timeA = a.timestamp.includes("minutes") ? parseInt(a.timestamp) : 
-                   a.timestamp.includes("hours") ? parseInt(a.timestamp) * 60 : 
-                   parseInt(a.timestamp) * 1440
-      const timeB = b.timestamp.includes("minutes") ? parseInt(b.timestamp) : 
-                   b.timestamp.includes("hours") ? parseInt(b.timestamp) * 60 : 
-                   parseInt(b.timestamp) * 1440
-      return timeA - timeB
+      const timeA = new Date(a.timestamp).getTime()
+      const timeB = new Date(b.timestamp).getTime()
+      return timeB - timeA
     })
 
     const recentActivities = activities.slice(0, 4)
