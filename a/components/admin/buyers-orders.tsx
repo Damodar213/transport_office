@@ -818,8 +818,8 @@ export function BuyersOrders() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredOrders.map((order) => (
-                    <TableRow key={order.id}>
+                  {filteredOrders.map((order, index) => (
+                    <TableRow key={`${order.id}-${order.order_number}-${index}`}>
                       <TableCell className="font-medium">{order.order_number}</TableCell>
                       <TableCell>
                         <div>

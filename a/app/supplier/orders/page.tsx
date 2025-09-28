@@ -10,13 +10,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useToast } from "@/hooks/use-toast"
-import { Search, Filter, Eye, RefreshCw, Calendar, MapPin, Package, Truck, FileText, CheckCircle, XCircle, Clock, Download, Table as TableIcon } from "lucide-react"
+import { Search, Filter, Eye, RefreshCw, Calendar, MapPin, Package, Truck, FileText, CheckCircle, XCircle, Clock, Download, Table as TableIcon, Trash2 } from "lucide-react"
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog"
 
 interface SupplierOrder {
@@ -64,6 +65,9 @@ export default function SupplierOrdersPage() {
   const [statusFilter, setStatusFilter] = useState("all")
   const [selectedOrder, setSelectedOrder] = useState<SupplierOrder | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [deleteOrder, setDeleteOrder] = useState<SupplierOrder | null>(null)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // Fetch orders from API
   const fetchOrders = async () => {
@@ -115,7 +119,7 @@ export default function SupplierOrdersPage() {
 
     // Status filter
     if (statusFilter !== "all") {
-      filtered = filtered.filter((order) => order.status === statusFilter)
+      filtered = filtered.filter((order) => (order as any).effective_status === statusFilter)
     }
 
     setFilteredOrders(filtered)
@@ -130,6 +134,8 @@ export default function SupplierOrdersPage() {
       rejected: { color: "bg-red-100 text-red-800", label: "Rejected", icon: XCircle },
       submitted: { color: "bg-blue-100 text-blue-800", label: "Submitted", icon: Clock },
       ignored: { color: "bg-red-100 text-red-800", label: "Ignored", icon: XCircle },
+      accepted: { color: "bg-green-100 text-green-800", label: "Accepted by You", icon: CheckCircle },
+      accepted_by_other: { color: "bg-orange-100 text-orange-800", label: "Accepted by Other", icon: XCircle },
     }
 
     const config = statusConfig[status] || { color: "bg-gray-100 text-gray-800", label: status, icon: Clock }
@@ -145,6 +151,65 @@ export default function SupplierOrdersPage() {
   const handleViewOrder = (order: SupplierOrder) => {
     setSelectedOrder(order)
     setIsDialogOpen(true)
+  }
+
+  const handleDeleteOrder = (order: SupplierOrder) => {
+    setDeleteOrder(order)
+    setIsDeleteDialogOpen(true)
+  }
+
+  const confirmDeleteOrder = async () => {
+    if (!deleteOrder) return
+
+    try {
+      setIsDeleting(true)
+      
+      console.log("Attempting to delete order:", {
+        id: deleteOrder.id,
+        order_id: deleteOrder.order_id,
+        order_number: deleteOrder.order_number,
+        status: deleteOrder.status,
+        effective_status: (deleteOrder as any).effective_status
+      })
+      
+      const response = await fetch("/api/supplier/delete-order", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          orderId: deleteOrder.id
+        })
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        toast({
+          title: "Order Deleted",
+          description: `Order ${deleteOrder.order_number} has been deleted successfully.`,
+        })
+        
+        // Remove the deleted order from the local state
+        setOrders(prevOrders => prevOrders.filter(order => order.id !== deleteOrder.id))
+        setFilteredOrders(prevOrders => prevOrders.filter(order => order.id !== deleteOrder.id))
+        
+        // Close the delete dialog
+        setIsDeleteDialogOpen(false)
+        setDeleteOrder(null)
+      } else {
+        throw new Error(result.error || "Failed to delete order")
+      }
+    } catch (error) {
+      console.error("Error deleting order:", error)
+      toast({
+        title: "Delete Failed",
+        description: error instanceof Error ? error.message : "Failed to delete order. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsDeleting(false)
+    }
   }
 
   const handleRefresh = () => {
@@ -425,6 +490,8 @@ export default function SupplierOrdersPage() {
                   <SelectItem value="viewed">Viewed</SelectItem>
                   <SelectItem value="responded">Responded</SelectItem>
                   <SelectItem value="ignored">Ignored</SelectItem>
+                  <SelectItem value="accepted">Accepted by You</SelectItem>
+                  <SelectItem value="accepted_by_other">Accepted by Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -473,8 +540,8 @@ export default function SupplierOrdersPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredOrders.map((order) => (
-                    <TableRow key={order.id}>
+                  {filteredOrders.map((order, index) => (
+                    <TableRow key={`${order.id}-${order.order_id}-${index}`}>
                       <TableCell className="font-medium">{order.order_number}</TableCell>
                       <TableCell>
                         <div>
@@ -497,7 +564,7 @@ export default function SupplierOrdersPage() {
                           <div className="text-sm text-muted-foreground">→ {order.to_place}</div>
                         </div>
                       </TableCell>
-                      <TableCell>{getStatusBadge(order.status)}</TableCell>
+                      <TableCell>{getStatusBadge((order as any).effective_status || order.status)}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Button
@@ -508,6 +575,18 @@ export default function SupplierOrdersPage() {
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
+                          {/* Only show delete button if order is not accepted */}
+                          {((order as any).effective_status !== 'accepted') && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteOrder(order)}
+                              title="Delete Order"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -612,6 +691,67 @@ export default function SupplierOrdersPage() {
 
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Order</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this order? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          {deleteOrder && (
+            <div className="space-y-4">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-medium text-sm text-gray-900 mb-2">Order Details:</h4>
+                <div className="space-y-1 text-sm text-gray-600">
+                  <div><span className="font-medium">Order Number:</span> {deleteOrder.order_number}</div>
+                  <div><span className="font-medium">Load Type:</span> {deleteOrder.load_type}</div>
+                  <div><span className="font-medium">From:</span> {deleteOrder.from_place}</div>
+                  <div><span className="font-medium">To:</span> {deleteOrder.to_place}</div>
+                  <div><span className="font-medium">Status:</span> {(deleteOrder as any).effective_status || deleteOrder.status}</div>
+                </div>
+              </div>
+              <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-lg">
+                <p className="text-sm text-yellow-800">
+                  <strong>Warning:</strong> This will permanently remove the order from your list. 
+                  This action cannot be undone.
+                </p>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsDeleteDialogOpen(false)
+                setDeleteOrder(null)
+              }}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDeleteOrder}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Order
+                </>
+              )}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

@@ -95,6 +95,8 @@ export function RecentOrders() {
   const [selectedVehicle, setSelectedVehicle] = useState<string>("")
   const [driverMobile, setDriverMobile] = useState<string>("")
   const [isAccepting, setIsAccepting] = useState(false)
+  const [isLoadingDrivers, setIsLoadingDrivers] = useState(false)
+  const [isLoadingVehicles, setIsLoadingVehicles] = useState(false)
 
   // Fetch recent orders (limit to 5 most recent)
   const fetchRecentOrders = async () => {
@@ -132,7 +134,7 @@ export function RecentOrders() {
         // Use effective_status if available, otherwise fall back to status
         const pendingOrders = result.orders.filter((order: RecentOrder) => {
           const effectiveStatus = order.effective_status || order.status
-          return effectiveStatus !== "accepted" && (
+          return effectiveStatus !== "accepted" && effectiveStatus !== "accepted_by_other" && (
             effectiveStatus === "new" || effectiveStatus === "submitted" || effectiveStatus === "viewed" || effectiveStatus === "responded" || 
             effectiveStatus === "assigned" || effectiveStatus === "pending"
           )
@@ -188,6 +190,61 @@ export function RecentOrders() {
     }
   }
 
+  // Fetch fresh drivers and vehicles for dialog
+  const fetchDriversAndVehiclesForDialog = async () => {
+    try {
+      setIsLoadingDrivers(true)
+      setIsLoadingVehicles(true)
+      
+      // Get current supplier ID
+      const userResponse = await fetch("/api/auth/me", {
+        credentials: 'include'
+      })
+      
+      if (!userResponse.ok) {
+        console.error("Failed to get current user")
+        return
+      }
+      
+      const userData = await userResponse.json()
+      const supplierId = userData.user.id
+      
+      // Fetch both drivers and vehicles in parallel
+      const [driversResponse, vehiclesResponse] = await Promise.allSettled([
+        fetch(`/api/supplier-drivers?supplierId=${supplierId}`, {
+          credentials: 'include'
+        }),
+        fetch(`/api/supplier-trucks?supplierId=${supplierId}`, {
+          credentials: 'include'
+        })
+      ])
+      
+      // Handle drivers response
+      if (driversResponse.status === 'fulfilled' && driversResponse.value.ok) {
+        const driversData = await driversResponse.value.json()
+        setDrivers(driversData.drivers || [])
+        console.log("Fresh drivers loaded:", driversData.drivers?.length || 0)
+      } else {
+        console.error("Failed to fetch drivers")
+      }
+      
+      // Handle vehicles response
+      if (vehiclesResponse.status === 'fulfilled' && vehiclesResponse.value.ok) {
+        const vehiclesData = await vehiclesResponse.value.json()
+        setVehicles(vehiclesData.trucks || [])
+        console.log("Fresh vehicles loaded:", vehiclesData.trucks?.length || 0)
+      } else {
+        console.error("Failed to fetch vehicles")
+      }
+      
+    } catch (error) {
+      console.error("Error fetching fresh drivers and vehicles:", error)
+    } finally {
+      setIsLoadingDrivers(false)
+      setIsLoadingVehicles(false)
+    }
+  }
+
   // Handle driver selection - auto-populate mobile number
   const handleDriverChange = (driverId: string) => {
     setSelectedDriver(driverId)
@@ -201,7 +258,9 @@ export function RecentOrders() {
 
   // Handle order acceptance
   const handleAcceptOrder = async () => {
-    if (!acceptingOrder || !selectedDriver || !selectedVehicle) {
+    if (!acceptingOrder || !selectedDriver || !selectedVehicle || 
+        selectedDriver === "loading" || selectedDriver === "no-drivers" || 
+        selectedVehicle === "loading" || selectedVehicle === "no-vehicles") {
       toast({
         title: "Error",
         description: "Please select both driver and vehicle",
@@ -264,6 +323,8 @@ export function RecentOrders() {
     setSelectedDriver("")
     setSelectedVehicle("")
     setDriverMobile("")
+    // Fetch fresh data when dialog opens
+    fetchDriversAndVehiclesForDialog()
   }
 
   // Fetch orders on component mount
@@ -283,6 +344,7 @@ export function RecentOrders() {
       assigned: { color: "bg-purple-100 text-purple-800", label: "Assigned", icon: UserCheck },
       pending: { color: "bg-orange-100 text-orange-800", label: "Pending", icon: Clock },
       ignored: { color: "bg-red-100 text-red-800", label: "Ignored", icon: XCircle },
+      accepted_by_other: { color: "bg-orange-100 text-orange-800", label: "Accepted by Other", icon: XCircle },
     }
 
     const config = statusConfig[status] || { color: "bg-gray-100 text-gray-800", label: status, icon: Clock }
@@ -373,8 +435,8 @@ export function RecentOrders() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {orders.map((order) => (
-            <Card key={order.id} className="hover:shadow-md transition-shadow">
+          {orders.map((order, index) => (
+            <Card key={`${order.id}-${order.order_id}-${index}`} className="hover:shadow-md transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -420,15 +482,37 @@ export function RecentOrders() {
                       <Eye className="h-4 w-4 mr-2" />
                       View Details
                     </Button>
-                    <Button
-                      variant="default"
-                      size="sm"
-                      onClick={() => openAcceptDialog(order)}
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      <UserCheck className="h-4 w-4 mr-2" />
-                      Accept Order
-                    </Button>
+                    {order.effective_status === 'accepted' ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled
+                        className="bg-green-100 text-green-800"
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Accepted by You
+                      </Button>
+                    ) : order.effective_status === 'accepted_by_other' ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled
+                        className="bg-orange-100 text-orange-800"
+                      >
+                        <XCircle className="h-4 w-4 mr-2" />
+                        Accepted by Other
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={() => openAcceptDialog(order)}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        <UserCheck className="h-4 w-4 mr-2" />
+                        Accept Order
+                      </Button>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -543,16 +627,26 @@ export function RecentOrders() {
             {/* Driver Selection */}
             <div className="space-y-2">
               <Label htmlFor="driver">Select Driver</Label>
-              <Select value={selectedDriver} onValueChange={handleDriverChange}>
+              <Select value={selectedDriver} onValueChange={handleDriverChange} disabled={isLoadingDrivers}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Choose a driver" />
+                  <SelectValue placeholder={isLoadingDrivers ? "Loading drivers..." : "Choose a driver"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {drivers.filter(driver => driver.is_active).map((driver) => (
-                    <SelectItem key={driver.id} value={driver.id.toString()}>
-                      {driver.driver_name}
+                  {isLoadingDrivers ? (
+                    <SelectItem value="loading" disabled>
+                      Loading drivers...
                     </SelectItem>
-                  ))}
+                  ) : drivers.filter(driver => driver.is_active).length === 0 ? (
+                    <SelectItem value="no-drivers" disabled>
+                      No active drivers found
+                    </SelectItem>
+                  ) : (
+                    drivers.filter(driver => driver.is_active).map((driver) => (
+                      <SelectItem key={driver.id} value={driver.id.toString()}>
+                        {driver.driver_name}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -571,18 +665,41 @@ export function RecentOrders() {
             {/* Vehicle Selection */}
             <div className="space-y-2">
               <Label htmlFor="vehicle">Select Vehicle</Label>
-              <Select value={selectedVehicle} onValueChange={setSelectedVehicle}>
+              <Select value={selectedVehicle} onValueChange={setSelectedVehicle} disabled={isLoadingVehicles}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Choose a vehicle" />
+                  <SelectValue placeholder={isLoadingVehicles ? "Loading vehicles..." : "Choose a vehicle"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {vehicles.filter(vehicle => vehicle.is_active).map((vehicle) => (
-                    <SelectItem key={vehicle.id} value={vehicle.id.toString()}>
-                      {vehicle.vehicle_number} ({vehicle.body_type})
+                  {isLoadingVehicles ? (
+                    <SelectItem value="loading" disabled>
+                      Loading vehicles...
                     </SelectItem>
-                  ))}
+                  ) : vehicles.filter(vehicle => vehicle.is_active).length === 0 ? (
+                    <SelectItem value="no-vehicles" disabled>
+                      No active vehicles found
+                    </SelectItem>
+                  ) : (
+                    vehicles.filter(vehicle => vehicle.is_active).map((vehicle) => (
+                      <SelectItem key={vehicle.id} value={vehicle.id.toString()}>
+                        {vehicle.vehicle_number} ({vehicle.body_type})
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Refresh Data Button */}
+            <div className="flex justify-center pt-2">
+              <Button
+                variant="outline"
+                onClick={() => fetchDriversAndVehiclesForDialog()}
+                disabled={isLoadingDrivers || isLoadingVehicles}
+                size="sm"
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${(isLoadingDrivers || isLoadingVehicles) ? 'animate-spin' : ''}`} />
+                Refresh Data
+              </Button>
             </div>
 
             {/* Action Buttons */}
@@ -596,7 +713,7 @@ export function RecentOrders() {
               </Button>
               <Button
                 onClick={handleAcceptOrder}
-                disabled={isAccepting || !selectedDriver || !selectedVehicle}
+                disabled={isAccepting || !selectedDriver || !selectedVehicle || isLoadingDrivers || isLoadingVehicles || selectedDriver === "loading" || selectedDriver === "no-drivers" || selectedVehicle === "loading" || selectedVehicle === "no-vehicles"}
                 className="bg-green-600 hover:bg-green-700"
               >
                 {isAccepting ? "Accepting..." : "Accept Order"}

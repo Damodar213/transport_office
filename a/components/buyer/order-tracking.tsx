@@ -397,8 +397,8 @@ export function OrderTracking({ onDataChange }: OrderTrackingProps) {
 
       {/* Orders Grid */}
       <div className="grid gap-6">
-        {filteredOrders.map((order) => (
-          <Card key={order.id}>
+        {filteredOrders.map((order, index) => (
+          <Card key={`${order.id}-${order.order_number}-${index}`}>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>

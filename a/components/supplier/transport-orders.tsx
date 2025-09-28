@@ -525,15 +525,20 @@ export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) 
 
               <div className="space-y-2">
                 <Label htmlFor="recommendedLocation">Recommended Location (Optional)</Label>
-                <Input
-                  id="recommendedLocation"
-                  name="recommendedLocation"
-                  type="text"
-                  defaultValue={editingOrder?.recommended_location || ""}
-                  placeholder="Enter recommended location details or leave empty"
-                />
+                <Select name="recommendedLocation" defaultValue={editingOrder?.recommended_location || ""}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select recommended location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {states.map((state) => (
+                      <SelectItem key={state} value={state}>
+                        {state}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <p className="text-xs text-muted-foreground">
-                  Specify any recommended location details or special notes for this vehicle location
+                  Select a state as the recommended location for this vehicle
                 </p>
               </div>
 
@@ -580,8 +585,8 @@ export function TransportOrders({ onDataChange }: SupplierVehicleLocationProps) 
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {orders.map((order) => (
-                  <TableRow key={order.id}>
+                {orders.map((order, index) => (
+                  <TableRow key={`${order.id}-${order.vehicle_number}-${index}`}>
                     <TableCell>
                       <div className="font-medium">
                         {capitalizePlace(order.place)}, {capitalizePlace(order.district)}

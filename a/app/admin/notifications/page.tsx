@@ -364,26 +364,39 @@ export default function NotificationsPage() {
 
   const clearAll = async () => {
     try {
-      // Delete all notifications based on their category
-      const promises = notifications.map(n => {
-        let apiEndpoint
-        if (n.category === 'supplier_order') {
-          apiEndpoint = `/api/admin/supplier-vehicle-location-notifications/${n.id}`
-        } else if (n.category === 'order') {
-          apiEndpoint = `/api/admin/transport-request-notifications/${n.id}`
-        } else {
-          // Skip other categories
-          return null
-        }
-        return fetch(apiEndpoint, { method: "DELETE" })
+      console.log("Clearing all notifications...")
+      
+      // Clear all notification types using their respective clear-all endpoints
+      const promises = [
+        // Clear main notifications
+        fetch("/api/admin/notifications/clear-all", { method: "DELETE" }),
+        // Clear transport request notifications
+        fetch("/api/admin/transport-request-notifications/clear-all", { method: "DELETE" }),
+        // Clear supplier vehicle location notifications
+        fetch("/api/admin/supplier-vehicle-location-notifications/clear-all", { method: "DELETE" })
+      ]
+      
+      console.log(`Clearing all notification types...`)
+      const results = await Promise.all(promises)
+      
+      // Log the results
+      results.forEach(async (result, index) => {
+        const data = await result.json()
+        console.log(`Clear result ${index + 1}:`, data)
       })
       
-      await Promise.all(promises.filter(p => p !== null))
+      // Clear the local state
       setNotifications([])
+      console.log("All notifications cleared successfully")
+      
+      // Show success message
+      alert("All notifications have been cleared successfully!")
+      
     } catch (error) {
       console.error("Failed to clear all notifications:", error)
       // Clear locally if API fails
       setNotifications([])
+      alert("Notifications cleared locally (some API calls may have failed)")
     }
   }
 
@@ -488,38 +501,6 @@ export default function NotificationsPage() {
           </Button>
           <Button onClick={clearAll} variant="outline" size="sm">
             Clear All
-          </Button>
-          <Button 
-            onClick={() => {
-              console.log("DEBUG NOTIFICATIONS CLICKED")
-              fetch("/api/debug-notifications")
-                .then(r => r.json())
-                .then(d => {
-                  console.log("Debug notifications response:", JSON.stringify(d, null, 2))
-                })
-            }} 
-            variant="outline" 
-            size="sm"
-          >
-            DEBUG
-          </Button>
-          <Button 
-            onClick={() => {
-              console.log("TEST NOTIFICATION TIMESTAMP CLICKED")
-              fetch("/api/test-notification-timestamp", { method: "POST" })
-                .then(r => r.json())
-                .then(d => {
-                  console.log("Test notification timestamp response:", JSON.stringify(d, null, 2))
-                  // Refresh notifications after creating test notification
-                  setTimeout(() => {
-                    fetchNotifications(false)
-                  }, 1000)
-                })
-            }} 
-            variant="outline" 
-            size="sm"
-          >
-            TEST
           </Button>
         </div>
       </div>

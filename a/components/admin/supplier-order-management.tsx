@@ -350,8 +350,8 @@ export function SupplierOrderManagement() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredOrders.map((order) => (
-                  <TableRow key={order.id}>
+                {filteredOrders.map((order, index) => (
+                  <TableRow key={`${order.id}-${order.vehicle_number}-${index}`}>
                     <TableCell>
                       <div>
                         <div className="font-medium">{capitalizeWords(order.supplier_company)}</div>

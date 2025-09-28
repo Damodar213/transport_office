@@ -73,17 +73,24 @@ export async function GET(request: NextRequest) {
     console.log("All accepted requests in table:", allAcceptedRequests.rows.length)
     console.log("Sample accepted requests:", allAcceptedRequests.rows)
 
-    // Get accepted orders from accepted_requests table where sent_by_admin = false (all supplier confirmed orders)
+    // Get accepted orders from accepted_requests table (both supplier confirmed and admin sent orders)
+    // Use DISTINCT ON to ensure only one record per order_submission_id
     const confirmedOrders = await dbQuery(`
-      SELECT 
+      SELECT DISTINCT ON (ar.order_submission_id, ar.supplier_id)
         ar.id,
         COALESCE(ar.buyer_request_id, ar.order_submission_id) as order_id,
         ar.supplier_id,
-        'SUPPLIER' as submitted_by,
+        CASE 
+          WHEN ar.sent_by_admin = true THEN 'ADMIN'
+          ELSE 'SUPPLIER'
+        END as submitted_by,
         ar.accepted_at as submitted_at,
         false as notification_sent,
         false as whatsapp_sent,
-        ar.status,
+        CASE 
+          WHEN ar.sent_by_admin = true THEN 'sent_to_buyer'
+          ELSE ar.status
+        END as status,
         ar.driver_id,
         ar.vehicle_id,
         ar.order_number,
@@ -95,7 +102,7 @@ export async function GET(request: NextRequest) {
         ar.to_district,
         ar.to_place,
         CASE 
-          WHEN mos.id IS NOT NULL THEN 'Manual Order'
+          WHEN mos.id IS NOT NULL THEN COALESCE(mo.order_number, 'Manual Order')
           WHEN br.id IS NOT NULL THEN COALESCE(b.company_name, br.buyer_id, 'Buyer Order')
           ELSE 'Unknown'
         END as buyer_name,
@@ -111,16 +118,33 @@ export async function GET(request: NextRequest) {
         END as order_type
       FROM accepted_requests ar
       LEFT JOIN manual_order_submissions mos ON ar.order_submission_id = mos.id
+      LEFT JOIN manual_orders mo ON ar.buyer_request_id = mo.id
       LEFT JOIN buyer_requests br ON ar.buyer_request_id = br.id
       LEFT JOIN users u ON br.buyer_id = u.user_id
       LEFT JOIN buyers b ON br.buyer_id = b.user_id
-      WHERE ar.sent_by_admin = false
-      ORDER BY ar.accepted_at DESC
+      ORDER BY ar.order_submission_id, ar.supplier_id, ar.accepted_at DESC
       LIMIT 100
     `)
 
     console.log("Found confirmed orders:", confirmedOrders.rows.length)
     console.log("Confirmed orders details:", confirmedOrders.rows)
+    
+    // Clean up any existing duplicates (keep the latest one for each order_submission_id + supplier_id combination)
+    try {
+      const cleanupResult = await dbQuery(`
+        DELETE FROM accepted_requests 
+        WHERE id NOT IN (
+          SELECT DISTINCT ON (order_submission_id, supplier_id) id
+          FROM accepted_requests 
+          ORDER BY order_submission_id, supplier_id, accepted_at DESC
+        )
+      `)
+      if (cleanupResult.rowCount > 0) {
+        console.log(`Cleaned up ${cleanupResult.rowCount} duplicate accepted requests`)
+      }
+    } catch (cleanupError) {
+      console.log("Cleanup failed (non-critical):", cleanupError instanceof Error ? cleanupError.message : "Unknown error")
+    }
     
     // Debug all ORD-* orders to understand the issue
     const ordOrders = confirmedOrders.rows.filter(order => order.order_number && order.order_number.startsWith('ORD-'))

@@ -63,7 +63,15 @@ export async function GET(request: Request) {
         NULL as body_type,
         NULL as driver_name,
         NULL as admin_notes,
-        CASE WHEN ar.id IS NOT NULL THEN 'accepted' ELSE os.status END as effective_status
+        CASE 
+          WHEN ar.id IS NOT NULL AND ar.supplier_id = os.supplier_id THEN 'accepted'
+          WHEN EXISTS(
+            SELECT 1 FROM accepted_requests ar2 
+            JOIN order_submissions os2 ON ar2.order_submission_id = os2.id 
+            WHERE os2.order_id = os.order_id AND ar2.supplier_id != os.supplier_id
+          ) THEN 'accepted_by_other'
+          ELSE os.status 
+        END as effective_status
       FROM order_submissions os
       LEFT JOIN buyer_requests br ON os.order_id = br.id
       LEFT JOIN buyers b ON br.buyer_id = b.user_id
@@ -111,7 +119,15 @@ export async function GET(request: Request) {
         NULL as body_type,
         NULL as driver_name,
         NULL as admin_notes,
-        CASE WHEN ar.id IS NOT NULL THEN 'accepted' ELSE mos.status END as effective_status
+        CASE 
+          WHEN ar.id IS NOT NULL AND ar.supplier_id = mos.supplier_id THEN 'accepted'
+          WHEN EXISTS(
+            SELECT 1 FROM accepted_requests ar2 
+            JOIN manual_order_submissions mos2 ON ar2.order_submission_id = mos2.id 
+            WHERE mos2.order_id = mos.order_id AND ar2.supplier_id != mos.supplier_id
+          ) THEN 'accepted_by_other'
+          ELSE mos.status 
+        END as effective_status
       FROM manual_order_submissions mos
       LEFT JOIN manual_orders mo ON mos.order_id = mo.id
       LEFT JOIN accepted_requests ar ON mos.id = ar.order_submission_id AND ar.supplier_id = mos.supplier_id

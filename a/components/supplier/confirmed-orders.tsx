@@ -352,8 +352,8 @@ export function ConfirmedOrders({ onDataChange }: ConfirmedOrdersProps) {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredOrders.map((order) => (
-                  <TableRow key={order.id}>
+                filteredOrders.map((order, index) => (
+                  <TableRow key={`${order.id}-${order.transport_order_id}-${index}`}>
                     <TableCell className="font-medium">{order.transport_order_id}</TableCell>
                     <TableCell>{order.place}</TableCell>
                     <TableCell>

@@ -177,26 +177,9 @@ export async function POST(request: NextRequest) {
     console.log("Created manual order:", newOrder.id)
 
     // Create general notification for admin
-    console.log("Creating admin notification...")
+    // Notification creation disabled for manual orders
+    console.log("Manual order created - notification creation disabled")
     let notificationResult = null
-    try {
-      notificationResult = await dbQuery(`
-        INSERT INTO notifications (
-          type, title, message, category, priority, is_read
-        ) VALUES ($1, $2, $3, $4, $5, false)
-        RETURNING *
-      `, [
-        'new_order', 
-        'Manual Order Created', 
-        `Manual order created: ${orderNumber} - ${loadType} (${estimatedTons} tons) to ${deliveryPlace}`,
-        'order_management',
-        'medium'
-      ])
-      console.log("Created notification:", notificationResult.rows[0].id)
-    } catch (notificationError) {
-      console.error("Failed to create notification:", notificationError)
-      // Don't fail the main operation if notification creation fails
-    }
 
     // Create WhatsApp message
     const whatsappMessage = createWhatsAppMessage({

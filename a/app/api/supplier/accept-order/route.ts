@@ -67,6 +67,33 @@ export async function POST(request: NextRequest) {
 
     console.log("Order type:", orderType)
 
+    // Check if this order has already been accepted by this supplier
+    const existingAcceptedRequest = await dbQuery(
+      "SELECT id FROM accepted_requests WHERE order_submission_id = $1 AND supplier_id = $2",
+      [parsedOrderId, supplierId]
+    )
+    
+    if (existingAcceptedRequest.rows.length > 0) {
+      console.log("Order has already been accepted by this supplier")
+      return NextResponse.json({ 
+        error: "This order has already been accepted by you. Please refresh the page to see the updated status." 
+      }, { status: 409 })
+    }
+
+    // Check if this order has already been accepted by ANY other supplier
+    const otherAcceptedRequest = await dbQuery(
+      "SELECT id, supplier_id, supplier_company FROM accepted_requests WHERE order_submission_id = $1 AND supplier_id != $2",
+      [parsedOrderId, supplierId]
+    )
+    
+    if (otherAcceptedRequest.rows.length > 0) {
+      const acceptedBy = otherAcceptedRequest.rows[0]
+      console.log("Order has already been accepted by another supplier:", acceptedBy.supplier_company)
+      return NextResponse.json({ 
+        error: `This order has already been accepted by ${acceptedBy.supplier_company || 'another supplier'}. Only one supplier can accept each order.` 
+      }, { status: 409 })
+    }
+
     // Get driver and vehicle details
     console.log("Checking driver:", driverId, "for supplier:", supplierId, "Type:", typeof supplierId)
     const parsedDriverId = parseInt(driverId)

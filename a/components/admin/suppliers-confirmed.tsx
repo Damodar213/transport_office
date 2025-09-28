@@ -94,6 +94,8 @@ export function SuppliersConfirmed() {
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false)
   const [isSending, setIsSending] = useState(false)
   const [buyers, setBuyers] = useState<any[]>([])
+  const [isLoadingBuyers, setIsLoadingBuyers] = useState(false)
+  const [buyersError, setBuyersError] = useState("")
 
   // Fetch confirmed orders from all suppliers
   const fetchConfirmedOrders = async (forceRefresh = false) => {
@@ -150,13 +152,31 @@ export function SuppliersConfirmed() {
   // Fetch buyers for send to buyer functionality
   const fetchBuyers = async () => {
     try {
+      setIsLoadingBuyers(true)
+      setBuyersError("")
+      console.log("Fetching buyers...")
+      
       const response = await fetch("/api/admin/buyers")
+      console.log("Buyers API response status:", response.status)
+      
       if (response.ok) {
         const data = await response.json()
+        console.log("Buyers data received:", data)
         setBuyers(data.buyers || [])
+        
+        if (!data.buyers || data.buyers.length === 0) {
+          setBuyersError("No buyers found in the system")
+        }
+      } else {
+        const errorData = await response.json()
+        setBuyersError(errorData.error || "Failed to fetch buyers")
+        console.error("Failed to fetch buyers:", errorData)
       }
     } catch (error) {
       console.error("Failed to fetch buyers:", error)
+      setBuyersError("Network error while fetching buyers")
+    } finally {
+      setIsLoadingBuyers(false)
     }
   }
 
@@ -377,6 +397,7 @@ export function SuppliersConfirmed() {
       pending: "bg-yellow-100 text-yellow-800",
       completed: "bg-blue-100 text-blue-800",
       cancelled: "bg-red-100 text-red-800",
+      sent_to_buyer: "bg-purple-100 text-purple-800",
     }
     return (
       <Badge className={colors[status as keyof typeof colors] || "bg-gray-100 text-gray-800"}>
@@ -564,6 +585,7 @@ export function SuppliersConfirmed() {
               <SelectItem value="pending">Pending</SelectItem>
               <SelectItem value="completed">Completed</SelectItem>
               <SelectItem value="cancelled">Cancelled</SelectItem>
+              <SelectItem value="sent_to_buyer">Sent to Buyer</SelectItem>
             </SelectContent>
           </Select>
           <Button variant="outline" onClick={handleFilter}>
@@ -849,18 +871,48 @@ export function SuppliersConfirmed() {
               <h3 className="text-lg font-semibold mb-3">Select Buyer</h3>
               <div>
                 <label className="text-sm font-medium">Select Buyer</label>
-                <Select value={selectedBuyer} onValueChange={setSelectedBuyer}>
+                <Select value={selectedBuyer} onValueChange={setSelectedBuyer} disabled={isLoadingBuyers}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Choose a buyer..." />
+                    <SelectValue placeholder={
+                      isLoadingBuyers ? "Loading buyers..." : 
+                      buyersError ? "Error loading buyers" :
+                      buyers.length === 0 ? "No buyers available" :
+                      "Choose a buyer..."
+                    } />
                   </SelectTrigger>
                   <SelectContent>
-                    {buyers.map((buyer) => (
-                      <SelectItem key={buyer.user_id} value={buyer.user_id}>
-                        {buyer.name} ({buyer.company_name})
+                    {isLoadingBuyers ? (
+                      <SelectItem value="loading" disabled>
+                        <div className="flex items-center gap-2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
+                          Loading buyers...
+                        </div>
                       </SelectItem>
-                    ))}
+                    ) : buyersError ? (
+                      <SelectItem value="error" disabled>
+                        <div className="text-red-600">
+                          Error: {buyersError}
+                        </div>
+                      </SelectItem>
+                    ) : buyers.length === 0 ? (
+                      <SelectItem value="no-buyers" disabled>
+                        No buyers found
+                      </SelectItem>
+                    ) : (
+                      buyers.map((buyer) => (
+                        <SelectItem key={buyer.user_id} value={buyer.user_id}>
+                          {buyer.name} ({buyer.company_name})
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
+                {buyersError && (
+                  <p className="text-sm text-red-600 mt-1">{buyersError}</p>
+                )}
+                {!isLoadingBuyers && !buyersError && buyers.length > 0 && (
+                  <p className="text-sm text-gray-600 mt-1">{buyers.length} buyer(s) available</p>
+                )}
               </div>
             </div>
           </div>
@@ -872,6 +924,8 @@ export function SuppliersConfirmed() {
                 setIsSendDialogOpen(false)
                 setSelectedBuyer("")
                 setSelectedOrder(null)
+                setBuyersError("")
+                setBuyers([])
               }}
               disabled={isSending}
             >

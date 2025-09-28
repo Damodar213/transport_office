@@ -333,8 +333,8 @@ export function ManualOrders() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredOrders.map((order) => (
-                    <TableRow key={order.id}>
+                  filteredOrders.map((order, index) => (
+                    <TableRow key={`${order.id}-${order.order_number}-${index}`}>
                       <TableCell className="font-medium">{order.order_number}</TableCell>
                       <TableCell>{order.load_type}</TableCell>
                       <TableCell>{order.estimated_tons} tons</TableCell>
