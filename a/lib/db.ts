@@ -13,18 +13,24 @@ export function getPool(): Pool | null {
   if (pool) return pool
   
   try {
-    // Configure connection pool with Railway-friendly settings
+    // Configure connection pool optimized for serverless (Vercel)
+    const isProduction = process.env.NODE_ENV === 'production'
+    
     pool = new Pool({ 
       connectionString: url, 
       ssl: getSslOption(url),
-      max: 1, // Single connection to avoid conflicts with multiple deployments
+      // Serverless-optimized settings
+      max: isProduction ? 3 : 1, // Allow more connections in production
       min: 0, // No minimum connections to maintain
-      idleTimeoutMillis: 5000, // Faster cleanup
-      connectionTimeoutMillis: 5000, // Faster timeout
-      maxUses: 50, // Reduced to free connections faster
-      statement_timeout: 5000, // Reduced statement timeout
-      query_timeout: 5000, // Reduced query timeout
+      idleTimeoutMillis: isProduction ? 30000 : 10000, // Longer idle timeout for production
+      connectionTimeoutMillis: isProduction ? 15000 : 10000, // Longer connection timeout
+      maxUses: isProduction ? 100 : 50, // More uses before recycling connection
+      statement_timeout: isProduction ? 30000 : 10000, // Longer statement timeout
+      query_timeout: isProduction ? 30000 : 10000, // Longer query timeout
       allowExitOnIdle: true, // Allow connections to close when idle
+      // Additional serverless optimizations
+      keepAlive: true,
+      keepAliveInitialDelayMillis: 0,
     })
     
     // Handle pool errors with better error handling
@@ -55,7 +61,8 @@ export function getPool(): Pool | null {
 
 export async function dbQuery<T = any>(sql: string, params: any[] = []): Promise<{ rows: T[] }> {
   let retryCount = 0
-  const maxRetries = 5 // Increased retries
+  const isProduction = process.env.NODE_ENV === 'production'
+  const maxRetries = isProduction ? 3 : 5 // Fewer retries in production to avoid timeouts
   
   while (retryCount <= maxRetries) {
     const p = getPool()
@@ -77,14 +84,20 @@ export async function dbQuery<T = any>(sql: string, params: any[] = []): Promise
         error.message.includes('ECONNRESET') ||
         error.message.includes('server closed') ||
         error.message.includes('connection terminated') ||
-        error.message.includes('too many connections')
+        error.message.includes('too many connections') ||
+        error.message.includes('Client has encountered a connection error')
       )) {
         if (retryCount < maxRetries) {
           retryCount++
-          console.log(`Retrying database query in ${retryCount * 500}ms...`)
-          await new Promise(resolve => setTimeout(resolve, retryCount * 500))
-          // Reset pool on connection errors
-          if (retryCount > 2) {
+          // Exponential backoff with jitter for serverless
+          const baseDelay = isProduction ? 200 : 500
+          const delay = baseDelay * Math.pow(2, retryCount) + Math.random() * 100
+          console.log(`Retrying database query in ${Math.round(delay)}ms...`)
+          await new Promise(resolve => setTimeout(resolve, delay))
+          
+          // Reset pool on connection errors (less aggressive in production)
+          if (retryCount > (isProduction ? 1 : 2)) {
+            console.log("Resetting database pool due to connection errors")
             pool = null
           }
           continue
@@ -123,16 +136,19 @@ function getSslOption(url: string) {
   }
 }
 
-// Add connection health check function
+// Add connection health check function optimized for serverless
 export async function checkDatabaseHealth(): Promise<{ healthy: boolean; message: string }> {
   try {
-    const result = await dbQuery("SELECT 1 as health_check")
+    // Use a simple, fast query for health check
+    const result = await dbQuery("SELECT 1 as health_check", [])
     if (result.rows.length > 0 && result.rows[0].health_check === 1) {
       return { healthy: true, message: "Database connection is healthy" }
     } else {
       return { healthy: false, message: "Database query returned unexpected result" }
     }
   } catch (error) {
+    // Reset pool on health check failure
+    pool = null
     return { 
       healthy: false, 
       message: `Database health check failed: ${error instanceof Error ? error.message : 'Unknown error'}` 
