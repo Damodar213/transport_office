@@ -23,7 +23,7 @@ export async function GET(request: Request) {
 
     const supplierId = session.userIdString
 
-    // Get all orders sent to this supplier (buyer requests, manual orders, and assigned transport orders)
+    // First, get all orders for this supplier
     const result = await dbQuery(`
       -- Get buyer request orders
       SELECT 
@@ -63,25 +63,16 @@ export async function GET(request: Request) {
         NULL as body_type,
         NULL as driver_name,
         NULL as admin_notes,
-        CASE 
-          WHEN ar.id IS NOT NULL AND ar.supplier_id = os.supplier_id THEN 'accepted'
-          WHEN EXISTS(
-            SELECT 1 FROM accepted_requests ar2 
-            JOIN order_submissions os2 ON ar2.order_submission_id = os2.id 
-            WHERE os2.order_id = os.order_id AND ar2.supplier_id != os.supplier_id
-          ) THEN 'accepted_by_other'
-          ELSE os.status 
-        END as effective_status
+        os.status as effective_status
       FROM order_submissions os
       LEFT JOIN buyer_requests br ON os.order_id = br.id
       LEFT JOIN buyers b ON br.buyer_id = b.user_id
       LEFT JOIN users u ON br.buyer_id = u.user_id
-      LEFT JOIN accepted_requests ar ON os.id = ar.order_submission_id AND ar.supplier_id = os.supplier_id
       WHERE os.supplier_id = $1 AND br.id IS NOT NULL
       
       UNION ALL
       
-      -- Get manual orders (schema-compatible mapping)
+      -- Get manual orders
       SELECT 
         mos.id as submission_id,
         mos.order_id,
@@ -119,18 +110,9 @@ export async function GET(request: Request) {
         NULL as body_type,
         NULL as driver_name,
         NULL as admin_notes,
-        CASE 
-          WHEN ar.id IS NOT NULL AND ar.supplier_id = mos.supplier_id THEN 'accepted'
-          WHEN EXISTS(
-            SELECT 1 FROM accepted_requests ar2 
-            JOIN manual_order_submissions mos2 ON ar2.order_submission_id = mos2.id 
-            WHERE mos2.order_id = mos.order_id AND ar2.supplier_id != mos.supplier_id
-          ) THEN 'accepted_by_other'
-          ELSE mos.status 
-        END as effective_status
+        mos.status as effective_status
       FROM manual_order_submissions mos
       LEFT JOIN manual_orders mo ON mos.order_id = mo.id
-      LEFT JOIN accepted_requests ar ON mos.id = ar.order_submission_id AND ar.supplier_id = mos.supplier_id
       WHERE mos.supplier_id = $1 AND mo.id IS NOT NULL
       
       UNION ALL
@@ -181,8 +163,43 @@ export async function GET(request: Request) {
       ORDER BY submission_created_at DESC
     `, [supplierId])
 
+    // Now, for each order, determine the correct effective_status
+    const ordersWithStatus = await Promise.all(
+      result.rows.map(async (row: any) => {
+        let effectiveStatus = row.effective_status
+
+        // Check if this order was accepted by this supplier
+        const acceptedByThisSupplier = await dbQuery(
+          "SELECT id FROM accepted_requests WHERE order_submission_id = $1 AND supplier_id = $2",
+          [row.submission_id, supplierId]
+        )
+
+        if (acceptedByThisSupplier.rows.length > 0) {
+          effectiveStatus = 'accepted'
+        } else {
+          // Check if this order was accepted by any other supplier
+          const acceptedByOthers = await dbQuery(
+            `SELECT 1 FROM accepted_requests ar 
+             JOIN ${row.order_type === 'buyer_request' ? 'order_submissions' : 'manual_order_submissions'} os 
+             ON ar.order_submission_id = os.id 
+             WHERE os.order_id = $1 AND ar.supplier_id != $2`,
+            [row.order_id, supplierId]
+          )
+
+          if (acceptedByOthers.rows.length > 0) {
+            effectiveStatus = 'accepted_by_other'
+          }
+        }
+
+        return {
+          ...row,
+          effective_status: effectiveStatus
+        }
+      })
+    )
+
     // Transform the result to match the expected interface
-    const transformedOrders = result.rows.map((row: any) => ({
+    const transformedOrders = ordersWithStatus.map((row: any) => ({
       ...row,
       id: row.submission_id, // Map submission_id to id for frontend compatibility
       status: row.submission_status, // Use submission_status for filtering pending orders
