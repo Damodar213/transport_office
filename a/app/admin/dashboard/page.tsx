@@ -302,7 +302,6 @@ export default function AdminDashboard() {
             <div className="flex items-center gap-4">
               <div>
                 <h1 className="text-2xl font-bold text-foreground">Mahalaxmi Transport</h1>
-                <p className="text-sm text-muted-foreground">Management System</p>
               </div>
             </div>
             <div className="flex items-center justify-start ml-8">
