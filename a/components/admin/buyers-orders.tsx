@@ -310,6 +310,11 @@ export function BuyersOrders() {
       }
 
       // Send to each supplier via WhatsApp (if they have phone numbers)
+      console.log("DEBUG: suppliersWithPhones:", suppliersWithPhones)
+      console.log("DEBUG: suppliersWithPhones.length:", suppliersWithPhones.length)
+      console.log("DEBUG: selectedSuppliers:", selectedSuppliers)
+      console.log("DEBUG: suppliers:", suppliers)
+      
       if (suppliersWithPhones.length > 0) {
         // Show confirmation for multiple WhatsApp windows
         const shouldOpenWhatsApp = window.confirm(
@@ -321,11 +326,14 @@ export function BuyersOrders() {
         if (shouldOpenWhatsApp) {
           // Enhanced approach for production - open one at a time with user interaction
           const openWhatsAppMessages = async () => {
+            console.log("DEBUG: Starting to open WhatsApp messages for", suppliersWithPhones.length, "suppliers")
             for (let i = 0; i < suppliersWithPhones.length; i++) {
               const supplier = suppliersWithPhones[i]
+              console.log("DEBUG: Processing supplier", i + 1, ":", supplier)
               const phoneNumber = (supplier.whatsapp || supplier.mobile).replace(/[^0-9]/g, "")
               const cleanPhoneNumber = phoneNumber.startsWith("91") ? phoneNumber.substring(2) : phoneNumber
               const whatsappUrl = `https://wa.me/91${cleanPhoneNumber}?text=${encodedMessage}`
+              console.log("DEBUG: WhatsApp URL for supplier", i + 1, ":", whatsappUrl)
               
               // Show progress and open WhatsApp with longer delay
               if (i === 0) {
