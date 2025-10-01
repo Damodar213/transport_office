@@ -314,12 +314,12 @@ export function BuyersOrders() {
         // Show confirmation for multiple WhatsApp windows
         const shouldOpenWhatsApp = window.confirm(
           `This will open ${suppliersWithPhones.length} WhatsApp windows (one for each supplier). ` +
-          `Each window will open with a 1-second delay to avoid browser blocking. ` +
+          `Each window will open with a 2-second delay to avoid browser blocking. ` +
           `Do you want to continue?`
         )
         
         if (shouldOpenWhatsApp) {
-          // Use a more reliable approach to open multiple WhatsApp windows
+          // Enhanced approach for production - open one at a time with user interaction
           const openWhatsAppMessages = async () => {
             for (let i = 0; i < suppliersWithPhones.length; i++) {
               const supplier = suppliersWithPhones[i]
@@ -327,10 +327,34 @@ export function BuyersOrders() {
               const cleanPhoneNumber = phoneNumber.startsWith("91") ? phoneNumber.substring(2) : phoneNumber
               const whatsappUrl = `https://wa.me/91${cleanPhoneNumber}?text=${encodedMessage}`
               
-              // Open WhatsApp with delay between each window
-              setTimeout(() => {
+              // Show progress and open WhatsApp with longer delay
+              if (i === 0) {
+                // First window opens immediately
                 window.open(whatsappUrl, "_blank")
-              }, i * 1000) // 1 second delay between each window
+              } else {
+                // Subsequent windows open with longer delay and user notification
+                setTimeout(() => {
+                  // Show notification for each window
+                  toast({
+                    title: `Opening WhatsApp ${i + 1}/${suppliersWithPhones.length}`,
+                    description: `Opening WhatsApp for ${supplier.companyName || supplier.contactPerson}`,
+                    duration: 2000
+                  })
+                  
+                  // Open the window
+                  const newWindow = window.open(whatsappUrl, "_blank")
+                  
+                  // Check if popup was blocked
+                  if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+                    toast({
+                      title: "Popup Blocked",
+                      description: `WhatsApp popup was blocked for ${supplier.companyName || supplier.contactPerson}. Please allow popups and try again.`,
+                      variant: "destructive",
+                      duration: 5000
+                    })
+                  }
+                }, i * 2000) // 2 second delay between each window
+              }
             }
           }
           

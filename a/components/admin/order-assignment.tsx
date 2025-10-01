@@ -510,7 +510,7 @@ export function OrderAssignment() {
           // Show confirmation for multiple WhatsApp windows
           const shouldOpenWhatsApp = window.confirm(
             `This will open ${data.sentOrders.length} WhatsApp windows (one for each supplier). ` +
-            `Each window will open with a 1-second delay to avoid browser blocking. ` +
+            `Each window will open with a 2-second delay to avoid browser blocking. ` +
             `Do you want to continue?`
           )
           
@@ -521,10 +521,34 @@ export function OrderAssignment() {
                 if (order.whatsapp) {
                   const whatsappUrl = `https://wa.me/${order.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(order.message)}`
                   
-                  // Open WhatsApp with delay between each window
-                  setTimeout(() => {
+                  // Enhanced approach for production
+                  if (i === 0) {
+                    // First window opens immediately
                     window.open(whatsappUrl, '_blank')
-                  }, i * 1000) // 1 second delay between each window
+                  } else {
+                    // Subsequent windows open with longer delay and user notification
+                    setTimeout(() => {
+                      // Show notification for each window
+                      toast({
+                        title: `Opening WhatsApp ${i + 1}/${data.sentOrders.length}`,
+                        description: `Opening WhatsApp for ${order.companyName || order.contactPerson}`,
+                        duration: 2000
+                      })
+                      
+                      // Open the window
+                      const newWindow = window.open(whatsappUrl, '_blank')
+                      
+                      // Check if popup was blocked
+                      if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+                        toast({
+                          title: "Popup Blocked",
+                          description: `WhatsApp popup was blocked for ${order.companyName || order.contactPerson}. Please allow popups and try again.`,
+                          variant: "destructive",
+                          duration: 5000
+                        })
+                      }
+                    }, i * 2000) // 2 second delay between each window
+                  }
                 }
               }
             }
@@ -535,7 +559,7 @@ export function OrderAssignment() {
             // Show info message that WhatsApp has been opened
             toast({
               title: "WhatsApp Opened",
-              description: `WhatsApp will be opened for ${data.sentOrders.length} supplier(s) with 1-second delays. Order status has been updated to "Sent".`,
+              description: `WhatsApp will be opened for ${data.sentOrders.length} supplier(s) with 2-second delays. Order status has been updated to "Sent".`,
               duration: 5000
             })
           } else {
