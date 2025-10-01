@@ -1,69 +1,53 @@
 import { NextResponse } from "next/server"
-import { checkDatabaseHealth, getPool, dbQuery } from "@/lib/db"
-import { config } from "@/lib/config"
-import { createApiResponse, createApiError } from "@/lib/api-utils"
+import { dbQuery, getPool } from "@/lib/db"
 
 export async function GET() {
   try {
     console.log("Testing database connection...")
     
-    // Check if database is configured
-    if (!config.database.enabled) {
-      return createApiError(
-        "Database not configured",
-        "DATABASE_URL environment variable is not set",
-        503
-      )
-    }
-    
+    // Check if pool is available
     const pool = getPool()
     if (!pool) {
-      return createApiError(
-        "Database pool not available",
-        "Failed to create database connection pool",
-        503
-      )
+      return NextResponse.json({ 
+        error: "Database pool not available",
+        message: "DATABASE_URL might be missing or invalid"
+      }, { status: 500 })
     }
-
-    // Test basic connection with health check
-    const health = await checkDatabaseHealth()
     
-    if (health.healthy) {
-      // Get additional database info
-      const versionResult = await dbQuery("SELECT version()")
-      const tablesResult = await dbQuery(`
-        SELECT table_name 
-        FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        LIMIT 10
-      `)
-      
-      return createApiResponse({
-        connected: true,
-        message: "Database connection successful",
-        health: health.message,
-        version: versionResult.rows[0]?.version?.split(' ')[0] + ' ' + versionResult.rows[0]?.version?.split(' ')[1],
-        tables: tablesResult.rows.length,
-        config: {
-          databaseEnabled: config.database.enabled,
-          nodeEnv: config.app.nodeEnv,
-          websiteUrl: config.app.websiteUrl
-        }
-      }, "Database connection test successful")
-    } else {
-      return createApiError(
-        "Database health check failed",
-        health.message,
-        503
-      )
-    }
-
+    // Test basic connection
+    const result = await dbQuery("SELECT 1 as test")
+    console.log("Basic connection test result:", result.rows[0])
+    
+    // Test users table access
+    const usersResult = await dbQuery("SELECT COUNT(*) as count FROM users")
+    console.log("Users table access result:", usersResult.rows[0])
+    
+    // Test specific user query (like your app does)
+    const userQuery = await dbQuery(`
+      SELECT u.id, u.user_id as "userId", u.role, u.email, u.name, u.mobile
+      FROM users u
+      WHERE u.role = $1
+      LIMIT 5
+    `, ['supplier'])
+    
+    console.log("User query result:", userQuery.rows.length, "rows returned")
+    
+    return NextResponse.json({
+      success: true,
+      message: "Database connection is working",
+      results: {
+        basicTest: result.rows[0],
+        usersCount: usersResult.rows[0],
+        sampleUsers: userQuery.rows
+      }
+    })
+    
   } catch (error) {
-    console.error("Database connection test failed:", error)
-    return createApiError(
-      "Database connection failed",
-      error instanceof Error ? error.message : "Unknown error",
-      503
-    )
+    console.error("Database test failed:", error)
+    return NextResponse.json({ 
+      error: "Database test failed",
+      message: error instanceof Error ? error.message : "Unknown error",
+      details: error
+    }, { status: 500 })
   }
 }
