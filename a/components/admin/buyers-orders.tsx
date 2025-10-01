@@ -310,16 +310,34 @@ export function BuyersOrders() {
       }
 
       // Send to each supplier via WhatsApp (if they have phone numbers)
-      suppliersWithPhones.forEach((supplier, index) => {
-        const phoneNumber = (supplier.whatsapp || supplier.mobile).replace(/[^0-9]/g, "")
-        const cleanPhoneNumber = phoneNumber.startsWith("91") ? phoneNumber.substring(2) : phoneNumber
-        const whatsappUrl = `https://wa.me/91${cleanPhoneNumber}?text=${encodedMessage}`
+      if (suppliersWithPhones.length > 0) {
+        // Show confirmation for multiple WhatsApp windows
+        const shouldOpenWhatsApp = window.confirm(
+          `This will open ${suppliersWithPhones.length} WhatsApp windows (one for each supplier). ` +
+          `Each window will open with a 1-second delay to avoid browser blocking. ` +
+          `Do you want to continue?`
+        )
         
-        // Open WhatsApp with a slight delay to avoid browser blocking multiple windows
-        setTimeout(() => {
-          window.open(whatsappUrl, "_blank")
-        }, index * 500)
-      })
+        if (shouldOpenWhatsApp) {
+          // Use a more reliable approach to open multiple WhatsApp windows
+          const openWhatsAppMessages = async () => {
+            for (let i = 0; i < suppliersWithPhones.length; i++) {
+              const supplier = suppliersWithPhones[i]
+              const phoneNumber = (supplier.whatsapp || supplier.mobile).replace(/[^0-9]/g, "")
+              const cleanPhoneNumber = phoneNumber.startsWith("91") ? phoneNumber.substring(2) : phoneNumber
+              const whatsappUrl = `https://wa.me/91${cleanPhoneNumber}?text=${encodedMessage}`
+              
+              // Open WhatsApp with delay between each window
+              setTimeout(() => {
+                window.open(whatsappUrl, "_blank")
+              }, i * 1000) // 1 second delay between each window
+            }
+          }
+          
+          // Start opening WhatsApp messages
+          openWhatsAppMessages()
+        }
+      }
 
       toast({
         title: "Success",

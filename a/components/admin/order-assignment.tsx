@@ -505,21 +505,47 @@ export function OrderAssignment() {
           description: `Order sent to ${selectedSuppliers.length} suppliers successfully`
         })
         
-        // Open WhatsApp for each supplier
+        // Open WhatsApp for each supplier with proper delays
         if (data.sentOrders && data.sentOrders.length > 0) {
-          data.sentOrders.forEach((order: any) => {
-            if (order.whatsapp) {
-              const whatsappUrl = `https://wa.me/${order.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(order.message)}`
-              window.open(whatsappUrl, '_blank')
-            }
-          })
+          // Show confirmation for multiple WhatsApp windows
+          const shouldOpenWhatsApp = window.confirm(
+            `This will open ${data.sentOrders.length} WhatsApp windows (one for each supplier). ` +
+            `Each window will open with a 1-second delay to avoid browser blocking. ` +
+            `Do you want to continue?`
+          )
           
-          // Show info message that WhatsApp has been opened
-          toast({
-            title: "WhatsApp Opened",
-            description: `WhatsApp has been opened for ${data.sentOrders.length} supplier(s). Order status has been updated to "Sent".`,
-            duration: 5000
-          })
+          if (shouldOpenWhatsApp) {
+            const openWhatsAppMessages = async () => {
+              for (let i = 0; i < data.sentOrders.length; i++) {
+                const order = data.sentOrders[i]
+                if (order.whatsapp) {
+                  const whatsappUrl = `https://wa.me/${order.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(order.message)}`
+                  
+                  // Open WhatsApp with delay between each window
+                  setTimeout(() => {
+                    window.open(whatsappUrl, '_blank')
+                  }, i * 1000) // 1 second delay between each window
+                }
+              }
+            }
+            
+            // Start opening WhatsApp messages
+            openWhatsAppMessages()
+            
+            // Show info message that WhatsApp has been opened
+            toast({
+              title: "WhatsApp Opened",
+              description: `WhatsApp will be opened for ${data.sentOrders.length} supplier(s) with 1-second delays. Order status has been updated to "Sent".`,
+              duration: 5000
+            })
+          } else {
+            // Show info message that WhatsApp was skipped
+            toast({
+              title: "WhatsApp Skipped",
+              description: `Order sent to ${data.sentOrders.length} supplier(s) successfully. WhatsApp opening was cancelled by user.`,
+              duration: 5000
+            })
+          }
         }
         
         // Refresh requests
