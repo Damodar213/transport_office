@@ -540,11 +540,21 @@ export function OrderAssignment() {
                       
                       // Check if popup was blocked
                       if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-                        toast({
-                          title: "Popup Blocked",
-                          description: `WhatsApp popup was blocked for ${order.companyName || order.contactPerson}. Please allow popups and try again.`,
-                          variant: "destructive",
-                          duration: 5000
+                        // Show WhatsApp URL for manual copy-paste
+                        navigator.clipboard.writeText(whatsappUrl).then(() => {
+                          toast({
+                            title: "Popup Blocked - URL Copied",
+                            description: `WhatsApp popup was blocked. WhatsApp URL copied to clipboard for ${order.companyName || order.contactPerson}. Paste it in a new tab.`,
+                            variant: "destructive",
+                            duration: 8000
+                          })
+                        }).catch(() => {
+                          toast({
+                            title: "Popup Blocked",
+                            description: `WhatsApp popup was blocked for ${order.companyName || order.contactPerson}. Please allow popups and try again.`,
+                            variant: "destructive",
+                            duration: 5000
+                          })
                         })
                       }
                     }, i * 2000) // 2 second delay between each window
