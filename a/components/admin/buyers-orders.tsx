@@ -213,6 +213,17 @@ export function BuyersOrders() {
       const suppliersWithPhones = suppliers.filter(s => 
         newSuppliers.includes(s.id) && (s.whatsapp || s.mobile)
       )
+      
+      // Debug: Show all suppliers and their phone numbers
+      console.log("DEBUG: All suppliers:", suppliers)
+      console.log("DEBUG: Suppliers with phones:", suppliersWithPhones)
+      console.log("DEBUG: Phone number check:", suppliers.map(s => ({
+        id: s.id,
+        companyName: s.companyName,
+        whatsapp: s.whatsapp,
+        mobile: s.mobile,
+        hasPhone: !!(s.whatsapp || s.mobile)
+      })))
 
       // Create WhatsApp message
       const message = createWhatsAppMessage(selectedOrder)
