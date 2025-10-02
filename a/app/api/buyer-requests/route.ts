@@ -196,7 +196,7 @@ export async function POST(request: Request) {
       console.log(`Created buyer entry for user_id: ${buyer_id}`)
     }
 
-    // Generate unique order number in simple format (ORD-1, ORD-2, ORD-3, etc.)
+    // Generate sequential order number (MAX + 1, no gap filling)
     const orderNumberResult = await dbQuery(`
       SELECT COALESCE(MAX(CAST(SUBSTRING(order_number FROM 5) AS INTEGER)), 0) + 1 as next_number
       FROM buyer_requests

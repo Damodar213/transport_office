@@ -62,8 +62,8 @@ export async function POST(request: NextRequest) {
     // Create a general manual order without specific supplier assignment
     console.log("Creating manual order without supplier assignment")
 
-    // Generate unique order number for manual orders
-    console.log("Generating manual order number...")
+    // Generate sequential manual order number (MAX + 1, no gap filling)
+    console.log("Generating sequential manual order number...")
     const orderNumberResult = await dbQuery(`
       SELECT COALESCE(MAX(CAST(SUBSTRING(order_number FROM 4) AS INTEGER)), 0) + 1 as next_number
       FROM manual_orders
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     
     const nextNumber = orderNumberResult.rows[0].next_number
     const orderNumber = `MO-${nextNumber}`
-    console.log("Generated manual order number:", orderNumber)
+    console.log("Generated sequential manual order number:", orderNumber)
 
     // Ensure manual_orders table exists with correct structure
     await dbQuery(`
@@ -289,7 +289,7 @@ function createWhatsAppMessage(orderDetails: any) {
   }
 
   // Get website URL from environment variable
-  const websiteUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000'
+  const websiteUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://mahalaxmi-transport.vercel.app'
   
   return `🚛 *NEW TRANSPORT ORDER AVAILABLE*
 

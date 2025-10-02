@@ -228,9 +228,13 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
+    // Generate sequential ID (MAX + 1, no gap filling)
+    const maxId = orders.length > 0 ? Math.max(...orders.map(order => order.id)) : 0
+    const newId = maxId + 1
+
     const newOrder: TransportOrder = {
-      id: nextOrderId++,
-      orderNumber: `ORD-${nextOrderId - 1}`,
+      id: newId,
+      orderNumber: `ORD-${newId}`,
       status: "draft",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
