@@ -96,3 +96,10 @@ NEXT_PUBLIC_WEBSITE_URL=https://mahalaxmitransport.com
 ✅ **Easy domain changes**
 ✅ **Works across all deployment platforms**
 ✅ **Automatic fallback for development**
+
+## Troubleshooting
+
+If deployed WhatsApp messages still show localhost:3000:
+1. Verify environment variable is set in Vercel
+2. Redeploy the application to pick up new environment variables
+3. Test WhatsApp messages after redeployment
