@@ -414,7 +414,10 @@ export function BuyersOrders() {
   // Create WhatsApp message for order
   const createWhatsAppMessage = (order: BuyersOrder) => {
     // Get website URL from environment variable
-    const websiteUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000'
+    // Force Vercel URL for production deployment
+    const websiteUrl = process.env.VERCEL_ENV === 'production' 
+      ? 'https://mahalaxmi-transport.vercel.app'
+      : (process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000')
     
     return `🚛 *New Transport Order Available*
 

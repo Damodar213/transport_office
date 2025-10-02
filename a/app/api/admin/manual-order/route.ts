@@ -289,7 +289,10 @@ function createWhatsAppMessage(orderDetails: any) {
   }
 
   // Get website URL from environment variable
-  const websiteUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://mahalaxmi-transport.vercel.app'
+  // Force Vercel URL for production deployment
+  const websiteUrl = process.env.VERCEL_ENV === 'production' 
+    ? 'https://mahalaxmi-transport.vercel.app'
+    : (process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://mahalaxmi-transport.vercel.app')
   
   return `🚛 *NEW TRANSPORT ORDER AVAILABLE*
 
