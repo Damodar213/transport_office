@@ -287,10 +287,14 @@ function createWhatsAppMessage(orderDetails: any) {
   } else if (deliveryPlace) {
     toLocationStr = deliveryPlace
   }
+
+  // Get website URL from environment variable
+  const websiteUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000'
   
   return `🚛 *NEW TRANSPORT ORDER AVAILABLE*
 
 📋 *Order Details:*
+• Order: ${orderNumber}
 • Load Type: ${loadType}
 • Weight: ${loadInfo}
 • From: ${fromLocationStr}
@@ -299,6 +303,9 @@ ${requiredDate ? `• Required Date: ${requiredDate}` : ''}
 
 📝 *Special Instructions:*
 ${specialInstructions || 'Manual order created by admin'}
+
+🌐 *Access Your Supplier Dashboard:*
+${websiteUrl}/supplier/dashboard
 
 Please review and respond if you can handle this transport order.
 

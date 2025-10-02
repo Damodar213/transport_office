@@ -413,12 +413,18 @@ export function BuyersOrders() {
 
   // Create WhatsApp message for order
   const createWhatsAppMessage = (order: BuyersOrder) => {
+    // Get website URL from environment variable
+    const websiteUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000'
+    
     return `🚛 *New Transport Order Available*
 
 *Order:* ${order.order_number}
 *Load Type:* ${order.load_type}
 *Route:* ${order.from_place} → ${order.to_place}
 *Status:* Submitted
+
+🌐 *Access Your Supplier Dashboard:*
+${websiteUrl}/supplier/dashboard
 
 *Contact for more details:*
 *MAHALAXMI TRANSPORT*

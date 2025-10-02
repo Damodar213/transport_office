@@ -49,56 +49,9 @@ export interface TransportOrder {
 }
 
 // Mock database - replace with actual database implementation
-const orders: TransportOrder[] = [
-  {
-    id: 1,
-    orderNumber: "ORD-2024-001",
-    buyerId: "BUY001",
-    buyerCompany: "ABC Traders",
-    supplierId: "SUP001",
-    supplierCompany: "Kumar Transport Co.",
-    driverId: 1,
-    vehicleId: 1,
-    loadType: "Rice",
-    fromLocation: "Bangalore",
-    toLocation: "Chennai",
-    estimatedTons: 25,
-    deliveryPlace: "Chennai Port",
-    state: "Tamil Nadu",
-    district: "Chennai",
-    taluk: "Chennai",
-    status: "in_transit",
-    adminNotes: "Priority delivery",
-    assignedBy: "admin",
-    assignedAt: "2024-02-10 10:30",
-    confirmedAt: "2024-02-10 14:00",
-    pickupDate: "2024-02-11 08:00",
-    estimatedDeliveryDate: "2024-02-12 18:00",
-    rate: 15000,
-    distance: 350,
-    createdAt: "2024-02-10 09:15",
-    updatedAt: "2024-02-11 08:00",
-  },
-  {
-    id: 2,
-    orderNumber: "ORD-2024-002",
-    buyerId: "BUY002",
-    buyerCompany: "XYZ Industries",
-    loadType: "Wheat",
-    fromLocation: "Mumbai",
-    toLocation: "Pune",
-    estimatedTons: 15,
-    deliveryPlace: "Pune Market",
-    state: "Maharashtra",
-    district: "Pune",
-    taluk: "Pune",
-    status: "pending",
-    createdAt: "2024-02-11 11:20",
-    updatedAt: "2024-02-11 11:20",
-  },
-]
+const orders: TransportOrder[] = []
 
-let nextOrderId = 3
+let nextOrderId = 1
 
 // GET - Fetch orders with filtering
 export async function GET(request: NextRequest) {
@@ -277,7 +230,7 @@ export async function POST(request: NextRequest) {
 
     const newOrder: TransportOrder = {
       id: nextOrderId++,
-      orderNumber: `ORD-${new Date().getFullYear()}-${String(nextOrderId - 1).padStart(3, "0")}`,
+      orderNumber: `ORD-${nextOrderId - 1}`,
       status: "draft",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

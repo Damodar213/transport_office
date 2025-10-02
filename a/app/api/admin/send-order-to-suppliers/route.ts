@@ -69,12 +69,18 @@ function createWhatsAppMessage(orderDetails: any) {
   const loadInfo = orderDetails.loadType || "Load"
   const route = `${orderDetails.fromPlace || "From"} → ${orderDetails.toPlace || "To"}`
   
+  // Get website URL from environment variable
+  const websiteUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000'
+  
   return `🚛 *New Transport Order Available*
 
 *Order:* ${orderDetails.orderNumber || "N/A"}
 *Load:* ${loadInfo}
 *Route:* ${route}
 *Status:* Submitted
+
+🌐 *Access Your Supplier Dashboard:*
+${websiteUrl}/supplier/dashboard
 
 *Contact for more details:*
 *MAHALAXMI TRANSPORT*

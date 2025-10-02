@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { Shield, Users, FileCheck, Truck, Package, LogOut, Bell, Settings, ClipboardList, TrendingUp, TrendingDown, Minus, ShoppingCart } from "lucide-react"
+import { Shield, Users, FileCheck, Truck, Package, LogOut, Bell, Settings, ClipboardList, TrendingUp, TrendingDown, Minus, ShoppingCart, RefreshCw } from "lucide-react"
 import { UserManagement } from "@/components/admin/user-management"
 import { DocumentVerification } from "@/components/admin/document-verification"
 import { OrderAssignment } from "@/components/admin/order-assignment"
@@ -127,12 +127,20 @@ export default function AdminDashboard() {
       setIsLoadingStats(true)
       setError(null)
       
-      const response = await fetch("/api/admin/dashboard-stats")
+      // Add cache-busting to ensure fresh data
+      const timestamp = new Date().getTime()
+      const response = await fetch(`/api/admin/dashboard-stats?t=${timestamp}`, {
+        cache: 'no-cache',
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      })
       if (!response.ok) {
         throw new Error("Failed to fetch dashboard stats")
       }
       
       const data = await response.json()
+      console.log("Fresh dashboard stats loaded:", data.stats)
       setStats(data.stats)
     } catch (err) {
       console.error("Error fetching dashboard stats:", err)
@@ -176,6 +184,14 @@ export default function AdminDashboard() {
     if (isAuthorized) {
       fetchDashboardStats()
       fetchNotificationCount()
+      
+      // Set up auto-refresh every 30 seconds
+      const interval = setInterval(() => {
+        fetchDashboardStats()
+        fetchNotificationCount()
+      }, 30000)
+      
+      return () => clearInterval(interval)
     }
   }, [isAuthorized])
 
@@ -327,7 +343,8 @@ export default function AdminDashboard() {
                 fetchDashboardStats()
                 fetchNotificationCount()
               }} disabled={isLoadingStats}>
-                {isLoadingStats ? "Refreshing..." : "Refresh Stats"}
+                <RefreshCw className={`h-4 w-4 mr-2 ${isLoadingStats ? 'animate-spin' : ''}`} />
+                {isLoadingStats ? "Refreshing..." : "Refresh"}
               </Button>
               <Button 
                 variant="outline" 

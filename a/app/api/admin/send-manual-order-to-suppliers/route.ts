@@ -232,9 +232,13 @@ function createManualOrderWhatsAppMessage(orderDetails: any) {
     toLocationStr = toParts.join(', ')
   }
 
+  // Get website URL from environment variable
+  const websiteUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000'
+
   return `🚛 *NEW TRANSPORT ORDER AVAILABLE*
 
 📋 *Order Details:*
+• Order: ${orderDetails.orderNumber || 'Manual Order'}
 • Load Type: ${loadInfo}
 • Weight: ${loadInfoStr || 'N/A'}
 • From: ${fromLocationStr}
@@ -243,6 +247,9 @@ function createManualOrderWhatsAppMessage(orderDetails: any) {
 
 📝 *Special Instructions:*
 ${specialInstructions}
+
+🌐 *Access Your Supplier Dashboard:*
+${websiteUrl}/supplier/dashboard
 
 Please review and respond if you can handle this transport order.
 
